@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="action_open">Abrir</string>
+    <string name="empty_hint">Abrí un archivo .rnote para verlo.</string>
+    <string name="loading">Cargando…</string>
+    <string name="open_failed">No se pudo abrir el archivo:\n%1$s</string>
+</resources>
