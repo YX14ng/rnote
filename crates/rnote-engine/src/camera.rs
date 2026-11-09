@@ -122,6 +122,18 @@ impl Camera {
         widget_flags
     }
 
+    /// Set the offset as given, without keeping the view within the document.
+    ///
+    /// For frontends that place the view themselves, e.g. centering a document smaller than
+    /// the view: the camera must show exactly what the screen shows, since erasing and the
+    /// document's growth go by its viewport.
+    pub fn set_offset_unclamped(&mut self, offset: Vector2) -> WidgetFlags {
+        let mut widget_flags = WidgetFlags::default();
+        self.offset = offset;
+        widget_flags.view_modified = true;
+        widget_flags
+    }
+
     /// The minimum and maximum surface bounds (document including overshoot) in surface coordinate space.
     pub fn surface_mins_maxs(&self, doc: &Document) -> (Vector2, Vector2) {
         let total_zoom = self.total_zoom();

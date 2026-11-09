@@ -9,7 +9,7 @@ import kotlin.math.roundToInt
  * flinging, always keeping the document on screen.
  *
  * Every change is clamped, and the zoom stays within the engine's limits: the engine's camera
- * must show exactly what the screen shows, since the eraser only looks at strokes inside it
+ * is set to exactly what the screen shows, since the eraser only looks at strokes inside it
  * and infinite documents grow around it. Callers redraw after calling a mutating method.
  */
 internal class ViewportController(context: Context) {
@@ -159,29 +159,36 @@ internal class ViewportController(context: Context) {
     /**
      * Where the view's top-left corner may be at [zoom], in document coordinates.
      *
-     * Mirrors `Camera::surface_mins_maxs` and `Camera::set_offset` in rnote-engine, which
-     * clamp the engine's camera: if the two disagreed, the eraser would look at other strokes
-     * than the ones on screen, and infinite documents would grow around the wrong place.
+     * Along an axis where the document fits on screen it is centered; otherwise the view may
+     * go past its edges as far as the desktop app lets it (`Camera::surface_mins_maxs`). The
+     * engine's camera takes the result as is, so both show the same area.
      */
     private fun offsetRange(zoom: Double): OffsetRange? {
         val b = bounds ?: return null
         val overshoot = OVERSHOOT_PX / zoom
-        val (minX, maxX) = when (layout) {
-            DocumentLayout.FIXED_SIZE, DocumentLayout.CONTINUOUS_VERTICAL -> b.left - overshoot to b.right + overshoot
-            DocumentLayout.SEMI_INFINITE -> b.left - overshoot to b.right
-            DocumentLayout.INFINITE -> b.left to b.right
+        val (overshootStart, overshootEnd) = when (layout) {
+            DocumentLayout.FIXED_SIZE, DocumentLayout.CONTINUOUS_VERTICAL -> overshoot to overshoot
+            DocumentLayout.SEMI_INFINITE -> overshoot to 0.0
+            DocumentLayout.INFINITE -> 0.0 to 0.0
         }
-        val (minY, maxY) = when (layout) {
-            DocumentLayout.FIXED_SIZE, DocumentLayout.CONTINUOUS_VERTICAL -> b.top - overshoot to b.bottom + overshoot
-            DocumentLayout.SEMI_INFINITE -> b.top - overshoot to b.bottom
-            DocumentLayout.INFINITE -> b.top to b.bottom
+        val x = axisRange(b.left, b.right, overshootStart, overshootEnd, width / zoom)
+        val y = axisRange(b.top, b.bottom, overshootStart, overshootEnd, height / zoom)
+        return OffsetRange(minX = x.first, maxX = x.second, minY = y.first, maxY = y.second)
+    }
+
+    private fun axisRange(
+        start: Double,
+        end: Double,
+        overshootStart: Double,
+        overshootEnd: Double,
+        visible: Double,
+    ): Pair<Double, Double> {
+        if (end - start <= visible) {
+            val centered = (start + end - visible) / 2
+            return centered to centered
         }
-        return OffsetRange(
-            minX = minX,
-            maxX = maxOf(maxX - width / zoom, minX),
-            minY = minY,
-            maxY = maxOf(maxY - height / zoom, minY),
-        )
+        val min = start - overshootStart
+        return min to maxOf(end + overshootEnd - visible, min)
     }
 
     private class OffsetRange(val minX: Double, val maxX: Double, val minY: Double, val maxY: Double)

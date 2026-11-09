@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Paint
 import android.text.InputType
 import android.view.GestureDetector
 import android.view.InputDevice
@@ -54,6 +55,18 @@ class NoteCanvasView(context: Context) : View(context) {
         set(value) {
             input.holdToSnap = value
         }
+
+    /**
+     * The document's background color. While a new frame renders after a zoom or scroll,
+     * the area the last frame doesn't cover shows the page in this color, not the desk.
+     */
+    var pageColor: Int
+        get() = pagePaint.color
+        set(value) {
+            pagePaint.color = value
+            invalidate()
+        }
+    private val pagePaint = Paint().apply { color = Color.WHITE }
 
     /** Called on a quick two-finger tap, the undo gesture of other note-taking apps. */
     var onTwoFingerTap: (() -> Unit)? = null
@@ -200,6 +213,7 @@ class NoteCanvasView(context: Context) : View(context) {
         input.reset()
         clearPreviewAt = NO_PENDING_CLEAR
         camera.showDocument(newBounds, settings.pageWidth, settings.layout)
+        pageColor = settings.backgroundColor
         onViewportChanged()
     }
 
@@ -333,6 +347,16 @@ class NoteCanvasView(context: Context) : View(context) {
 
     override fun onDraw(canvas: Canvas) {
         canvas.drawColor(DESK_COLOR)
+        bounds?.let { b ->
+            val v = viewport
+            canvas.drawRect(
+                ((b.left - v.x) * v.zoom).toFloat(),
+                ((b.top - v.y) * v.zoom).toFloat(),
+                ((b.right - v.x) * v.zoom).toFloat(),
+                ((b.bottom - v.y) * v.zoom).toFloat(),
+                pagePaint,
+            )
+        }
         frames.draw(canvas, viewport)
         input.preview.draw(canvas, viewport)
     }

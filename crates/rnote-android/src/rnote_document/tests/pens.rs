@@ -165,3 +165,23 @@ fn eraser_works_at_the_bottom_of_a_portrait_view() {
     assert!(dark_before > 0, "the line should have been drawn");
     assert_eq!(count_dark_pixels(&mut document, crossing.x - 32.0, crossing.y - 32.0, 1.0, 64), 0);
 }
+
+#[test]
+fn engine_camera_matches_a_centered_view_of_a_small_document() {
+    let mut document = plain_document();
+    let config = &mut document.engine.document.config;
+    config.layout = Layout::FixedSize;
+    let (page_width, page_height) = (config.format.width(), config.format.height());
+    let doc = &mut document.engine.document;
+    (doc.x, doc.y, doc.width, doc.height) = (0.0, 0.0, page_width, page_height);
+    // Zoomed out so the page is centered with plenty of desk around it, farther out than
+    // the engine would scroll by itself.
+    let zoom = 0.25;
+    let viewport = Viewport { x: -(1000.0 / zoom - page_width) / 2.0, y: -500.0, zoom };
+
+    document.sync_camera(viewport, VIEW);
+
+    let camera_view = document.engine.camera.viewport();
+    assert!((camera_view.mins.x - viewport.x).abs() < 1e-6, "got {camera_view:?}");
+    assert!((camera_view.mins.y - viewport.y).abs() < 1e-6, "got {camera_view:?}");
+}

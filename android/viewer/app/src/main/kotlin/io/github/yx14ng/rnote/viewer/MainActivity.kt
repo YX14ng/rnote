@@ -318,6 +318,7 @@ class MainActivity : Activity() {
             result
                 .onSuccess { settings ->
                     documentSettings = settings
+                    canvasView.pageColor = settings.backgroundColor
                     if (!this.settings.colorChosen) {
                         // Keep the automatic color readable on the new background.
                         val contrasting = BrushPalette.contrastingColor(settings.backgroundColor)

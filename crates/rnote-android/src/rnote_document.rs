@@ -173,8 +173,10 @@ impl RnoteDocument {
         let mut flags =
             camera.set_size(Vector2::new(f64::from(view_size.width), f64::from(view_size.height)));
         flags |= camera.zoom_to(viewport.zoom);
+        // Unclamped: the view may center a document smaller than the screen, and the camera
+        // has to match it exactly, or the eraser and the document's growth go by another area.
         let offset = Vector2::new(viewport.x, viewport.y) * camera.total_zoom();
-        flags |= camera.set_offset(offset, &self.engine.document);
+        flags |= camera.set_offset_unclamped(offset);
         flags
     }
 
