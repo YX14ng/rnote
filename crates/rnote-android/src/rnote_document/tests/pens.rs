@@ -179,7 +179,7 @@ fn engine_camera_matches_a_centered_view_of_a_small_document() {
     let zoom = 0.25;
     let viewport = Viewport { x: -(1000.0 / zoom - page_width) / 2.0, y: -500.0, zoom };
 
-    document.sync_camera(viewport, VIEW);
+    let _flags = document.sync_camera(viewport, VIEW);
 
     let camera_view = document.engine.camera.viewport();
     assert!((camera_view.mins.x - viewport.x).abs() < 1e-6, "got {camera_view:?}");
