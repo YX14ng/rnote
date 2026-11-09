@@ -7,6 +7,7 @@ use jni::errors::ThrowRuntimeExAndDefault;
 use jni::sys::{jint, jlong};
 use num_traits::FromPrimitive;
 use rnote_compose::penevent::KeyboardKey;
+use rnote_engine::document::Layout;
 
 use crate::{EditState, RnoteDocument, Tool};
 
@@ -98,6 +99,28 @@ pub(super) fn key_from_int(key: jint) -> Result<KeyboardKey, BridgeError> {
         10 => KeyboardKey::HorizontalTab,
         other => return Err(BridgeError::Rnote(format!("Unknown key {other}"))),
     })
+}
+
+/// Layouts as numbered on the Kotlin side: 0 fixed size, 1 continuous vertical,
+/// 2 semi-infinite, 3 infinite.
+pub(super) fn layout_from_int(layout: jint) -> Result<Layout, BridgeError> {
+    Ok(match layout {
+        0 => Layout::FixedSize,
+        1 => Layout::ContinuousVertical,
+        2 => Layout::SemiInfinite,
+        3 => Layout::Infinite,
+        other => return Err(BridgeError::Rnote(format!("Unknown layout {other}"))),
+    })
+}
+
+/// Inverse of [`layout_from_int`].
+pub(super) fn layout_to_int(layout: Layout) -> jint {
+    match layout {
+        Layout::FixedSize => 0,
+        Layout::ContinuousVertical => 1,
+        Layout::SemiInfinite => 2,
+        Layout::Infinite => 3,
+    }
 }
 
 /// Decodes one of the engine's enums from its discriminant, as the Kotlin side sends them.

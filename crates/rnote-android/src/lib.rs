@@ -6,6 +6,7 @@
 #[cfg(target_os = "android")]
 mod android_bitmap;
 mod android_color;
+mod document_settings;
 #[cfg(target_os = "android")]
 mod jni_bridge;
 mod pen_input;
@@ -13,6 +14,7 @@ mod render;
 mod rnote_document;
 
 pub use android_color::{color_from_argb, color_to_argb};
+pub use document_settings::{DocumentSettings, ShapeStyle, TextFormat};
 pub use pen_input::{PenPhase, PenSample, Tool};
 pub use render::{BYTES_PER_PIXEL, DESK_COLOR, PixelLayout, Viewport};
 pub use rnote_document::{EditState, RnoteDocument, ViewSize};

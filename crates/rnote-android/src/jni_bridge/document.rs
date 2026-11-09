@@ -5,7 +5,9 @@ use jni::errors::ThrowRuntimeExAndDefault;
 use jni::objects::{JByteArray, JClass, JDoubleArray, JObject, JString};
 use jni::sys::{jdouble, jint, jlong};
 
-use super::common::{BridgeError, document_from_handle, edit, edit_flags, into_handle};
+use super::common::{
+    BridgeError, document_from_handle, edit, edit_flags, into_handle, layout_to_int,
+};
 use crate::android_bitmap::LockedBitmap;
 use crate::android_color::color_to_argb;
 use crate::{RnoteDocument, Viewport};
@@ -73,6 +75,35 @@ pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_backgroun
             // SAFETY: `handle` comes from `NativeDocument`, which upholds the module invariants.
             let document = unsafe { document_from_handle(handle) }?;
             Ok(color_to_argb(document.background_color()))
+        })
+        .resolve::<ThrowRuntimeExAndDefault>()
+}
+
+/// `static native double[] documentSettings(long handle)`, as `[pageWidthMm, pageHeightMm,
+/// layout, backgroundArgb, pattern, patternArgb, showBorders]`; the ints are stored as doubles.
+#[unsafe(no_mangle)]
+pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_documentSettings<'caller>(
+    mut unowned_env: EnvUnowned<'caller>,
+    _class: JClass<'caller>,
+    handle: jlong,
+) -> JDoubleArray<'caller> {
+    unowned_env
+        .with_env(|env| -> Result<JDoubleArray<'caller>, BridgeError> {
+            // SAFETY: `handle` comes from `NativeDocument`, which upholds the module invariants.
+            let document = unsafe { document_from_handle(handle) }?;
+            let settings = document.document_settings();
+            let values = [
+                settings.page_width_mm,
+                settings.page_height_mm,
+                f64::from(layout_to_int(settings.layout)),
+                f64::from(color_to_argb(settings.background_color)),
+                f64::from(settings.pattern as i32),
+                f64::from(color_to_argb(settings.pattern_color)),
+                f64::from(u8::from(settings.show_borders)),
+            ];
+            let array = env.new_double_array(values.len())?;
+            array.set_region(env, 0, &values)?;
+            Ok(array)
         })
         .resolve::<ThrowRuntimeExAndDefault>()
 }

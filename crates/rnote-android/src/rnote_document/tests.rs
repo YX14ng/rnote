@@ -313,6 +313,45 @@ fn typewriter_types_and_edits_text() {
 }
 
 #[test]
+fn document_settings_change_page_layout_and_background() {
+    let mut document = plain_document();
+    document.set_layout(Layout::FixedSize);
+    let state = document.set_page_size(148.0, 210.0);
+
+    assert!(state.modified && state.bounds_changed, "got {state:?}");
+    let settings = document.document_settings();
+    assert!((settings.page_width_mm - 148.0).abs() < 0.01, "got {settings:?}");
+    assert!(matches!(settings.layout, Layout::FixedSize));
+
+    let blue = Color { r: 0.0, g: 0.0, b: 1.0, a: 1.0 };
+    document.set_background(blue, PatternStyle::None, blue);
+    let center = document.bounds().center();
+    assert_pixel_near(render_pixel(&mut document, center.x, center.y), [0, 0, 255, 255]);
+}
+
+#[test]
+fn text_format_applies_to_the_text_being_edited() {
+    let mut document = plain_document();
+    let spot = [PenSample { x: 100.0, y: 100.0, pressure: 1.0 }];
+    document.handle_pen(PenPhase::Down, Tool::Typewriter, &spot, IDENTITY, VIEW);
+    document.handle_pen(PenPhase::Up, Tool::Typewriter, &spot, IDENTITY, VIEW);
+    document.handle_text("Hola");
+    let small = count_dark_pixels(&mut document, 80.0, 60.0, 1.0, 300);
+
+    let format = TextFormat {
+        font_family: "serif".to_owned(),
+        font_size: 64.0,
+        bold: true,
+        italic: false,
+        alignment: rnote_engine::strokes::textstroke::TextAlignment::Start,
+    };
+    document.set_text_format(&format);
+    let large = count_dark_pixels(&mut document, 80.0, 60.0, 1.0, 300);
+
+    assert!(large > small * 2, "bigger bold text should cover more: {small} -> {large}");
+}
+
+#[test]
 fn deletes_and_restores_the_selection() {
     let mut document = plain_document();
     document.set_brush(RED, 6.0);
