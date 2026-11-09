@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Converted from crates/rnote-ui/data/icons/scalable/actions/pen-selector-symbolic.svg (GPL-3.0-or-later). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="16"
+    android:viewportHeight="16">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="m 3.015625 2.996094 c -1.644531 0 -3 1.355468 -3 3 h 2 c 0 -0.570313 0.429687 -1 1 -1 z m 0 0" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="m 5.015625 -0.00390625 v 2.00000025 h 8 c 0.574219 0 1 0.429687 1 1 v 8 h 2 v -8 c 0 -1.644532 -1.351563 -3.00000025 -3 -3.00000025 z m 0 0" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="m 3.019531 1.996094 c 0 -1.101563 0.894531 -1.996094 1.996094 -1.996094 v 1.996094 z m 0 0" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="m 16.015625 10.996094 c 0 1.101562 -0.894531 1.996094 -1.996094 1.996094 v -1.996094 z m 0 0" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="m 4.015625 2.996094 h 2 v 2 h -2 z m 0 0" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="m 7.015625 2.996094 h 2 v 2 h -2 z m 0 0" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="m 4.015625 13.996094 h 2 v 2 h -2 z m 0 0" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="m 7.015625 13.996094 h 2 v 2 h -2 z m 0 0" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="m 0.015625 6.996094 h 2 v 2 h -2 z m 0 0" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="m 0.015625 9.996094 h 2 v 2 h -2 z m 0 0" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="m 11.015625 6.996094 h 2 v 2 h -2 z m 0 0" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="m 11.015625 9.996094 h 2 v 2 h -2 z m 0 0" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="m 10.015625 2.996094 c 1.648437 0 3 1.355468 3 3 h -2 c 0 -0.570313 -0.425781 -1 -1 -1 z m 0 0" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="m 3.015625 15.996094 c -1.644531 0 -3 -1.355469 -3 -3 h 2 c 0 0.570312 0.429687 1 1 1 z m 0 0" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="m 10.015625 15.996094 c 1.648437 0 3 -1.355469 3 -3 h -2 c 0 0.570312 -0.425781 1 -1 1 z m 0 0" />
+</vector>

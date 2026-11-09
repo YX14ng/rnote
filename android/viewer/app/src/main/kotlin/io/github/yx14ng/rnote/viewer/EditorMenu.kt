@@ -14,7 +14,6 @@ internal object EditorMenu {
     sealed interface Action {
         data object Undo : Action
         data object Redo : Action
-        data class SelectTool(val tool: Tool) : Action
         data class SelectColor(val color: Int) : Action
         data object CustomColor : Action
         data class SelectWidth(val width: Double) : Action
@@ -69,7 +68,6 @@ internal object EditorMenu {
     private const val SELECT_ALL_TEXT = 28
 
     // Item ids of the choice groups are a base plus the index of the choice.
-    private const val TOOL_FIRST = 100
     private const val COLOR_FIRST = 200
     private const val WIDTH_FIRST = 300
     private const val SHAPE_FIRST = 400
@@ -77,26 +75,17 @@ internal object EditorMenu {
     private const val ERASER_FIRST = 600
     private const val EMPHASIS_FIRST = 700
 
-    private const val GROUP_TOOLS = 1
     private const val GROUP_COLORS = 2
     private const val GROUP_WIDTHS = 3
     private const val GROUP_SHAPES = 4
     private const val GROUP_BRUSH_STYLES = 5
     private const val GROUP_ERASER_STYLES = 6
 
-    private val tools = listOf(
-        Tool.BRUSH to R.string.action_pen,
-        Tool.SHAPER to R.string.action_shapes,
-        Tool.SELECTOR to R.string.action_select,
-        Tool.TYPEWRITER to R.string.action_text,
-        Tool.ERASER to R.string.action_eraser,
-    )
-
     // Ids of the items that need an open document.
     private val documentItems = listOf(
         COLOR_MENU, WIDTH_MENU, SHAPE_MENU, BRUSH_STYLE_MENU, ERASER_MENU, SELECTION_MENU,
         TEXT_FORMAT, SHAPE_STYLE, DOCUMENT, SAVE, SAVE_AS, COPY, CUT, PASTE,
-    ) + tools.indices.map { TOOL_FIRST + it }
+    )
 
     // Ids of the items that act on the text being edited.
     private val textItems =
@@ -117,10 +106,6 @@ internal object EditorMenu {
             setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM)
             setAlphabeticShortcut('z', CTRL_SHIFT)
         }
-        tools.forEachIndexed { index, (_, label) ->
-            menu.add(GROUP_TOOLS, TOOL_FIRST + index, order++, label).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM)
-        }
-        menu.setGroupCheckable(GROUP_TOOLS, true, true)
 
         addChoices(menu, COLOR_MENU, R.string.action_color, GROUP_COLORS, COLOR_FIRST, order++,
             BrushPalette.colors.map { it.label })
@@ -167,14 +152,6 @@ internal object EditorMenu {
         for (id in documentItems) {
             menu.findItem(id).isEnabled = state.documentOpen
         }
-        // Action bar items don't show check marks, so mark the active tool in its title.
-        tools.forEachIndexed { index, (tool, label) ->
-            val active = settings.tool == tool
-            menu.findItem(TOOL_FIRST + index).apply {
-                isChecked = active
-                title = if (active) "✓ ${context.getString(label)}" else context.getString(label)
-            }
-        }
         checkChoice(menu, COLOR_FIRST, BrushPalette.colors.indexOfFirst { it.value == settings.brush.color })
         checkChoice(menu, WIDTH_FIRST, BrushPalette.widths.indexOfFirst { it.value == settings.brush.width })
         checkChoice(menu, SHAPE_FIRST, settings.shape.ordinal)
@@ -217,8 +194,7 @@ internal object EditorMenu {
             COLOR_SELECTED_TEXT -> Action.ColorSelectedText
             SELECT_ALL_TEXT -> Action.SelectAllText
             else ->
-                choice(id, TOOL_FIRST, tools) { Action.SelectTool(it.first) }
-                    ?: choice(id, COLOR_FIRST, BrushPalette.colors) { Action.SelectColor(it.value) }
+                choice(id, COLOR_FIRST, BrushPalette.colors) { Action.SelectColor(it.value) }
                     ?: choice(id, WIDTH_FIRST, BrushPalette.widths) { Action.SelectWidth(it.value) }
                     ?: choice(id, SHAPE_FIRST, Shape.entries) { Action.SelectShape(it) }
                     ?: choice(id, BRUSH_STYLE_FIRST, BrushStyle.entries) { Action.SelectBrushStyle(it) }

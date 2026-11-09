@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Converted from crates/rnote-ui/data/icons/scalable/actions/pen-shaper-symbolic.svg (GPL-3.0-or-later). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="16"
+    android:viewportHeight="16">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="m 5.191406 1.296875 c -0.390625 -0.390625 -1.023437 -0.390625 -1.414062 0 l -2.5 2.5 c -0.390625 0.390625 -0.390625 1.023437 0 1.414063 l 2.5 2.5 c 0.390625 0.390624 1.023437 0.390624 1.414062 0 l 2.496094 -2.5 c 0.390625 -0.390626 0.390625 -1.023438 0 -1.414063 z m 0 0" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="m 9.984375 12.003906 c 0 1.65625 -1.34375 3 -3 3 c -1.660156 0 -3 -1.34375 -3 -3 s 1.339844 -3 3 -3 c 1.65625 0 3 1.34375 3 3 z m 0 0" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="m 11.929688 2.007812 c -0.339844 0.015626 -0.644532 0.203126 -0.8125 0.496094 l -2.320313 4 c -0.386719 0.664063 0.09375 1.5 0.863281 1.5 h 4.644532 c 0.769531 0 1.25 -0.835937 0.863281 -1.5 l -2.320313 -4 c -0.1875 -0.328125 -0.542968 -0.519531 -0.917968 -0.496094 z m 0 0" />
+</vector>

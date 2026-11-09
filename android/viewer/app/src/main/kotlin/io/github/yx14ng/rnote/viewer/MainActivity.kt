@@ -13,6 +13,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.WindowInsets
 import android.widget.FrameLayout
 import android.widget.TextView
@@ -27,6 +28,7 @@ class MainActivity : Activity() {
     private lateinit var saver: DocumentSaver
     private lateinit var guard: UnsavedChangesGuard
     private lateinit var clipboard: ClipboardActions
+    private lateinit var toolSidebar: ToolSidebar
 
     private var settings = EditorSettings()
     private var documentOpen = false
@@ -49,6 +51,10 @@ class MainActivity : Activity() {
             changeSettings(settings.copy(tool = tool))
             invalidateOptionsMenu()
         }, onError = ::showError)
+        toolSidebar = ToolSidebar(this).apply {
+            onToolSelected = ::selectTool
+            visibility = View.GONE
+        }
         applySettingsToView()
         messageView = TextView(this).apply {
             gravity = Gravity.CENTER
@@ -58,6 +64,13 @@ class MainActivity : Activity() {
         val root = FrameLayout(this).apply {
             addView(canvasView, FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT))
             addView(messageView, FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT))
+            // Floating beside the canvas, like the desktop app's toolbars.
+            val margin = (SIDEBAR_MARGIN_DP * resources.displayMetrics.density).toInt()
+            addView(
+                toolSidebar,
+                FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, Gravity.END or Gravity.CENTER_VERTICAL)
+                    .apply { marginEnd = margin },
+            )
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             // Edge-to-edge is enforced from Android 15 on: keep content out of the bars, and
@@ -110,10 +123,6 @@ class MainActivity : Activity() {
         when (action) {
             EditorMenu.Action.Undo -> canvasView.applyEdit(NativeDocument::undo)
             EditorMenu.Action.Redo -> canvasView.applyEdit(NativeDocument::redo)
-            is EditorMenu.Action.SelectTool -> {
-                changeSettings(settings.copy(tool = action.tool))
-                canvasView.applyEdit { it.setTool(action.tool) }
-            }
             is EditorMenu.Action.SelectColor ->
                 changeBrush(settings.brush.copy(color = action.color), colorChosen = true)
             EditorMenu.Action.CustomColor -> FormatDialogs.showCustomColor(this, settings.brush.color) { color ->
@@ -271,6 +280,7 @@ class MainActivity : Activity() {
         documentSettings = info.settings
         guard.changesDiscarded = false
         messageView.visibility = View.GONE
+        toolSidebar.visibility = View.VISIBLE
         if (!settings.colorChosen) {
             val contrasting = BrushPalette.contrastingColor(info.backgroundColor)
             changeSettings(settings.copy(brush = settings.brush.copy(color = contrasting)))
@@ -314,7 +324,14 @@ class MainActivity : Activity() {
         applySettingsToView()
     }
 
+    private fun selectTool(tool: Tool) {
+        changeSettings(settings.copy(tool = tool))
+        canvasView.applyEdit { it.setTool(tool) }
+        invalidateOptionsMenu()
+    }
+
     private fun applySettingsToView() {
+        toolSidebar.selectedTool = settings.tool
         canvasView.tool = settings.tool
         canvasView.brush = settings.brush
         canvasView.fingerDrawing = settings.fingerDrawing
@@ -356,6 +373,7 @@ class MainActivity : Activity() {
     private companion object {
         const val TAG = "RnoteViewer"
         const val MESSAGE_TEXT_SIZE_SP = 18f
+        const val SIDEBAR_MARGIN_DP = 18f
 
         const val REQUEST_OPEN = 1
         const val REQUEST_SAVE_AS = 2

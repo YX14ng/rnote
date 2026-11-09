@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Converted from crates/rnote-ui/data/icons/scalable/actions/pen-brush-symbolic.svg (GPL-3.0-or-later). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="16"
+    android:viewportHeight="16">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="m 9 11 c 0 2.210938 -1.789062 4.011719 -4 4 h -4 v -4 c 0 -2.210938 1.789062 -4 4 -4 s 4 1.789062 4 4 z m 0 0" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="m 14.40625 0.0507812 c -0.386719 0.0078126 -0.757812 0.1718748 -1.03125 0.4492188 l -5.800781 5.773438 c 0.90625 0.476562 1.644531 1.214843 2.121093 2.121093 l 5.800782 -5.769531 c 0.980468 -0.957031 0.277344 -2.6171875 -1.089844 -2.5742188 z m 0 0" />
+</vector>
