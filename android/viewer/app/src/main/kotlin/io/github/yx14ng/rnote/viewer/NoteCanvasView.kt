@@ -457,7 +457,11 @@ class NoteCanvasView(context: Context) : View(context) {
             }
             result
                 .onSuccess { edit ->
-                    edit.bounds?.let(camera::updateBounds)
+                    edit.bounds?.let { newBounds ->
+                        camera.updateBounds(newBounds)
+                        // Renders requested before the edit used the old bounds.
+                        onViewportChanged()
+                    }
                     updateTextInput(edit.state.textInput)
                     onEditState?.invoke(edit.state)
                 }
