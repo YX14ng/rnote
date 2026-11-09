@@ -55,6 +55,8 @@ pub struct DocumentSettings {
     pub page_width_mm: f64,
     /// Page height in millimeters.
     pub page_height_mm: f64,
+    /// Page width in document units, which the view fits to the screen width.
+    pub page_width: f64,
     /// How the document grows.
     pub layout: Layout,
     /// Background color.
@@ -101,6 +103,7 @@ pub(crate) fn document_settings(engine: &Engine) -> DocumentSettings {
     DocumentSettings {
         page_width_mm: to_mm(format.width()),
         page_height_mm: to_mm(format.height()),
+        page_width: format.width(),
         layout: config.layout,
         background_color: config.background.color,
         pattern: config.background.pattern,

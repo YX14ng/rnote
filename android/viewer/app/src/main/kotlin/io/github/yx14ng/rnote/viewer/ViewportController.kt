@@ -5,10 +5,12 @@ import android.widget.OverScroller
 import kotlin.math.roundToInt
 
 /**
- * Which part of the document a view shows: fitting it to the width, panning, zooming and
+ * Which part of the document a view shows: fitting a page to the width, panning, zooming and
  * flinging, always keeping the document on screen.
  *
- * Every change is clamped; callers redraw after calling a mutating method.
+ * Every change is clamped, and the zoom stays within the engine's limits: the engine's camera
+ * must show exactly what the screen shows, since the eraser only looks at strokes inside it
+ * and infinite documents grow around it. Callers redraw after calling a mutating method.
  */
 internal class ViewportController(context: Context) {
     private val scroller = OverScroller(context)
@@ -21,12 +23,20 @@ internal class ViewportController(context: Context) {
     var viewport = Viewport(0.0, 0.0, 1.0)
         private set
 
-    /** The zoom that fits the document width into the view. */
+    /** Width of a page in document units; the view fits one page to its width. */
+    private var pageWidth = 1.0
+
+    /** The zoom that fits a page into the view width. */
     private var fitZoom = 1.0
 
-    /** Shows [newBounds] fitted to the view width, from the top. */
-    fun showDocument(newBounds: DocumentBounds) {
+    /**
+     * Shows [newBounds] with a page of [newPageWidth] fitted to the view width, from the origin
+     * page, where documents start. Fitting the bounds instead made infinite documents, whose
+     * bounds keep a margin of pages around the view, grow on every edit.
+     */
+    fun showDocument(newBounds: DocumentBounds, newPageWidth: Double) {
         bounds = newBounds
+        pageWidth = newPageWidth
         fitToWidth()
     }
 
@@ -41,14 +51,16 @@ internal class ViewportController(context: Context) {
         val firstLayout = width == 0
         width = newWidth
         height = newHeight
-        val b = bounds ?: return
+        if (bounds == null) {
+            return
+        }
         if (firstLayout) {
             fitToWidth()
             return
         }
         val relativeZoom = viewport.zoom / fitZoom
-        fitZoom = width / b.width
-        viewport = clamp(viewport.copy(zoom = fitZoom * relativeZoom))
+        fitZoom = pageFitZoom()
+        viewport = clamp(viewport.copy(zoom = (fitZoom * relativeZoom).coerceIn(MIN_ZOOM, MAX_ZOOM)))
     }
 
     fun panBy(dx: Float, dy: Float) {
@@ -57,7 +69,9 @@ internal class ViewportController(context: Context) {
 
     /** Zooms to [targetZoom], keeping the document point under ([focusX], [focusY]) fixed. */
     fun zoomAround(targetZoom: Double, focusX: Float, focusY: Float) {
-        val zoom = targetZoom.coerceIn(fitZoom * MIN_ZOOM_FACTOR, fitZoom * MAX_ZOOM_FACTOR)
+        val zoom = targetZoom
+            .coerceIn(fitZoom * MIN_ZOOM_FACTOR, fitZoom * MAX_ZOOM_FACTOR)
+            .coerceIn(MIN_ZOOM, MAX_ZOOM)
         val focusDocX = viewport.x + focusX / viewport.zoom
         val focusDocY = viewport.y + focusY / viewport.zoom
         viewport = clamp(Viewport(focusDocX - focusX / zoom, focusDocY - focusY / zoom, zoom))
@@ -123,13 +137,14 @@ internal class ViewportController(context: Context) {
     fun toDocumentY(y: Float): Double = viewport.y + y / viewport.zoom
 
     private fun fitToWidth() {
-        val b = bounds ?: return
-        if (width == 0) {
+        if (bounds == null || width == 0) {
             return
         }
-        fitZoom = width / b.width
-        viewport = clamp(Viewport(b.left, b.top, fitZoom))
+        fitZoom = pageFitZoom()
+        viewport = clamp(Viewport(0.0, 0.0, fitZoom))
     }
+
+    private fun pageFitZoom(): Double = (width / pageWidth).coerceIn(MIN_ZOOM, MAX_ZOOM)
 
     /** Centers the document along an axis where it fits, else keeps the view inside it. */
     private fun clamp(v: Viewport): Viewport {
@@ -150,6 +165,10 @@ internal class ViewportController(context: Context) {
     }
 
     private companion object {
+        /** `Camera::ZOOM_MIN` and `Camera::ZOOM_MAX` in rnote-engine, which clamps to them. */
+        const val MIN_ZOOM = 0.2
+        const val MAX_ZOOM = 6.0
+
         const val MIN_ZOOM_FACTOR = 0.25
         const val MAX_ZOOM_FACTOR = 8.0
         const val DOUBLE_TAP_ZOOM = 2.0

@@ -162,7 +162,7 @@ class MainActivity : Activity() {
                 FormatDialogs.showDocument(this, current) { change ->
                     canvasView.applyEdit(change)
                     // Runs after the edit, so the view already has the new bounds.
-                    refreshDocumentSettings(onRefreshed = canvasView::refit)
+                    refreshDocumentSettings(onRefreshed = { canvasView.refit(it.pageWidth) })
                 }
             }
             EditorMenu.Action.ToggleFingerDrawing ->
@@ -275,7 +275,7 @@ class MainActivity : Activity() {
             val contrasting = BrushPalette.contrastingColor(info.backgroundColor)
             changeSettings(settings.copy(brush = settings.brush.copy(color = contrasting)))
         }
-        canvasView.showDocument(info.bounds)
+        canvasView.showDocument(info.bounds, info.settings.pageWidth)
         // A new document starts with the engine defaults: bring it in line with the settings.
         // Queued before any pen input, so the first stroke already uses them.
         renderer.setBrush(settings.brush)
@@ -292,7 +292,7 @@ class MainActivity : Activity() {
     }
 
     /** Reads the document settings back after the document dialog changed them. */
-    private fun refreshDocumentSettings(onRefreshed: () -> Unit) {
+    private fun refreshDocumentSettings(onRefreshed: (DocumentSettings) -> Unit) {
         renderer.query({ it.settings }) { result ->
             result
                 .onSuccess { settings ->
@@ -302,7 +302,7 @@ class MainActivity : Activity() {
                         val contrasting = BrushPalette.contrastingColor(settings.backgroundColor)
                         changeBrush(this.settings.brush.copy(color = contrasting), colorChosen = false)
                     }
-                    onRefreshed()
+                    onRefreshed(settings)
                 }
                 .onFailure(::showError)
         }

@@ -105,6 +105,8 @@ data class DocumentSettings(
     val showBorders: Boolean,
     /** Spacing of the background pattern, in document units. */
     val patternSize: Double,
+    /** Page width in document units. */
+    val pageWidth: Double,
 ) {
     val landscape: Boolean
         get() = pageWidthMm > pageHeightMm
@@ -120,6 +122,7 @@ data class DocumentSettings(
             patternColor = values[5].toInt(),
             showBorders = values[6] != 0.0,
             patternSize = values[7],
+            pageWidth = values[8],
         )
     }
 }

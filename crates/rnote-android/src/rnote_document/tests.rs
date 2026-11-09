@@ -502,3 +502,62 @@ fn pattern_size_is_applied_and_clamped() {
     document.set_background(white, PatternStyle::Grid, white, 0.0);
     assert_eq!(document.document_settings().pattern_size, 4.0);
 }
+
+/// A narrow portrait view, like a tablet held upright, showing the origin page of a new
+/// (infinite) document fitted to the page width, as `ViewportController` does.
+fn portrait_origin_view(document: &RnoteDocument) -> (Viewport, ViewSize) {
+    let view = ViewSize { width: 1848, height: 2700 };
+    let zoom = f64::from(view.width) / document.document_settings().page_width;
+    (Viewport { x: 0.0, y: 0.0, zoom }, view)
+}
+
+#[test]
+fn infinite_document_keeps_its_size_while_drawing_on_the_origin_page() {
+    let mut document = RnoteDocument::new_empty();
+    let (viewport, view) = portrait_origin_view(&document);
+    let bounds_before = document.bounds();
+
+    for screen_y in [300.0, 1350.0, 2400.0] {
+        let line: Vec<PenSample> = (0..=20)
+            .map(|i| PenSample {
+                x: viewport.x + (300.0 + 45.0 * f64::from(i)) / viewport.zoom,
+                y: viewport.y + screen_y / viewport.zoom,
+                pressure: 1.0,
+            })
+            .collect();
+        let (moves, last) = line.split_at(line.len() - 1);
+        document.handle_pen(PenPhase::Down, Tool::Brush, moves, viewport, view);
+        document.handle_pen(PenPhase::Up, Tool::Brush, last, viewport, view);
+    }
+
+    // Fitting the view to the whole document instead made it grow on every stroke.
+    assert_eq!(document.bounds(), bounds_before);
+}
+
+#[test]
+fn eraser_works_at_the_bottom_of_a_portrait_view() {
+    let mut document = RnoteDocument::new_empty();
+    document.set_brush(Color::BLACK, 6.0);
+    let (viewport, view) = portrait_origin_view(&document);
+    let at = |screen_x: f64, screen_y: f64| PenSample {
+        x: viewport.x + screen_x / viewport.zoom,
+        y: viewport.y + screen_y / viewport.zoom,
+        pressure: 1.0,
+    };
+    let line: Vec<PenSample> = (0..=20).map(|i| at(300.0 + 45.0 * f64::from(i), 2600.0)).collect();
+    let (moves, last) = line.split_at(line.len() - 1);
+    document.handle_pen(PenPhase::Down, Tool::Brush, moves, viewport, view);
+    document.handle_pen(PenPhase::Up, Tool::Brush, last, viewport, view);
+    let crossing = at(750.0, 2600.0);
+    let dark_before =
+        count_dark_pixels(&mut document, crossing.x - 32.0, crossing.y - 32.0, 1.0, 64);
+
+    let across: Vec<PenSample> =
+        (0..=30).map(|i| at(750.0, 2450.0 + 10.0 * f64::from(i))).collect();
+    let (moves, last) = across.split_at(across.len() - 1);
+    document.handle_pen(PenPhase::Down, Tool::Eraser, moves, viewport, view);
+    document.handle_pen(PenPhase::Up, Tool::Eraser, last, viewport, view);
+
+    assert!(dark_before > 0, "the line should have been drawn");
+    assert_eq!(count_dark_pixels(&mut document, crossing.x - 32.0, crossing.y - 32.0, 1.0, 64), 0);
+}

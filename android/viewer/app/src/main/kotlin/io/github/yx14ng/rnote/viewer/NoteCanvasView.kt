@@ -163,19 +163,19 @@ class NoteCanvasView(context: Context) : View(context) {
             },
         )
 
-    /** Shows a newly opened document, fitted to the view width. */
-    fun showDocument(newBounds: DocumentBounds) {
+    /** Shows a newly opened document with a page of [pageWidth] fitted to the view width. */
+    fun showDocument(newBounds: DocumentBounds, pageWidth: Double) {
         frames.reset()
         input.reset()
         clearPreviewAt = NO_PENDING_CLEAR
-        camera.showDocument(newBounds)
+        camera.showDocument(newBounds, pageWidth)
         onViewportChanged()
     }
 
-    /** Fits the document to the view width again, e.g. after its page size or layout changed. */
-    fun refit() {
+    /** Fits a page to the view width again, e.g. after the page size or layout changed. */
+    fun refit(pageWidth: Double) {
         val currentBounds = bounds ?: return
-        camera.showDocument(currentBounds)
+        camera.showDocument(currentBounds, pageWidth)
         onViewportChanged()
     }
 
