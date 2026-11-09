@@ -188,8 +188,12 @@ fn draw_background(
     let tile_size = background.tile_size();
     let largest_side = tile_size.x.max(tile_size.y);
     let smallest_side = tile_size.x.min(tile_size.y);
-    // At least one pixel per side, at most MAX_TILE_PIXELS.
-    let image_scale = zoom.min(MAX_TILE_PIXELS / largest_side).max(1.0 / smallest_side);
+    // The tile is rasterized to whole pixels. Picking the scale that makes its largest side a
+    // whole number of pixels avoids a partly transparent last row or column, which showed as
+    // seams between tiles. Isometric tiles can't have both sides whole; the background color
+    // painted below hides what is left. At least one pixel per side, at most MAX_TILE_PIXELS.
+    let largest_side_pixels = (largest_side * zoom).round().clamp(1.0, MAX_TILE_PIXELS);
+    let image_scale = (largest_side_pixels / largest_side).max(1.0 / smallest_side);
     let tile = tiles.get(background, image_scale)?;
 
     // Anchor the repetition at a tile boundary next to the visible area. Tiles repeat from the
@@ -214,8 +218,11 @@ fn draw_background(
     ));
 
     cx.save()?;
-    cx.set_source(&pattern)?;
     cx.rectangle(visible.mins.x, visible.mins.y, visible.extents().x, visible.extents().y);
+    let color = background.color;
+    cx.set_source_rgba(color.r, color.g, color.b, color.a);
+    cx.fill_preserve()?;
+    cx.set_source(&pattern)?;
     cx.fill()?;
     cx.restore()?;
     Ok(())
