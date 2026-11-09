@@ -150,6 +150,40 @@ fn renders_pattern_far_from_document_origin() {
 }
 
 #[test]
+fn background_tiles_have_no_seams_when_zoomed_out() {
+    let patterns = [
+        PatternStyle::Lines,
+        PatternStyle::Grid,
+        PatternStyle::Dots,
+        PatternStyle::IsometricGrid,
+        PatternStyle::IsometricDots,
+    ];
+    for pattern in patterns {
+        let mut document = plain_document();
+        let background = &mut document.engine.document.config.background;
+        background.pattern = pattern;
+        background.pattern_color = Color { r: 0.8, g: 0.8, b: 0.8, a: 1.0 };
+        let center = document.bounds().center();
+
+        // Zooms where a tile is a fractional number of pixels wide.
+        for zoom in [0.294, 0.5, 1.37, 3.629] {
+            let layout = PixelLayout { width: 300, height: 300, stride: 300 * BYTES_PER_PIXEL };
+            let mut out = vec![0_u8; layout.min_len()];
+            document
+                .render_rgba(Viewport { x: center.x, y: center.y, zoom }, layout, &mut out)
+                .expect("rendering should succeed");
+            let darkest = out.as_chunks::<BYTES_PER_PIXEL>().0.iter().map(|pixel| pixel[0]).min();
+
+            // Nothing is darker than the light gray pattern: the desk must not show through.
+            assert!(
+                darkest >= Some(190),
+                "seams with {pattern:?} at zoom {zoom}: darkest channel {darkest:?}"
+            );
+        }
+    }
+}
+
+#[test]
 fn brush_draws_a_stroke() {
     let mut document = plain_document();
     document.set_brush(RED, 6.0);
