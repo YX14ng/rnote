@@ -48,6 +48,11 @@ impl Content for BitmapImage {
 
 impl Drawable for BitmapImage {
     fn draw(&self, cx: &mut impl piet::RenderContext, _image_scale: f64) -> anyhow::Result<()> {
+        // An image scaled down to nothing has nothing to show, and cairo rejects its
+        // non-invertible transform, which made exporting the whole document as Svg fail.
+        if !self.rectangle.affine.matrix2.determinant().is_normal() {
+            return Ok(());
+        }
         let piet_image_format = piet::ImageFormat::from(self.image.memory_format);
 
         cx.save().map_err(|e| anyhow::anyhow!("{e:?}"))?;
