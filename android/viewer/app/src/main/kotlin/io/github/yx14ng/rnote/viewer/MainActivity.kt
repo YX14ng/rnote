@@ -4,26 +4,19 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.view.Gravity
 import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.view.ViewGroup.LayoutParams.MATCH_PARENT
-import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
-import android.view.WindowInsets
-import android.widget.FrameLayout
-import android.widget.TextView
 import android.widget.Toast
 
 /** Opens, creates, edits and saves `.rnote` documents. */
 class MainActivity : Activity() {
     private val renderer = DocumentRenderer()
     private lateinit var canvasView: NoteCanvasView
-    private lateinit var messageView: TextView
+    private lateinit var layout: EditorLayout
     private lateinit var recovery: Recovery
     private lateinit var saver: DocumentSaver
     private lateinit var guard: UnsavedChangesGuard
@@ -56,32 +49,8 @@ class MainActivity : Activity() {
             visibility = View.GONE
         }
         applySettingsToView()
-        messageView = TextView(this).apply {
-            gravity = Gravity.CENTER
-            textSize = MESSAGE_TEXT_SIZE_SP
-            setText(R.string.empty_hint)
-        }
-        val root = FrameLayout(this).apply {
-            addView(canvasView, FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT))
-            addView(messageView, FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT))
-            // Floating beside the canvas, like the desktop app's toolbars.
-            val margin = (SIDEBAR_MARGIN_DP * resources.displayMetrics.density).toInt()
-            addView(
-                toolSidebar,
-                FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, Gravity.END or Gravity.CENTER_VERTICAL)
-                    .apply { marginEnd = margin },
-            )
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            // Edge-to-edge is enforced from Android 15 on: keep content out of the bars, and
-            // above the keyboard so the text being typed stays visible.
-            root.setOnApplyWindowInsetsListener { view, insets ->
-                val bars = insets.getInsets(WindowInsets.Type.systemBars() or WindowInsets.Type.ime())
-                view.setPadding(bars.left, bars.top, bars.right, bars.bottom)
-                insets
-            }
-        }
-        setContentView(root)
+        layout = EditorLayout(this, canvasView, toolSidebar)
+        setContentView(layout.root)
         if (!handleIntent(intent) && recovery.exists) {
             restoreRecovery()
         }
@@ -294,7 +263,7 @@ class MainActivity : Activity() {
                     recovery.clear()
                     endLoading()
                     if (!documentOpen) {
-                        showMessage(getString(R.string.empty_hint))
+                        layout.showMessage(getString(R.string.empty_hint))
                     }
                 }
         }
@@ -303,14 +272,14 @@ class MainActivity : Activity() {
     /** Shows that a document is loading, and keeps input away from the current one. */
     private fun startLoading() {
         canvasView.loading = true
-        showMessage(getString(R.string.loading))
+        layout.showMessage(getString(R.string.loading))
     }
 
     /** Undoes [startLoading] after a failure: the current document, if any, stays usable. */
     private fun endLoading() {
         canvasView.loading = false
         if (documentOpen) {
-            messageView.visibility = View.GONE
+            layout.hideMessage()
         }
     }
 
@@ -318,7 +287,7 @@ class MainActivity : Activity() {
         documentOpen = true
         documentSettings = info.settings
         guard.changesDiscarded = false
-        messageView.visibility = View.GONE
+        layout.hideMessage()
         toolSidebar.visibility = View.VISIBLE
         if (!settings.colorChosen) {
             val contrasting = BrushPalette.contrastingColor(info.backgroundColor)
@@ -404,25 +373,18 @@ class MainActivity : Activity() {
         guard.modified = state.modified
     }
 
-    private fun showMessage(text: String) {
-        messageView.visibility = View.VISIBLE
-        messageView.text = text
-    }
-
     private fun showError(error: Throwable) {
         Log.e(TAG, "Document operation failed", error)
         val message = getString(R.string.open_failed, error.message ?: error.toString())
         if (documentOpen) {
             Toast.makeText(this, message, Toast.LENGTH_LONG).show()
         } else {
-            showMessage(message)
+            layout.showMessage(message)
         }
     }
 
     private companion object {
         const val TAG = "RnoteViewer"
-        const val MESSAGE_TEXT_SIZE_SP = 18f
-        const val SIDEBAR_MARGIN_DP = 18f
         const val SHAPE_MIN_SIZE_DP = 64.0
 
         const val REQUEST_OPEN = 1
