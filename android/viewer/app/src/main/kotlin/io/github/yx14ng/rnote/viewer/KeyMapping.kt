@@ -19,12 +19,19 @@ internal object KeyMapping {
         KeyEvent.KEYCODE_TAB to EditingKey.TAB,
     )
 
-    /** Sends [event] to [sink]. Returns false for keys that mean nothing to the text tool. */
+    /**
+     * Sends [event] to [sink]. Returns false for keys that mean nothing to the text tool,
+     * including Ctrl shortcuts, which are left to the menu.
+     */
     fun dispatch(event: KeyEvent, sink: TextSink): Boolean {
         val editingKey = editingKeys[event.keyCode]
         if (editingKey != null) {
             sink.pressKey(editingKey, shift = event.isShiftPressed, ctrl = event.isCtrlPressed)
             return true
+        }
+        if (event.isCtrlPressed || event.isMetaPressed) {
+            // Ctrl+letter is a shortcut, never text.
+            return false
         }
         val codePoint = event.unicodeChar
         if (codePoint == 0 || Character.isISOControl(codePoint)) {
