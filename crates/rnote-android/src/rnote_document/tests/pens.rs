@@ -185,3 +185,41 @@ fn engine_camera_matches_a_centered_view_of_a_small_document() {
     assert!((camera_view.mins.x - viewport.x).abs() < 1e-6, "got {camera_view:?}");
     assert!((camera_view.mins.y - viewport.y).abs() < 1e-6, "got {camera_view:?}");
 }
+
+/// Drags the selector around the loop through `corners`, as a lasso.
+fn lasso(document: &mut RnoteDocument, corners: &[(f64, f64)]) -> EditState {
+    document.set_tool(Tool::Selector);
+    let mut samples: Vec<PenSample> = Vec::new();
+    for (i, &(x, y)) in corners.iter().enumerate() {
+        let (next_x, next_y) = corners[(i + 1) % corners.len()];
+        samples.extend((0..10).map(|step| {
+            let t = f64::from(step) / 10.0;
+            PenSample { x: x + (next_x - x) * t, y: y + (next_y - y) * t, pressure: 1.0 }
+        }));
+    }
+    let (moves, last) = samples.split_at(samples.len() - 1);
+    document.handle_pen(PenPhase::Down, Tool::Selector, moves, IDENTITY, VIEW);
+    document.handle_pen(PenPhase::Up, Tool::Selector, last, IDENTITY, VIEW)
+}
+
+#[test]
+fn selector_selects_what_a_lasso_encloses() {
+    let mut document = plain_document();
+    draw_line(&mut document, 200.0);
+
+    let around =
+        lasso(&mut document, &[(80.0, 150.0), (330.0, 140.0), (320.0, 260.0), (90.0, 250.0)]);
+
+    assert!(around.has_selection, "got {around:?}");
+}
+
+#[test]
+fn lasso_elsewhere_selects_nothing() {
+    let mut document = plain_document();
+    draw_line(&mut document, 200.0);
+
+    let elsewhere =
+        lasso(&mut document, &[(80.0, 400.0), (330.0, 400.0), (320.0, 500.0), (90.0, 500.0)]);
+
+    assert!(!elsewhere.has_selection, "got {elsewhere:?}");
+}

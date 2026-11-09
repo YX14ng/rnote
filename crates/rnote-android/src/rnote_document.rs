@@ -7,6 +7,7 @@ use parry2d_f64::math::Vector2;
 use rnote_compose::Color;
 use rnote_engine::engine::{EngineConfigShared, EngineSnapshot, EngineTaskReceiver};
 use rnote_engine::pens::PenStyle;
+use rnote_engine::pens::pensconfig::selectorconfig::SelectorStyle;
 use rnote_engine::{Engine, WidgetFlags};
 
 use crate::render::{self, BackgroundTiles, PixelLayout, Viewport};
@@ -82,6 +83,9 @@ impl RnoteDocument {
             let mut config = config.write();
             config.pens_config.pen_mode_pen_style = PenStyle::Brush;
             config.pens_config.pen_mode_eraser_style = PenStyle::Eraser;
+            // Select by enclosing with a lasso, like other note-taking apps; the engine's
+            // default is a rectangle.
+            config.pens_config.selector_config.style = SelectorStyle::Polygon;
         }
         // Installing the config reinstalls the pens for those styles.
         let flags = engine.install_config(&config, /* data_dir */ None);

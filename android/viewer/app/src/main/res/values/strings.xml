@@ -33,7 +33,7 @@
     <string name="discard_message">Discard the unsaved changes?</string>
     <string name="discard">Discard</string>
     <string name="action_shapes">Shapes</string>
-    <string name="action_select">Select</string>
+    <string name="action_select">Lasso select</string>
     <string name="action_brush_style">Brush style</string>
     <string name="action_shape">Shape</string>
     <string name="action_eraser_mode">Eraser mode</string>
@@ -144,4 +144,7 @@
     <string name="label_pattern_spacing">Pattern spacing</string>
     <string name="invalid_value">Invalid value: nothing was changed</string>
     <string name="action_shape_recognition">Recognize shapes (hold the pen still)</string>
+    <string name="palette_color">Color %1$d (long-press to change it)</string>
+    <string name="title_palette_color">Palette color</string>
+    <string name="pen_wheel">Pen wheel: color and width</string>
 </resources>

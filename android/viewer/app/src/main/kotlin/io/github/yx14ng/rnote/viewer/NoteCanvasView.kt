@@ -68,6 +68,13 @@ class NoteCanvasView(context: Context) : View(context) {
         }
     private val pagePaint = Paint().apply { color = Color.WHITE }
 
+    /**
+     * Called when the stylus button was held in the air and released without touching the
+     * screen, with where the pen was: opens the pen wheel.
+     */
+    var onPenWheel: ((x: Float, y: Float) -> Unit)? = null
+    private val penButton = PenButtonHold { x, y -> onPenWheel?.invoke(x, y) }
+
     /** Called on a quick two-finger tap, the undo gesture of other note-taking apps. */
     var onTwoFingerTap: (() -> Unit)? = null
 
@@ -257,6 +264,9 @@ class NoteCanvasView(context: Context) : View(context) {
     }
 
     override fun onHoverEvent(event: MotionEvent): Boolean {
+        if (acceptsInput) {
+            penButton.onHover(event)
+        }
         if (acceptsInput && input.onHover(event)) {
             return true
         }
@@ -309,6 +319,7 @@ class NoteCanvasView(context: Context) : View(context) {
         if (!acceptsInput) {
             return false
         }
+        penButton.onTouch()
         twoFingerTap.onTouch(event)
         input.onTouch(event)
         invalidate()
@@ -316,6 +327,10 @@ class NoteCanvasView(context: Context) : View(context) {
     }
 
     override fun onGenericMotionEvent(event: MotionEvent): Boolean {
+        val action = event.actionMasked
+        if (acceptsInput && (action == MotionEvent.ACTION_BUTTON_PRESS || action == MotionEvent.ACTION_BUTTON_RELEASE)) {
+            penButton.onButtonEvent(event)
+        }
         if (!acceptsInput ||
             !event.isFromSource(InputDevice.SOURCE_CLASS_POINTER) ||
             event.actionMasked != MotionEvent.ACTION_SCROLL

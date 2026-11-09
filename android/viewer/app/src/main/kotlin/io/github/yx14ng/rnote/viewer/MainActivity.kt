@@ -39,10 +39,13 @@ class MainActivity : Activity() {
             onError = ::showError
             onEditState = ::updateEditState
             onTwoFingerTap = ::undoByGesture
+            onPenWheel = ::showPenWheel
         }
         toolSidebar = ToolSidebar(this).apply { visibility = View.GONE }
         controls = EditorControls(this, canvasView, toolSidebar, renderer, onChanged = ::invalidateOptionsMenu)
         toolSidebar.onToolSelected = controls::selectTool
+        toolSidebar.onColorSelected = controls::selectPaletteColor
+        toolSidebar.onColorEdit = controls::editPaletteColor
         clipboard = ClipboardActions(this, canvasView, renderer, onToolChanged = { tool ->
             // The engine already switched to the tool that shows what was pasted.
             controls.change(controls.settings.copy(tool = tool))
@@ -304,6 +307,25 @@ class MainActivity : Activity() {
                 }
                 .onFailure(::showError)
         }
+    }
+
+    /** Opens the wheel to pick the brush color and width around the pen at ([x], [y]). */
+    private fun showPenWheel(x: Float, y: Float) {
+        if (!documentOpen) {
+            return
+        }
+        val settings = controls.settings
+        val wheel = PenWheel(
+            this,
+            colors = settings.palette,
+            widths = BrushPalette.WHEEL_WIDTHS,
+            color = settings.brush.color,
+            brushWidth = settings.brush.width,
+            onPick = controls::pickFromWheel,
+            onClose = layout::hideOverlay,
+        )
+        wheel.centerAt(x, y)
+        layout.showOverlay(wheel)
     }
 
     /** A two-finger tap undoes, like in other note-taking apps. */

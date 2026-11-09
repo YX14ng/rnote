@@ -32,7 +32,7 @@
     <string name="discard_message">¿Descartar los cambios sin guardar?</string>
     <string name="discard">Descartar</string>
     <string name="action_shapes">Formas</string>
-    <string name="action_select">Seleccionar</string>
+    <string name="action_select">Seleccionar con lazo</string>
     <string name="action_brush_style">Estilo del pincel</string>
     <string name="action_shape">Forma</string>
     <string name="action_eraser_mode">Modo de la goma</string>
@@ -143,4 +143,7 @@
     <string name="label_pattern_spacing">Espaciado del patrón</string>
     <string name="invalid_value">Valor inválido: no se cambió nada</string>
     <string name="action_shape_recognition">Reconocer formas (mantener el lápiz quieto)</string>
+    <string name="palette_color">Color %1$d (mantené presionado para cambiarlo)</string>
+    <string name="title_palette_color">Color de la paleta</string>
+    <string name="pen_wheel">Rueda del lápiz: color y grosor</string>
 </resources>

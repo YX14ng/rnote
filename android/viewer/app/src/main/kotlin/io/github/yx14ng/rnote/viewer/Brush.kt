@@ -27,6 +27,18 @@ object BrushPalette {
 
     val DEFAULT_WIDTH = widths[1].value
 
+    /** The colors the tool sidebar starts with, before the user changes any. */
+    val DEFAULT_SIDEBAR_COLORS = listOf(
+        Color.BLACK,
+        Color.rgb(0xE0, 0x1B, 0x24),
+        Color.rgb(0x1C, 0x71, 0xD8),
+        Color.rgb(0x2E, 0xC2, 0x7E),
+        Color.rgb(0xF5, 0xC2, 0x11),
+    )
+
+    /** Brush widths the pen wheel offers, in document units. */
+    val WHEEL_WIDTHS = listOf(1.0, 2.0, 3.0, 6.0, 10.0)
+
     /** Black or white, whichever stands out on [background]. */
     fun contrastingColor(background: Int): Int {
         val luminance = (0.299 * Color.red(background) + 0.587 * Color.green(background) +

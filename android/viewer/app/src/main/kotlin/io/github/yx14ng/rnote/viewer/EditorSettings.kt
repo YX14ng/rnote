@@ -17,6 +17,8 @@ data class EditorSettings(
     val shapeRecognition: Boolean = false,
     val textFormat: TextFormat = TextFormat(),
     val shapeStyle: ShapeStyle = ShapeStyle(),
+    /** The colors in the tool sidebar, which the user can change. */
+    val palette: List<Int> = BrushPalette.DEFAULT_SIDEBAR_COLORS,
 ) {
     fun save(context: Context) {
         context.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE).edit()
@@ -28,6 +30,7 @@ data class EditorSettings(
             .putString(KEY_BRUSH_STYLE, brushStyle.name)
             .putString(KEY_ERASER_STYLE, eraserStyle.name)
             .putBoolean(KEY_FINGER_DRAWING, fingerDrawing)
+            .putString(KEY_PALETTE, palette.joinToString(","))
             .putBoolean(KEY_SHAPE_RECOGNITION, shapeRecognition)
             .putString(KEY_FONT_FAMILY, textFormat.fontFamily.name)
             .putFloat(KEY_FONT_SIZE, textFormat.fontSize.toFloat())
@@ -52,6 +55,7 @@ data class EditorSettings(
         private const val KEY_FINGER_DRAWING = "finger_drawing"
         private const val KEY_SHAPE_RECOGNITION = "shape_recognition"
         private const val KEY_FONT_FAMILY = "font_family"
+        private const val KEY_PALETTE = "palette"
         private const val KEY_FONT_SIZE = "font_size"
         private const val KEY_BOLD = "bold"
         private const val KEY_ITALIC = "italic"
@@ -93,7 +97,14 @@ data class EditorSettings(
                     rough = preferences.getBoolean(KEY_ROUGH, defaults.shapeStyle.rough),
                     fill = if (preferences.getBoolean(KEY_FILLED, false)) preferences.getInt(KEY_FILL, 0) else null,
                 ),
+                palette = parsePalette(preferences.getString(KEY_PALETTE, null)) ?: defaults.palette,
             )
+        }
+
+        /** Colors saved as comma-separated ints, if there are as many as the palette holds. */
+        private fun parsePalette(saved: String?): List<Int>? {
+            val colors = saved?.split(",")?.map { it.toIntOrNull() ?: return null } ?: return null
+            return colors.takeIf { it.size == BrushPalette.DEFAULT_SIDEBAR_COLORS.size }
         }
 
         private inline fun <reified T : Enum<T>> enumOrDefault(name: String?, default: T): T =

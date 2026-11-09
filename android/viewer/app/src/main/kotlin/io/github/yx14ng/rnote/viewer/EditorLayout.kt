@@ -51,6 +51,20 @@ internal class EditorLayout(activity: Activity, canvas: NoteCanvasView, sidebar:
         messageView.visibility = View.GONE
     }
 
+    private var overlay: View? = null
+
+    /** Shows [view] over everything, e.g. the pen wheel, replacing any other overlay. */
+    fun showOverlay(view: View) {
+        hideOverlay()
+        overlay = view
+        root.addView(view, FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT))
+    }
+
+    fun hideOverlay() {
+        overlay?.let(root::removeView)
+        overlay = null
+    }
+
     private companion object {
         const val MESSAGE_TEXT_SIZE_SP = 18f
         const val SIDEBAR_MARGIN_DP = 18f

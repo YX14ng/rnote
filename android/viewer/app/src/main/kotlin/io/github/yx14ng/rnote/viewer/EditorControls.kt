@@ -46,6 +46,34 @@ internal class EditorControls(
         }
     }
 
+    /** Draws with the palette color in [slot]; the eraser or lasso give way to the pen. */
+    fun selectPaletteColor(slot: Int) {
+        val color = settings.palette.getOrNull(slot) ?: return
+        changeBrush(settings.brush.copy(color = color), colorChosen = true)
+        if (settings.tool == Tool.ERASER || settings.tool == Tool.SELECTOR) {
+            selectTool(Tool.BRUSH)
+        }
+    }
+
+    /** Lets the user change the palette color in [slot], which then becomes the pen's. */
+    fun editPaletteColor(slot: Int) {
+        val current = settings.palette.getOrNull(slot) ?: return
+        ColorPicker.show(context, R.string.title_palette_color, current) { color ->
+            val palette = settings.palette.toMutableList().also { it[slot] = color }
+            change(settings.copy(palette = palette))
+            selectPaletteColor(slot)
+        }
+    }
+
+    /** Applies a color and width picked on the pen wheel. */
+    fun pickFromWheel(color: Int?, width: Double?) {
+        val brush = settings.brush.copy(color = color ?: settings.brush.color, width = width ?: settings.brush.width)
+        changeBrush(brush, colorChosen = settings.colorChosen || color != null)
+        if (settings.tool == Tool.ERASER || settings.tool == Tool.SELECTOR) {
+            selectTool(Tool.BRUSH)
+        }
+    }
+
     fun toggleShapeRecognition() {
         change(settings.copy(shapeRecognition = !settings.shapeRecognition))
         val enabled = settings.shapeRecognition
@@ -86,6 +114,7 @@ internal class EditorControls(
 
     private fun applyToView() {
         sidebar.selectedTool = settings.tool
+        sidebar.showPalette(settings.palette, settings.brush.color)
         canvas.tool = settings.tool
         canvas.brush = settings.brush
         canvas.fingerDrawing = settings.fingerDrawing
