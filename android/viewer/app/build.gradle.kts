@@ -11,8 +11,8 @@ android {
         // API 28 is the first with iconv in bionic, which glib needs.
         minSdk = 28
         targetSdk = 36
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = 2
+        versionName = "0.1.1"
 
         ndk {
             abiFilters += listOf("arm64-v8a", "x86_64")
