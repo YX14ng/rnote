@@ -1,7 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="action_open">Abrir</string>
-    <string name="empty_hint">Abrí un archivo .rnote para verlo.</string>
+    <string name="empty_hint">Abrí un archivo .rnote o creá uno nuevo desde el menú.</string>
     <string name="loading">Cargando…</string>
     <string name="open_failed">No se pudo abrir el archivo:\n%1$s</string>
+    <string name="untitled_file_name">Sin título.rnote</string>
+
+    <string name="action_undo">Deshacer</string>
+    <string name="action_redo">Rehacer</string>
+    <string name="action_pen">Lápiz</string>
+    <string name="action_eraser">Goma</string>
+    <string name="action_color">Color</string>
+    <string name="action_width">Grosor</string>
+    <string name="action_new">Nuevo</string>
+    <string name="action_open">Abrir</string>
+    <string name="action_save">Guardar</string>
+    <string name="action_save_as">Guardar como…</string>
+
+    <string name="color_black">Negro</string>
+    <string name="color_white">Blanco</string>
+    <string name="color_red">Rojo</string>
+    <string name="color_blue">Azul</string>
+    <string name="color_green">Verde</string>
+    <string name="color_yellow">Amarillo</string>
+    <string name="width_fine">Fino</string>
+    <string name="width_medium">Medio</string>
+    <string name="width_thick">Grueso</string>
+
+    <string name="saved">Guardado</string>
+    <string name="save_failed">No se pudo guardar: %1$s</string>
+    <string name="save_read_only">Este archivo es de solo lectura acá. Elegí dónde guardarlo.</string>
+    <string name="discard_message">¿Descartar los cambios sin guardar?</string>
+    <string name="discard">Descartar</string>
 </resources>
