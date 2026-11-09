@@ -73,16 +73,26 @@ What it does:
   alignment, for new text and the text being edited. Generic family names keep documents
   portable; the app's fontconfig setup maps them to Android's fonts and synthesizes bold and
   italic where a font lacks them.
+- "Selected text": bold, italic, underline, strikethrough or the pen color on the selected
+  part of the text being edited (select with Shift and the arrows, or "Select all text" /
+  Ctrl+A), like the desktop app's per-range formatting.
 - "Shape style…": smooth or hand-drawn (rough) shapes, with an optional fill.
-- "Document…": page size (A3, A4, A5, Letter, Legal) and orientation, layout (fixed pages,
-  continuous vertical, semi-infinite, infinite), background color and pattern, and page
+- "Document…": page size (A3, A4, A5, Letter, Legal, or any width and height in mm) and
+  orientation, layout (fixed pages, continuous vertical, semi-infinite, infinite),
+  background color (presets or any hex color), pattern, pattern color and spacing, and page
   borders. Like on the desktop, these don't go through undo.
+- Cut, copy and paste through the system clipboard: selected strokes as Rnote stroke content
+  (pasted back as strokes, also when a synced clipboard turned them into plain text), the
+  selected text as plain text. Pasting also takes text and images from other apps. Pasted
+  content lands in the middle of the view, selected.
+- Hardware keyboard shortcuts through the menu: Ctrl+Z undo, Ctrl+Shift+Z or Ctrl+Y redo,
+  Ctrl+X/C/V, Ctrl+A select all, Ctrl+N/O/S new, open and save.
 - Text: tapping with the text tool places a text box and shows the keyboard; the canvas
   shrinks above the keyboard and keeps the typing spot visible. Soft keyboards
   go through `TextInputConnection` (composing text is typed live and replaced as it
   changes); hardware keys, including arrows, Home/End and Enter, through `KeyMapping`.
-- Undo and redo, color (6 presets, black or white by default depending on the background)
-  and width (3 presets). The choices are remembered across documents and restarts.
+- Undo and redo, color (6 presets or any hex color, black or white by default depending on
+  the background) and width (3 presets). The choices are remembered across documents and restarts.
 - New, Open, Save (overwrites the opened file) and Save as, through the system file picker.
   Unsaved changes are marked in the title, and leaving or replacing the document asks first.
 - Autosave: when the app goes to the background with unsaved changes, it saves to the open
@@ -100,7 +110,7 @@ How it fits together:
 - Tool changes go through `Engine::change_pen_style` after switching the engine to the pen
   side: style changes apply to the current pen mode, which is the eraser after using the
   stylus' eraser end.
-- `crates/rnote-android/src/jni_bridge.rs` and `android_bitmap.rs`: the JNI entry points and
+- `crates/rnote-android/src/jni_bridge/` and `android_bitmap.rs`: the JNI entry points and
   the NDK bitmap access. All `unsafe` lives there, with the invariants the Kotlin side
   upholds documented in the module docs.
 - `android/viewer`: Kotlin, framework APIs only (no AndroidX). `DocumentRenderer` confines
@@ -151,16 +161,18 @@ FONTCONFIG_FILE=/data/local/tmp/rnote/fonts.conf ./rnote-cli export doc -o note.
 
 ## Known issues
 
-- Exporting some documents to SVG fails with `BackendError(InvalidMatrix)`. This also
-  happens on Linux with the same document, so it isn't specific to Android.
+- Exporting some documents to SVG used to fail with `BackendError(InvalidMatrix)`, on Linux
+  too: an image whose placement had collapsed to zero size. Such images are now skipped when
+  drawn; `image_scaled_to_nothing_does_not_break_svg_export` covers it.
 - Background patterns used to vanish once the drawn region was more than ~32k device
   pixels away from the document origin (pixman's 16 bit limit), e.g. far down a long
   document when zoomed in. Fixed in the engine by anchoring each pattern next to the drawn
   region; `renders_pattern_far_from_document_origin` covers it.
-- Formatting applies to a whole text box: no per-word ranges as on the desktop. Keyboards get
-  no suggestions, since the engine owns the text and the keyboard can't read it back. The
+- Keyboards get no suggestions, since the engine owns the text and the keyboard can't read it back. The
   desktop "tools" pen (offsetting, zooming) isn't exposed.
-- Presets only: no free page size, background color or pattern size and color.
-- The selection offers no copy and paste between documents or apps.
+- A `NullPointerException` showed up once during testing and couldn't be reproduced in six
+  later attempts, three of them from a clean install.
+- The clipboard keeps one format per copy: strokes don't also go out as an image for other
+  apps.
 - Edge-to-edge insets (enforced on Android 15+) are handled but untested: the test device
   (Waydroid) runs Android 13.
