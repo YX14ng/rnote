@@ -1,0 +1,4 @@
+# Android Rust format style (AOSP build/soong/scripts/rustfmt.toml), on top of the
+# Google Rust Style Guide. Applies to this crate only; upstream crates keep their style.
+use_small_heuristics = "Max"
+newline_style = "Unix"

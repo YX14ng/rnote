@@ -4,6 +4,7 @@ members = [
     "crates/rnote-engine",
     "crates/rnote-cli",
     "crates/rnote-ui",
+    "crates/rnote-android",
 ]
 resolver = "2"
 
