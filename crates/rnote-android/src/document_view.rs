@@ -198,6 +198,46 @@ mod tests {
         (channel * 255.0).round() as u8
     }
 
+    /// Counts the pixels of a `size` x `size` render at `zoom` that are darker than mid gray.
+    fn count_dark_pixels(view: &DocumentView, x: f64, y: f64, zoom: f64, size: u32) -> usize {
+        let layout = PixelLayout { width: size, height: size, stride: size as usize * 4 };
+        let mut out = vec![0_u8; layout.min_len()];
+        view.render_rgba(Viewport { x, y, zoom }, layout, &mut out)
+            .expect("rendering the region should succeed");
+        out.as_chunks::<BYTES_PER_PIXEL>().0.iter().filter(|pixel| pixel[0] < 128).count()
+    }
+
+    #[test]
+    fn renders_pattern_far_from_document_origin() {
+        let mut engine = Engine::default();
+        let background = &mut engine.document.config.background;
+        background.pattern = PatternStyle::Grid;
+        background.pattern_size = Vector2::new(4.0, 4.0);
+        background.color.r = 1.0;
+        background.color.g = 1.0;
+        background.color.b = 1.0;
+        background.color.a = 1.0;
+        background.pattern_color.r = 0.0;
+        background.pattern_color.g = 0.0;
+        background.pattern_color.b = 0.0;
+        background.pattern_color.a = 1.0;
+        let bytes = futures::executor::block_on(engine.save_as_rnote_bytes("grid.rnote".into()))
+            .expect("the save task should not be cancelled")
+            .expect("saving an empty document should succeed");
+        let view = DocumentView::try_new(bytes).expect("an empty document should load");
+
+        // At zoom 40, y = 1000 is 40000 device pixels away from the document origin, past the
+        // 16 bit range that pixman handles for pattern offsets.
+        let near_origin = count_dark_pixels(&view, 100.0, 100.0, 40.0, 400);
+        let far_from_origin = count_dark_pixels(&view, 100.0, 1000.0, 40.0, 400);
+
+        assert!(near_origin > 0, "grid lines should be drawn near the origin");
+        assert!(
+            far_from_origin > 0,
+            "grid lines vanished far from the origin (near origin: {near_origin} dark pixels)"
+        );
+    }
+
     #[test]
     fn rejects_invalid_bytes() {
         assert!(DocumentView::try_new(b"not an rnote file".to_vec()).is_err());
