@@ -13,6 +13,8 @@ data class EditorSettings(
     val brushStyle: BrushStyle = BrushStyle.SOLID,
     val eraserStyle: EraserStyle = EraserStyle.WHOLE_STROKES,
     val fingerDrawing: Boolean = false,
+    val textFormat: TextFormat = TextFormat(),
+    val shapeStyle: ShapeStyle = ShapeStyle(),
 ) {
     fun save(context: Context) {
         context.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE).edit()
@@ -24,6 +26,14 @@ data class EditorSettings(
             .putString(KEY_BRUSH_STYLE, brushStyle.name)
             .putString(KEY_ERASER_STYLE, eraserStyle.name)
             .putBoolean(KEY_FINGER_DRAWING, fingerDrawing)
+            .putString(KEY_FONT_FAMILY, textFormat.fontFamily.name)
+            .putFloat(KEY_FONT_SIZE, textFormat.fontSize.toFloat())
+            .putBoolean(KEY_BOLD, textFormat.bold)
+            .putBoolean(KEY_ITALIC, textFormat.italic)
+            .putString(KEY_ALIGNMENT, textFormat.alignment.name)
+            .putBoolean(KEY_ROUGH, shapeStyle.rough)
+            .putBoolean(KEY_FILLED, shapeStyle.fill != null)
+            .putInt(KEY_FILL, shapeStyle.fill ?: 0)
             .apply()
     }
 
@@ -37,6 +47,14 @@ data class EditorSettings(
         private const val KEY_BRUSH_STYLE = "brush_style"
         private const val KEY_ERASER_STYLE = "eraser_style"
         private const val KEY_FINGER_DRAWING = "finger_drawing"
+        private const val KEY_FONT_FAMILY = "font_family"
+        private const val KEY_FONT_SIZE = "font_size"
+        private const val KEY_BOLD = "bold"
+        private const val KEY_ITALIC = "italic"
+        private const val KEY_ALIGNMENT = "alignment"
+        private const val KEY_ROUGH = "rough"
+        private const val KEY_FILLED = "filled"
+        private const val KEY_FILL = "fill"
 
         /** The saved settings, falling back to the defaults for anything missing or unknown. */
         fun load(context: Context): EditorSettings {
@@ -53,6 +71,23 @@ data class EditorSettings(
                 brushStyle = enumOrDefault(preferences.getString(KEY_BRUSH_STYLE, null), defaults.brushStyle),
                 eraserStyle = enumOrDefault(preferences.getString(KEY_ERASER_STYLE, null), defaults.eraserStyle),
                 fingerDrawing = preferences.getBoolean(KEY_FINGER_DRAWING, defaults.fingerDrawing),
+                textFormat = TextFormat(
+                    fontFamily = enumOrDefault(
+                        preferences.getString(KEY_FONT_FAMILY, null),
+                        defaults.textFormat.fontFamily,
+                    ),
+                    fontSize = preferences.getFloat(KEY_FONT_SIZE, defaults.textFormat.fontSize.toFloat()).toDouble(),
+                    bold = preferences.getBoolean(KEY_BOLD, defaults.textFormat.bold),
+                    italic = preferences.getBoolean(KEY_ITALIC, defaults.textFormat.italic),
+                    alignment = enumOrDefault(
+                        preferences.getString(KEY_ALIGNMENT, null),
+                        defaults.textFormat.alignment,
+                    ),
+                ),
+                shapeStyle = ShapeStyle(
+                    rough = preferences.getBoolean(KEY_ROUGH, defaults.shapeStyle.rough),
+                    fill = if (preferences.getBoolean(KEY_FILLED, false)) preferences.getInt(KEY_FILL, 0) else null,
+                ),
             )
         }
 

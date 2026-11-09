@@ -32,6 +32,7 @@ class MainActivity : Activity() {
     private var currentUri: Uri? = null
     private var documentName = ""
     private var editState = EditState.CLEAN
+    private var documentSettings: DocumentSettings? = null
 
     // Set once the user agreed to drop the changes, so going to the background doesn't save them.
     private var changesDiscarded = false
@@ -58,9 +59,10 @@ class MainActivity : Activity() {
             addView(messageView, FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT))
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            // Edge-to-edge is enforced from Android 15 on: keep content out of the bars.
+            // Edge-to-edge is enforced from Android 15 on: keep content out of the bars, and
+            // above the keyboard so the text being typed stays visible.
             root.setOnApplyWindowInsetsListener { view, insets ->
-                val bars = insets.getInsets(WindowInsets.Type.systemBars())
+                val bars = insets.getInsets(WindowInsets.Type.systemBars() or WindowInsets.Type.ime())
                 view.setPadding(bars.left, bars.top, bars.right, bars.bottom)
                 insets
             }
@@ -127,6 +129,21 @@ class MainActivity : Activity() {
                 canvasView.applyEdit { it.selection(action.action) }
             }
             EditorMenu.Action.FinishShape -> canvasView.finishShape()
+            EditorMenu.Action.TextFormat -> FormatDialogs.showTextFormat(this, settings.textFormat) { format ->
+                changeSettings(settings.copy(textFormat = format))
+                canvasView.applyEdit { it.setTextFormat(format) }
+            }
+            EditorMenu.Action.ShapeStyle -> FormatDialogs.showShapeStyle(this, settings.shapeStyle) { style ->
+                changeSettings(settings.copy(shapeStyle = style))
+                canvasView.applyEdit { it.setShapeStyle(style) }
+            }
+            EditorMenu.Action.Document -> documentSettings?.let { current ->
+                FormatDialogs.showDocument(this, current) { change ->
+                    canvasView.applyEdit(change)
+                    // Runs after the edit, so the view already has the new bounds.
+                    refreshDocumentSettings(onRefreshed = canvasView::refit)
+                }
+            }
             EditorMenu.Action.ToggleFingerDrawing ->
                 changeSettings(settings.copy(fingerDrawing = !settings.fingerDrawing))
             EditorMenu.Action.New -> confirmDiscard(::newDocument)
@@ -234,6 +251,7 @@ class MainActivity : Activity() {
 
     private fun showOpenedDocument(info: DocumentInfo) {
         documentOpen = true
+        documentSettings = info.settings
         changesDiscarded = false
         messageView.visibility = View.GONE
         if (!settings.colorChosen) {
@@ -248,9 +266,29 @@ class MainActivity : Activity() {
             document.setShape(settings.shape)
             document.setBrushStyle(settings.brushStyle)
             document.setEraserStyle(settings.eraserStyle)
+            document.setShapeStyle(settings.shapeStyle)
+            // Only new text: nothing is being edited yet.
+            document.setTextFormat(settings.textFormat)
             document.setTool(settings.tool)
         }
         updateEditState(info.editState)
+    }
+
+    /** Reads the document settings back after the document dialog changed them. */
+    private fun refreshDocumentSettings(onRefreshed: () -> Unit) {
+        renderer.query({ it.settings }) { result ->
+            result
+                .onSuccess { settings ->
+                    documentSettings = settings
+                    if (!this.settings.colorChosen) {
+                        // Keep the automatic color readable on the new background.
+                        val contrasting = BrushPalette.contrastingColor(settings.backgroundColor)
+                        changeBrush(this.settings.brush.copy(color = contrasting), colorChosen = false)
+                    }
+                    onRefreshed()
+                }
+                .onFailure(::showError)
+        }
     }
 
     private fun changeSettings(newSettings: EditorSettings) {

@@ -99,6 +99,24 @@ internal class ViewportController(context: Context) {
         return true
     }
 
+    /** Pans just enough to show the document point ([x], [y]) with [marginPx] around it. */
+    fun ensureVisible(x: Double, y: Double, marginPx: Float) {
+        val margin = marginPx / viewport.zoom
+        val visibleWidth = width / viewport.zoom
+        val visibleHeight = height / viewport.zoom
+        val newX = when {
+            x - margin < viewport.x -> x - margin
+            x + margin > viewport.x + visibleWidth -> x + margin - visibleWidth
+            else -> viewport.x
+        }
+        val newY = when {
+            y - margin < viewport.y -> y - margin
+            y + margin > viewport.y + visibleHeight -> y + margin - visibleHeight
+            else -> viewport.y
+        }
+        viewport = clamp(viewport.copy(x = newX, y = newY))
+    }
+
     /** Document coordinates of the view point ([x], [y]). */
     fun toDocumentX(x: Float): Double = viewport.x + x / viewport.zoom
 

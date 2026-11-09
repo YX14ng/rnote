@@ -10,7 +10,12 @@ import java.util.concurrent.Executors
 class Frame(val bitmap: Bitmap, val viewport: Viewport, val editSequence: Int)
 
 /** A freshly opened or created document. */
-class DocumentInfo(val bounds: DocumentBounds, val backgroundColor: Int, val editState: EditState)
+class DocumentInfo(
+    val bounds: DocumentBounds,
+    val backgroundColor: Int,
+    val editState: EditState,
+    val settings: DocumentSettings,
+)
 
 /** The outcome of an edit; [bounds] is only set when they changed. */
 class EditResult(val state: EditState, val bounds: DocumentBounds?)
@@ -44,6 +49,9 @@ internal class DocumentRenderer : AutoCloseable {
             val state = operation(current)
             EditResult(state, if (state.boundsChanged) current.bounds else null)
         }
+
+    /** Reads something from the document, after every operation submitted before. */
+    fun <T> query(task: (NativeDocument) -> T, onResult: (Result<T>) -> Unit) = submit(onResult, task)
 
     /** Applies [brush] to the strokes drawn from now on. */
     fun setBrush(brush: Brush) = submit<Unit>({}) { current -> current.setBrush(brush) }
@@ -105,7 +113,7 @@ internal class DocumentRenderer : AutoCloseable {
                 document?.close()
                 document = created
                 brush?.let(created::setBrush)
-                DocumentInfo(created.bounds, created.backgroundColor, created.editState)
+                DocumentInfo(created.bounds, created.backgroundColor, created.editState, created.settings)
             }
             mainHandler.post { onResult(result) }
         }

@@ -25,6 +25,30 @@ internal object NativeBridge {
     /** The document background as an `android.graphics.Color` int. */
     @JvmStatic external fun backgroundColor(handle: Long): Int
 
+    /** Page size, layout and background; see [DocumentSettings.fromArray]. */
+    @JvmStatic external fun documentSettings(handle: Long): DoubleArray
+
+    /** Sets the format of new text and of the text being edited. Returns the packed state. */
+    @JvmStatic external fun setTextFormat(
+        handle: Long,
+        fontFamily: String,
+        fontSize: Double,
+        bold: Boolean,
+        italic: Boolean,
+        alignment: Int,
+    ): Int
+
+    /** Sets the style and fill of new shapes. Returns the packed editing state. */
+    @JvmStatic external fun setShapeStyle(handle: Long, rough: Boolean, filled: Boolean, fillArgb: Int): Int
+
+    @JvmStatic external fun setPageSize(handle: Long, widthMm: Double, heightMm: Double): Int
+
+    @JvmStatic external fun setLayout(handle: Long, layout: Int): Int
+
+    @JvmStatic external fun setBackground(handle: Long, argb: Int, pattern: Int, patternArgb: Int): Int
+
+    @JvmStatic external fun setPageBorders(handle: Long, show: Boolean): Int
+
     /** The editing state, packed as in [EditState.fromFlags]. */
     @JvmStatic external fun editState(handle: Long): Int
 

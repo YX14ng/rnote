@@ -74,7 +74,10 @@ enum class Shape(val nativeValue: Int, val label: Int, val needsFinish: Boolean 
     RECTANGLE(2, R.string.shape_rectangle),
     GRID(3, R.string.shape_grid),
     COORDINATE_SYSTEM(4, R.string.shape_coordinate_system),
+    COORDINATE_SYSTEM_3D(5, R.string.shape_coordinate_system_3d),
+    QUADRANT_COORDINATE_SYSTEM(6, R.string.shape_quadrant_coordinate_system),
     ELLIPSE(7, R.string.shape_ellipse),
+    FOCI_ELLIPSE(8, R.string.shape_foci_ellipse),
     QUADRATIC_CURVE(9, R.string.shape_quadratic_curve),
     CUBIC_CURVE(10, R.string.shape_cubic_curve),
     POLYLINE(11, R.string.shape_polyline, needsFinish = true),
@@ -146,6 +149,9 @@ internal class NativeDocument private constructor(private var handle: Long) : Au
     val editState: EditState
         get() = EditState.fromFlags(NativeBridge.editState(checkOpen()))
 
+    val settings: DocumentSettings
+        get() = DocumentSettings.fromArray(NativeBridge.documentSettings(checkOpen()))
+
     /**
      * Renders [viewport] into [target].
      *
@@ -195,6 +201,32 @@ internal class NativeDocument private constructor(private var handle: Long) : Au
         EditState.fromFlags(NativeBridge.handleKey(checkOpen(), key.nativeValue, shift, ctrl))
 
     fun handleText(text: String): EditState = EditState.fromFlags(NativeBridge.handleText(checkOpen(), text))
+
+    fun setTextFormat(format: TextFormat): EditState = EditState.fromFlags(
+        NativeBridge.setTextFormat(
+            checkOpen(),
+            format.fontFamily.family,
+            format.fontSize,
+            format.bold,
+            format.italic,
+            format.alignment.nativeValue,
+        ),
+    )
+
+    fun setShapeStyle(style: ShapeStyle): EditState = EditState.fromFlags(
+        NativeBridge.setShapeStyle(checkOpen(), style.rough, style.fill != null, style.fill ?: 0),
+    )
+
+    fun setPageSize(widthMm: Double, heightMm: Double): EditState =
+        EditState.fromFlags(NativeBridge.setPageSize(checkOpen(), widthMm, heightMm))
+
+    fun setLayout(layout: DocumentLayout): EditState =
+        EditState.fromFlags(NativeBridge.setLayout(checkOpen(), layout.nativeValue))
+
+    fun setBackground(color: Int, pattern: Pattern, patternColor: Int): EditState =
+        EditState.fromFlags(NativeBridge.setBackground(checkOpen(), color, pattern.nativeValue, patternColor))
+
+    fun setPageBorders(show: Boolean): EditState = EditState.fromFlags(NativeBridge.setPageBorders(checkOpen(), show))
 
     fun markModified(): EditState = EditState.fromFlags(NativeBridge.markModified(checkOpen()))
 

@@ -75,6 +75,10 @@ class NoteCanvasView(context: Context) : View(context) {
     private var clearPreviewAt = NO_PENDING_CLEAR
     private val preview = StrokePreview()
 
+    // Where the pen last touched down, in document coordinates.
+    private var lastPenX = 0.0
+    private var lastPenY = 0.0
+
     // With fingerDrawing, a finger only starts drawing once it moved without a second finger.
     private var fingerGesture = FingerGesture.NONE
     private var fingerDownSamples = DoubleArray(0)
@@ -162,6 +166,13 @@ class NoteCanvasView(context: Context) : View(context) {
         onViewportChanged()
     }
 
+    /** Fits the document to the view width again, e.g. after its page size or layout changed. */
+    fun refit() {
+        val currentBounds = bounds ?: return
+        camera.showDocument(currentBounds)
+        onViewportChanged()
+    }
+
     /** Finishes a polyline or polygon being built, like pressing Enter. */
     fun finishShape() {
         if (bounds != null && !penDown) {
@@ -230,6 +241,10 @@ class NoteCanvasView(context: Context) : View(context) {
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
         camera.resize(w, h)
+        if (textInputActive) {
+            // The keyboard took part of the view: keep where the text is typed visible.
+            camera.ensureVisible(lastPenX, lastPenY, TEXT_VISIBLE_MARGIN_PX)
+        }
         onViewportChanged()
     }
 
@@ -384,6 +399,10 @@ class NoteCanvasView(context: Context) : View(context) {
     }
 
     private fun beginPen(tool: Tool, samples: DoubleArray) {
+        if (samples.size >= 2) {
+            lastPenX = samples[0]
+            lastPenY = samples[1]
+        }
         penDown = true
         penTool = tool
         clearPreviewAt = NO_PENDING_CLEAR
@@ -484,6 +503,7 @@ class NoteCanvasView(context: Context) : View(context) {
         const val WHEEL_ZOOM_STEP = 0.1
         const val DEFAULT_PRESSURE = 0.5
         const val NO_PENDING_CLEAR = -1
+        const val TEXT_VISIBLE_MARGIN_PX = 300f
     }
 
     private enum class FingerGesture {

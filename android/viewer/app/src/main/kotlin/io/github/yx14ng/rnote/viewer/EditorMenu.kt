@@ -22,6 +22,9 @@ internal object EditorMenu {
         data class Selection(val action: SelectionAction) : Action
         data object ToggleFingerDrawing : Action
         data object FinishShape : Action
+        data object TextFormat : Action
+        data object ShapeStyle : Action
+        data object Document : Action
         data object New : Action
         data object Open : Action
         data object Save : Action
@@ -46,6 +49,9 @@ internal object EditorMenu {
     private const val ERASER_MENU = 16
     private const val SELECTION_MENU = 17
     private const val FINISH_SHAPE = 18
+    private const val TEXT_FORMAT = 19
+    private const val SHAPE_STYLE = 20
+    private const val DOCUMENT = 21
 
     // Item ids of the choice groups are a base plus the index of the choice.
     private const val TOOL_FIRST = 100
@@ -73,7 +79,7 @@ internal object EditorMenu {
     // Ids of the items that need an open document.
     private val documentItems = listOf(
         COLOR_MENU, WIDTH_MENU, SHAPE_MENU, BRUSH_STYLE_MENU, ERASER_MENU, SELECTION_MENU,
-        SAVE, SAVE_AS,
+        TEXT_FORMAT, SHAPE_STYLE, DOCUMENT, SAVE, SAVE_AS,
     ) + tools.indices.map { TOOL_FIRST + it }
 
     fun create(menu: Menu) {
@@ -95,6 +101,8 @@ internal object EditorMenu {
             BRUSH_STYLE_FIRST, order++, BrushStyle.entries.map { it.label })
         addChoices(menu, SHAPE_MENU, R.string.action_shape, GROUP_SHAPES, SHAPE_FIRST, order++,
             Shape.entries.map { it.label })
+        menu.add(Menu.NONE, SHAPE_STYLE, order++, R.string.action_shape_style)
+        menu.add(Menu.NONE, TEXT_FORMAT, order++, R.string.action_text_format)
         addChoices(menu, ERASER_MENU, R.string.action_eraser_mode, GROUP_ERASER_STYLES,
             ERASER_FIRST, order++, EraserStyle.entries.map { it.label })
 
@@ -105,6 +113,7 @@ internal object EditorMenu {
         selection.add(Menu.NONE, DELETE_SELECTION, 3, R.string.action_delete_selection)
 
         menu.add(Menu.NONE, FINGER_DRAWING, order++, R.string.action_finger_drawing).isCheckable = true
+        menu.add(Menu.NONE, DOCUMENT, order++, R.string.action_document)
         menu.add(Menu.NONE, NEW, order++, R.string.action_new)
         menu.add(Menu.NONE, OPEN, order++, R.string.action_open)
         menu.add(Menu.NONE, SAVE, order++, R.string.action_save)
@@ -146,6 +155,9 @@ internal object EditorMenu {
             REDO -> Action.Redo
             FINGER_DRAWING -> Action.ToggleFingerDrawing
             FINISH_SHAPE -> Action.FinishShape
+            TEXT_FORMAT -> Action.TextFormat
+            SHAPE_STYLE -> Action.ShapeStyle
+            DOCUMENT -> Action.Document
             NEW -> Action.New
             OPEN -> Action.Open
             SAVE -> Action.Save
