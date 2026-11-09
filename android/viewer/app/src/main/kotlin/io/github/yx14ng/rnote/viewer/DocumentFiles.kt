@@ -3,6 +3,7 @@ package io.github.yx14ng.rnote.viewer
 import android.content.ContentResolver
 import android.content.Intent
 import android.net.Uri
+import android.provider.DocumentsContract
 import android.provider.OpenableColumns
 import java.io.IOException
 
@@ -14,14 +15,27 @@ internal object DocumentFiles {
      */
     private const val MIME_TYPE = "application/octet-stream"
 
-    fun openIntent(): Intent =
-        Intent(Intent.ACTION_OPEN_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("*/*")
+    /** The shared Documents folder on the device's main storage. */
+    private val documentsFolder: Uri =
+        DocumentsContract.buildDocumentUri("com.android.externalstorage.documents", "primary:Documents")
 
-    fun createIntent(suggestedName: String): Intent =
+    /**
+     * Picks a document to open. The picker starts next to [current], the open file, or in the
+     * Documents folder.
+     */
+    fun openIntent(current: Uri?): Intent =
+        Intent(Intent.ACTION_OPEN_DOCUMENT)
+            .addCategory(Intent.CATEGORY_OPENABLE)
+            .setType("*/*")
+            .putExtra(DocumentsContract.EXTRA_INITIAL_URI, current ?: documentsFolder)
+
+    /** Picks where to save; starts like [openIntent]. */
+    fun createIntent(suggestedName: String, current: Uri?): Intent =
         Intent(Intent.ACTION_CREATE_DOCUMENT)
             .addCategory(Intent.CATEGORY_OPENABLE)
             .setType(MIME_TYPE)
             .putExtra(Intent.EXTRA_TITLE, suggestedName)
+            .putExtra(DocumentsContract.EXTRA_INITIAL_URI, current ?: documentsFolder)
 
     /** The name the provider shows for [uri], if it has one. */
     fun displayName(resolver: ContentResolver, uri: Uri): String? =

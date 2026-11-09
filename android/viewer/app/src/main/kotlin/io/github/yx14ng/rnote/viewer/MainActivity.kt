@@ -169,7 +169,7 @@ class MainActivity : Activity() {
                 changeSettings(settings.copy(fingerDrawing = !settings.fingerDrawing))
             EditorMenu.Action.New -> guard.confirmDiscard(::newDocument)
             EditorMenu.Action.Open ->
-                guard.confirmDiscard { startActivityForResult(DocumentFiles.openIntent(), REQUEST_OPEN) }
+                guard.confirmDiscard { startActivityForResult(DocumentFiles.openIntent(saver.currentUri), REQUEST_OPEN) }
             EditorMenu.Action.Save -> saver.save()
             EditorMenu.Action.SaveAs -> saveAs()
         }
@@ -328,7 +328,7 @@ class MainActivity : Activity() {
     }
 
     private fun saveAs() {
-        startActivityForResult(DocumentFiles.createIntent(saver.documentName), REQUEST_SAVE_AS)
+        startActivityForResult(DocumentFiles.createIntent(saver.documentName, saver.currentUri), REQUEST_SAVE_AS)
     }
 
     private fun updateEditState(state: EditState) {
