@@ -26,11 +26,10 @@ class MainActivity : Activity() {
     private lateinit var canvasView: NoteCanvasView
     private lateinit var messageView: TextView
     private lateinit var recovery: Recovery
+    private lateinit var saver: DocumentSaver
 
     private var settings = EditorSettings()
     private var documentOpen = false
-    private var currentUri: Uri? = null
-    private var documentName = ""
     private var editState = EditState.CLEAN
     private var documentSettings: DocumentSettings? = null
 
@@ -42,6 +41,7 @@ class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         recovery = Recovery(this)
+        saver = DocumentSaver(this, renderer, recovery, onSaved = ::updateEditState, requestSaveAs = ::saveAs)
         settings = EditorSettings.load(this)
         canvasView = NoteCanvasView(this).apply {
             renderer = this@MainActivity.renderer
@@ -81,7 +81,7 @@ class MainActivity : Activity() {
     override fun onStop() {
         super.onStop()
         if (documentOpen && editState.modified && !changesDiscarded && !isChangingConfigurations) {
-            autosave()
+            saver.autosave()
         }
     }
 
@@ -149,7 +149,7 @@ class MainActivity : Activity() {
             EditorMenu.Action.New -> confirmDiscard(::newDocument)
             EditorMenu.Action.Open ->
                 confirmDiscard { startActivityForResult(DocumentFiles.openIntent(), REQUEST_OPEN) }
-            EditorMenu.Action.Save -> save()
+            EditorMenu.Action.Save -> saver.save()
             EditorMenu.Action.SaveAs -> saveAs()
         }
         invalidateOptionsMenu()
@@ -164,11 +164,7 @@ class MainActivity : Activity() {
         }
         when (requestCode) {
             REQUEST_OPEN -> openDocument(uri)
-            REQUEST_SAVE_AS -> {
-                currentUri = uri
-                documentName = DocumentFiles.displayName(contentResolver, uri) ?: documentName
-                writeTo(uri)
-            }
+            REQUEST_SAVE_AS -> saver.saveAs(uri)
         }
     }
 
@@ -205,8 +201,8 @@ class MainActivity : Activity() {
         renderer.open({ DocumentFiles.read(contentResolver, uri) }, brush = null) { result ->
             result
                 .onSuccess { info ->
-                    currentUri = uri
-                    documentName = DocumentFiles.displayName(contentResolver, uri)
+                    saver.currentUri = uri
+                    saver.documentName = DocumentFiles.displayName(contentResolver, uri)
                         ?: uri.lastPathSegment
                         ?: getString(R.string.untitled_file_name)
                     recovery.clear()
@@ -220,8 +216,8 @@ class MainActivity : Activity() {
         renderer.createEmpty(brush = null) { result ->
             result
                 .onSuccess { info ->
-                    currentUri = null
-                    documentName = getString(R.string.untitled_file_name)
+                    saver.currentUri = null
+                    saver.documentName = getString(R.string.untitled_file_name)
                     recovery.clear()
                     showOpenedDocument(info)
                 }
@@ -229,14 +225,14 @@ class MainActivity : Activity() {
         }
     }
 
-    /** Reopens the unsaved changes kept by [autosave], still marked as unsaved. */
+    /** Reopens the unsaved changes kept by [DocumentSaver.autosave], still marked as unsaved. */
     private fun restoreRecovery() {
         showMessage(getString(R.string.loading))
         renderer.open({ recovery.read() }, brush = null) { result ->
             result
                 .onSuccess { info ->
-                    currentUri = null
-                    documentName = recovery.documentName ?: getString(R.string.untitled_file_name)
+                    saver.currentUri = null
+                    saver.documentName = recovery.documentName ?: getString(R.string.untitled_file_name)
                     showOpenedDocument(info)
                     canvasView.applyEdit(NativeDocument::markModified)
                     Toast.makeText(this, R.string.recovered, Toast.LENGTH_LONG).show()
@@ -310,71 +306,13 @@ class MainActivity : Activity() {
         }
     }
 
-    private fun save() {
-        val uri = currentUri
-        if (uri == null) {
-            saveAs()
-        } else {
-            writeTo(uri)
-        }
-    }
-
     private fun saveAs() {
-        startActivityForResult(DocumentFiles.createIntent(documentName), REQUEST_SAVE_AS)
-    }
-
-    /**
-     * Saves to [uri]. When [quiet], failures fall back to a recovery copy instead of asking
-     * the user, since this runs while the app goes to the background.
-     */
-    private fun writeTo(uri: Uri, quiet: Boolean = false) {
-        renderer.save(documentName, { bytes -> DocumentFiles.write(contentResolver, uri, bytes) }) { result ->
-            result
-                .onSuccess { state ->
-                    recovery.clear()
-                    updateEditState(state)
-                    if (!quiet) {
-                        Toast.makeText(this, R.string.saved, Toast.LENGTH_SHORT).show()
-                    }
-                }
-                .onFailure { error ->
-                    Log.e(TAG, "Saving to $uri failed", error)
-                    when {
-                        quiet -> saveRecovery()
-                        error is SecurityException -> {
-                            // Opened read-only, e.g. from another app: ask where to save instead.
-                            Toast.makeText(this, R.string.save_read_only, Toast.LENGTH_LONG).show()
-                            saveAs()
-                        }
-                        else -> {
-                            val message = error.message ?: error.toString()
-                            Toast.makeText(this, getString(R.string.save_failed, message), Toast.LENGTH_LONG).show()
-                        }
-                    }
-                }
-        }
-    }
-
-    /** Saves to the open file, or keeps a recovery copy if there is none. */
-    private fun autosave() {
-        val uri = currentUri
-        if (uri != null) {
-            writeTo(uri, quiet = true)
-        } else {
-            saveRecovery()
-        }
-    }
-
-    private fun saveRecovery() {
-        val name = documentName
-        renderer.saveCopy(name, { bytes -> recovery.write(bytes, name) }) { result ->
-            result.onFailure { error -> Log.e(TAG, "Writing the recovery copy failed", error) }
-        }
+        startActivityForResult(DocumentFiles.createIntent(saver.documentName), REQUEST_SAVE_AS)
     }
 
     private fun updateEditState(state: EditState) {
         editState = state
-        title = if (state.modified) "• $documentName" else documentName
+        title = if (state.modified) "• ${saver.documentName}" else saver.documentName
         invalidateOptionsMenu()
         updateBackHandling()
     }
