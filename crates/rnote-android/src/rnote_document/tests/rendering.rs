@@ -121,3 +121,28 @@ fn background_tiles_have_no_seams_when_zoomed_out() {
         }
     }
 }
+
+#[test]
+fn renders_strokes_drawn_beside_a_fixed_size_page() {
+    let mut document = plain_document();
+    let config = &mut document.engine.document.config;
+    config.layout = Layout::FixedSize;
+    let (page_width, page_height) = (config.format.width(), config.format.height());
+    let doc = &mut document.engine.document;
+    (doc.x, doc.y, doc.width, doc.height) = (0.0, 0.0, page_width, page_height);
+    // Green stands out from both the page and the gray desk around it.
+    document.set_brush(Color { r: 0.0, g: 1.0, b: 0.0, a: 1.0 }, 6.0);
+    // The brush takes input a little beyond the page, so strokes can stick out of it.
+    let left_of_page = -20.0;
+    let samples: Vec<PenSample> = (0..=10)
+        .map(|i| PenSample { x: left_of_page, y: 100.0 + 20.0 * f64::from(i), pressure: 1.0 })
+        .collect();
+    let (moves, last) = samples.split_at(samples.len() - 1);
+    let viewport = Viewport { x: -400.0, y: 0.0, zoom: 1.0 };
+    document.handle_pen(PenPhase::Down, Tool::Brush, moves, viewport, VIEW);
+    document.handle_pen(PenPhase::Up, Tool::Brush, last, viewport, VIEW);
+
+    // Used to be clipped to the page: the part outside was saved but never shown.
+    let pixel = render_pixel(&mut document, left_of_page, 200.0);
+    assert!(pixel[1] > 200 && pixel[0] < 100, "got {pixel:?}");
+}

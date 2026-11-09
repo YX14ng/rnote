@@ -94,7 +94,9 @@ class MainActivity : Activity() {
 
     override fun onStop() {
         super.onStop()
-        if (documentOpen && editState.modified && !guard.changesDiscarded && !isChangingConfigurations) {
+        // Also while the configuration changes: one the manifest doesn't list recreates the
+        // activity, and the native document goes with the old one.
+        if (documentOpen && editState.modified && !guard.changesDiscarded) {
             saver.autosave()
         }
     }
@@ -170,8 +172,13 @@ class MainActivity : Activity() {
             EditorMenu.Action.Document -> documentSettings?.let { current ->
                 FormatDialogs.showDocument(this, current) { change ->
                     canvasView.applyEdit(change)
-                    // Runs after the edit, so the view already has the new bounds.
-                    refreshDocumentSettings(onRefreshed = { canvasView.refit(it.pageWidth) })
+                    // Runs after the edit, so the view already has the new bounds. Only a new
+                    // page width or layout moves the view; a new background keeps it.
+                    refreshDocumentSettings(onRefreshed = { updated ->
+                        if (updated.pageWidth != current.pageWidth || updated.layout != current.layout) {
+                            canvasView.refit(updated)
+                        }
+                    })
                 }
             }
             EditorMenu.Action.ToggleFingerDrawing ->
@@ -190,6 +197,8 @@ class MainActivity : Activity() {
         super.onActivityResult(requestCode, resultCode, data)
         val uri = data?.data
         if (resultCode != RESULT_OK || uri == null) {
+            // Backed out of the picker: the open document stays, and so does its autosave.
+            guard.keepChanges()
             return
         }
         when (requestCode) {
@@ -227,7 +236,7 @@ class MainActivity : Activity() {
     }
 
     private fun openDocument(uri: Uri) {
-        showMessage(getString(R.string.loading))
+        startLoading()
         renderer.open({ DocumentFiles.read(contentResolver, uri) }, brush = null) { result ->
             result
                 .onSuccess { info ->
@@ -238,11 +247,17 @@ class MainActivity : Activity() {
                     recovery.clear()
                     showOpenedDocument(info)
                 }
-                .onFailure(::showError)
+                .onFailure { error ->
+                    // The current document stays open: keep autosaving it.
+                    guard.keepChanges()
+                    endLoading()
+                    showError(error)
+                }
         }
     }
 
     private fun newDocument() {
+        canvasView.loading = true
         renderer.createEmpty(brush = null) { result ->
             result
                 .onSuccess { info ->
@@ -251,13 +266,16 @@ class MainActivity : Activity() {
                     recovery.clear()
                     showOpenedDocument(info)
                 }
-                .onFailure(::showError)
+                .onFailure { error ->
+                    endLoading()
+                    showError(error)
+                }
         }
     }
 
     /** Reopens the unsaved changes kept by [DocumentSaver.autosave], still marked as unsaved. */
     private fun restoreRecovery() {
-        showMessage(getString(R.string.loading))
+        startLoading()
         renderer.open({ recovery.read() }, brush = null) { result ->
             result
                 .onSuccess { info ->
@@ -270,8 +288,25 @@ class MainActivity : Activity() {
                 .onFailure { error ->
                     Log.e(TAG, "Restoring the recovery copy failed", error)
                     recovery.clear()
-                    showMessage(getString(R.string.empty_hint))
+                    endLoading()
+                    if (!documentOpen) {
+                        showMessage(getString(R.string.empty_hint))
+                    }
                 }
+        }
+    }
+
+    /** Shows that a document is loading, and keeps input away from the current one. */
+    private fun startLoading() {
+        canvasView.loading = true
+        showMessage(getString(R.string.loading))
+    }
+
+    /** Undoes [startLoading] after a failure: the current document, if any, stays usable. */
+    private fun endLoading() {
+        canvasView.loading = false
+        if (documentOpen) {
+            messageView.visibility = View.GONE
         }
     }
 
@@ -285,7 +320,7 @@ class MainActivity : Activity() {
             val contrasting = BrushPalette.contrastingColor(info.backgroundColor)
             changeSettings(settings.copy(brush = settings.brush.copy(color = contrasting)))
         }
-        canvasView.showDocument(info.bounds, info.settings.pageWidth)
+        canvasView.showDocument(info.bounds, info.settings)
         // A new document starts with the engine defaults: bring it in line with the settings.
         // Queued before any pen input, so the first stroke already uses them.
         renderer.setBrush(settings.brush)

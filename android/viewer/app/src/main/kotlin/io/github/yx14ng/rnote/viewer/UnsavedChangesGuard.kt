@@ -23,6 +23,14 @@ internal class UnsavedChangesGuard(private val activity: Activity, private val o
     /** Set once the user agreed to drop the changes, so going to the background doesn't save them. */
     var changesDiscarded = false
 
+    /**
+     * Takes back an agreement to drop the changes, when what was to replace the document
+     * didn't (a cancelled picker, a file that failed to open): autosave covers them again.
+     */
+    fun keepChanges() {
+        changesDiscarded = false
+    }
+
     private var backCallback: OnBackInvokedCallback? = null
 
     /** Asks before throwing away unsaved changes; runs [action] right away if there are none. */

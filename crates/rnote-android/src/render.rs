@@ -115,19 +115,21 @@ fn draw_to_surface(
     );
     cx.scale(viewport.zoom, viewport.zoom);
     cx.translate(-viewport.x, -viewport.y);
+    // Same order as the desktop app: background, page borders, then the strokes.
     if let Some(visible) = viewport_bounds.intersection(&doc_bounds) {
-        // Same order as the desktop app: background, page borders, then the strokes.
         draw_background(&cx, tiles, &engine.document.config.background, visible, viewport.zoom)?;
         draw_page_borders(engine, &cx, doc_bounds, visible, viewport.zoom)?;
-        engine.extract_content_in_bounds(visible).draw_to_cairo(
-            &cx,
-            /* draw_background */ false,
-            /* draw_pattern */ false,
-            /* optimize_printing */ false,
-            /* margin */ 0.0,
-            /* image_scale */ viewport.zoom,
-        )?;
     }
+    // Strokes can lie off the pages, e.g. drawn beside a fixed-size page: the content is
+    // clipped to the bounds it is extracted for, so take the whole view.
+    engine.extract_content_in_bounds(viewport_bounds).draw_to_cairo(
+        &cx,
+        /* draw_background */ false,
+        /* draw_pattern */ false,
+        /* optimize_printing */ false,
+        /* margin */ 0.0,
+        /* image_scale */ viewport.zoom,
+    )?;
     // On top, and also outside the document: e.g. a selection being dragged off it.
     engine.draw_pen_on_doc_to_cairo(&cx)?;
 

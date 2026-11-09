@@ -88,7 +88,10 @@ class NoteCanvasView(context: Context) : View(context) {
         camera,
         navigate = ::navigate,
         sendPen = ::sendPen,
-        onPenLifted = { clearPreviewAt = editSequence },
+        onPenLifted = {
+            clearPreviewAt = editSequence
+            flushPendingEdits()
+        },
     )
 
     // Whether the text tool is editing, which shows the soft keyboard.
@@ -163,25 +166,40 @@ class NoteCanvasView(context: Context) : View(context) {
             },
         )
 
-    /** Shows a newly opened document with a page of [pageWidth] fitted to the view width. */
-    fun showDocument(newBounds: DocumentBounds, pageWidth: Double) {
+    /**
+     * Set while another document is being opened: input and edits are dropped until it is
+     * shown, since they would otherwise land in the incoming document.
+     */
+    var loading = false
+
+    // Edits asked for while the pen is down (e.g. from the menu), run once it lifts so they
+    // don't change the pen in the middle of a stroke.
+    private val pendingEdits = mutableListOf<(NativeDocument) -> EditState>()
+
+    private val acceptsInput: Boolean
+        get() = bounds != null && !loading
+
+    /** Shows a newly opened document with a page fitted to the view width. */
+    fun showDocument(newBounds: DocumentBounds, settings: DocumentSettings) {
+        loading = false
+        pendingEdits.clear()
         frames.reset()
         input.reset()
         clearPreviewAt = NO_PENDING_CLEAR
-        camera.showDocument(newBounds, pageWidth)
+        camera.showDocument(newBounds, settings.pageWidth, settings.layout)
         onViewportChanged()
     }
 
     /** Fits a page to the view width again, e.g. after the page size or layout changed. */
-    fun refit(pageWidth: Double) {
+    fun refit(settings: DocumentSettings) {
         val currentBounds = bounds ?: return
-        camera.showDocument(currentBounds, pageWidth)
+        camera.showDocument(currentBounds, settings.pageWidth, settings.layout)
         onViewportChanged()
     }
 
     /** Finishes a polyline or polygon being built, like pressing Enter. */
     fun finishShape() {
-        if (bounds != null && !input.penDown) {
+        if (acceptsInput && !input.penDown) {
             submitEdit { it.handleKey(EditingKey.ENTER, shift = false, ctrl = false) }
         }
     }
@@ -205,14 +223,14 @@ class NoteCanvasView(context: Context) : View(context) {
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
         val finishesShape = tool == Tool.SHAPER &&
             (keyCode == KeyEvent.KEYCODE_ENTER || keyCode == KeyEvent.KEYCODE_ESCAPE)
-        if (bounds != null && (textInputActive || finishesShape) && KeyMapping.dispatch(event, textSink)) {
+        if (acceptsInput && (textInputActive || finishesShape) && KeyMapping.dispatch(event, textSink)) {
             return true
         }
         return super.onKeyDown(keyCode, event)
     }
 
     override fun onHoverEvent(event: MotionEvent): Boolean {
-        if (bounds != null && input.onHover(event)) {
+        if (acceptsInput && input.onHover(event)) {
             return true
         }
         return super.onHoverEvent(event)
@@ -233,12 +251,19 @@ class NoteCanvasView(context: Context) : View(context) {
         }
     }
 
-    /** Undoes or redoes through [operation] and refreshes the view. */
+    /** Runs [operation] (undo, a setting, ...) on the document and refreshes the view. */
     internal fun applyEdit(operation: (NativeDocument) -> EditState) {
-        if (bounds == null || input.penDown) {
-            return
+        when {
+            !acceptsInput -> {}
+            input.penDown -> pendingEdits += operation
+            else -> submitEdit(operation)
         }
-        submitEdit(operation)
+    }
+
+    private fun flushPendingEdits() {
+        val edits = pendingEdits.toList()
+        pendingEdits.clear()
+        edits.forEach(::submitEdit)
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
@@ -254,7 +279,7 @@ class NoteCanvasView(context: Context) : View(context) {
     // Clicks are detected by gestureDetector, which calls performClick() on a single tap.
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        if (bounds == null) {
+        if (!acceptsInput) {
             return false
         }
         input.onTouch(event)
@@ -263,7 +288,7 @@ class NoteCanvasView(context: Context) : View(context) {
     }
 
     override fun onGenericMotionEvent(event: MotionEvent): Boolean {
-        if (bounds == null ||
+        if (!acceptsInput ||
             !event.isFromSource(InputDevice.SOURCE_CLASS_POINTER) ||
             event.actionMasked != MotionEvent.ACTION_SCROLL
         ) {

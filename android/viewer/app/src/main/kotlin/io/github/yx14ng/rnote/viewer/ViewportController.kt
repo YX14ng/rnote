@@ -26,6 +26,9 @@ internal class ViewportController(context: Context) {
     /** Width of a page in document units; the view fits one page to its width. */
     private var pageWidth = 1.0
 
+    /** How the document grows, which decides how far the view may go past its edges. */
+    private var layout = DocumentLayout.INFINITE
+
     /** The zoom that fits a page into the view width. */
     private var fitZoom = 1.0
 
@@ -34,9 +37,10 @@ internal class ViewportController(context: Context) {
      * page, where documents start. Fitting the bounds instead made infinite documents, whose
      * bounds keep a margin of pages around the view, grow on every edit.
      */
-    fun showDocument(newBounds: DocumentBounds, newPageWidth: Double) {
+    fun showDocument(newBounds: DocumentBounds, newPageWidth: Double, newLayout: DocumentLayout) {
         bounds = newBounds
         pageWidth = newPageWidth
+        layout = newLayout
         fitToWidth()
     }
 
@@ -84,12 +88,12 @@ internal class ViewportController(context: Context) {
     }
 
     fun fling(velocityX: Float, velocityY: Float) {
-        val b = bounds ?: return
+        val range = offsetRange(viewport.zoom) ?: return
         val zoom = viewport.zoom
-        val minX = (b.left * zoom).roundToInt()
-        val minY = (b.top * zoom).roundToInt()
-        val maxX = maxOf(minX, (b.right * zoom).roundToInt() - width)
-        val maxY = maxOf(minY, (b.bottom * zoom).roundToInt() - height)
+        val minX = (range.minX * zoom).roundToInt()
+        val minY = (range.minY * zoom).roundToInt()
+        val maxX = (range.maxX * zoom).roundToInt()
+        val maxY = (range.maxY * zoom).roundToInt()
         scroller.fling(
             (viewport.x * zoom).roundToInt(),
             (viewport.y * zoom).roundToInt(),
@@ -146,28 +150,49 @@ internal class ViewportController(context: Context) {
 
     private fun pageFitZoom(): Double = (width / pageWidth).coerceIn(MIN_ZOOM, MAX_ZOOM)
 
-    /** Centers the document along an axis where it fits, else keeps the view inside it. */
+    /** Keeps the view where the engine's camera can follow it. */
     private fun clamp(v: Viewport): Viewport {
-        val b = bounds ?: return v
-        val visibleWidth = width / v.zoom
-        val visibleHeight = height / v.zoom
-        val x = if (visibleWidth >= b.width) {
-            b.left - (visibleWidth - b.width) / 2
-        } else {
-            v.x.coerceIn(b.left, b.right - visibleWidth)
-        }
-        val y = if (visibleHeight >= b.height) {
-            b.top - (visibleHeight - b.height) / 2
-        } else {
-            v.y.coerceIn(b.top, b.bottom - visibleHeight)
-        }
-        return v.copy(x = x, y = y)
+        val range = offsetRange(v.zoom) ?: return v
+        return v.copy(x = v.x.coerceIn(range.minX, range.maxX), y = v.y.coerceIn(range.minY, range.maxY))
     }
+
+    /**
+     * Where the view's top-left corner may be at [zoom], in document coordinates.
+     *
+     * Mirrors `Camera::surface_mins_maxs` and `Camera::set_offset` in rnote-engine, which
+     * clamp the engine's camera: if the two disagreed, the eraser would look at other strokes
+     * than the ones on screen, and infinite documents would grow around the wrong place.
+     */
+    private fun offsetRange(zoom: Double): OffsetRange? {
+        val b = bounds ?: return null
+        val overshoot = OVERSHOOT_PX / zoom
+        val (minX, maxX) = when (layout) {
+            DocumentLayout.FIXED_SIZE, DocumentLayout.CONTINUOUS_VERTICAL -> b.left - overshoot to b.right + overshoot
+            DocumentLayout.SEMI_INFINITE -> b.left - overshoot to b.right
+            DocumentLayout.INFINITE -> b.left to b.right
+        }
+        val (minY, maxY) = when (layout) {
+            DocumentLayout.FIXED_SIZE, DocumentLayout.CONTINUOUS_VERTICAL -> b.top - overshoot to b.bottom + overshoot
+            DocumentLayout.SEMI_INFINITE -> b.top - overshoot to b.bottom
+            DocumentLayout.INFINITE -> b.top to b.bottom
+        }
+        return OffsetRange(
+            minX = minX,
+            maxX = maxOf(maxX - width / zoom, minX),
+            minY = minY,
+            maxY = maxOf(maxY - height / zoom, minY),
+        )
+    }
+
+    private class OffsetRange(val minX: Double, val maxX: Double, val minY: Double, val maxY: Double)
 
     private companion object {
         /** `Camera::ZOOM_MIN` and `Camera::ZOOM_MAX` in rnote-engine, which clamps to them. */
         const val MIN_ZOOM = 0.2
         const val MAX_ZOOM = 6.0
+
+        /** `Camera::OVERSHOOT_HORIZONTAL` and `OVERSHOOT_VERTICAL`, in screen pixels. */
+        const val OVERSHOOT_PX = 96.0
 
         const val MIN_ZOOM_FACTOR = 0.25
         const val MAX_ZOOM_FACTOR = 8.0
