@@ -32,4 +32,29 @@
     <string name="save_read_only">This file is read-only here. Choose where to save it.</string>
     <string name="discard_message">Discard the unsaved changes?</string>
     <string name="discard">Discard</string>
+    <string name="action_shapes">Shapes</string>
+    <string name="action_select">Select</string>
+    <string name="action_brush_style">Brush style</string>
+    <string name="action_shape">Shape</string>
+    <string name="action_eraser_mode">Eraser mode</string>
+    <string name="action_selection">Selection</string>
+    <string name="action_select_all">Select all</string>
+    <string name="action_deselect_all">Deselect</string>
+    <string name="action_duplicate_selection">Duplicate</string>
+    <string name="action_delete_selection">Delete</string>
+    <string name="action_finger_drawing">Draw with finger</string>
+
+    <string name="shape_line">Line</string>
+    <string name="shape_arrow">Arrow</string>
+    <string name="shape_rectangle">Rectangle</string>
+    <string name="shape_ellipse">Ellipse</string>
+    <string name="shape_grid">Grid</string>
+    <string name="shape_coordinate_system">Coordinate system</string>
+    <string name="brush_style_marker">Marker</string>
+    <string name="brush_style_solid">Solid</string>
+    <string name="brush_style_textured">Textured</string>
+    <string name="eraser_whole_strokes">Whole strokes</string>
+    <string name="eraser_split_strokes">Only what it touches</string>
+
+    <string name="recovered">Recovered the unsaved changes from last time.</string>
 </resources>

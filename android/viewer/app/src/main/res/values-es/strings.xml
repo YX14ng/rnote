@@ -31,4 +31,29 @@
     <string name="save_read_only">Este archivo es de solo lectura acá. Elegí dónde guardarlo.</string>
     <string name="discard_message">¿Descartar los cambios sin guardar?</string>
     <string name="discard">Descartar</string>
+    <string name="action_shapes">Formas</string>
+    <string name="action_select">Seleccionar</string>
+    <string name="action_brush_style">Estilo del pincel</string>
+    <string name="action_shape">Forma</string>
+    <string name="action_eraser_mode">Modo de la goma</string>
+    <string name="action_selection">Selección</string>
+    <string name="action_select_all">Seleccionar todo</string>
+    <string name="action_deselect_all">Deseleccionar</string>
+    <string name="action_duplicate_selection">Duplicar</string>
+    <string name="action_delete_selection">Borrar</string>
+    <string name="action_finger_drawing">Dibujar con el dedo</string>
+
+    <string name="shape_line">Línea</string>
+    <string name="shape_arrow">Flecha</string>
+    <string name="shape_rectangle">Rectángulo</string>
+    <string name="shape_ellipse">Elipse</string>
+    <string name="shape_grid">Grilla</string>
+    <string name="shape_coordinate_system">Ejes de coordenadas</string>
+    <string name="brush_style_marker">Marcador</string>
+    <string name="brush_style_solid">Sólido</string>
+    <string name="brush_style_textured">Texturado</string>
+    <string name="eraser_whole_strokes">Trazos enteros</string>
+    <string name="eraser_split_strokes">Solo lo que toca</string>
+
+    <string name="recovered">Se recuperaron los cambios sin guardar de la última vez.</string>
 </resources>

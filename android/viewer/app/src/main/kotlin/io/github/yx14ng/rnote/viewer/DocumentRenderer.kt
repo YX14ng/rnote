@@ -60,6 +60,13 @@ internal class DocumentRenderer : AutoCloseable {
         }
 
     /**
+     * Serializes the document and hands the bytes to [write] without marking it as saved,
+     * e.g. for a recovery copy.
+     */
+    fun saveCopy(fileName: String, write: (ByteArray) -> Unit, onResult: (Result<Unit>) -> Unit) =
+        submit(onResult) { current -> write(current.save(fileName)) }
+
+    /**
      * Renders [viewport] at [width] x [height] pixels.
      *
      * [reuse] is drawn into when it has the right size; it must not be displayed anymore.

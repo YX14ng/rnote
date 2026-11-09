@@ -20,21 +20,30 @@ data class EditState(
     val canUndo: Boolean,
     val canRedo: Boolean,
     val boundsChanged: Boolean,
+    val hasSelection: Boolean,
 ) {
     companion object {
-        val CLEAN = EditState(modified = false, canUndo = false, canRedo = false, boundsChanged = false)
+        val CLEAN = EditState(
+            modified = false,
+            canUndo = false,
+            canRedo = false,
+            boundsChanged = false,
+            hasSelection = false,
+        )
 
         // Mirrors the FLAG_* constants in jni_bridge.rs.
         private const val FLAG_MODIFIED = 1
         private const val FLAG_CAN_UNDO = 1 shl 1
         private const val FLAG_CAN_REDO = 1 shl 2
         private const val FLAG_BOUNDS_CHANGED = 1 shl 3
+        private const val FLAG_HAS_SELECTION = 1 shl 4
 
         fun fromFlags(flags: Int) = EditState(
             modified = flags and FLAG_MODIFIED != 0,
             canUndo = flags and FLAG_CAN_UNDO != 0,
             canRedo = flags and FLAG_CAN_REDO != 0,
             boundsChanged = flags and FLAG_BOUNDS_CHANGED != 0,
+            hasSelection = flags and FLAG_HAS_SELECTION != 0,
         )
     }
 }
@@ -43,6 +52,39 @@ data class EditState(
 enum class Tool(val nativeValue: Int) {
     BRUSH(0),
     ERASER(1),
+    SHAPER(2),
+    SELECTOR(3),
+}
+
+/** Shapes the shaper offers. Values are `ShapeBuilderType` discriminants in rnote-compose. */
+enum class Shape(val nativeValue: Int, val label: Int) {
+    LINE(0, R.string.shape_line),
+    ARROW(1, R.string.shape_arrow),
+    RECTANGLE(2, R.string.shape_rectangle),
+    GRID(3, R.string.shape_grid),
+    COORDINATE_SYSTEM(4, R.string.shape_coordinate_system),
+    ELLIPSE(7, R.string.shape_ellipse),
+}
+
+/** Brush stroke looks. Values are `BrushStyle` discriminants in rnote-engine. */
+enum class BrushStyle(val nativeValue: Int, val label: Int) {
+    MARKER(0, R.string.brush_style_marker),
+    SOLID(1, R.string.brush_style_solid),
+    TEXTURED(2, R.string.brush_style_textured),
+}
+
+/** What the eraser removes. Values are `EraserStyle` discriminants in rnote-engine. */
+enum class EraserStyle(val nativeValue: Int, val label: Int) {
+    WHOLE_STROKES(0, R.string.eraser_whole_strokes),
+    SPLIT_STROKES(1, R.string.eraser_split_strokes),
+}
+
+/** Operations on the selection. Values match `jni_bridge.rs`. */
+enum class SelectionAction(val nativeValue: Int) {
+    SELECT_ALL(0),
+    DESELECT_ALL(1),
+    DELETE(2),
+    DUPLICATE(3),
 }
 
 /** Where a batch of pen samples sits in an interaction. Values match `jni_bridge.rs`. */
@@ -102,6 +144,21 @@ internal class NativeDocument private constructor(private var handle: Long) : Au
             viewHeight,
         ),
     )
+
+    fun setTool(tool: Tool): EditState = EditState.fromFlags(NativeBridge.setTool(checkOpen(), tool.nativeValue))
+
+    fun setShape(shape: Shape): EditState = EditState.fromFlags(NativeBridge.setShape(checkOpen(), shape.nativeValue))
+
+    fun setBrushStyle(style: BrushStyle): EditState =
+        EditState.fromFlags(NativeBridge.setBrushStyle(checkOpen(), style.nativeValue))
+
+    fun setEraserStyle(style: EraserStyle): EditState =
+        EditState.fromFlags(NativeBridge.setEraserStyle(checkOpen(), style.nativeValue))
+
+    fun selection(action: SelectionAction): EditState =
+        EditState.fromFlags(NativeBridge.selection(checkOpen(), action.nativeValue))
+
+    fun markModified(): EditState = EditState.fromFlags(NativeBridge.markModified(checkOpen()))
 
     fun undo(): EditState = EditState.fromFlags(NativeBridge.undo(checkOpen()))
 

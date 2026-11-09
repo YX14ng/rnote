@@ -5,14 +5,14 @@ import android.graphics.Color
 import android.graphics.Paint
 
 /**
- * Immediate feedback for the stroke being drawn, painted on top of the last rendered frame.
+ * Immediate feedback for the brush stroke being drawn, painted on top of the last rendered
+ * frame.
  *
  * The engine renders the real stroke off the UI thread; this only bridges the latency until
- * a frame that includes it arrives. Points are kept in document coordinates, so the preview
- * follows the viewport.
+ * a frame that includes it arrives. Other tools rely on the engine's own overlay. Points are
+ * kept in document coordinates, so the preview follows the viewport.
  */
 internal class StrokePreview {
-    private var tool = Tool.BRUSH
     private var brush = Brush(Color.BLACK, BrushPalette.DEFAULT_WIDTH)
 
     // x, y, pressure triples in document coordinates.
@@ -23,17 +23,11 @@ internal class StrokePreview {
         style = Paint.Style.STROKE
         strokeCap = Paint.Cap.ROUND
     }
-    private val eraserPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        style = Paint.Style.STROKE
-        color = Color.GRAY
-        strokeWidth = ERASER_OUTLINE_WIDTH
-    }
 
     val isEmpty: Boolean
         get() = size == 0
 
-    fun start(tool: Tool, brush: Brush) {
-        this.tool = tool
+    fun start(brush: Brush) {
         this.brush = brush
         size = 0
     }
@@ -56,13 +50,6 @@ internal class StrokePreview {
         if (isEmpty) {
             return
         }
-        when (tool) {
-            Tool.BRUSH -> drawBrush(canvas, viewport)
-            Tool.ERASER -> drawEraser(canvas, viewport)
-        }
-    }
-
-    private fun drawBrush(canvas: Canvas, viewport: Viewport) {
         strokePaint.color = brush.color
         var index = 0
         while (index + VALUES_PER_POINT < size) {
@@ -81,12 +68,6 @@ internal class StrokePreview {
         }
     }
 
-    private fun drawEraser(canvas: Canvas, viewport: Viewport) {
-        val last = size - VALUES_PER_POINT
-        val radius = (ERASER_WIDTH / 2 * viewport.zoom).toFloat()
-        canvas.drawCircle(screenX(points[last], viewport), screenY(points[last + 1], viewport), radius, eraserPaint)
-    }
-
     private fun screenX(x: Double, viewport: Viewport) = ((x - viewport.x) * viewport.zoom).toFloat()
 
     private fun screenY(y: Double, viewport: Viewport) = ((y - viewport.y) * viewport.zoom).toFloat()
@@ -94,9 +75,5 @@ internal class StrokePreview {
     private companion object {
         const val VALUES_PER_POINT = 3
         const val INITIAL_CAPACITY = 3 * 256
-
-        /** `EraserConfig::WIDTH_DEFAULT` in the engine. */
-        const val ERASER_WIDTH = 12.0
-        const val ERASER_OUTLINE_WIDTH = 2f
     }
 }

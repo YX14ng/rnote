@@ -12,15 +12,18 @@ import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.View
+import android.view.ViewConfiguration
 import android.widget.OverScroller
+import kotlin.math.hypot
 import kotlin.math.roundToInt
 
 /**
  * Shows and edits a document.
  *
  * Fingers pan (drag, fling) and zoom (pinch, double tap). A stylus, its eraser end or a
- * mouse draw with [tool]; fingers are ignored while the pen is down. A mouse wheel pans,
- * and zooms with Ctrl held.
+ * mouse draw with [tool]; fingers are ignored while the pen is down. With [fingerDrawing],
+ * one finger draws too and two fingers navigate. A mouse wheel pans, and zooms with Ctrl
+ * held.
  *
  * Rendering happens off the UI thread through [renderer]. While a new frame is being
  * rendered, the last one is drawn transformed to the current viewport, and the stroke being
@@ -33,6 +36,9 @@ class NoteCanvasView(context: Context) : View(context) {
 
     var tool = Tool.BRUSH
     var brush = Brush(Color.BLACK, BrushPalette.DEFAULT_WIDTH)
+
+    /** When on, a single finger draws like a stylus, and two fingers pan and zoom. */
+    var fingerDrawing = false
 
     private var bounds: DocumentBounds? = null
     private var viewport = Viewport(0.0, 0.0, 1.0)
@@ -51,6 +57,13 @@ class NoteCanvasView(context: Context) : View(context) {
     private var penTool = Tool.BRUSH
     private var clearPreviewAt = NO_PENDING_CLEAR
     private val preview = StrokePreview()
+
+    // With fingerDrawing, a finger only starts drawing once it moved without a second finger.
+    private var fingerGesture = FingerGesture.NONE
+    private var fingerDownSamples = DoubleArray(0)
+    private var fingerDownX = 0f
+    private var fingerDownY = 0f
+    private val touchSlop = ViewConfiguration.get(context).scaledTouchSlop
 
     private val bitmapPaint = Paint(Paint.FILTER_BITMAP_FLAG)
     private val scroller = OverScroller(context)
@@ -149,12 +162,15 @@ class NoteCanvasView(context: Context) : View(context) {
             handlePenEvent(event)
             return true
         }
-        if (penDown) {
+        if (penDown && fingerGesture != FingerGesture.DRAWING) {
             // Palm rejection: ignore fingers while the pen is on the surface.
             return true
         }
-        scaleDetector.onTouchEvent(event)
-        gestureDetector.onTouchEvent(event)
+        if (fingerDrawing && event.getToolType(0) == MotionEvent.TOOL_TYPE_FINGER) {
+            handleFingerEvent(event)
+            return true
+        }
+        navigate(event)
         return true
     }
 
@@ -215,31 +231,80 @@ class NoteCanvasView(context: Context) : View(context) {
             else -> false
         }
 
+    private fun navigate(event: MotionEvent) {
+        scaleDetector.onTouchEvent(event)
+        gestureDetector.onTouchEvent(event)
+    }
+
     private fun handlePenEvent(event: MotionEvent) {
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
                 scroller.forceFinished(true)
-                penDown = true
-                penTool = toolFor(event)
-                clearPreviewAt = NO_PENDING_CLEAR
-                preview.start(penTool, brush)
-                sendPen(PenPhase.DOWN, samplesOf(event, withHistory = false))
+                beginPen(toolFor(event), samplesOf(event, withHistory = false))
             }
-            MotionEvent.ACTION_MOVE -> if (penDown) {
-                sendPen(PenPhase.DOWN, samplesOf(event, withHistory = true))
+            MotionEvent.ACTION_MOVE -> if (penDown) continuePen(samplesOf(event, withHistory = true))
+            MotionEvent.ACTION_UP -> if (penDown) endPen(samplesOf(event, withHistory = true))
+            MotionEvent.ACTION_CANCEL -> if (penDown) cancelPen()
+        }
+        invalidate()
+    }
+
+    private fun handleFingerEvent(event: MotionEvent) {
+        when (event.actionMasked) {
+            MotionEvent.ACTION_DOWN -> {
+                scroller.forceFinished(true)
+                fingerGesture = FingerGesture.UNDECIDED
+                fingerDownX = event.x
+                fingerDownY = event.y
+                fingerDownSamples = samplesOf(event, withHistory = false)
+                navigate(event)
             }
-            MotionEvent.ACTION_UP -> if (penDown) {
-                penDown = false
-                sendPen(PenPhase.UP, samplesOf(event, withHistory = true))
-                clearPreviewAt = editSequence
+            MotionEvent.ACTION_POINTER_DOWN -> when (fingerGesture) {
+                FingerGesture.UNDECIDED, FingerGesture.NAVIGATING -> {
+                    fingerGesture = FingerGesture.NAVIGATING
+                    navigate(event)
+                }
+                // Extra fingers while drawing are a resting hand.
+                FingerGesture.DRAWING, FingerGesture.NONE -> {}
             }
-            MotionEvent.ACTION_CANCEL -> if (penDown) {
-                penDown = false
-                sendPen(PenPhase.CANCEL, DoubleArray(0))
-                clearPreviewAt = editSequence
+            MotionEvent.ACTION_MOVE -> when (fingerGesture) {
+                FingerGesture.UNDECIDED -> {
+                    if (hypot(event.x - fingerDownX, event.y - fingerDownY) > touchSlop) {
+                        fingerGesture = FingerGesture.DRAWING
+                        cancelNavigation(event)
+                        beginPen(toolFor(event), fingerDownSamples)
+                        continuePen(samplesOf(event, withHistory = true))
+                    } else {
+                        navigate(event)
+                    }
+                }
+                FingerGesture.DRAWING -> continuePen(samplesOf(event, withHistory = true))
+                FingerGesture.NAVIGATING -> navigate(event)
+                FingerGesture.NONE -> {}
+            }
+            MotionEvent.ACTION_POINTER_UP -> if (fingerGesture == FingerGesture.NAVIGATING) navigate(event)
+            MotionEvent.ACTION_UP -> {
+                if (fingerGesture == FingerGesture.DRAWING) {
+                    endPen(samplesOf(event, withHistory = true))
+                } else {
+                    navigate(event)
+                }
+                fingerGesture = FingerGesture.NONE
+            }
+            MotionEvent.ACTION_CANCEL -> {
+                if (fingerGesture == FingerGesture.DRAWING) cancelPen() else navigate(event)
+                fingerGesture = FingerGesture.NONE
             }
         }
         invalidate()
+    }
+
+    /** Resets the gesture detectors, which saw the start of what turned into a stroke. */
+    private fun cancelNavigation(event: MotionEvent) {
+        val cancel = MotionEvent.obtain(event)
+        cancel.action = MotionEvent.ACTION_CANCEL
+        navigate(cancel)
+        cancel.recycle()
     }
 
     /** The stylus eraser end and its primary button erase; otherwise the selected tool. */
@@ -249,11 +314,35 @@ class NoteCanvasView(context: Context) : View(context) {
         return if (eraserEnd || eraserButton) Tool.ERASER else tool
     }
 
-    /** `x, y, pressure` triples in document coordinates, also fed to the preview. */
+    private fun beginPen(tool: Tool, samples: DoubleArray) {
+        penDown = true
+        penTool = tool
+        clearPreviewAt = NO_PENDING_CLEAR
+        if (tool == Tool.BRUSH) preview.start(brush) else preview.clear()
+        sendPen(PenPhase.DOWN, samples)
+    }
+
+    private fun continuePen(samples: DoubleArray) = sendPen(PenPhase.DOWN, samples)
+
+    private fun endPen(samples: DoubleArray) {
+        penDown = false
+        sendPen(PenPhase.UP, samples)
+        clearPreviewAt = editSequence
+    }
+
+    private fun cancelPen() {
+        penDown = false
+        sendPen(PenPhase.CANCEL, DoubleArray(0))
+        clearPreviewAt = editSequence
+    }
+
+    /** `x, y, pressure` triples in document coordinates. */
     private fun samplesOf(event: MotionEvent, withHistory: Boolean): DoubleArray {
         val history = if (withHistory) event.historySize else 0
         val samples = DoubleArray((history + 1) * 3)
-        val isMouse = event.getToolType(0) == MotionEvent.TOOL_TYPE_MOUSE
+        // Mice and fingers report no meaningful pressure; use the middle, like the desktop app.
+        val toolType = event.getToolType(0)
+        val hasPressure = toolType == MotionEvent.TOOL_TYPE_STYLUS || toolType == MotionEvent.TOOL_TYPE_ERASER
         for (index in 0..history) {
             val x: Float
             val y: Float
@@ -267,20 +356,20 @@ class NoteCanvasView(context: Context) : View(context) {
                 y = event.y
                 rawPressure = event.pressure
             }
-            val docX = viewport.x + x / viewport.zoom
-            val docY = viewport.y + y / viewport.zoom
-            // A mouse reports no real pressure; use the middle, like the desktop app.
-            val pressure = if (isMouse) MOUSE_PRESSURE else rawPressure.toDouble().coerceIn(0.0, 1.0)
-            samples[index * 3] = docX
-            samples[index * 3 + 1] = docY
-            samples[index * 3 + 2] = pressure
-            preview.add(docX, docY, pressure)
+            samples[index * 3] = viewport.x + x / viewport.zoom
+            samples[index * 3 + 1] = viewport.y + y / viewport.zoom
+            samples[index * 3 + 2] = if (hasPressure) rawPressure.toDouble().coerceIn(0.0, 1.0) else DEFAULT_PRESSURE
         }
         return samples
     }
 
     private fun sendPen(phase: PenPhase, samples: DoubleArray) {
         val tool = penTool
+        if (tool == Tool.BRUSH) {
+            for (index in samples.indices step 3) {
+                preview.add(samples[index], samples[index + 1], samples[index + 2])
+            }
+        }
         val currentViewport = viewport
         val viewWidth = width
         val viewHeight = height
@@ -423,7 +512,14 @@ class NoteCanvasView(context: Context) : View(context) {
         const val DOUBLE_TAP_THRESHOLD = 1.5
         const val WHEEL_PAN_STEP_PX = 120f
         const val WHEEL_ZOOM_STEP = 0.1
-        const val MOUSE_PRESSURE = 0.5
+        const val DEFAULT_PRESSURE = 0.5
         const val NO_PENDING_CLEAR = -1
+    }
+
+    private enum class FingerGesture {
+        NONE,
+        UNDECIDED,
+        DRAWING,
+        NAVIGATING,
     }
 }

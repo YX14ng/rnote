@@ -47,6 +47,24 @@ internal object NativeBridge {
         viewHeight: Int,
     ): Int
 
+    /** Switches the pen-side tool, see [Tool]. Returns the packed editing state. */
+    @JvmStatic external fun setTool(handle: Long, tool: Int): Int
+
+    /** Sets the shape the shaper draws, see [Shape]. Returns the packed editing state. */
+    @JvmStatic external fun setShape(handle: Long, shape: Int): Int
+
+    /** Sets the look of brush strokes, see [BrushStyle]. Returns the packed editing state. */
+    @JvmStatic external fun setBrushStyle(handle: Long, style: Int): Int
+
+    /** Sets what the eraser removes, see [EraserStyle]. Returns the packed editing state. */
+    @JvmStatic external fun setEraserStyle(handle: Long, style: Int): Int
+
+    /** Runs a [SelectionAction]. Returns the packed editing state. */
+    @JvmStatic external fun selection(handle: Long, action: Int): Int
+
+    /** Marks the document as having unsaved changes. Returns the packed editing state. */
+    @JvmStatic external fun markModified(handle: Long): Int
+
     @JvmStatic external fun undo(handle: Long): Int
 
     @JvmStatic external fun redo(handle: Long): Int

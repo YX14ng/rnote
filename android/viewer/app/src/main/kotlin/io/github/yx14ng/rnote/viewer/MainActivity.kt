@@ -25,24 +25,29 @@ class MainActivity : Activity() {
     private val renderer = DocumentRenderer()
     private lateinit var canvasView: NoteCanvasView
     private lateinit var messageView: TextView
+    private lateinit var recovery: Recovery
 
+    private var settings = EditorSettings()
     private var documentOpen = false
     private var currentUri: Uri? = null
     private var documentName = ""
     private var editState = EditState.CLEAN
 
-    // Until the user picks a color, it follows the document background.
-    private var colorChosen = false
+    // Set once the user agreed to drop the changes, so going to the background doesn't save them.
+    private var changesDiscarded = false
 
     private var backCallback: OnBackInvokedCallback? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        recovery = Recovery(this)
+        settings = EditorSettings.load(this)
         canvasView = NoteCanvasView(this).apply {
             renderer = this@MainActivity.renderer
             onError = ::showError
             onEditState = ::updateEditState
         }
+        applySettingsToView()
         messageView = TextView(this).apply {
             gravity = Gravity.CENTER
             textSize = MESSAGE_TEXT_SIZE_SP
@@ -61,7 +66,9 @@ class MainActivity : Activity() {
             }
         }
         setContentView(root)
-        handleIntent(intent)
+        if (!handleIntent(intent) && recovery.exists) {
+            restoreRecovery()
+        }
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -69,77 +76,63 @@ class MainActivity : Activity() {
         handleIntent(intent)
     }
 
+    override fun onStop() {
+        super.onStop()
+        if (documentOpen && editState.modified && !changesDiscarded && !isChangingConfigurations) {
+            autosave()
+        }
+    }
+
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menu.add(Menu.NONE, MENU_UNDO, 0, R.string.action_undo)
-            .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM)
-        menu.add(Menu.NONE, MENU_REDO, 1, R.string.action_redo)
-            .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM)
-        menu.add(GROUP_TOOLS, MENU_PEN, 2, R.string.action_pen)
-            .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM)
-        menu.add(GROUP_TOOLS, MENU_ERASER, 3, R.string.action_eraser)
-            .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM)
-        menu.setGroupCheckable(GROUP_TOOLS, true, true)
-
-        val colors = menu.addSubMenu(Menu.NONE, MENU_COLOR, 4, R.string.action_color)
-        BrushPalette.colors.forEachIndexed { index, option ->
-            colors.add(GROUP_COLORS, MENU_COLOR_FIRST + index, index, option.label)
-        }
-        colors.setGroupCheckable(GROUP_COLORS, true, true)
-        val widths = menu.addSubMenu(Menu.NONE, MENU_WIDTH, 5, R.string.action_width)
-        BrushPalette.widths.forEachIndexed { index, option ->
-            widths.add(GROUP_WIDTHS, MENU_WIDTH_FIRST + index, index, option.label)
-        }
-        widths.setGroupCheckable(GROUP_WIDTHS, true, true)
-
-        menu.add(Menu.NONE, MENU_NEW, 6, R.string.action_new)
-        menu.add(Menu.NONE, MENU_OPEN, 7, R.string.action_open)
-        menu.add(Menu.NONE, MENU_SAVE, 8, R.string.action_save)
-        menu.add(Menu.NONE, MENU_SAVE_AS, 9, R.string.action_save_as)
+        EditorMenu.create(menu)
         return true
     }
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        menu.findItem(MENU_UNDO).isEnabled = documentOpen && editState.canUndo
-        menu.findItem(MENU_REDO).isEnabled = documentOpen && editState.canRedo
-        for (id in listOf(MENU_PEN, MENU_ERASER, MENU_COLOR, MENU_WIDTH, MENU_SAVE, MENU_SAVE_AS)) {
-            menu.findItem(id).isEnabled = documentOpen
-        }
-        // Action bar items don't show check marks, so mark the active tool in its title.
-        for ((id, tool, label) in listOf(
-            Triple(MENU_PEN, Tool.BRUSH, R.string.action_pen),
-            Triple(MENU_ERASER, Tool.ERASER, R.string.action_eraser),
-        )) {
-            val active = canvasView.tool == tool
-            menu.findItem(id).isChecked = active
-            menu.findItem(id).title = if (active) "✓ ${getString(label)}" else getString(label)
-        }
-        BrushPalette.colors.forEachIndexed { index, option ->
-            menu.findItem(MENU_COLOR_FIRST + index).isChecked = option.value == canvasView.brush.color
-        }
-        BrushPalette.widths.forEachIndexed { index, option ->
-            menu.findItem(MENU_WIDTH_FIRST + index).isChecked = option.value == canvasView.brush.width
-        }
+        EditorMenu.prepare(menu, MenuState(documentOpen, editState, settings), this)
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val id = item.itemId
-        when {
-            id == MENU_UNDO -> canvasView.applyEdit(NativeDocument::undo)
-            id == MENU_REDO -> canvasView.applyEdit(NativeDocument::redo)
-            id == MENU_PEN -> canvasView.tool = Tool.BRUSH
-            id == MENU_ERASER -> canvasView.tool = Tool.ERASER
-            id in MENU_COLOR_FIRST until MENU_COLOR_FIRST + BrushPalette.colors.size -> {
-                colorChosen = true
-                applyBrush(canvasView.brush.copy(color = BrushPalette.colors[id - MENU_COLOR_FIRST].value))
+        val action = EditorMenu.actionFor(item) ?: return super.onOptionsItemSelected(item)
+        when (action) {
+            EditorMenu.Action.Undo -> canvasView.applyEdit(NativeDocument::undo)
+            EditorMenu.Action.Redo -> canvasView.applyEdit(NativeDocument::redo)
+            is EditorMenu.Action.SelectTool -> {
+                changeSettings(settings.copy(tool = action.tool))
+                canvasView.applyEdit { it.setTool(action.tool) }
             }
-            id in MENU_WIDTH_FIRST until MENU_WIDTH_FIRST + BrushPalette.widths.size ->
-                applyBrush(canvasView.brush.copy(width = BrushPalette.widths[id - MENU_WIDTH_FIRST].value))
-            id == MENU_NEW -> confirmDiscard(::newDocument)
-            id == MENU_OPEN -> confirmDiscard { startActivityForResult(DocumentFiles.openIntent(), REQUEST_OPEN) }
-            id == MENU_SAVE -> save()
-            id == MENU_SAVE_AS -> saveAs()
-            else -> return super.onOptionsItemSelected(item)
+            is EditorMenu.Action.SelectColor ->
+                changeBrush(settings.brush.copy(color = action.color), colorChosen = true)
+            is EditorMenu.Action.SelectWidth ->
+                changeBrush(settings.brush.copy(width = action.width), settings.colorChosen)
+            is EditorMenu.Action.SelectShape -> {
+                // Picking a shape means drawing it next.
+                changeSettings(settings.copy(shape = action.shape, tool = Tool.SHAPER))
+                canvasView.applyEdit { it.setShape(action.shape); it.setTool(Tool.SHAPER) }
+            }
+            is EditorMenu.Action.SelectBrushStyle -> {
+                changeSettings(settings.copy(brushStyle = action.style))
+                canvasView.applyEdit { it.setBrushStyle(action.style) }
+            }
+            is EditorMenu.Action.SelectEraserStyle -> {
+                changeSettings(settings.copy(eraserStyle = action.style))
+                canvasView.applyEdit { it.setEraserStyle(action.style) }
+            }
+            is EditorMenu.Action.Selection -> {
+                if (action.action == SelectionAction.SELECT_ALL) {
+                    // The engine switches to the selector to show the selection.
+                    changeSettings(settings.copy(tool = Tool.SELECTOR))
+                }
+                canvasView.applyEdit { it.selection(action.action) }
+            }
+            EditorMenu.Action.ToggleFingerDrawing ->
+                changeSettings(settings.copy(fingerDrawing = !settings.fingerDrawing))
+            EditorMenu.Action.New -> confirmDiscard(::newDocument)
+            EditorMenu.Action.Open ->
+                confirmDiscard { startActivityForResult(DocumentFiles.openIntent(), REQUEST_OPEN) }
+            EditorMenu.Action.Save -> save()
+            EditorMenu.Action.SaveAs -> saveAs()
         }
         invalidateOptionsMenu()
         return true
@@ -179,11 +172,14 @@ class MainActivity : Activity() {
         super.onDestroy()
     }
 
-    private fun handleIntent(intent: Intent) {
+    /** Opens the document an ACTION_VIEW intent points to. Returns whether there was one. */
+    private fun handleIntent(intent: Intent): Boolean {
         val uri = intent.data
-        if (intent.action == Intent.ACTION_VIEW && uri != null) {
-            confirmDiscard { openDocument(uri) }
+        if (intent.action != Intent.ACTION_VIEW || uri == null) {
+            return false
         }
+        confirmDiscard { openDocument(uri) }
+        return true
     }
 
     private fun openDocument(uri: Uri) {
@@ -195,6 +191,7 @@ class MainActivity : Activity() {
                     documentName = DocumentFiles.displayName(contentResolver, uri)
                         ?: uri.lastPathSegment
                         ?: getString(R.string.untitled_file_name)
+                    recovery.clear()
                     showOpenedDocument(info)
                 }
                 .onFailure(::showError)
@@ -207,26 +204,68 @@ class MainActivity : Activity() {
                 .onSuccess { info ->
                     currentUri = null
                     documentName = getString(R.string.untitled_file_name)
+                    recovery.clear()
                     showOpenedDocument(info)
                 }
                 .onFailure(::showError)
         }
     }
 
+    /** Reopens the unsaved changes kept by [autosave], still marked as unsaved. */
+    private fun restoreRecovery() {
+        showMessage(getString(R.string.loading))
+        renderer.open({ recovery.read() }, brush = null) { result ->
+            result
+                .onSuccess { info ->
+                    currentUri = null
+                    documentName = recovery.documentName ?: getString(R.string.untitled_file_name)
+                    showOpenedDocument(info)
+                    canvasView.applyEdit(NativeDocument::markModified)
+                    Toast.makeText(this, R.string.recovered, Toast.LENGTH_LONG).show()
+                }
+                .onFailure { error ->
+                    Log.e(TAG, "Restoring the recovery copy failed", error)
+                    recovery.clear()
+                    showMessage(getString(R.string.empty_hint))
+                }
+        }
+    }
+
     private fun showOpenedDocument(info: DocumentInfo) {
         documentOpen = true
+        changesDiscarded = false
         messageView.visibility = View.GONE
-        if (!colorChosen) {
-            canvasView.brush = canvasView.brush.copy(color = BrushPalette.contrastingColor(info.backgroundColor))
+        if (!settings.colorChosen) {
+            val contrasting = BrushPalette.contrastingColor(info.backgroundColor)
+            changeSettings(settings.copy(brush = settings.brush.copy(color = contrasting)))
         }
-        // Queued before any pen input, so the first stroke already uses it.
-        renderer.setBrush(canvasView.brush)
         canvasView.showDocument(info.bounds)
+        // A new document starts with the engine defaults: bring it in line with the settings.
+        // Queued before any pen input, so the first stroke already uses them.
+        renderer.setBrush(settings.brush)
+        canvasView.applyEdit { document ->
+            document.setShape(settings.shape)
+            document.setBrushStyle(settings.brushStyle)
+            document.setEraserStyle(settings.eraserStyle)
+            document.setTool(settings.tool)
+        }
         updateEditState(info.editState)
     }
 
-    private fun applyBrush(brush: Brush) {
-        canvasView.brush = brush
+    private fun changeSettings(newSettings: EditorSettings) {
+        settings = newSettings
+        settings.save(this)
+        applySettingsToView()
+    }
+
+    private fun applySettingsToView() {
+        canvasView.tool = settings.tool
+        canvasView.brush = settings.brush
+        canvasView.fingerDrawing = settings.fingerDrawing
+    }
+
+    private fun changeBrush(brush: Brush, colorChosen: Boolean) {
+        changeSettings(settings.copy(brush = brush, colorChosen = colorChosen))
         if (documentOpen) {
             renderer.setBrush(brush)
         }
@@ -245,24 +284,52 @@ class MainActivity : Activity() {
         startActivityForResult(DocumentFiles.createIntent(documentName), REQUEST_SAVE_AS)
     }
 
-    private fun writeTo(uri: Uri) {
+    /**
+     * Saves to [uri]. When [quiet], failures fall back to a recovery copy instead of asking
+     * the user, since this runs while the app goes to the background.
+     */
+    private fun writeTo(uri: Uri, quiet: Boolean = false) {
         renderer.save(documentName, { bytes -> DocumentFiles.write(contentResolver, uri, bytes) }) { result ->
             result
                 .onSuccess { state ->
+                    recovery.clear()
                     updateEditState(state)
-                    Toast.makeText(this, R.string.saved, Toast.LENGTH_SHORT).show()
+                    if (!quiet) {
+                        Toast.makeText(this, R.string.saved, Toast.LENGTH_SHORT).show()
+                    }
                 }
                 .onFailure { error ->
                     Log.e(TAG, "Saving to $uri failed", error)
-                    if (error is SecurityException) {
-                        // Opened read-only, e.g. from another app: ask where to save instead.
-                        Toast.makeText(this, R.string.save_read_only, Toast.LENGTH_LONG).show()
-                        saveAs()
-                    } else {
-                        val message = error.message ?: error.toString()
-                        Toast.makeText(this, getString(R.string.save_failed, message), Toast.LENGTH_LONG).show()
+                    when {
+                        quiet -> saveRecovery()
+                        error is SecurityException -> {
+                            // Opened read-only, e.g. from another app: ask where to save instead.
+                            Toast.makeText(this, R.string.save_read_only, Toast.LENGTH_LONG).show()
+                            saveAs()
+                        }
+                        else -> {
+                            val message = error.message ?: error.toString()
+                            Toast.makeText(this, getString(R.string.save_failed, message), Toast.LENGTH_LONG).show()
+                        }
                     }
                 }
+        }
+    }
+
+    /** Saves to the open file, or keeps a recovery copy if there is none. */
+    private fun autosave() {
+        val uri = currentUri
+        if (uri != null) {
+            writeTo(uri, quiet = true)
+        } else {
+            saveRecovery()
+        }
+    }
+
+    private fun saveRecovery() {
+        val name = documentName
+        renderer.saveCopy(name, { bytes -> recovery.write(bytes, name) }) { result ->
+            result.onFailure { error -> Log.e(TAG, "Writing the recovery copy failed", error) }
         }
     }
 
@@ -281,7 +348,11 @@ class MainActivity : Activity() {
         }
         AlertDialog.Builder(this)
             .setMessage(R.string.discard_message)
-            .setPositiveButton(R.string.discard) { _, _ -> action() }
+            .setPositiveButton(R.string.discard) { _, _ ->
+                changesDiscarded = true
+                recovery.clear()
+                action()
+            }
             .setNegativeButton(android.R.string.cancel, null)
             .show()
     }
@@ -326,22 +397,5 @@ class MainActivity : Activity() {
 
         const val REQUEST_OPEN = 1
         const val REQUEST_SAVE_AS = 2
-
-        const val GROUP_TOOLS = 1
-        const val GROUP_COLORS = 2
-        const val GROUP_WIDTHS = 3
-
-        const val MENU_UNDO = 1
-        const val MENU_REDO = 2
-        const val MENU_PEN = 3
-        const val MENU_ERASER = 4
-        const val MENU_COLOR = 5
-        const val MENU_WIDTH = 6
-        const val MENU_NEW = 7
-        const val MENU_OPEN = 8
-        const val MENU_SAVE = 9
-        const val MENU_SAVE_AS = 10
-        const val MENU_COLOR_FIRST = 100
-        const val MENU_WIDTH_FIRST = 200
     }
 }
