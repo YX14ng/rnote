@@ -1,9 +1,16 @@
 //! Tests for [`RnoteDocument`](super::RnoteDocument), run on the host.
 
-use super::*;
-use crate::render::{BYTES_PER_PIXEL, DESK_COLOR};
+use parry2d_f64::math::Vector2;
+use rnote_compose::Color;
+use rnote_compose::builders::ShapeBuilderType;
+use rnote_compose::penevent::KeyboardKey;
 use rnote_engine::document::Layout;
 use rnote_engine::document::background::PatternStyle;
+
+use super::{EditState, RnoteDocument, ViewSize};
+use crate::document_settings::TextFormat;
+use crate::pen_input::{PenPhase, PenSample, Tool};
+use crate::render::{BYTES_PER_PIXEL, DESK_COLOR, PixelLayout, Viewport};
 
 const VIEW: ViewSize = ViewSize { width: 1000, height: 1000 };
 const IDENTITY: Viewport = Viewport { x: 0.0, y: 0.0, zoom: 1.0 };
