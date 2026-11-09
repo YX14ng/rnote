@@ -1,18 +1,23 @@
 //! Rasterization of a document region into RGBA pixel buffers.
 
+use std::cell::RefCell;
+
 use anyhow::{Context, bail};
 use parry2d_f64::bounding_volume::{Aabb, BoundingVolume};
 use parry2d_f64::math::Vector2;
 use rnote_compose::SplitOrder;
 use rnote_compose::ext::AabbExt;
-use rnote_engine::Engine;
-use rnote_engine::engine::StrokeContent;
+use rnote_engine::document::background::Background;
+use rnote_engine::{Engine, Image};
 
 /// Color of the area around the document, as `[r, g, b]` in `0.0..=1.0`.
 pub const DESK_COLOR: [f64; 3] = [0.24, 0.24, 0.26];
 
 /// Bytes per pixel of the RGBA buffers written by [`render_rgba`].
 pub const BYTES_PER_PIXEL: usize = 4;
+
+/// Largest side, in pixels, of a rendered background tile. Beyond that, tiles are magnified.
+const MAX_TILE_PIXELS: f64 = 2048.0;
 
 /// The region of the document shown on screen.
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -54,6 +59,7 @@ impl PixelLayout {
 /// [`DESK_COLOR`].
 pub(crate) fn render_rgba(
     engine: &Engine,
+    tiles: &BackgroundTiles,
     doc_bounds: Aabb,
     viewport: Viewport,
     layout: PixelLayout,
@@ -72,7 +78,8 @@ pub(crate) fn render_rgba(
         return Ok(());
     }
 
-    let mut surface = draw_to_surface(engine, doc_bounds, viewport, layout.width, layout.height)?;
+    let mut surface =
+        draw_to_surface(engine, tiles, doc_bounds, viewport, layout.width, layout.height)?;
     let src_stride = usize::try_from(surface.stride()).context("Negative cairo stride")?;
     let src = surface.data().context("Accessing the cairo surface data failed")?;
     copy_bgra_to_rgba(&src, src_stride, out, layout);
@@ -81,6 +88,7 @@ pub(crate) fn render_rgba(
 
 fn draw_to_surface(
     engine: &Engine,
+    tiles: &BackgroundTiles,
     doc_bounds: Aabb,
     viewport: Viewport,
     width: u32,
@@ -109,17 +117,7 @@ fn draw_to_surface(
         cx.scale(viewport.zoom, viewport.zoom);
         cx.translate(-viewport.x, -viewport.y);
         // Same order as the desktop app: background, page borders, then the strokes.
-        StrokeContent::default()
-            .with_background(engine.document.config.background)
-            .with_bounds(visible)
-            .draw_to_cairo(
-                &cx,
-                /* draw_background */ true,
-                /* draw_pattern */ true,
-                /* optimize_printing */ false,
-                /* margin */ 0.0,
-                /* image_scale */ viewport.zoom,
-            )?;
+        draw_background(&cx, tiles, &engine.document.config.background, visible, viewport.zoom)?;
         draw_page_borders(engine, &cx, doc_bounds, visible, viewport.zoom)?;
         engine.extract_content_in_bounds(visible).draw_to_cairo(
             &cx,
@@ -133,6 +131,116 @@ fn draw_to_surface(
 
     drop(cx);
     surface.flush();
+    Ok(surface)
+}
+
+/// Caches the rendered background tile, which only changes with the background or the zoom.
+///
+/// Rendering the background as one large SVG costs time proportional to the drawn area, so
+/// zoomed out views took seconds. Repeating a small pre-rendered tile, like the desktop app
+/// does, is cheap at any size.
+#[derive(Default)]
+pub(crate) struct BackgroundTiles {
+    cached: RefCell<Option<CachedTile>>,
+}
+
+struct CachedTile {
+    background: Background,
+    image_scale: f64,
+    surface: cairo::ImageSurface,
+}
+
+impl BackgroundTiles {
+    /// The tile for `background` at `image_scale`, rendering it when not cached.
+    fn get(
+        &self,
+        background: &Background,
+        image_scale: f64,
+    ) -> anyhow::Result<cairo::ImageSurface> {
+        let mut cached = self.cached.borrow_mut();
+        if let Some(tile) = cached.as_ref()
+            && tile.background == *background
+            && tile.image_scale == image_scale
+        {
+            // Cloning a cairo surface only takes a reference.
+            return Ok(tile.surface.clone());
+        }
+        let image = background
+            .gen_tile_image(image_scale)
+            .context("Rendering the background tile failed")?;
+        let surface = image_to_surface(&image)?;
+        *cached =
+            Some(CachedTile { background: *background, image_scale, surface: surface.clone() });
+        Ok(surface)
+    }
+}
+
+/// Fills `visible` with the background, repeating its tile from the document origin.
+fn draw_background(
+    cx: &cairo::Context,
+    tiles: &BackgroundTiles,
+    background: &Background,
+    visible: Aabb,
+    zoom: f64,
+) -> anyhow::Result<()> {
+    let tile_size = background.tile_size();
+    let largest_side = tile_size.x.max(tile_size.y);
+    let smallest_side = tile_size.x.min(tile_size.y);
+    // At least one pixel per side, at most MAX_TILE_PIXELS.
+    let image_scale = zoom.min(MAX_TILE_PIXELS / largest_side).max(1.0 / smallest_side);
+    let tile = tiles.get(background, image_scale)?;
+
+    // Anchor the repetition at a tile boundary next to the visible area. Tiles repeat from the
+    // document origin, so this is equivalent, but keeps the pattern offset small enough for
+    // pixman's 16 bit device coordinates.
+    let origin = Vector2::new(
+        (visible.mins.x / tile_size.x).floor() * tile_size.x,
+        (visible.mins.y / tile_size.y).floor() * tile_size.y,
+    );
+    let scale_x = f64::from(tile.width()) / tile_size.x;
+    let scale_y = f64::from(tile.height()) / tile_size.y;
+    let pattern = cairo::SurfacePattern::create(&tile);
+    pattern.set_extend(cairo::Extend::Repeat);
+    // Maps document coordinates to tile pixels.
+    pattern.set_matrix(cairo::Matrix::new(
+        scale_x,
+        0.0,
+        0.0,
+        scale_y,
+        -scale_x * origin.x,
+        -scale_y * origin.y,
+    ));
+
+    cx.save()?;
+    cx.set_source(&pattern)?;
+    cx.rectangle(visible.mins.x, visible.mins.y, visible.extents().x, visible.extents().y);
+    cx.fill()?;
+    cx.restore()?;
+    Ok(())
+}
+
+/// Copies an engine image (premultiplied RGBA) into a cairo surface.
+fn image_to_surface(image: &Image) -> anyhow::Result<cairo::ImageSurface> {
+    let layout = PixelLayout {
+        width: image.pixel_width,
+        height: image.pixel_height,
+        stride: image.pixel_width as usize * BYTES_PER_PIXEL,
+    };
+    if image.data.len() < layout.min_len() {
+        bail!("Image data of {} bytes is too small for {layout:?}", image.data.len());
+    }
+    let mut surface = cairo::ImageSurface::create(
+        cairo::Format::ARgb32,
+        i32::try_from(layout.width).context("Image width too large")?,
+        i32::try_from(layout.height).context("Image height too large")?,
+    )
+    .context("Creating the tile surface failed")?;
+    let dst_stride = usize::try_from(surface.stride()).context("Negative cairo stride")?;
+    {
+        let mut dst = surface.data().context("Accessing the tile surface data failed")?;
+        copy_rgba_to_bgra(&image.data, layout, &mut dst, dst_stride);
+    }
+    surface.mark_dirty();
     Ok(surface)
 }
 
@@ -182,6 +290,20 @@ fn copy_bgra_to_rgba(src: &[u8], src_stride: usize, out: &mut [u8], layout: Pixe
     }
 }
 
+/// Converts RGBA bytes into cairo's `ARGB32` (native-endian). Both are premultiplied.
+fn copy_rgba_to_bgra(src: &[u8], layout: PixelLayout, dst: &mut [u8], dst_stride: usize) {
+    let row_len = layout.width as usize * BYTES_PER_PIXEL;
+    for row in 0..layout.height as usize {
+        let src_row = &src[row * layout.stride..][..row_len];
+        let dst_row = &mut dst[row * dst_stride..][..row_len];
+        let (src_pixels, _) = src_row.as_chunks::<BYTES_PER_PIXEL>();
+        let (dst_pixels, _) = dst_row.as_chunks_mut::<BYTES_PER_PIXEL>();
+        for (&[red, green, blue, alpha], dst_pixel) in src_pixels.iter().zip(dst_pixels) {
+            *dst_pixel = u32::from_be_bytes([alpha, red, green, blue]).to_ne_bytes();
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -195,6 +317,19 @@ mod tests {
         copy_bgra_to_rgba(&pixel, BYTES_PER_PIXEL, &mut out, layout);
 
         assert_eq!(out, [0x10, 0x20, 0x30, 0x80]);
+    }
+
+    #[test]
+    fn rgba_to_bgra_round_trips() {
+        let rgba = [0x10, 0x20, 0x30, 0x80];
+        let layout = PixelLayout { width: 1, height: 1, stride: BYTES_PER_PIXEL };
+        let mut native = [0_u8; 4];
+        let mut back = [0_u8; 4];
+
+        copy_rgba_to_bgra(&rgba, layout, &mut native, BYTES_PER_PIXEL);
+        copy_bgra_to_rgba(&native, BYTES_PER_PIXEL, &mut back, layout);
+
+        assert_eq!(back, rgba);
     }
 
     #[test]

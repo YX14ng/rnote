@@ -13,7 +13,7 @@ use rnote_engine::pens::{PenMode, PenStyle};
 use rnote_engine::{Engine, WidgetFlags};
 
 use crate::pen_input::{self, PenPhase, PenSample, Tool};
-use crate::render::{self, PixelLayout, Viewport};
+use crate::render::{self, BackgroundTiles, PixelLayout, Viewport};
 
 /// The editing state the UI shows after an operation.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
@@ -43,6 +43,7 @@ pub struct RnoteDocument {
     config: EngineConfigShared,
     // Rendering tasks the engine queues for its own (GTK) image cache.
     tasks: Option<EngineTaskReceiver>,
+    tiles: BackgroundTiles,
     modified: bool,
 }
 
@@ -74,7 +75,8 @@ impl RnoteDocument {
         let mut flags = engine.install_config(&config, /* data_dir */ None);
         flags |= engine.change_pen_style(PenStyle::Brush);
         let tasks = engine.take_engine_tasks_rx();
-        let mut document = Self { engine, config, tasks, modified: false };
+        let mut document =
+            Self { engine, config, tasks, tiles: BackgroundTiles::default(), modified: false };
         document.finish_operation(flags);
         document
     }
@@ -115,7 +117,7 @@ impl RnoteDocument {
         layout: PixelLayout,
         out: &mut [u8],
     ) -> anyhow::Result<()> {
-        render::render_rgba(&self.engine, self.bounds(), viewport, layout, out)
+        render::render_rgba(&self.engine, &self.tiles, self.bounds(), viewport, layout, out)
     }
 
     /// Feeds a batch of stylus samples to the engine.

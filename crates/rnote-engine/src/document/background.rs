@@ -364,7 +364,7 @@ fn gen_iso_dots_pattern(
     group.into()
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 #[serde(default, rename = "background")]
 pub struct Background {
     #[serde(rename = "color")]
@@ -407,7 +407,8 @@ impl Background {
     };
 
     /// Calculates the tile size as multiple of pattern_size with max size TITLE_MAX_SIZE
-    pub(crate) fn tile_size(&self) -> Vector2 {
+    /// Size of the tile that [`Self::gen_tile_image`] renders, a whole number of pattern repeats.
+    pub fn tile_size(&self) -> Vector2 {
         let pattern_size = match self.pattern {
             PatternStyle::None => Vector2::new(Self::TILE_MAX_SIZE, Self::TILE_MAX_SIZE),
             PatternStyle::Lines => Vector2::new(Self::TILE_MAX_SIZE, self.pattern_size[1]),
@@ -518,7 +519,8 @@ impl Background {
         Ok(Svg { svg_data, bounds })
     }
 
-    pub(crate) fn gen_tile_image(&self, image_scale: f64) -> Result<Image, anyhow::Error> {
+    /// Renders one tile of the background, which repeats seamlessly from the document origin.
+    pub fn gen_tile_image(&self, image_scale: f64) -> Result<Image, anyhow::Error> {
         let tile_bounds = Aabb::new(Vector2::ZERO, self.tile_size());
         self.gen_svg(tile_bounds, true, false)?
             .gen_image(image_scale)
