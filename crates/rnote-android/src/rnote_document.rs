@@ -29,6 +29,9 @@ pub struct EditState {
     pub has_selection: bool,
     /// The text tool is editing text, so the keyboard should be shown.
     pub text_input: bool,
+    /// The brush stroke being drawn was just replaced by the shape it looks like; the rest
+    /// of that touch is ignored.
+    pub shape_snapped: bool,
 }
 
 /// Size of the view showing the document, in pixels.
@@ -125,6 +128,7 @@ impl RnoteDocument {
             has_selection: self.pen_style == PenStyle::Selector
                 && self.engine.extract_selection_content().is_some(),
             text_input: self.text_input,
+            shape_snapped: false,
         }
     }
 

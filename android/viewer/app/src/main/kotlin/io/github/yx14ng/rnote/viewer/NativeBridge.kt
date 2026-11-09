@@ -84,6 +84,19 @@ internal object NativeBridge {
         viewHeight: Int,
     ): Int
 
+    /**
+     * Replaces the brush stroke being drawn with the shape it looks like, if shape recognition
+     * is on and it looks like one. Returns the packed editing state.
+     */
+    @JvmStatic external fun snapToShape(
+        handle: Long,
+        x: Double,
+        y: Double,
+        zoom: Double,
+        viewWidth: Int,
+        viewHeight: Int,
+    ): Int
+
     /** Switches the pen-side tool, see [Tool]. Returns the packed editing state. */
     @JvmStatic external fun setTool(handle: Long, tool: Int): Int
 

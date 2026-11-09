@@ -22,6 +22,8 @@ data class EditState(
     val boundsChanged: Boolean,
     val hasSelection: Boolean,
     val textInput: Boolean,
+    /** The brush stroke being drawn just became a shape; the rest of the touch is ignored. */
+    val shapeSnapped: Boolean = false,
 ) {
     companion object {
         val CLEAN = EditState(
@@ -33,13 +35,14 @@ data class EditState(
             textInput = false,
         )
 
-        // Mirrors the FLAG_* constants in jni_bridge.rs.
+        // Mirrors the FLAG_* constants in jni_bridge/common.rs.
         private const val FLAG_MODIFIED = 1
         private const val FLAG_CAN_UNDO = 1 shl 1
         private const val FLAG_CAN_REDO = 1 shl 2
         private const val FLAG_BOUNDS_CHANGED = 1 shl 3
         private const val FLAG_HAS_SELECTION = 1 shl 4
         private const val FLAG_TEXT_INPUT = 1 shl 5
+        private const val FLAG_SHAPE_SNAPPED = 1 shl 6
 
         fun fromFlags(flags: Int) = EditState(
             modified = flags and FLAG_MODIFIED != 0,
@@ -48,6 +51,7 @@ data class EditState(
             boundsChanged = flags and FLAG_BOUNDS_CHANGED != 0,
             hasSelection = flags and FLAG_HAS_SELECTION != 0,
             textInput = flags and FLAG_TEXT_INPUT != 0,
+            shapeSnapped = flags and FLAG_SHAPE_SNAPPED != 0,
         )
     }
 }
@@ -190,6 +194,11 @@ internal class NativeDocument private constructor(private var handle: Long) : Au
             viewWidth,
             viewHeight,
         ),
+    )
+
+    /** Turns the brush stroke being drawn into the shape it looks like, if any. */
+    fun snapToShape(viewport: Viewport, viewWidth: Int, viewHeight: Int): EditState = EditState.fromFlags(
+        NativeBridge.snapToShape(checkOpen(), viewport.x, viewport.y, viewport.zoom, viewWidth, viewHeight),
     )
 
     fun setTool(tool: Tool): EditState = EditState.fromFlags(NativeBridge.setTool(checkOpen(), tool.nativeValue))

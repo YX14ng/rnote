@@ -6,6 +6,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.view.HapticFeedbackConstants
 import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
@@ -38,6 +39,7 @@ class MainActivity : Activity() {
             renderer = this@MainActivity.renderer
             onError = ::showError
             onEditState = ::updateEditState
+            onTwoFingerTap = ::undoByGesture
         }
         clipboard = ClipboardActions(this, canvasView, renderer, onToolChanged = { tool ->
             // The engine already switched to the tool that shows what was pasted.
@@ -339,8 +341,16 @@ class MainActivity : Activity() {
         canvasView.applyEdit { it.setShapeRecognition(enabled, minSizePx) }
     }
 
-    /** Strokes smaller than this on screen stay as drawn, so handwriting isn't recognized. */
+    /** Strokes smaller than this on screen stay as drawn, even when the pen holds still. */
     private fun shapeMinSizePx(): Double = SHAPE_MIN_SIZE_DP * resources.displayMetrics.density.toDouble()
+
+    /** A two-finger tap undoes, like in other note-taking apps. */
+    private fun undoByGesture() {
+        if (documentOpen && editState.canUndo) {
+            canvasView.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+            canvasView.applyEdit(NativeDocument::undo)
+        }
+    }
 
     private fun selectTool(tool: Tool) {
         changeSettings(settings.copy(tool = tool))
@@ -353,6 +363,7 @@ class MainActivity : Activity() {
         canvasView.tool = settings.tool
         canvasView.brush = settings.brush
         canvasView.fingerDrawing = settings.fingerDrawing
+        canvasView.holdToSnap = settings.shapeRecognition
     }
 
     private fun changeBrush(brush: Brush, colorChosen: Boolean) {
@@ -385,7 +396,8 @@ class MainActivity : Activity() {
 
     private companion object {
         const val TAG = "RnoteViewer"
-        const val SHAPE_MIN_SIZE_DP = 64.0
+        // Holding the pen still is what asks for a shape, so small ones are fine too.
+        const val SHAPE_MIN_SIZE_DP = 24.0
 
         const val REQUEST_OPEN = 1
         const val REQUEST_SAVE_AS = 2

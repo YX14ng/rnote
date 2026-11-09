@@ -2,6 +2,8 @@ package io.github.yx14ng.rnote.viewer
 
 import android.content.Context
 import android.graphics.Color
+import android.os.Handler
+import android.os.Looper
 import android.view.MotionEvent
 import android.view.ViewConfiguration
 import kotlin.math.hypot
@@ -17,6 +19,9 @@ import kotlin.math.hypot
  * Strokes follow the pointer that started them by id, since pointer indices shift as other
  * pointers come and go.
  *
+ * With [holdToSnap], holding the pen still for a moment during a brush stroke calls [onHold],
+ * which may turn the stroke into a shape; [onShapeSnapped] then stops its preview.
+ *
  * [sendPen] receives `x, y, pressure` triples in document coordinates; [navigate] gets the
  * events meant for the pan and zoom detectors.
  */
@@ -26,10 +31,12 @@ internal class CanvasInput(
     private val navigate: (MotionEvent) -> Unit,
     private val sendPen: (PenPhase, Tool, DoubleArray) -> Unit,
     private val onPenLifted: () -> Unit,
+    private val onHold: () -> Unit,
 ) {
     var tool = Tool.BRUSH
     var brush = Brush(Color.BLACK, BrushPalette.DEFAULT_WIDTH)
     var fingerDrawing = false
+    var holdToSnap = false
 
     /** Immediate feedback for brush strokes, drawn by the view on top of the last frame. */
     val preview = StrokePreview()
@@ -57,13 +64,35 @@ internal class CanvasInput(
     private var fingerDownY = 0f
     private val touchSlop = ViewConfiguration.get(context).scaledTouchSlop
 
+    // Holding still: the pen must stay within holdSlopPx of the anchor for HOLD_DELAY_MS.
+    private val holdHandler = Handler(Looper.getMainLooper())
+    private val holdSlopPx = HOLD_SLOP_DP * context.resources.displayMetrics.density
+    private var holdAnchorX = 0f
+    private var holdAnchorY = 0f
+    private val holdCheck = Runnable {
+        if (penDown && penTool == Tool.BRUSH && holdToSnap) {
+            onHold()
+        }
+    }
+
+    // Whether the brush preview follows the stroke; off once it became a shape.
+    private var previewing = true
+
     /** Forgets any interaction in progress, e.g. when another document is shown. */
     fun reset() {
         strokePointerId = NO_POINTER
         fingerGesture = FingerGesture.NONE
         fingerPointerId = NO_POINTER
         ignoringRest = false
+        holdHandler.removeCallbacks(holdCheck)
         preview.clear()
+    }
+
+    /** The stroke being drawn became a shape: stop previewing the freehand line. */
+    fun onShapeSnapped() {
+        previewing = false
+        preview.clear()
+        holdHandler.removeCallbacks(holdCheck)
     }
 
     fun onTouch(event: MotionEvent) {
@@ -82,6 +111,7 @@ internal class CanvasInput(
                 ignoringRest = false
                 camera.stopFling()
                 beginPen(toolFor(event, actionIndex), event.getPointerId(actionIndex), samplesOf(event, actionIndex, false))
+                trackHold(event.getX(actionIndex), event.getY(actionIndex), restart = true)
             }
             ignoringRest -> if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
                 ignoringRest = false
@@ -121,7 +151,10 @@ internal class CanvasInput(
     private fun followStylus(event: MotionEvent) {
         val index = event.findPointerIndex(strokePointerId)
         when (event.actionMasked) {
-            MotionEvent.ACTION_MOVE -> if (index >= 0) continuePen(samplesOf(event, index, true))
+            MotionEvent.ACTION_MOVE -> if (index >= 0) {
+                continuePen(samplesOf(event, index, true))
+                trackHold(event.getX(index), event.getY(index), restart = false)
+            }
             MotionEvent.ACTION_POINTER_UP, MotionEvent.ACTION_UP ->
                 if (event.getPointerId(event.actionIndex) == strokePointerId) {
                     endPen(samplesOf(event, event.actionIndex, true))
@@ -163,13 +196,17 @@ internal class CanvasInput(
                         cancelNavigation(event)
                         beginPen(tool, fingerPointerId, fingerDownSamples)
                         continuePen(samplesOf(event, index, withHistory = true))
+                        trackHold(event.getX(index), event.getY(index), restart = true)
                     } else {
                         navigate(event)
                     }
                 }
                 FingerGesture.DRAWING -> {
                     val index = event.findPointerIndex(fingerPointerId)
-                    if (index >= 0) continuePen(samplesOf(event, index, withHistory = true))
+                    if (index >= 0) {
+                        continuePen(samplesOf(event, index, withHistory = true))
+                        trackHold(event.getX(index), event.getY(index), restart = false)
+                    }
                 }
                 FingerGesture.NAVIGATING -> navigate(event)
                 FingerGesture.NONE -> {}
@@ -235,6 +272,7 @@ internal class CanvasInput(
         }
         strokePointerId = pointerId
         penTool = tool
+        previewing = true
         if (tool == Tool.BRUSH) preview.start(brush) else preview.clear()
         send(PenPhase.DOWN, samples)
     }
@@ -243,23 +281,41 @@ internal class CanvasInput(
 
     private fun endPen(samples: DoubleArray) {
         strokePointerId = NO_POINTER
+        holdHandler.removeCallbacks(holdCheck)
         send(PenPhase.UP, samples)
         onPenLifted()
     }
 
     private fun cancelPen() {
         strokePointerId = NO_POINTER
+        holdHandler.removeCallbacks(holdCheck)
         send(PenPhase.CANCEL, DoubleArray(0))
         onPenLifted()
     }
 
     private fun send(phase: PenPhase, samples: DoubleArray) {
-        if (penTool == Tool.BRUSH) {
+        if (penTool == Tool.BRUSH && previewing) {
             for (index in samples.indices step 3) {
                 preview.add(samples[index], samples[index + 1], samples[index + 2])
             }
         }
         sendPen(phase, penTool, samples)
+    }
+
+    /**
+     * Restarts the hold countdown when the pen moved away from where it last rested, at
+     * screen position ([x], [y]). Only brush strokes are recognized.
+     */
+    private fun trackHold(x: Float, y: Float, restart: Boolean) {
+        if (!holdToSnap || penTool != Tool.BRUSH || !previewing) {
+            return
+        }
+        if (restart || hypot(x - holdAnchorX, y - holdAnchorY) > holdSlopPx) {
+            holdAnchorX = x
+            holdAnchorY = y
+            holdHandler.removeCallbacks(holdCheck)
+            holdHandler.postDelayed(holdCheck, HOLD_DELAY_MS)
+        }
     }
 
     /** `x, y, pressure` triples of the pointer at [index], in document coordinates. */
@@ -299,5 +355,11 @@ internal class CanvasInput(
     private companion object {
         const val DEFAULT_PRESSURE = 0.5
         const val NO_POINTER = -1
+
+        /** How long the pen must hold still for the stroke to become a shape. */
+        const val HOLD_DELAY_MS = 1000L
+
+        /** How far the resting pen may wander and still count as holding still. */
+        const val HOLD_SLOP_DP = 6f
     }
 }

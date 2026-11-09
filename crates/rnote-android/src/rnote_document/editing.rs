@@ -91,16 +91,19 @@ impl RnoteDocument {
             }
             Tool::Eraser => PenMode::Eraser,
         };
-        let now = Instant::now();
-        for event in pen_input::pen_events(phase, samples) {
-            let (_propagation, event_flags) =
-                self.engine.handle_pen_event(event, Some(pen_mode), now);
-            flags |= event_flags;
-        }
-        if tool == Tool::Brush {
-            flags |= self.recognize_brush_stroke(phase, samples, viewport.zoom);
+        let follows = if tool == Tool::Brush {
+            self.follow_brush_stroke(phase, samples)
         } else {
             self.reset_recognition();
+            true
+        };
+        if follows {
+            let now = Instant::now();
+            for event in pen_input::pen_events(phase, samples) {
+                let (_propagation, event_flags) =
+                    self.engine.handle_pen_event(event, Some(pen_mode), now);
+                flags |= event_flags;
+            }
         }
         self.finish_edit(flags, bounds_before)
     }

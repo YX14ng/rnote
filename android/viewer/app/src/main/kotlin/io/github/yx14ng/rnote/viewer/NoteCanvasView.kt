@@ -48,6 +48,16 @@ class NoteCanvasView(context: Context) : View(context) {
             input.brush = value
         }
 
+    /** When on, holding the pen still for a moment turns the brush stroke into a shape. */
+    var holdToSnap: Boolean
+        get() = input.holdToSnap
+        set(value) {
+            input.holdToSnap = value
+        }
+
+    /** Called on a quick two-finger tap, the undo gesture of other note-taking apps. */
+    var onTwoFingerTap: (() -> Unit)? = null
+
     /** When on, a single finger draws like a stylus, and two fingers pan and zoom. */
     var fingerDrawing: Boolean
         get() = input.fingerDrawing
@@ -83,6 +93,8 @@ class NoteCanvasView(context: Context) : View(context) {
     private var editSequence = 0
     private var clearPreviewAt = NO_PENDING_CLEAR
 
+    private val twoFingerTap = TwoFingerTap(context) { onTwoFingerTap?.invoke() }
+
     private val input = CanvasInput(
         context,
         camera,
@@ -92,6 +104,7 @@ class NoteCanvasView(context: Context) : View(context) {
             clearPreviewAt = editSequence
             flushPendingEdits()
         },
+        onHold = ::snapToShape,
     )
 
     // Whether the text tool is editing, which shows the soft keyboard.
@@ -282,6 +295,7 @@ class NoteCanvasView(context: Context) : View(context) {
         if (!acceptsInput) {
             return false
         }
+        twoFingerTap.onTouch(event)
         input.onTouch(event)
         invalidate()
         return true
@@ -337,6 +351,14 @@ class NoteCanvasView(context: Context) : View(context) {
         }
     }
 
+    /** The pen rests mid-stroke: turn the stroke into a shape if it looks like one. */
+    private fun snapToShape() {
+        val currentViewport = viewport
+        val viewWidth = width
+        val viewHeight = height
+        submitEdit { document -> document.snapToShape(currentViewport, viewWidth, viewHeight) }
+    }
+
     private fun submitEdit(operation: (NativeDocument) -> EditState) {
         val currentRenderer = renderer ?: return
         editSequence++
@@ -351,6 +373,9 @@ class NoteCanvasView(context: Context) : View(context) {
                         camera.updateBounds(newBounds)
                         // Renders requested before the edit used the old bounds.
                         onViewportChanged()
+                    }
+                    if (edit.state.shapeSnapped) {
+                        input.onShapeSnapped()
                     }
                     updateTextInput(edit.state.textInput)
                     onEditState?.invoke(edit.state)

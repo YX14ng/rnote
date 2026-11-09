@@ -216,3 +216,26 @@ pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_colorSele
         Ok(document.color_selected_text(color_from_argb(argb)))
     })
 }
+
+/// `static native int snapToShape(long handle, double x, double y, double zoom, int viewWidth,
+/// int viewHeight)`: replaces the brush stroke being drawn with the shape it looks like, if
+/// any. Called while the pen holds still; see `RnoteDocument::snap_to_shape`.
+#[unsafe(no_mangle)]
+pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_snapToShape<'caller>(
+    mut unowned_env: EnvUnowned<'caller>,
+    _class: JClass<'caller>,
+    handle: jlong,
+    x: jdouble,
+    y: jdouble,
+    zoom: jdouble,
+    view_width: jint,
+    view_height: jint,
+) -> jint {
+    edit(&mut unowned_env, handle, |document| {
+        let view_size = ViewSize {
+            width: u32::try_from(view_width).unwrap_or(0),
+            height: u32::try_from(view_height).unwrap_or(0),
+        };
+        Ok(document.snap_to_shape(Viewport { x, y, zoom }, view_size))
+    })
+}
