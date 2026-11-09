@@ -93,7 +93,8 @@ What it does:
   changes); hardware keys, including arrows, Home/End and Enter, through `KeyMapping`.
 - Undo and redo, color (6 presets or any hex color, black or white by default depending on
   the background) and width (3 presets). The choices are remembered across documents and restarts.
-- New, Open, Save (overwrites the opened file) and Save as, through the system file picker.
+- New, Open, Save (overwrites the opened file) and Save as, through the system file picker,
+  which starts in the folder of the open file or else in the shared Documents folder.
   Unsaved changes are marked in the title, and leaving or replacing the document asks first.
 - Autosave: when the app goes to the background with unsaved changes, it saves to the open
   file, or keeps a recovery copy (in the app's private storage) for documents without one
