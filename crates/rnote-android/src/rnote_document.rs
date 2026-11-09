@@ -52,6 +52,7 @@ pub struct RnoteDocument {
     // Whether the current pen takes keyboard input, as last reported by the engine.
     text_input: bool,
     modified: bool,
+    recognition: recognition::Recognition,
 }
 
 impl RnoteDocument {
@@ -90,6 +91,7 @@ impl RnoteDocument {
             pen_style: PenStyle::Brush,
             text_input: false,
             modified: false,
+            recognition: recognition::Recognition::default(),
         };
         document.finish_operation(flags);
         document
@@ -200,6 +202,7 @@ impl RnoteDocument {
 
 mod clipboard;
 mod editing;
+mod recognition;
 mod settings;
 #[cfg(test)]
 mod tests;

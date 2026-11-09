@@ -186,3 +186,19 @@ pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_setPageBo
 ) -> jint {
     edit(&mut unowned_env, handle, |document| Ok(document.set_page_borders(show)))
 }
+
+/// `static native int setShapeRecognition(long handle, boolean enabled, double minSizePx)`
+#[unsafe(no_mangle)]
+pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_setShapeRecognition<
+    'caller,
+>(
+    mut unowned_env: EnvUnowned<'caller>,
+    _class: JClass<'caller>,
+    handle: jlong,
+    enabled: jboolean,
+    min_size_px: jdouble,
+) -> jint {
+    edit(&mut unowned_env, handle, |document| {
+        Ok(document.set_shape_recognition(enabled, min_size_px))
+    })
+}

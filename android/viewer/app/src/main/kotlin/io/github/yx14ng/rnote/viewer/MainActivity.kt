@@ -183,6 +183,10 @@ class MainActivity : Activity() {
             }
             EditorMenu.Action.ToggleFingerDrawing ->
                 changeSettings(settings.copy(fingerDrawing = !settings.fingerDrawing))
+            EditorMenu.Action.ToggleShapeRecognition -> {
+                changeSettings(settings.copy(shapeRecognition = !settings.shapeRecognition))
+                applyShapeRecognition()
+            }
             EditorMenu.Action.New -> guard.confirmDiscard(::newDocument)
             EditorMenu.Action.Open ->
                 guard.confirmDiscard { startActivityForResult(DocumentFiles.openIntent(saver.currentUri), REQUEST_OPEN) }
@@ -332,6 +336,7 @@ class MainActivity : Activity() {
             // Only new text: nothing is being edited yet.
             document.setTextFormat(settings.textFormat)
             document.setTool(settings.tool)
+            document.setShapeRecognition(settings.shapeRecognition, shapeMinSizePx())
         }
         updateEditState(info.editState)
     }
@@ -358,6 +363,15 @@ class MainActivity : Activity() {
         settings.save(this)
         applySettingsToView()
     }
+
+    private fun applyShapeRecognition() {
+        val enabled = settings.shapeRecognition
+        val minSizePx = shapeMinSizePx()
+        canvasView.applyEdit { it.setShapeRecognition(enabled, minSizePx) }
+    }
+
+    /** Strokes smaller than this on screen stay as drawn, so handwriting isn't recognized. */
+    private fun shapeMinSizePx(): Double = SHAPE_MIN_SIZE_DP * resources.displayMetrics.density.toDouble()
 
     private fun selectTool(tool: Tool) {
         changeSettings(settings.copy(tool = tool))
@@ -409,6 +423,7 @@ class MainActivity : Activity() {
         const val TAG = "RnoteViewer"
         const val MESSAGE_TEXT_SIZE_SP = 18f
         const val SIDEBAR_MARGIN_DP = 18f
+        const val SHAPE_MIN_SIZE_DP = 64.0
 
         const val REQUEST_OPEN = 1
         const val REQUEST_SAVE_AS = 2

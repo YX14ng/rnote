@@ -97,6 +97,11 @@ impl RnoteDocument {
                 self.engine.handle_pen_event(event, Some(pen_mode), now);
             flags |= event_flags;
         }
+        if tool == Tool::Brush {
+            flags |= self.recognize_brush_stroke(phase, samples, viewport.zoom);
+        } else {
+            self.reset_recognition();
+        }
         self.finish_edit(flags, bounds_before)
     }
 

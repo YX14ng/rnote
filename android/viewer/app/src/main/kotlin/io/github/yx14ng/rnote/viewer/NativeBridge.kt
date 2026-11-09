@@ -56,6 +56,12 @@ internal object NativeBridge {
 
     @JvmStatic external fun setPageBorders(handle: Long, show: Boolean): Int
 
+    /**
+     * Turns the replacement of brush strokes that look like shapes on or off; strokes smaller
+     * than [minSizePx] screen pixels are kept. Returns the packed editing state.
+     */
+    @JvmStatic external fun setShapeRecognition(handle: Long, enabled: Boolean, minSizePx: Double): Int
+
     /** The editing state, packed as in [EditState.fromFlags]. */
     @JvmStatic external fun editState(handle: Long): Int
 

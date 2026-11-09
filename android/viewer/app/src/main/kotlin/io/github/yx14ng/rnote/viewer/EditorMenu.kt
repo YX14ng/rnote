@@ -28,6 +28,7 @@ internal object EditorMenu {
         data object ColorSelectedText : Action
         data object SelectAllText : Action
         data object ToggleFingerDrawing : Action
+        data object ToggleShapeRecognition : Action
         data object FinishShape : Action
         data object TextFormat : Action
         data object ShapeStyle : Action
@@ -66,6 +67,7 @@ internal object EditorMenu {
     private const val TEXT_SELECTION_MENU = 26
     private const val COLOR_SELECTED_TEXT = 27
     private const val SELECT_ALL_TEXT = 28
+    private const val SHAPE_RECOGNITION = 29
 
     // Item ids of the choice groups are a base plus the index of the choice.
     private const val COLOR_FIRST = 200
@@ -138,6 +140,7 @@ internal object EditorMenu {
         menu.add(Menu.NONE, COPY, order++, R.string.action_copy).alphabeticShortcut = 'c'
         menu.add(Menu.NONE, PASTE, order++, R.string.action_paste).alphabeticShortcut = 'v'
         menu.add(Menu.NONE, FINGER_DRAWING, order++, R.string.action_finger_drawing).isCheckable = true
+        menu.add(Menu.NONE, SHAPE_RECOGNITION, order++, R.string.action_shape_recognition).isCheckable = true
         menu.add(Menu.NONE, DOCUMENT, order++, R.string.action_document)
         menu.add(Menu.NONE, NEW, order++, R.string.action_new).alphabeticShortcut = 'n'
         menu.add(Menu.NONE, OPEN, order++, R.string.action_open).alphabeticShortcut = 'o'
@@ -164,6 +167,7 @@ internal object EditorMenu {
         menu.findItem(DUPLICATE_SELECTION).isEnabled = state.editState.hasSelection
         menu.findItem(DELETE_SELECTION).isEnabled = state.editState.hasSelection
         menu.findItem(FINGER_DRAWING).isChecked = settings.fingerDrawing
+        menu.findItem(SHAPE_RECOGNITION).isChecked = settings.shapeRecognition
         menu.findItem(FINISH_SHAPE).isVisible =
             state.documentOpen && settings.tool == Tool.SHAPER && settings.shape.needsFinish
     }
@@ -175,6 +179,7 @@ internal object EditorMenu {
             UNDO -> Action.Undo
             REDO -> Action.Redo
             FINGER_DRAWING -> Action.ToggleFingerDrawing
+            SHAPE_RECOGNITION -> Action.ToggleShapeRecognition
             FINISH_SHAPE -> Action.FinishShape
             TEXT_FORMAT -> Action.TextFormat
             SHAPE_STYLE -> Action.ShapeStyle

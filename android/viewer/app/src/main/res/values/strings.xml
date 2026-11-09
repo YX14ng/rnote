@@ -143,4 +143,5 @@
     <string name="label_pattern_color">Pattern color (hex)</string>
     <string name="label_pattern_spacing">Pattern spacing</string>
     <string name="invalid_value">Invalid value: nothing was changed</string>
+    <string name="action_shape_recognition">Recognize shapes</string>
 </resources>

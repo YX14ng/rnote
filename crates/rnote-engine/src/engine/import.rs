@@ -5,13 +5,13 @@ use crate::engine_view_mut;
 use crate::pens::PenStyle;
 use crate::store::StrokeKey;
 use crate::store::chrono_comp::StrokeLayer;
-use crate::strokes::{BitmapImage, Stroke, VectorImage};
+use crate::strokes::{BitmapImage, ShapeStroke, Stroke, VectorImage};
 use crate::strokes::{Resize, resize::ImageSizeOption, resize::calculate_resize_ratio};
 use crate::{Engine, WidgetFlags};
 use futures::channel::oneshot;
 use p2d::math::Vector2;
 use rnote_compose::ext::Vector2Ext;
-use rnote_compose::shapes::Shapeable;
+use rnote_compose::shapes::{Shape, Shapeable};
 use serde::{Deserialize, Serialize};
 use std::ops::Range;
 use std::time::Instant;
@@ -336,6 +336,37 @@ impl Engine {
         widget_flags.store_modified = true;
         widget_flags.refresh_ui = true;
 
+        widget_flags
+    }
+
+    /// Insert shapes styled like the shaper currently draws them, as if they had just been
+    /// drawn: unselected, keeping the current pen, and recorded as one change.
+    pub fn insert_shapes(&mut self, shapes: Vec<Shape>) -> WidgetFlags {
+        let mut widget_flags = WidgetFlags::default();
+        if shapes.is_empty() {
+            return widget_flags;
+        }
+        let mut style = self
+            .config
+            .read()
+            .pens_config
+            .shaper_config
+            .gen_style_for_current_options();
+        for shape in shapes {
+            let key = self.store.insert_stroke(
+                Stroke::ShapeStroke(ShapeStroke::new(shape, style.clone())),
+                None,
+            );
+            style.advance_seed();
+            self.store.regenerate_rendering_for_stroke(
+                key,
+                self.camera.viewport(),
+                self.camera.image_scale(),
+            );
+        }
+        widget_flags |= self.doc_resize_autoexpand() | self.store.record(Instant::now());
+        widget_flags.store_modified = true;
+        widget_flags.resize = true;
         widget_flags
     }
 

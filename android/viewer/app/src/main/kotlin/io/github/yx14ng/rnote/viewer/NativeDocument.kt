@@ -265,6 +265,9 @@ internal class NativeDocument private constructor(private var handle: Long) : Au
 
     fun setPageBorders(show: Boolean): EditState = EditState.fromFlags(NativeBridge.setPageBorders(checkOpen(), show))
 
+    fun setShapeRecognition(enabled: Boolean, minSizePx: Double): EditState =
+        EditState.fromFlags(NativeBridge.setShapeRecognition(checkOpen(), enabled, minSizePx))
+
     fun markModified(): EditState = EditState.fromFlags(NativeBridge.markModified(checkOpen()))
 
     fun undo(): EditState = EditState.fromFlags(NativeBridge.undo(checkOpen()))

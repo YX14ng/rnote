@@ -12,6 +12,7 @@ mod jni_bridge;
 mod pen_input;
 mod render;
 mod rnote_document;
+mod shape_recognition;
 
 pub use android_color::{color_from_argb, color_to_argb};
 pub use document_settings::{DocumentSettings, ShapeStyle, TextFormat};
