@@ -59,7 +59,11 @@ What it does:
   within the engine's limits (0.2 to 6). The engine's camera has to match the screen: the
   eraser only considers strokes inside it, and infinite documents grow to keep pages around
   it. Fitting the whole document instead made infinite documents grow on every edit on narrow
-  (portrait) screens, and the eraser then missed strokes.
+  (portrait) screens, and the eraser then missed strokes. For the same reason the view is
+  kept within the same limits as the engine's camera (`Camera::surface_mins_maxs`), so a
+  document smaller than the screen sits at the top left, like on the desktop.
+- Strokes follow the pointer that started them: a palm resting before, during or after a
+  stylus stroke neither draws nor moves the page.
 - Fingers navigate: drag and fling to pan, pinch or double tap to zoom. A mouse wheel pans,
   and zooms with Ctrl held.
 - A stylus or a mouse uses the selected tool; the stylus eraser end and its primary button
@@ -84,6 +88,12 @@ What it does:
   part of the text being edited (select with Shift and the arrows, or "Select all text" /
   Ctrl+A), like the desktop app's per-range formatting.
 - "Shape style…": smooth or hand-drawn (rough) shapes, with an optional fill.
+- "Recognize shapes" (off by default): a pen stroke that looks like a line, rectangle,
+  ellipse or triangle becomes that shape when the pen lifts, styled like the shape tool
+  draws, in one undo step. Nearly straight or square ones are straightened, and nearly round
+  ones made round. Strokes smaller than about 1 cm on screen stay as drawn, so handwriting
+  isn't converted. The recognizer is `crates/rnote-android/src/shape_recognition.rs`; the
+  engine got `Engine::insert_shapes` to put the shape in place of the stroke.
 - "Document…": page size (A3, A4, A5, Letter, Legal, or any width and height in mm) and
   orientation, layout (fixed pages, continuous vertical, semi-infinite, infinite),
   background color (presets or any hex color), pattern, pattern color and spacing, and page
