@@ -79,15 +79,22 @@ impl RnoteDocument {
         self.finish_settings_change(flags, bounds_before)
     }
 
-    /// Changes the background color and pattern.
+    /// Changes the background color and pattern; `pattern_size` is the spacing.
     pub fn set_background(
         &mut self,
         color: Color,
         pattern: PatternStyle,
         pattern_color: Color,
+        pattern_size: f64,
     ) -> EditState {
         let bounds_before = self.bounds();
-        document_settings::apply_background(&mut self.engine, color, pattern, pattern_color);
+        document_settings::apply_background(
+            &mut self.engine,
+            color,
+            pattern,
+            pattern_color,
+            pattern_size,
+        );
         self.finish_settings_change(WidgetFlags::default(), bounds_before)
     }
 

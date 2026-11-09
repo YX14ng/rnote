@@ -45,7 +45,14 @@ internal object NativeBridge {
 
     @JvmStatic external fun setLayout(handle: Long, layout: Int): Int
 
-    @JvmStatic external fun setBackground(handle: Long, argb: Int, pattern: Int, patternArgb: Int): Int
+    /** Sets the background color, pattern, pattern color and pattern spacing (document units). */
+    @JvmStatic external fun setBackground(
+        handle: Long,
+        argb: Int,
+        pattern: Int,
+        patternArgb: Int,
+        patternSize: Double,
+    ): Int
 
     @JvmStatic external fun setPageBorders(handle: Long, show: Boolean): Int
 
@@ -88,6 +95,30 @@ internal object NativeBridge {
 
     /** Feeds an [EditingKey] to the current pen. Returns the packed editing state. */
     @JvmStatic external fun handleKey(handle: Long, key: Int, shift: Boolean, ctrl: Boolean): Int
+
+    /** Feeds a character key with modifiers, e.g. Ctrl+A in the text tool. */
+    @JvmStatic external fun handleCharKey(handle: Long, codePoint: Int, shift: Boolean, ctrl: Boolean): Int
+
+    /** Toggles a [TextEmphasis] on the selected text. Returns the packed editing state. */
+    @JvmStatic external fun textEmphasis(handle: Long, emphasis: Int): Int
+
+    /** Colors the selected text. Returns the packed editing state. */
+    @JvmStatic external fun colorSelectedText(handle: Long, argb: Int): Int
+
+    /**
+     * What is selected, as `"<mime type>\n<data>"`, or null if nothing is. With [cut], it is
+     * removed from the document.
+     */
+    @JvmStatic external fun copy(handle: Long, cut: Boolean): String?
+
+    /** Pastes Rnote stroke content centered at ([x], [y]). Returns the packed editing state. */
+    @JvmStatic external fun pasteStrokeContent(handle: Long, json: String, x: Double, y: Double): Int
+
+    /** Pastes text in a text box starting at ([x], [y]). Returns the packed editing state. */
+    @JvmStatic external fun pasteText(handle: Long, text: String, x: Double, y: Double): Int
+
+    /** Pastes an encoded image centered at ([x], [y]). Returns the packed editing state. */
+    @JvmStatic external fun pasteImage(handle: Long, bytes: ByteArray, x: Double, y: Double): Int
 
     /** Inserts committed text at the text tool's cursor. Returns the packed editing state. */
     @JvmStatic external fun handleText(handle: Long, text: String): Int

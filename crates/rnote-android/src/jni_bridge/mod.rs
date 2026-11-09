@@ -9,6 +9,7 @@
 //!
 //! Operations that change the document return an [`EditState`] packed by `edit_flags` in `common`.
 
+mod clipboard;
 mod common;
 mod document;
 mod editing;

@@ -17,4 +17,4 @@ pub use android_color::{color_from_argb, color_to_argb};
 pub use document_settings::{DocumentSettings, ShapeStyle, TextFormat};
 pub use pen_input::{PenPhase, PenSample, Tool};
 pub use render::{BYTES_PER_PIXEL, DESK_COLOR, PixelLayout, Viewport};
-pub use rnote_document::{EditState, RnoteDocument, ViewSize};
+pub use rnote_document::{ClipboardEntry, EditState, RnoteDocument, TextEmphasis, ViewSize};

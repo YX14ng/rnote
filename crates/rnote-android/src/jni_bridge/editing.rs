@@ -9,7 +9,10 @@ use super::common::{
     BridgeError, VALUES_PER_SAMPLE, document_from_handle, edit, edit_flags, key_from_int,
     tool_from_int,
 };
-use crate::{PenPhase, PenSample, ViewSize, Viewport};
+use rnote_compose::penevent::KeyboardKey;
+
+use crate::android_color::color_from_argb;
+use crate::{PenPhase, PenSample, TextEmphasis, ViewSize, Viewport};
 
 /// `static native int handlePen(long handle, int phase, int tool, double[] samples,
 /// double x, double y, double zoom, int viewWidth, int viewHeight)`
@@ -156,4 +159,60 @@ pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_redo<'cal
             Ok(edit_flags(document.redo()))
         })
         .resolve::<ThrowRuntimeExAndDefault>()
+}
+
+/// `static native int handleCharKey(long handle, int codePoint, boolean shift, boolean ctrl)`,
+/// for shortcuts such as Ctrl+A in the text tool.
+#[unsafe(no_mangle)]
+pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_handleCharKey<'caller>(
+    mut unowned_env: EnvUnowned<'caller>,
+    _class: JClass<'caller>,
+    handle: jlong,
+    code_point: jint,
+    shift: jboolean,
+    ctrl: jboolean,
+) -> jint {
+    edit(&mut unowned_env, handle, |document| {
+        let character = u32::try_from(code_point)
+            .ok()
+            .and_then(char::from_u32)
+            .ok_or_else(|| BridgeError::Rnote(format!("Invalid code point {code_point}")))?;
+        Ok(document.handle_key(KeyboardKey::Unicode(character), shift, ctrl))
+    })
+}
+
+/// `static native int textEmphasis(long handle, int emphasis)`: 0 bold, 1 italic,
+/// 2 underline, 3 strikethrough, applied to the selected text.
+#[unsafe(no_mangle)]
+pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_textEmphasis<'caller>(
+    mut unowned_env: EnvUnowned<'caller>,
+    _class: JClass<'caller>,
+    handle: jlong,
+    emphasis: jint,
+) -> jint {
+    edit(&mut unowned_env, handle, |document| {
+        let emphasis = match emphasis {
+            0 => TextEmphasis::Bold,
+            1 => TextEmphasis::Italic,
+            2 => TextEmphasis::Underline,
+            3 => TextEmphasis::Strikethrough,
+            other => return Err(BridgeError::Rnote(format!("Unknown text emphasis {other}"))),
+        };
+        Ok(document.toggle_text_emphasis(emphasis))
+    })
+}
+
+/// `static native int colorSelectedText(long handle, int argb)`
+#[unsafe(no_mangle)]
+pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_colorSelectedText<
+    'caller,
+>(
+    mut unowned_env: EnvUnowned<'caller>,
+    _class: JClass<'caller>,
+    handle: jlong,
+    argb: jint,
+) -> jint {
+    edit(&mut unowned_env, handle, |document| {
+        Ok(document.color_selected_text(color_from_argb(argb)))
+    })
 }

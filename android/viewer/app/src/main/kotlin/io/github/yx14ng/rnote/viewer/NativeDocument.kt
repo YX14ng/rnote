@@ -105,6 +105,14 @@ enum class SelectionAction(val nativeValue: Int) {
     DUPLICATE(3),
 }
 
+/** Emphasis that can be toggled on selected text. Values match `jni_bridge/editing.rs`. */
+enum class TextEmphasis(val nativeValue: Int, val label: Int) {
+    BOLD(0, R.string.emphasis_bold),
+    ITALIC(1, R.string.emphasis_italic),
+    UNDERLINE(2, R.string.emphasis_underline),
+    STRIKETHROUGH(3, R.string.emphasis_strikethrough),
+}
+
 /** Where a batch of pen samples sits in an interaction. Values match `jni_bridge.rs`. */
 enum class PenPhase(val nativeValue: Int) {
     DOWN(0),
@@ -200,6 +208,33 @@ internal class NativeDocument private constructor(private var handle: Long) : Au
     fun handleKey(key: EditingKey, shift: Boolean, ctrl: Boolean): EditState =
         EditState.fromFlags(NativeBridge.handleKey(checkOpen(), key.nativeValue, shift, ctrl))
 
+    fun handleCharKey(codePoint: Int, shift: Boolean, ctrl: Boolean): EditState =
+        EditState.fromFlags(NativeBridge.handleCharKey(checkOpen(), codePoint, shift, ctrl))
+
+    fun toggleTextEmphasis(emphasis: TextEmphasis): EditState =
+        EditState.fromFlags(NativeBridge.textEmphasis(checkOpen(), emphasis.nativeValue))
+
+    fun colorSelectedText(color: Int): EditState =
+        EditState.fromFlags(NativeBridge.colorSelectedText(checkOpen(), color))
+
+    /** What is selected, or null if nothing is. */
+    fun copy(): ClipContent? = ClipContent.decode(NativeBridge.copy(checkOpen(), cut = false))
+
+    /** Like [copy], then removes what was copied. */
+    fun cut(): Pair<ClipContent?, EditState> {
+        val content = ClipContent.decode(NativeBridge.copy(checkOpen(), cut = true))
+        return content to editState
+    }
+
+    fun pasteStrokeContent(json: String, x: Double, y: Double): EditState =
+        EditState.fromFlags(NativeBridge.pasteStrokeContent(checkOpen(), json, x, y))
+
+    fun pasteText(text: String, x: Double, y: Double): EditState =
+        EditState.fromFlags(NativeBridge.pasteText(checkOpen(), text, x, y))
+
+    fun pasteImage(bytes: ByteArray, x: Double, y: Double): EditState =
+        EditState.fromFlags(NativeBridge.pasteImage(checkOpen(), bytes, x, y))
+
     fun handleText(text: String): EditState = EditState.fromFlags(NativeBridge.handleText(checkOpen(), text))
 
     fun setTextFormat(format: TextFormat): EditState = EditState.fromFlags(
@@ -223,8 +258,10 @@ internal class NativeDocument private constructor(private var handle: Long) : Au
     fun setLayout(layout: DocumentLayout): EditState =
         EditState.fromFlags(NativeBridge.setLayout(checkOpen(), layout.nativeValue))
 
-    fun setBackground(color: Int, pattern: Pattern, patternColor: Int): EditState =
-        EditState.fromFlags(NativeBridge.setBackground(checkOpen(), color, pattern.nativeValue, patternColor))
+    fun setBackground(color: Int, pattern: Pattern, patternColor: Int, patternSize: Double): EditState =
+        EditState.fromFlags(
+            NativeBridge.setBackground(checkOpen(), color, pattern.nativeValue, patternColor, patternSize),
+        )
 
     fun setPageBorders(show: Boolean): EditState = EditState.fromFlags(NativeBridge.setPageBorders(checkOpen(), show))
 

@@ -8,6 +8,7 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
+import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -25,6 +26,7 @@ class MainActivity : Activity() {
     private lateinit var recovery: Recovery
     private lateinit var saver: DocumentSaver
     private lateinit var guard: UnsavedChangesGuard
+    private lateinit var clipboard: ClipboardActions
 
     private var settings = EditorSettings()
     private var documentOpen = false
@@ -42,6 +44,11 @@ class MainActivity : Activity() {
             onError = ::showError
             onEditState = ::updateEditState
         }
+        clipboard = ClipboardActions(this, canvasView, renderer, onToolChanged = { tool ->
+            // The engine already switched to the tool that shows what was pasted.
+            changeSettings(settings.copy(tool = tool))
+            invalidateOptionsMenu()
+        }, onError = ::showError)
         applySettingsToView()
         messageView = TextView(this).apply {
             gravity = Gravity.CENTER
@@ -89,6 +96,15 @@ class MainActivity : Activity() {
         return true
     }
 
+    // Ctrl+Y redoes too, as on the desktop; the menu shortcuts cover the rest.
+    override fun onKeyShortcut(keyCode: Int, event: KeyEvent): Boolean {
+        if (keyCode == KeyEvent.KEYCODE_Y && event.isCtrlPressed && documentOpen && editState.canRedo) {
+            canvasView.applyEdit(NativeDocument::redo)
+            return true
+        }
+        return super.onKeyShortcut(keyCode, event)
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val action = EditorMenu.actionFor(item) ?: return super.onOptionsItemSelected(item)
         when (action) {
@@ -100,6 +116,10 @@ class MainActivity : Activity() {
             }
             is EditorMenu.Action.SelectColor ->
                 changeBrush(settings.brush.copy(color = action.color), colorChosen = true)
+            EditorMenu.Action.CustomColor -> FormatDialogs.showCustomColor(this, settings.brush.color) { color ->
+                changeBrush(settings.brush.copy(color = color), colorChosen = true)
+                invalidateOptionsMenu()
+            }
             is EditorMenu.Action.SelectWidth ->
                 changeBrush(settings.brush.copy(width = action.width), settings.colorChosen)
             is EditorMenu.Action.SelectShape -> {
@@ -122,6 +142,13 @@ class MainActivity : Activity() {
                 }
                 canvasView.applyEdit { it.selection(action.action) }
             }
+            EditorMenu.Action.Copy -> clipboard.copy()
+            EditorMenu.Action.Cut -> clipboard.cut()
+            EditorMenu.Action.Paste -> clipboard.paste()
+            is EditorMenu.Action.Emphasis -> canvasView.applyEdit { it.toggleTextEmphasis(action.emphasis) }
+            EditorMenu.Action.ColorSelectedText -> canvasView.applyEdit { it.colorSelectedText(settings.brush.color) }
+            EditorMenu.Action.SelectAllText ->
+                canvasView.applyEdit { it.handleCharKey('a'.code, shift = false, ctrl = true) }
             EditorMenu.Action.FinishShape -> canvasView.finishShape()
             EditorMenu.Action.TextFormat -> FormatDialogs.showTextFormat(this, settings.textFormat) { format ->
                 changeSettings(settings.copy(textFormat = format))

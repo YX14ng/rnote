@@ -99,6 +99,9 @@ class NoteCanvasView(context: Context) : View(context) {
 
         override fun pressKey(key: EditingKey, shift: Boolean, ctrl: Boolean) =
             submitEdit { it.handleKey(key, shift, ctrl) }
+
+        override fun pressCharacter(codePoint: Int, shift: Boolean, ctrl: Boolean) =
+            submitEdit { it.handleCharKey(codePoint, shift, ctrl) }
     }
 
     init {
@@ -182,6 +185,9 @@ class NoteCanvasView(context: Context) : View(context) {
             submitEdit { it.handleKey(EditingKey.ENTER, shift = false, ctrl = false) }
         }
     }
+
+    /** The center of the view, in document coordinates, where pasted content goes. */
+    fun documentCenter(): Pair<Double, Double> = camera.toDocumentX(width / 2f) to camera.toDocumentY(height / 2f)
 
     override fun onCheckIsTextEditor(): Boolean = textInputActive
 

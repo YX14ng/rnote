@@ -161,7 +161,7 @@ impl RnoteDocument {
     ///
     /// Style changes apply to the current pen mode, which is the eraser after erasing with
     /// the stylus' eraser end.
-    fn ensure_pen_mode(&mut self) -> WidgetFlags {
+    pub(super) fn ensure_pen_mode(&mut self) -> WidgetFlags {
         let (_propagation, flags) =
             self.engine.handle_pen_event(PenEvent::Cancel, Some(PenMode::Pen), Instant::now());
         flags

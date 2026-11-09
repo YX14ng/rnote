@@ -7,7 +7,7 @@ use rnote_compose::penevent::KeyboardKey;
 use rnote_engine::document::Layout;
 use rnote_engine::document::background::PatternStyle;
 
-use super::{EditState, RnoteDocument, ViewSize};
+use super::{EditState, RnoteDocument, TextEmphasis, ViewSize};
 use crate::document_settings::TextFormat;
 use crate::pen_input::{PenPhase, PenSample, Tool};
 use crate::render::{BYTES_PER_PIXEL, DESK_COLOR, PixelLayout, Viewport};
@@ -331,7 +331,7 @@ fn document_settings_change_page_layout_and_background() {
     assert!(matches!(settings.layout, Layout::FixedSize));
 
     let blue = Color { r: 0.0, g: 0.0, b: 1.0, a: 1.0 };
-    document.set_background(blue, PatternStyle::None, blue);
+    document.set_background(blue, PatternStyle::None, blue, 32.0);
     let center = document.bounds().center();
     assert_pixel_near(render_pixel(&mut document, center.x, center.y), [0, 0, 255, 255]);
 }
@@ -388,4 +388,117 @@ fn saved_document_reopens_with_its_strokes() {
     assert!(!document.edit_state().modified, "mark_saved should clear the modified flag");
     let mut reopened = RnoteDocument::try_open(bytes).expect("the saved file should load");
     assert_pixel_near(render_pixel(&mut reopened, 200.0, 200.0), [255, 0, 0, 255]);
+}
+
+#[test]
+fn copied_strokes_paste_into_another_document() {
+    let mut source = plain_document();
+    source.set_brush(RED, 6.0);
+    draw_line(&mut source, 200.0);
+    source.select_all();
+
+    let entry = source.copy().expect("copying should succeed").expect("something is selected");
+    assert_eq!(entry.mime_type, "application/rnote-stroke-content");
+
+    let mut target = plain_document();
+    let json = String::from_utf8(entry.data).expect("stroke content is JSON text");
+    let state = target
+        .paste_stroke_content(&json, Vector2::new(500.0, 500.0))
+        .expect("pasting should succeed");
+
+    assert!(state.modified && state.has_selection, "got {state:?}");
+    // Leaving the selector deselects, so the selection overlay doesn't tint the stroke.
+    target.set_tool(Tool::Brush);
+    assert_pixel_near(render_pixel(&mut target, 500.0, 500.0), [255, 0, 0, 255]);
+}
+
+#[test]
+fn cut_removes_the_selection() {
+    let mut document = plain_document();
+    document.set_brush(RED, 6.0);
+    draw_line(&mut document, 200.0);
+    document.select_all();
+
+    let (entry, state) = document.cut().expect("cutting should succeed");
+
+    assert!(entry.is_some() && state.modified, "got {entry:?} {state:?}");
+    document.set_tool(Tool::Brush);
+    assert_pixel_near(render_pixel(&mut document, 200.0, 200.0), [255, 255, 255, 255]);
+}
+
+#[test]
+fn pasted_text_becomes_a_text_box() {
+    let mut document = plain_document();
+
+    let state = document.paste_text("Pegado", Vector2::new(100.0, 100.0));
+
+    assert!(state.modified, "got {state:?}");
+    assert_eq!(texts(&document), ["Pegado"]);
+}
+
+/// The ranged attributes of the first text stroke in the document.
+fn text_attributes(document: &RnoteDocument) -> Vec<String> {
+    document
+        .engine
+        .extract_document_content()
+        .strokes
+        .iter()
+        .find_map(|layered| match layered.stroke.as_ref() {
+            rnote_engine::strokes::Stroke::TextStroke(text) => Some(
+                text.text_style
+                    .ranged_text_attributes
+                    .iter()
+                    .map(|ranged| format!("{:?} {:?}", ranged.range, ranged.attribute))
+                    .collect(),
+            ),
+            _ => None,
+        })
+        .unwrap_or_default()
+}
+
+#[test]
+fn formats_only_the_selected_text() {
+    let mut document = plain_document();
+    let spot = [PenSample { x: 100.0, y: 100.0, pressure: 1.0 }];
+    document.handle_pen(PenPhase::Down, Tool::Typewriter, &spot, IDENTITY, VIEW);
+    document.handle_pen(PenPhase::Up, Tool::Typewriter, &spot, IDENTITY, VIEW);
+    document.handle_text("Hola mundo");
+    // Shift+Home selects from the cursor back to the start of the line.
+    document.handle_key(KeyboardKey::Home, true, false);
+
+    document.toggle_text_emphasis(TextEmphasis::Bold);
+    document.color_selected_text(RED);
+
+    let attributes = text_attributes(&document);
+    assert_eq!(attributes.len(), 2, "got {attributes:?}");
+    assert!(attributes[0].starts_with("0..10 FontWeight(700)"), "got {attributes:?}");
+    assert!(attributes[1].starts_with("0..10 TextColor"), "got {attributes:?}");
+}
+
+#[test]
+fn ctrl_a_selects_all_the_text() {
+    let mut document = plain_document();
+    let spot = [PenSample { x: 100.0, y: 100.0, pressure: 1.0 }];
+    document.handle_pen(PenPhase::Down, Tool::Typewriter, &spot, IDENTITY, VIEW);
+    document.handle_pen(PenPhase::Up, Tool::Typewriter, &spot, IDENTITY, VIEW);
+    document.handle_text("abc");
+
+    document.handle_key(KeyboardKey::Unicode('a'), false, true);
+    document.toggle_text_emphasis(TextEmphasis::Italic);
+
+    assert_eq!(texts(&document), ["abc"], "Ctrl+A must not type an 'a'");
+    let attributes = text_attributes(&document);
+    assert!(attributes.iter().any(|a| a.starts_with("0..3 Style(Italic)")), "got {attributes:?}");
+}
+
+#[test]
+fn pattern_size_is_applied_and_clamped() {
+    let mut document = plain_document();
+    let white = Color { r: 1.0, g: 1.0, b: 1.0, a: 1.0 };
+
+    document.set_background(white, PatternStyle::Grid, white, 64.0);
+    assert_eq!(document.document_settings().pattern_size, 64.0);
+
+    document.set_background(white, PatternStyle::Grid, white, 0.0);
+    assert_eq!(document.document_settings().pattern_size, 4.0);
 }

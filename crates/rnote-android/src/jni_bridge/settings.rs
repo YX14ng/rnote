@@ -153,8 +153,8 @@ pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_setLayout
     edit(&mut unowned_env, handle, |document| Ok(document.set_layout(layout_from_int(layout)?)))
 }
 
-/// `static native int setBackground(long handle, int argb, int pattern, int patternArgb)`;
-/// `pattern` is a `PatternStyle` discriminant.
+/// `static native int setBackground(long handle, int argb, int pattern, int patternArgb,
+/// double patternSize)`; `pattern` is a `PatternStyle` discriminant.
 #[unsafe(no_mangle)]
 pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_setBackground<'caller>(
     mut unowned_env: EnvUnowned<'caller>,
@@ -163,10 +163,16 @@ pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_setBackgr
     argb: jint,
     pattern: jint,
     pattern_argb: jint,
+    pattern_size: jdouble,
 ) -> jint {
     edit(&mut unowned_env, handle, |document| {
         let pattern = enum_from_int::<PatternStyle>(pattern, "pattern")?;
-        Ok(document.set_background(color_from_argb(argb), pattern, color_from_argb(pattern_argb)))
+        Ok(document.set_background(
+            color_from_argb(argb),
+            pattern,
+            color_from_argb(pattern_argb),
+            pattern_size,
+        ))
     })
 }
 

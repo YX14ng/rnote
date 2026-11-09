@@ -80,7 +80,8 @@ pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_backgroun
 }
 
 /// `static native double[] documentSettings(long handle)`, as `[pageWidthMm, pageHeightMm,
-/// layout, backgroundArgb, pattern, patternArgb, showBorders]`; the ints are stored as doubles.
+/// layout, backgroundArgb, pattern, patternArgb, showBorders, patternSize]`; the ints are
+/// stored as doubles.
 #[unsafe(no_mangle)]
 pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_documentSettings<'caller>(
     mut unowned_env: EnvUnowned<'caller>,
@@ -100,6 +101,7 @@ pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_documentS
                 f64::from(settings.pattern as i32),
                 f64::from(color_to_argb(settings.pattern_color)),
                 f64::from(u8::from(settings.show_borders)),
+                settings.pattern_size,
             ];
             let array = env.new_double_array(values.len())?;
             array.set_region(env, 0, &values)?;

@@ -10,6 +10,9 @@ internal interface TextSink {
     fun insertText(text: String)
 
     fun pressKey(key: EditingKey, shift: Boolean = false, ctrl: Boolean = false)
+
+    /** A character key pressed with modifiers, for shortcuts such as Ctrl+A. */
+    fun pressCharacter(codePoint: Int, shift: Boolean, ctrl: Boolean)
 }
 
 /**

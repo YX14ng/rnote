@@ -1,5 +1,6 @@
 //! Text format, shape style and document settings: what the formatting menus change.
 
+use parry2d_f64::math::Vector2;
 use rnote_compose::Color;
 use rnote_engine::document::Layout;
 use rnote_engine::document::background::PatternStyle;
@@ -62,6 +63,8 @@ pub struct DocumentSettings {
     pub pattern: PatternStyle,
     /// Color of the background pattern.
     pub pattern_color: Color,
+    /// Spacing of the background pattern, in document units.
+    pub pattern_size: f64,
     /// Whether page outlines are drawn.
     pub show_borders: bool,
 }
@@ -102,6 +105,7 @@ pub(crate) fn document_settings(engine: &Engine) -> DocumentSettings {
         background_color: config.background.color,
         pattern: config.background.pattern,
         pattern_color: config.background.pattern_color,
+        pattern_size: config.background.pattern_size.y,
         show_borders: format.show_borders,
     }
 }
@@ -122,17 +126,23 @@ pub(crate) fn apply_layout(engine: &mut Engine, layout: Layout) -> WidgetFlags {
     engine.set_doc_layout(layout)
 }
 
-/// Changes the background color and pattern.
+/// Smallest and largest pattern spacing offered, in document units.
+const PATTERN_SIZE_RANGE: (f64, f64) = (4.0, 512.0);
+
+/// Changes the background color and pattern; `pattern_size` is the spacing in both directions.
 pub(crate) fn apply_background(
     engine: &mut Engine,
     color: Color,
     pattern: PatternStyle,
     pattern_color: Color,
+    pattern_size: f64,
 ) {
     let background = &mut engine.document.config.background;
     background.color = color;
     background.pattern = pattern;
     background.pattern_color = pattern_color;
+    let (min, max) = PATTERN_SIZE_RANGE;
+    background.pattern_size = Vector2::splat(pattern_size.clamp(min, max));
 }
 
 /// Shows or hides the page outlines.

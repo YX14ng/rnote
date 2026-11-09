@@ -21,7 +21,7 @@ internal object KeyMapping {
 
     /**
      * Sends [event] to [sink]. Returns false for keys that mean nothing to the text tool,
-     * including Ctrl shortcuts, which are left to the menu.
+     * including Ctrl shortcuts other than Ctrl+A, which are left to the menu.
      */
     fun dispatch(event: KeyEvent, sink: TextSink): Boolean {
         val editingKey = editingKeys[event.keyCode]
@@ -30,8 +30,12 @@ internal object KeyMapping {
             return true
         }
         if (event.isCtrlPressed || event.isMetaPressed) {
-            // Ctrl+letter is a shortcut, never text.
-            return false
+            // Ctrl+letter is a shortcut, never text. Ctrl+A selects the whole text box.
+            if (event.keyCode != KeyEvent.KEYCODE_A || !event.isCtrlPressed) {
+                return false
+            }
+            sink.pressCharacter('a'.code, shift = event.isShiftPressed, ctrl = true)
+            return true
         }
         val codePoint = event.unicodeChar
         if (codePoint == 0 || Character.isISOControl(codePoint)) {

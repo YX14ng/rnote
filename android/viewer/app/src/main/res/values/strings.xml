@@ -112,7 +112,7 @@
     <string name="page_a5">A5</string>
     <string name="page_letter">Letter</string>
     <string name="page_legal">Legal</string>
-    <string name="page_custom">Custom (%1$.0f × %2$.0f mm)</string>
+    <string name="page_custom">Custom</string>
     <string name="orientation_portrait">Portrait</string>
     <string name="orientation_landscape">Landscape</string>
     <string name="background_white">White</string>
@@ -120,5 +120,27 @@
     <string name="background_light_gray">Light gray</string>
     <string name="background_dark">Dark</string>
     <string name="background_black">Black</string>
-    <string name="background_current">Current</string>
+    <string name="emphasis_bold">Bold</string>
+    <string name="emphasis_italic">Italic</string>
+    <string name="emphasis_underline">Underline</string>
+    <string name="emphasis_strikethrough">Strikethrough</string>
+    <string name="action_custom_color">Custom…</string>
+    <string name="action_text_selection">Selected text</string>
+    <string name="action_color_selected_text">Apply pen color</string>
+    <string name="action_select_all_text">Select all text</string>
+    <string name="action_cut">Cut</string>
+    <string name="action_copy">Copy</string>
+    <string name="action_paste">Paste</string>
+    <string name="clipboard_empty">Nothing to paste</string>
+    <string name="nothing_selected">Nothing is selected</string>
+    <string name="clipboard_label">Rnote content</string>
+    <string name="title_custom_color">Pen color</string>
+    <string name="label_color_hex">Color in hex, e.g. #1C71D8</string>
+    <string name="label_page_width">Width (mm)</string>
+    <string name="label_page_height">Height (mm)</string>
+    <string name="background_custom">Custom</string>
+    <string name="label_background_hex">Background color (hex)</string>
+    <string name="label_pattern_color">Pattern color (hex)</string>
+    <string name="label_pattern_spacing">Pattern spacing</string>
+    <string name="invalid_value">Invalid value: nothing was changed</string>
 </resources>

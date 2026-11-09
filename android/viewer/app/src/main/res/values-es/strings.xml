@@ -111,7 +111,7 @@
     <string name="page_a5">A5</string>
     <string name="page_letter">Carta</string>
     <string name="page_legal">Oficio (Legal)</string>
-    <string name="page_custom">Personalizado (%1$.0f × %2$.0f mm)</string>
+    <string name="page_custom">Personalizado</string>
     <string name="orientation_portrait">Vertical</string>
     <string name="orientation_landscape">Horizontal</string>
     <string name="background_white">Blanco</string>
@@ -119,5 +119,27 @@
     <string name="background_light_gray">Gris claro</string>
     <string name="background_dark">Oscuro</string>
     <string name="background_black">Negro</string>
-    <string name="background_current">Actual</string>
+    <string name="emphasis_bold">Negrita</string>
+    <string name="emphasis_italic">Cursiva</string>
+    <string name="emphasis_underline">Subrayado</string>
+    <string name="emphasis_strikethrough">Tachado</string>
+    <string name="action_custom_color">Personalizado…</string>
+    <string name="action_text_selection">Texto seleccionado</string>
+    <string name="action_color_selected_text">Aplicar el color del lápiz</string>
+    <string name="action_select_all_text">Seleccionar todo el texto</string>
+    <string name="action_cut">Cortar</string>
+    <string name="action_copy">Copiar</string>
+    <string name="action_paste">Pegar</string>
+    <string name="clipboard_empty">No hay nada para pegar</string>
+    <string name="nothing_selected">No hay nada seleccionado</string>
+    <string name="clipboard_label">Contenido de Rnote</string>
+    <string name="title_custom_color">Color del lápiz</string>
+    <string name="label_color_hex">Color en hexadecimal, por ejemplo #1C71D8</string>
+    <string name="label_page_width">Ancho (mm)</string>
+    <string name="label_page_height">Alto (mm)</string>
+    <string name="background_custom">Personalizado</string>
+    <string name="label_background_hex">Color de fondo (hex)</string>
+    <string name="label_pattern_color">Color del patrón (hex)</string>
+    <string name="label_pattern_spacing">Espaciado del patrón</string>
+    <string name="invalid_value">Valor inválido: no se cambió nada</string>
 </resources>

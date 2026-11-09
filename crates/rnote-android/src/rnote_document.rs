@@ -11,6 +11,9 @@ use rnote_engine::{Engine, WidgetFlags};
 
 use crate::render::{self, BackgroundTiles, PixelLayout, Viewport};
 
+pub use clipboard::ClipboardEntry;
+pub use text_selection::TextEmphasis;
+
 /// The editing state the UI shows after an operation.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub struct EditState {
@@ -195,7 +198,9 @@ impl RnoteDocument {
     }
 }
 
+mod clipboard;
 mod editing;
 mod settings;
 #[cfg(test)]
 mod tests;
+mod text_selection;

@@ -4008,6 +4008,7 @@ dependencies = [
  "parry2d-f64",
  "rnote-compose",
  "rnote-engine",
+ "serde_json",
 ]
 
 [[package]]
