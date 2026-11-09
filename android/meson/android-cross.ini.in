@@ -1,0 +1,27 @@
+# Meson cross file template for Android, filled in by android/scripts/build-deps.sh.
+[constants]
+toolchain = '@TOOLCHAIN@'
+
+[binaries]
+c = toolchain / 'bin' / '@TRIPLE@@API@-clang'
+cpp = toolchain / 'bin' / '@TRIPLE@@API@-clang++'
+ar = toolchain / 'bin' / 'llvm-ar'
+ranlib = toolchain / 'bin' / 'llvm-ranlib'
+strip = toolchain / 'bin' / 'llvm-strip'
+pkg-config = 'pkg-config'
+
+[built-in options]
+c_link_args = ['-Wl,--build-id=sha1']
+cpp_link_args = ['-Wl,--build-id=sha1']
+
+[properties]
+sys_root = toolchain / 'sysroot'
+# Only ever resolve against what this build installed, never the host's libraries.
+pkg_config_libdir = ['@PREFIX@/lib/pkgconfig', '@PREFIX@/share/pkgconfig']
+needs_exe_wrapper = true
+
+[host_machine]
+system = 'android'
+cpu_family = '@ARCH@'
+cpu = '@ARCH@'
+endian = 'little'

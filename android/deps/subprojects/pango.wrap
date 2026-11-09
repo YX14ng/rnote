@@ -1,0 +1,10 @@
+# Upstream tarball rather than WrapDB: 1.56 (latest on WrapDB) does not build
+# against fontconfig 2.18, and 1.58.2 matches what Rnote is built with on Linux.
+[wrap-file]
+directory = pango-1.58.2
+source_url = https://download.gnome.org/sources/pango/1.58/pango-1.58.2.tar.xz
+source_filename = pango-1.58.2.tar.xz
+source_hash = 342385b6ca3b7c73455d7c80a13b7dbe4489e00bc3bd4c5bd6ed4dce421e374a
+
+[provide]
+dependency_names = pango, pangoft2, pangocairo

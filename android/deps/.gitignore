@@ -1,0 +1,17 @@
+# Meson downloads sources and writes wrap-redirect files here; only the pinned wraps are tracked.
+/subprojects/*
+!/subprojects/cairo.wrap
+!/subprojects/expat.wrap
+!/subprojects/fontconfig.wrap
+!/subprojects/freetype2.wrap
+!/subprojects/fribidi.wrap
+!/subprojects/glib.wrap
+!/subprojects/harfbuzz.wrap
+!/subprojects/libffi.wrap
+!/subprojects/libpng.wrap
+!/subprojects/libxml2.wrap
+!/subprojects/pango.wrap
+!/subprojects/pcre2.wrap
+!/subprojects/pixman.wrap
+!/subprojects/proxy-libintl.wrap
+!/subprojects/zlib.wrap
