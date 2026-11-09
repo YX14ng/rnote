@@ -23,8 +23,8 @@ class MainActivity : Activity() {
     private lateinit var guard: UnsavedChangesGuard
     private lateinit var clipboard: ClipboardActions
     private lateinit var toolSidebar: ToolSidebar
+    private lateinit var controls: EditorControls
 
-    private var settings = EditorSettings()
     private var documentOpen = false
     private var editState = EditState.CLEAN
     private var documentSettings: DocumentSettings? = null
@@ -34,23 +34,19 @@ class MainActivity : Activity() {
         recovery = Recovery(this)
         guard = UnsavedChangesGuard(this, onDiscard = recovery::clear)
         saver = DocumentSaver(this, renderer, recovery, onSaved = ::updateEditState, requestSaveAs = ::saveAs)
-        settings = EditorSettings.load(this)
         canvasView = NoteCanvasView(this).apply {
             renderer = this@MainActivity.renderer
             onError = ::showError
             onEditState = ::updateEditState
             onTwoFingerTap = ::undoByGesture
         }
+        toolSidebar = ToolSidebar(this).apply { visibility = View.GONE }
+        controls = EditorControls(this, canvasView, toolSidebar, renderer, onChanged = ::invalidateOptionsMenu)
+        toolSidebar.onToolSelected = controls::selectTool
         clipboard = ClipboardActions(this, canvasView, renderer, onToolChanged = { tool ->
             // The engine already switched to the tool that shows what was pasted.
-            changeSettings(settings.copy(tool = tool))
-            invalidateOptionsMenu()
+            controls.change(controls.settings.copy(tool = tool))
         }, onError = ::showError)
-        toolSidebar = ToolSidebar(this).apply {
-            onToolSelected = ::selectTool
-            visibility = View.GONE
-        }
-        applySettingsToView()
         layout = EditorLayout(this, canvasView, toolSidebar)
         setContentView(layout.root)
         if (!handleIntent(intent) && recovery.exists) {
@@ -78,7 +74,7 @@ class MainActivity : Activity() {
     }
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        EditorMenu.prepare(menu, MenuState(documentOpen, editState, settings), this)
+        EditorMenu.prepare(menu, MenuState(documentOpen, editState, controls.settings), this)
         return true
     }
 
@@ -93,34 +89,35 @@ class MainActivity : Activity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val action = EditorMenu.actionFor(item) ?: return super.onOptionsItemSelected(item)
+        val settings = controls.settings
         when (action) {
             EditorMenu.Action.Undo -> canvasView.applyEdit(NativeDocument::undo)
             EditorMenu.Action.Redo -> canvasView.applyEdit(NativeDocument::redo)
             is EditorMenu.Action.SelectColor ->
-                changeBrush(settings.brush.copy(color = action.color), colorChosen = true)
+                controls.changeBrush(settings.brush.copy(color = action.color), colorChosen = true)
             EditorMenu.Action.CustomColor -> FormatDialogs.showCustomColor(this, settings.brush.color) { color ->
-                changeBrush(settings.brush.copy(color = color), colorChosen = true)
+                controls.changeBrush(controls.settings.brush.copy(color = color), colorChosen = true)
                 invalidateOptionsMenu()
             }
             is EditorMenu.Action.SelectWidth ->
-                changeBrush(settings.brush.copy(width = action.width), settings.colorChosen)
+                controls.changeBrush(settings.brush.copy(width = action.width), settings.colorChosen)
             is EditorMenu.Action.SelectShape -> {
                 // Picking a shape means drawing it next.
-                changeSettings(settings.copy(shape = action.shape, tool = Tool.SHAPER))
+                controls.change(settings.copy(shape = action.shape, tool = Tool.SHAPER))
                 canvasView.applyEdit { it.setShape(action.shape); it.setTool(Tool.SHAPER) }
             }
             is EditorMenu.Action.SelectBrushStyle -> {
-                changeSettings(settings.copy(brushStyle = action.style))
+                controls.change(settings.copy(brushStyle = action.style))
                 canvasView.applyEdit { it.setBrushStyle(action.style) }
             }
             is EditorMenu.Action.SelectEraserStyle -> {
-                changeSettings(settings.copy(eraserStyle = action.style))
+                controls.change(settings.copy(eraserStyle = action.style))
                 canvasView.applyEdit { it.setEraserStyle(action.style) }
             }
             is EditorMenu.Action.Selection -> {
                 if (action.action == SelectionAction.SELECT_ALL) {
                     // The engine switches to the selector to show the selection.
-                    changeSettings(settings.copy(tool = Tool.SELECTOR))
+                    controls.change(settings.copy(tool = Tool.SELECTOR))
                 }
                 canvasView.applyEdit { it.selection(action.action) }
             }
@@ -133,11 +130,11 @@ class MainActivity : Activity() {
                 canvasView.applyEdit { it.handleCharKey('a'.code, shift = false, ctrl = true) }
             EditorMenu.Action.FinishShape -> canvasView.finishShape()
             EditorMenu.Action.TextFormat -> FormatDialogs.showTextFormat(this, settings.textFormat) { format ->
-                changeSettings(settings.copy(textFormat = format))
+                controls.change(controls.settings.copy(textFormat = format))
                 canvasView.applyEdit { it.setTextFormat(format) }
             }
             EditorMenu.Action.ShapeStyle -> FormatDialogs.showShapeStyle(this, settings.shapeStyle) { style ->
-                changeSettings(settings.copy(shapeStyle = style))
+                controls.change(controls.settings.copy(shapeStyle = style))
                 canvasView.applyEdit { it.setShapeStyle(style) }
             }
             EditorMenu.Action.Document -> documentSettings?.let { current ->
@@ -153,11 +150,8 @@ class MainActivity : Activity() {
                 }
             }
             EditorMenu.Action.ToggleFingerDrawing ->
-                changeSettings(settings.copy(fingerDrawing = !settings.fingerDrawing))
-            EditorMenu.Action.ToggleShapeRecognition -> {
-                changeSettings(settings.copy(shapeRecognition = !settings.shapeRecognition))
-                applyShapeRecognition()
-            }
+                controls.change(settings.copy(fingerDrawing = !settings.fingerDrawing))
+            EditorMenu.Action.ToggleShapeRecognition -> controls.toggleShapeRecognition()
             EditorMenu.Action.New -> guard.confirmDiscard(::newDocument)
             EditorMenu.Action.Open ->
                 guard.confirmDiscard { startActivityForResult(DocumentFiles.openIntent(saver.currentUri), REQUEST_OPEN) }
@@ -287,28 +281,14 @@ class MainActivity : Activity() {
 
     private fun showOpenedDocument(info: DocumentInfo) {
         documentOpen = true
+        controls.documentOpen = true
         documentSettings = info.settings
         guard.changesDiscarded = false
         layout.hideMessage()
         toolSidebar.visibility = View.VISIBLE
-        if (!settings.colorChosen) {
-            val contrasting = BrushPalette.contrastingColor(info.backgroundColor)
-            changeSettings(settings.copy(brush = settings.brush.copy(color = contrasting)))
-        }
+        controls.adaptToBackground(info.backgroundColor)
         canvasView.showDocument(info.bounds, info.settings)
-        // A new document starts with the engine defaults: bring it in line with the settings.
-        // Queued before any pen input, so the first stroke already uses them.
-        renderer.setBrush(settings.brush)
-        canvasView.applyEdit { document ->
-            document.setShape(settings.shape)
-            document.setBrushStyle(settings.brushStyle)
-            document.setEraserStyle(settings.eraserStyle)
-            document.setShapeStyle(settings.shapeStyle)
-            // Only new text: nothing is being edited yet.
-            document.setTextFormat(settings.textFormat)
-            document.setTool(settings.tool)
-            document.setShapeRecognition(settings.shapeRecognition, shapeMinSizePx())
-        }
+        controls.applyToDocument()
         updateEditState(info.editState)
     }
 
@@ -319,58 +299,18 @@ class MainActivity : Activity() {
                 .onSuccess { settings ->
                     documentSettings = settings
                     canvasView.pageColor = settings.backgroundColor
-                    if (!this.settings.colorChosen) {
-                        // Keep the automatic color readable on the new background.
-                        val contrasting = BrushPalette.contrastingColor(settings.backgroundColor)
-                        changeBrush(this.settings.brush.copy(color = contrasting), colorChosen = false)
-                    }
+                    controls.adaptToBackground(settings.backgroundColor)
                     onRefreshed(settings)
                 }
                 .onFailure(::showError)
         }
     }
 
-    private fun changeSettings(newSettings: EditorSettings) {
-        settings = newSettings
-        settings.save(this)
-        applySettingsToView()
-    }
-
-    private fun applyShapeRecognition() {
-        val enabled = settings.shapeRecognition
-        val minSizePx = shapeMinSizePx()
-        canvasView.applyEdit { it.setShapeRecognition(enabled, minSizePx) }
-    }
-
-    /** Strokes smaller than this on screen stay as drawn, even when the pen holds still. */
-    private fun shapeMinSizePx(): Double = SHAPE_MIN_SIZE_DP * resources.displayMetrics.density.toDouble()
-
     /** A two-finger tap undoes, like in other note-taking apps. */
     private fun undoByGesture() {
         if (documentOpen && editState.canUndo) {
             canvasView.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             canvasView.applyEdit(NativeDocument::undo)
-        }
-    }
-
-    private fun selectTool(tool: Tool) {
-        changeSettings(settings.copy(tool = tool))
-        canvasView.applyEdit { it.setTool(tool) }
-        invalidateOptionsMenu()
-    }
-
-    private fun applySettingsToView() {
-        toolSidebar.selectedTool = settings.tool
-        canvasView.tool = settings.tool
-        canvasView.brush = settings.brush
-        canvasView.fingerDrawing = settings.fingerDrawing
-        canvasView.holdToSnap = settings.shapeRecognition
-    }
-
-    private fun changeBrush(brush: Brush, colorChosen: Boolean) {
-        changeSettings(settings.copy(brush = brush, colorChosen = colorChosen))
-        if (documentOpen) {
-            renderer.setBrush(brush)
         }
     }
 
@@ -397,8 +337,6 @@ class MainActivity : Activity() {
 
     private companion object {
         const val TAG = "RnoteViewer"
-        // Holding the pen still is what asks for a shape, so small ones are fine too.
-        const val SHAPE_MIN_SIZE_DP = 24.0
 
         const val REQUEST_OPEN = 1
         const val REQUEST_SAVE_AS = 2
