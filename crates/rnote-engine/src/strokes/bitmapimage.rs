@@ -251,3 +251,40 @@ impl BitmapImage {
             .collect()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::engine::{LayeredStroke, StrokeContent};
+    use crate::image::ImageMemoryFormat;
+    use crate::store::chrono_comp::StrokeLayer;
+    use crate::strokes::Stroke;
+    use p2d::glamx::{DAffine2, DMat2, DVec2};
+    use p2d::math::Vector2;
+    use std::sync::Arc;
+
+    #[test]
+    fn image_scaled_to_nothing_does_not_break_svg_export() {
+        let mut bitmap = BitmapImage::default();
+        bitmap.image = Image {
+            data: glib::Bytes::from(&[255_u8; 4]),
+            rectangle: Rectangle::default(),
+            pixel_width: 1,
+            pixel_height: 1,
+            memory_format: ImageMemoryFormat::R8g8b8a8Premultiplied,
+        };
+        // Found in a real document: an image whose placement matrix collapsed to zero.
+        bitmap.rectangle.affine =
+            DAffine2::from_mat2_translation(DMat2::ZERO, DVec2::new(10.0, 10.0));
+        let content = StrokeContent::default()
+            .with_strokes(vec![LayeredStroke {
+                stroke: Arc::new(Stroke::BitmapImage(bitmap)),
+                layer: StrokeLayer::Image,
+            }])
+            .with_bounds(Aabb::new(Vector2::ZERO, Vector2::new(100.0, 100.0)));
+
+        let svg = content.gen_svg(false, false, false, 0.0);
+
+        assert!(svg.is_ok(), "the export failed: {:?}", svg.err());
+    }
+}
