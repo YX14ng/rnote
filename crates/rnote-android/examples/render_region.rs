@@ -18,7 +18,7 @@ fn main() -> anyhow::Result<()> {
             "usage: render_region <file.rnote> <x> <y> <zoom> <width> <height> <out.rgba>"
         );
     };
-    let document = RnoteDocument::try_open(fs::read(file).context("Reading the file failed")?)?;
+    let mut document = RnoteDocument::try_open(fs::read(file).context("Reading the file failed")?)?;
     let bounds = document.bounds();
     println!("bounds: {:?} .. {:?}", bounds.mins, bounds.maxs);
 

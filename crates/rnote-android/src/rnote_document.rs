@@ -6,9 +6,12 @@ use anyhow::Context;
 use futures::FutureExt;
 use parry2d_f64::bounding_volume::Aabb;
 use parry2d_f64::math::Vector2;
-use rnote_compose::Color;
+use rnote_compose::builders::ShapeBuilderType;
+use rnote_compose::{Color, PenEvent};
 use rnote_engine::engine::{EngineConfigShared, EngineSnapshot, EngineTaskReceiver};
 use rnote_engine::pens::pensconfig::BrushConfig;
+use rnote_engine::pens::pensconfig::brushconfig::BrushStyle;
+use rnote_engine::pens::pensconfig::eraserconfig::EraserStyle;
 use rnote_engine::pens::{PenMode, PenStyle};
 use rnote_engine::{Engine, WidgetFlags};
 
@@ -26,6 +29,8 @@ pub struct EditState {
     pub can_redo: bool,
     /// The document bounds changed, e.g. because it grew to fit new strokes.
     pub bounds_changed: bool,
+    /// Strokes are selected, so selection actions apply.
+    pub has_selection: bool,
 }
 
 /// Size of the view showing the document, in pixels.
@@ -44,6 +49,8 @@ pub struct RnoteDocument {
     // Rendering tasks the engine queues for its own (GTK) image cache.
     tasks: Option<EngineTaskReceiver>,
     tiles: BackgroundTiles,
+    // The pen style used for `PenMode::Pen`, kept in sync with the engine's.
+    pen_style: PenStyle,
     modified: bool,
 }
 
@@ -72,11 +79,17 @@ impl RnoteDocument {
             config.pens_config.pen_mode_pen_style = PenStyle::Brush;
             config.pens_config.pen_mode_eraser_style = PenStyle::Eraser;
         }
-        let mut flags = engine.install_config(&config, /* data_dir */ None);
-        flags |= engine.change_pen_style(PenStyle::Brush);
+        // Installing the config reinstalls the pens for those styles.
+        let flags = engine.install_config(&config, /* data_dir */ None);
         let tasks = engine.take_engine_tasks_rx();
-        let mut document =
-            Self { engine, config, tasks, tiles: BackgroundTiles::default(), modified: false };
+        let mut document = Self {
+            engine,
+            config,
+            tasks,
+            tiles: BackgroundTiles::default(),
+            pen_style: PenStyle::Brush,
+            modified: false,
+        };
         document.finish_operation(flags);
         document
     }
@@ -105,19 +118,92 @@ impl RnoteDocument {
             can_undo: self.engine.can_undo(),
             can_redo: self.engine.can_redo(),
             bounds_changed: false,
+            // Only the selector selects, so skip copying the selection otherwise.
+            has_selection: self.pen_style == PenStyle::Selector
+                && self.engine.extract_selection_content().is_some(),
         }
     }
 
-    /// Renders the region of the document given by `viewport` into `out`.
+    /// Renders the region of the document given by `viewport` into `out`, including what
+    /// the current pen shows on top (a shape being drawn, the selection, ...).
     ///
     /// See [`render::render_rgba`] for the pixel format.
     pub fn render_rgba(
-        &self,
+        &mut self,
         viewport: Viewport,
         layout: PixelLayout,
         out: &mut [u8],
     ) -> anyhow::Result<()> {
+        let flags =
+            self.sync_camera(viewport, ViewSize { width: layout.width, height: layout.height });
+        self.finish_operation(flags);
         render::render_rgba(&self.engine, &self.tiles, self.bounds(), viewport, layout, out)
+    }
+
+    /// Switches the tool used for the pen side of the stylus.
+    ///
+    /// Leaving the selector finishes the selection, like in the desktop app.
+    pub fn set_tool(&mut self, tool: Tool) -> EditState {
+        let bounds_before = self.bounds();
+        let flags = match tool {
+            Tool::Brush => self.use_pen_style(PenStyle::Brush),
+            Tool::Shaper => self.use_pen_style(PenStyle::Shaper),
+            Tool::Selector => self.use_pen_style(PenStyle::Selector),
+            // The eraser is a pen mode, not a style: the pen side keeps its tool.
+            Tool::Eraser => WidgetFlags::default(),
+        };
+        self.finish_edit(flags, bounds_before)
+    }
+
+    /// Sets the shape that the shaper draws.
+    pub fn set_shape(&mut self, shape: ShapeBuilderType) {
+        self.config.write().pens_config.shaper_config.builder_type = shape;
+    }
+
+    /// Sets the look of brush strokes.
+    pub fn set_brush_style(&mut self, style: BrushStyle) {
+        self.config.write().pens_config.brush_config.style = style;
+    }
+
+    /// Sets whether the eraser removes whole strokes or only the parts it touches.
+    pub fn set_eraser_style(&mut self, style: EraserStyle) {
+        self.config.write().pens_config.eraser_config.style = style;
+    }
+
+    /// Selects every stroke, switching to the selector.
+    pub fn select_all(&mut self) -> EditState {
+        let bounds_before = self.bounds();
+        let flags = self.ensure_pen_mode() | self.engine.select_all_strokes();
+        self.pen_style = PenStyle::Selector;
+        self.finish_edit(flags, bounds_before)
+    }
+
+    /// Clears the selection.
+    pub fn deselect_all(&mut self) -> EditState {
+        let bounds_before = self.bounds();
+        let flags = self.ensure_pen_mode() | self.engine.deselect_all_strokes();
+        self.pen_style = PenStyle::Selector;
+        self.finish_edit(flags, bounds_before)
+    }
+
+    /// Deletes the selected strokes.
+    pub fn delete_selection(&mut self) -> EditState {
+        let bounds_before = self.bounds();
+        let flags = self.engine.trash_selection();
+        self.finish_edit(flags, bounds_before)
+    }
+
+    /// Duplicates the selected strokes; the copies become the selection.
+    pub fn duplicate_selection(&mut self) -> EditState {
+        let bounds_before = self.bounds();
+        let flags = self.engine.duplicate_selection();
+        self.finish_edit(flags, bounds_before)
+    }
+
+    /// Marks the document as having unsaved changes, e.g. after restoring it from a
+    /// recovery copy.
+    pub fn mark_modified(&mut self) {
+        self.modified = true;
     }
 
     /// Feeds a batch of stylus samples to the engine.
@@ -134,7 +220,18 @@ impl RnoteDocument {
         let bounds_before = self.bounds();
         let mut flags = self.sync_camera(viewport, view_size);
         let pen_mode = match tool {
-            Tool::Brush => PenMode::Pen,
+            Tool::Brush => {
+                flags |= self.use_pen_style(PenStyle::Brush);
+                PenMode::Pen
+            }
+            Tool::Shaper => {
+                flags |= self.use_pen_style(PenStyle::Shaper);
+                PenMode::Pen
+            }
+            Tool::Selector => {
+                flags |= self.use_pen_style(PenStyle::Selector);
+                PenMode::Pen
+            }
             Tool::Eraser => PenMode::Eraser,
         };
         let now = Instant::now();
@@ -168,17 +265,18 @@ impl RnoteDocument {
         self.finish_edit(flags, bounds_before)
     }
 
-    /// Sets the color and width of new brush strokes, for every brush style.
+    /// Sets the color and width of new brush strokes and shapes, for every style.
     pub fn set_brush(&mut self, color: Color, width: f64) {
         let width = width.clamp(BrushConfig::STROKE_WIDTH_MIN, BrushConfig::STROKE_WIDTH_MAX);
         let mut config = self.config.write();
+        config.pens_config.set_all_stroke_colors(color);
         let brush = &mut config.pens_config.brush_config;
-        brush.marker_options.stroke_color = Some(color);
         brush.marker_options.stroke_width = width;
-        brush.solid_options.stroke_color = Some(color);
         brush.solid_options.stroke_width = width;
-        brush.textured_options.stroke_color = Some(color);
         brush.textured_options.stroke_width = width;
+        let shaper = &mut config.pens_config.shaper_config;
+        shaper.smooth_options.stroke_width = width;
+        shaper.rough_options.stroke_width = width;
     }
 
     /// Serializes the document as an `.rnote` file. `file_name` is stored in its metadata.
@@ -193,6 +291,26 @@ impl RnoteDocument {
     /// Marks the current state as saved.
     pub fn mark_saved(&mut self) {
         self.modified = false;
+    }
+
+    /// Makes `style` the tool of the pen side, if it isn't already.
+    fn use_pen_style(&mut self, style: PenStyle) -> WidgetFlags {
+        if self.pen_style == style {
+            return WidgetFlags::default();
+        }
+        self.pen_style = style;
+        // Reinstalls the pen and clears the selection, like the desktop app does.
+        self.ensure_pen_mode() | self.engine.change_pen_style(style)
+    }
+
+    /// Switches the engine to the pen side of the stylus.
+    ///
+    /// Style changes apply to the current pen mode, which is the eraser after erasing with
+    /// the stylus' eraser end.
+    fn ensure_pen_mode(&mut self) -> WidgetFlags {
+        let (_propagation, flags) =
+            self.engine.handle_pen_event(PenEvent::Cancel, Some(PenMode::Pen), Instant::now());
+        flags
     }
 
     fn sync_camera(&mut self, viewport: Viewport, view_size: ViewSize) -> WidgetFlags {
@@ -256,7 +374,7 @@ mod tests {
         document.save_to_bytes("test.rnote").expect("saving an empty document should succeed")
     }
 
-    fn render_pixel(document: &RnoteDocument, x: f64, y: f64) -> [u8; 4] {
+    fn render_pixel(document: &mut RnoteDocument, x: f64, y: f64) -> [u8; 4] {
         let layout = PixelLayout { width: 1, height: 1, stride: BYTES_PER_PIXEL };
         let mut out = [0_u8; 4];
         document
@@ -286,7 +404,13 @@ mod tests {
     }
 
     /// Counts the pixels of a `size` x `size` render at `zoom` that are darker than mid gray.
-    fn count_dark_pixels(document: &RnoteDocument, x: f64, y: f64, zoom: f64, size: u32) -> usize {
+    fn count_dark_pixels(
+        document: &mut RnoteDocument,
+        x: f64,
+        y: f64,
+        zoom: f64,
+        size: u32,
+    ) -> usize {
         let layout = PixelLayout { width: size, height: size, stride: size as usize * 4 };
         let mut out = vec![0_u8; layout.min_len()];
         document
@@ -302,22 +426,22 @@ mod tests {
 
     #[test]
     fn renders_background_inside_document() {
-        let document = RnoteDocument::try_open(empty_document_bytes(1.0, 0.5, 0.0))
+        let mut document = RnoteDocument::try_open(empty_document_bytes(1.0, 0.5, 0.0))
             .expect("an empty document should load");
         let center = document.bounds().center();
 
-        let pixel = render_pixel(&document, center.x, center.y);
+        let pixel = render_pixel(&mut document, center.x, center.y);
 
         assert_pixel_near(pixel, [to_byte(1.0), to_byte(0.5), to_byte(0.0), 255]);
     }
 
     #[test]
     fn renders_desk_outside_document() {
-        let document = RnoteDocument::try_open(empty_document_bytes(1.0, 1.0, 1.0))
+        let mut document = RnoteDocument::try_open(empty_document_bytes(1.0, 1.0, 1.0))
             .expect("an empty document should load");
         let mins = document.bounds().mins;
 
-        let pixel = render_pixel(&document, mins.x - 100.0, mins.y - 100.0);
+        let pixel = render_pixel(&mut document, mins.x - 100.0, mins.y - 100.0);
 
         let [r, g, b] = DESK_COLOR;
         assert_pixel_near(pixel, [to_byte(r), to_byte(g), to_byte(b), 255]);
@@ -352,7 +476,7 @@ mod tests {
 
     #[test]
     fn rejects_buffer_smaller_than_layout() {
-        let document = plain_document();
+        let mut document = plain_document();
         let layout = PixelLayout { width: 2, height: 2, stride: 2 * BYTES_PER_PIXEL };
         let mut out = vec![0_u8; layout.min_len() - 1];
 
@@ -371,8 +495,8 @@ mod tests {
 
         // At zoom 40, y = 1000 is 40000 device pixels away from the document origin, past the
         // 16 bit range that pixman handles for pattern offsets.
-        let near_origin = count_dark_pixels(&document, 100.0, 100.0, 40.0, 400);
-        let far_from_origin = count_dark_pixels(&document, 100.0, 1000.0, 40.0, 400);
+        let near_origin = count_dark_pixels(&mut document, 100.0, 100.0, 40.0, 400);
+        let far_from_origin = count_dark_pixels(&mut document, 100.0, 1000.0, 40.0, 400);
 
         assert!(near_origin > 0, "grid lines should be drawn near the origin");
         assert!(
@@ -389,7 +513,7 @@ mod tests {
         let state = draw_line(&mut document, 200.0);
 
         assert!(state.modified && state.can_undo && !state.can_redo, "got {state:?}");
-        assert_pixel_near(render_pixel(&document, 200.0, 200.0), [255, 0, 0, 255]);
+        assert_pixel_near(render_pixel(&mut document, 200.0, 200.0), [255, 0, 0, 255]);
     }
 
     #[test]
@@ -400,10 +524,10 @@ mod tests {
 
         let undone = document.undo();
         assert!(undone.can_redo, "got {undone:?}");
-        assert_pixel_near(render_pixel(&document, 200.0, 200.0), [255, 255, 255, 255]);
+        assert_pixel_near(render_pixel(&mut document, 200.0, 200.0), [255, 255, 255, 255]);
 
         document.redo();
-        assert_pixel_near(render_pixel(&document, 200.0, 200.0), [255, 0, 0, 255]);
+        assert_pixel_near(render_pixel(&mut document, 200.0, 200.0), [255, 0, 0, 255]);
     }
 
     #[test]
@@ -420,7 +544,63 @@ mod tests {
         let end = [PenSample { x: 200.0, y: 250.0, pressure: 1.0 }];
         document.handle_pen(PenPhase::Up, Tool::Eraser, &end, IDENTITY, VIEW);
 
-        assert_pixel_near(render_pixel(&document, 200.0, 200.0), [255, 255, 255, 255]);
+        assert_pixel_near(render_pixel(&mut document, 200.0, 200.0), [255, 255, 255, 255]);
+    }
+
+    #[test]
+    fn shaper_draws_a_rectangle_outline() {
+        let mut document = plain_document();
+        document.set_brush(RED, 4.0);
+        document.set_shape(ShapeBuilderType::Rectangle);
+        let corner = |x, y| PenSample { x, y, pressure: 1.0 };
+        let drag = [corner(100.0, 100.0), corner(200.0, 200.0), corner(300.0, 300.0)];
+        document.handle_pen(PenPhase::Down, Tool::Shaper, &drag, IDENTITY, VIEW);
+        let state = document.handle_pen(
+            PenPhase::Up,
+            Tool::Shaper,
+            &[corner(300.0, 300.0)],
+            IDENTITY,
+            VIEW,
+        );
+
+        assert!(state.modified && state.can_undo, "got {state:?}");
+        assert_pixel_near(render_pixel(&mut document, 100.0, 200.0), [255, 0, 0, 255]);
+        assert_pixel_near(render_pixel(&mut document, 200.0, 200.0), [255, 255, 255, 255]);
+    }
+
+    #[test]
+    fn shaper_works_after_erasing_with_the_eraser_end() {
+        let mut document = plain_document();
+        document.set_brush(RED, 4.0);
+        let point = |x, y| PenSample { x, y, pressure: 1.0 };
+        // The stylus' eraser end leaves the engine in eraser mode.
+        document.handle_pen(PenPhase::Up, Tool::Eraser, &[point(500.0, 500.0)], IDENTITY, VIEW);
+        document.set_tool(Tool::Shaper);
+        document.set_shape(ShapeBuilderType::Rectangle);
+
+        let drag = [point(100.0, 100.0), point(300.0, 300.0)];
+        document.handle_pen(PenPhase::Down, Tool::Shaper, &drag, IDENTITY, VIEW);
+        document.handle_pen(PenPhase::Up, Tool::Shaper, &[point(300.0, 300.0)], IDENTITY, VIEW);
+
+        assert_pixel_near(render_pixel(&mut document, 100.0, 200.0), [255, 0, 0, 255]);
+        assert_pixel_near(render_pixel(&mut document, 200.0, 200.0), [255, 255, 255, 255]);
+    }
+
+    #[test]
+    fn deletes_and_restores_the_selection() {
+        let mut document = plain_document();
+        document.set_brush(RED, 6.0);
+        draw_line(&mut document, 200.0);
+
+        let selected = document.select_all();
+        assert!(selected.has_selection, "got {selected:?}");
+        let deleted = document.delete_selection();
+        assert!(!deleted.has_selection, "got {deleted:?}");
+        document.set_tool(Tool::Brush);
+        assert_pixel_near(render_pixel(&mut document, 200.0, 200.0), [255, 255, 255, 255]);
+
+        document.undo();
+        assert_pixel_near(render_pixel(&mut document, 200.0, 200.0), [255, 0, 0, 255]);
     }
 
     #[test]
@@ -434,7 +614,7 @@ mod tests {
         document.mark_saved();
 
         assert!(!document.edit_state().modified, "mark_saved should clear the modified flag");
-        let reopened = RnoteDocument::try_open(bytes).expect("the saved file should load");
-        assert_pixel_near(render_pixel(&reopened, 200.0, 200.0), [255, 0, 0, 255]);
+        let mut reopened = RnoteDocument::try_open(bytes).expect("the saved file should load");
+        assert_pixel_near(render_pixel(&mut reopened, 200.0, 200.0), [255, 0, 0, 255]);
     }
 }

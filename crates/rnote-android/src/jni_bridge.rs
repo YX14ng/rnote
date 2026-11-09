@@ -15,6 +15,10 @@ use jni::EnvUnowned;
 use jni::errors::ThrowRuntimeExAndDefault;
 use jni::objects::{JByteArray, JClass, JDoubleArray, JObject, JString};
 use jni::sys::{jdouble, jint, jlong};
+use num_traits::FromPrimitive;
+use rnote_compose::builders::ShapeBuilderType;
+use rnote_engine::pens::pensconfig::brushconfig::BrushStyle;
+use rnote_engine::pens::pensconfig::eraserconfig::EraserStyle;
 
 use crate::android_bitmap::LockedBitmap;
 use crate::android_color::{color_from_argb, color_to_argb};
@@ -25,6 +29,7 @@ const FLAG_MODIFIED: jint = 1;
 const FLAG_CAN_UNDO: jint = 1 << 1;
 const FLAG_CAN_REDO: jint = 1 << 2;
 const FLAG_BOUNDS_CHANGED: jint = 1 << 3;
+const FLAG_HAS_SELECTION: jint = 1 << 4;
 
 /// Values per sample in the `samples` array of `handlePen`: x, y and pressure.
 const VALUES_PER_SAMPLE: usize = 3;
@@ -67,12 +72,44 @@ fn edit_flags(state: EditState) -> jint {
         (state.can_undo, FLAG_CAN_UNDO),
         (state.can_redo, FLAG_CAN_REDO),
         (state.bounds_changed, FLAG_BOUNDS_CHANGED),
+        (state.has_selection, FLAG_HAS_SELECTION),
     ] {
         if set {
             flags |= flag;
         }
     }
     flags
+}
+
+/// Decodes a tool: 0 brush, 1 eraser, 2 shaper, 3 selector. Mirrored in `NativeDocument.kt`.
+fn tool_from_int(tool: jint) -> Result<Tool, BridgeError> {
+    match tool {
+        0 => Ok(Tool::Brush),
+        1 => Ok(Tool::Eraser),
+        2 => Ok(Tool::Shaper),
+        3 => Ok(Tool::Selector),
+        other => Err(BridgeError::Rnote(format!("Unknown tool {other}"))),
+    }
+}
+
+/// Decodes one of the engine's enums from its discriminant, as the Kotlin side sends them.
+fn enum_from_int<T: FromPrimitive>(value: jint, what: &str) -> Result<T, BridgeError> {
+    T::from_i32(value).ok_or_else(|| BridgeError::Rnote(format!("Unknown {what} {value}")))
+}
+
+/// Runs `operation` on the document behind `handle` and returns the packed edit state.
+fn edit(
+    unowned_env: &mut EnvUnowned<'_>,
+    handle: jlong,
+    operation: impl FnOnce(&mut RnoteDocument) -> Result<EditState, BridgeError>,
+) -> jint {
+    unowned_env
+        .with_env(|_env| -> Result<jint, BridgeError> {
+            // SAFETY: `handle` comes from `NativeDocument`, which upholds the module invariants.
+            let document = unsafe { document_from_handle(handle) }?;
+            Ok(edit_flags(operation(document)?))
+        })
+        .resolve::<ThrowRuntimeExAndDefault>()
 }
 
 fn into_handle(document: RnoteDocument) -> jlong {
@@ -230,11 +267,7 @@ pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_handlePen
                 2 => PenPhase::Cancel,
                 other => return Err(BridgeError::Rnote(format!("Unknown pen phase {other}"))),
             };
-            let tool = match tool {
-                0 => Tool::Brush,
-                1 => Tool::Eraser,
-                other => return Err(BridgeError::Rnote(format!("Unknown tool {other}"))),
-            };
+            let tool = tool_from_int(tool)?;
             let mut values = vec![0.0; samples.len(env)?];
             samples.get_region(env, 0, &mut values)?;
             let (triples, rest) = values.as_chunks::<VALUES_PER_SAMPLE>();
@@ -325,6 +358,90 @@ pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_save<'cal
             Ok(env.byte_array_from_slice(&bytes)?)
         })
         .resolve::<ThrowRuntimeExAndDefault>()
+}
+
+/// `static native int setTool(long handle, int tool)`
+#[unsafe(no_mangle)]
+pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_setTool<'caller>(
+    mut unowned_env: EnvUnowned<'caller>,
+    _class: JClass<'caller>,
+    handle: jlong,
+    tool: jint,
+) -> jint {
+    edit(&mut unowned_env, handle, |document| Ok(document.set_tool(tool_from_int(tool)?)))
+}
+
+/// `static native int setShape(long handle, int shape)`, a `ShapeBuilderType` discriminant.
+#[unsafe(no_mangle)]
+pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_setShape<'caller>(
+    mut unowned_env: EnvUnowned<'caller>,
+    _class: JClass<'caller>,
+    handle: jlong,
+    shape: jint,
+) -> jint {
+    edit(&mut unowned_env, handle, |document| {
+        document.set_shape(enum_from_int::<ShapeBuilderType>(shape, "shape")?);
+        Ok(document.edit_state())
+    })
+}
+
+/// `static native int setBrushStyle(long handle, int style)`, a `BrushStyle` discriminant.
+#[unsafe(no_mangle)]
+pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_setBrushStyle<'caller>(
+    mut unowned_env: EnvUnowned<'caller>,
+    _class: JClass<'caller>,
+    handle: jlong,
+    style: jint,
+) -> jint {
+    edit(&mut unowned_env, handle, |document| {
+        document.set_brush_style(enum_from_int::<BrushStyle>(style, "brush style")?);
+        Ok(document.edit_state())
+    })
+}
+
+/// `static native int setEraserStyle(long handle, int style)`, an `EraserStyle` discriminant.
+#[unsafe(no_mangle)]
+pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_setEraserStyle<'caller>(
+    mut unowned_env: EnvUnowned<'caller>,
+    _class: JClass<'caller>,
+    handle: jlong,
+    style: jint,
+) -> jint {
+    edit(&mut unowned_env, handle, |document| {
+        document.set_eraser_style(enum_from_int::<EraserStyle>(style, "eraser style")?);
+        Ok(document.edit_state())
+    })
+}
+
+/// `static native int selection(long handle, int action)`: 0 select all, 1 deselect all,
+/// 2 delete, 3 duplicate.
+#[unsafe(no_mangle)]
+pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_selection<'caller>(
+    mut unowned_env: EnvUnowned<'caller>,
+    _class: JClass<'caller>,
+    handle: jlong,
+    action: jint,
+) -> jint {
+    edit(&mut unowned_env, handle, |document| match action {
+        0 => Ok(document.select_all()),
+        1 => Ok(document.deselect_all()),
+        2 => Ok(document.delete_selection()),
+        3 => Ok(document.duplicate_selection()),
+        other => Err(BridgeError::Rnote(format!("Unknown selection action {other}"))),
+    })
+}
+
+/// `static native int markModified(long handle)`
+#[unsafe(no_mangle)]
+pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_markModified<'caller>(
+    mut unowned_env: EnvUnowned<'caller>,
+    _class: JClass<'caller>,
+    handle: jlong,
+) -> jint {
+    edit(&mut unowned_env, handle, |document| {
+        document.mark_modified();
+        Ok(document.edit_state())
+    })
 }
 
 /// `static native void markSaved(long handle)`

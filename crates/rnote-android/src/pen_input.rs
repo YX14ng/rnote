@@ -13,6 +13,10 @@ pub enum Tool {
     Brush,
     /// Erases strokes.
     Eraser,
+    /// Draws shapes: lines, rectangles, ellipses, ...
+    Shaper,
+    /// Selects strokes to move, resize, rotate, duplicate or delete them.
+    Selector,
 }
 
 /// Where a batch of samples sits in a pen interaction.

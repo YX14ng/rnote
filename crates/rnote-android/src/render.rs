@@ -113,9 +113,9 @@ fn draw_to_surface(
             viewport.y + f64::from(height) / viewport.zoom,
         ),
     );
+    cx.scale(viewport.zoom, viewport.zoom);
+    cx.translate(-viewport.x, -viewport.y);
     if let Some(visible) = viewport_bounds.intersection(&doc_bounds) {
-        cx.scale(viewport.zoom, viewport.zoom);
-        cx.translate(-viewport.x, -viewport.y);
         // Same order as the desktop app: background, page borders, then the strokes.
         draw_background(&cx, tiles, &engine.document.config.background, visible, viewport.zoom)?;
         draw_page_borders(engine, &cx, doc_bounds, visible, viewport.zoom)?;
@@ -128,6 +128,8 @@ fn draw_to_surface(
             /* image_scale */ viewport.zoom,
         )?;
     }
+    // On top, and also outside the document: e.g. a selection being dragged off it.
+    engine.draw_pen_on_doc_to_cairo(&cx)?;
 
     drop(cx);
     surface.flush();

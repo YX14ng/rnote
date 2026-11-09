@@ -4004,6 +4004,7 @@ dependencies = [
  "cairo-rs",
  "futures",
  "jni 0.22.4",
+ "num-traits",
  "parry2d-f64",
  "rnote-compose",
  "rnote-engine",
