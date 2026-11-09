@@ -109,6 +109,22 @@ impl Engine {
             | self.update_content_rendering_current_viewport()
     }
 
+    /// Draw what the current pen shows on top of the document to a cairo context.
+    ///
+    /// That is e.g. the shape being drawn, the selection with its handles or the eraser outline.
+    /// The context is expected to be in document coordinates. For frontends that render with
+    /// cairo instead of GTK.
+    pub fn draw_pen_on_doc_to_cairo(&self, cairo_cx: &cairo::Context) -> anyhow::Result<()> {
+        use crate::{DrawableOnDoc, engine_view};
+
+        let mut piet_cx = piet_cairo::CairoRenderContext::new(cairo_cx);
+        self.penholder
+            .draw_on_doc(&mut piet_cx, &engine_view!(self))?;
+        piet_cx
+            .finish()
+            .map_err(|e| anyhow::anyhow!("Finishing the piet context failed, Err: {e:?}"))
+    }
+
     /// Clear the rendering of the entire engine (e.g. when it becomes off-screen).
     pub fn clear_rendering(&mut self) -> WidgetFlags {
         let mut widget_flags = WidgetFlags::default();
