@@ -89,11 +89,14 @@ What it does:
   Ctrl+A), like the desktop app's per-range formatting.
 - "Shape style…": smooth or hand-drawn (rough) shapes, with an optional fill.
 - "Recognize shapes" (off by default): holding the pen still for a second at the end of a
-  pen stroke that looks like a line, rectangle, ellipse or triangle turns it into that shape,
+  pen stroke that looks like a shape turns it into that shape: a line, rectangle, ellipse,
+  triangle, any polygon with sharp corners (pentagons, hexagons, rhombi, stars, L shapes,
+  ...), an arrow drawn in one stroke (shaft, then out to each barb and back), or a polyline
+  (zigzags). Nearly regular polygons and five-pointed stars are made regular. The shape is
   styled like the shape tool draws, in one undo step; the rest of that touch is ignored.
   Nearly straight or square ones are straightened, and nearly round ones made round. Lifting
   the pen without holding keeps the stroke as drawn. The recognizer is
-  `crates/rnote-android/src/shape_recognition.rs`; the engine got `Engine::insert_shapes` to
+  `crates/rnote-android/src/shape_recognition/`; the engine got `Engine::insert_shapes` to
   put the shape in place of the stroke.
 - A quick tap with two fingers undoes, like in other note-taking apps.
 - "Document…": page size (A3, A4, A5, Letter, Legal, or any width and height in mm) and
