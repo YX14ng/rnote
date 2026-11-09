@@ -2,7 +2,6 @@ package io.github.yx14ng.rnote.viewer
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.AlertDialog
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -17,8 +16,6 @@ import android.view.WindowInsets
 import android.widget.FrameLayout
 import android.widget.TextView
 import android.widget.Toast
-import android.window.OnBackInvokedCallback
-import android.window.OnBackInvokedDispatcher
 
 /** Opens, creates, edits and saves `.rnote` documents. */
 class MainActivity : Activity() {
@@ -27,20 +24,17 @@ class MainActivity : Activity() {
     private lateinit var messageView: TextView
     private lateinit var recovery: Recovery
     private lateinit var saver: DocumentSaver
+    private lateinit var guard: UnsavedChangesGuard
 
     private var settings = EditorSettings()
     private var documentOpen = false
     private var editState = EditState.CLEAN
     private var documentSettings: DocumentSettings? = null
 
-    // Set once the user agreed to drop the changes, so going to the background doesn't save them.
-    private var changesDiscarded = false
-
-    private var backCallback: OnBackInvokedCallback? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         recovery = Recovery(this)
+        guard = UnsavedChangesGuard(this, onDiscard = recovery::clear)
         saver = DocumentSaver(this, renderer, recovery, onSaved = ::updateEditState, requestSaveAs = ::saveAs)
         settings = EditorSettings.load(this)
         canvasView = NoteCanvasView(this).apply {
@@ -80,7 +74,7 @@ class MainActivity : Activity() {
 
     override fun onStop() {
         super.onStop()
-        if (documentOpen && editState.modified && !changesDiscarded && !isChangingConfigurations) {
+        if (documentOpen && editState.modified && !guard.changesDiscarded && !isChangingConfigurations) {
             saver.autosave()
         }
     }
@@ -146,9 +140,9 @@ class MainActivity : Activity() {
             }
             EditorMenu.Action.ToggleFingerDrawing ->
                 changeSettings(settings.copy(fingerDrawing = !settings.fingerDrawing))
-            EditorMenu.Action.New -> confirmDiscard(::newDocument)
+            EditorMenu.Action.New -> guard.confirmDiscard(::newDocument)
             EditorMenu.Action.Open ->
-                confirmDiscard { startActivityForResult(DocumentFiles.openIntent(), REQUEST_OPEN) }
+                guard.confirmDiscard { startActivityForResult(DocumentFiles.openIntent(), REQUEST_OPEN) }
             EditorMenu.Action.Save -> saver.save()
             EditorMenu.Action.SaveAs -> saveAs()
         }
@@ -169,12 +163,12 @@ class MainActivity : Activity() {
     }
 
     // Only reached before Android 13: from 13 on the manifest opts into OnBackInvokedCallback,
-    // which updateBackHandling() registers. No AndroidX here, so no OnBackPressedDispatcher.
+    // which UnsavedChangesGuard registers. No AndroidX here, so no OnBackPressedDispatcher.
     @SuppressLint("GestureBackNavigation")
     @Deprecated("Only used before Android 13; later versions use OnBackInvokedCallback.")
     override fun onBackPressed() {
         if (editState.modified) {
-            confirmDiscard { finish() }
+            guard.confirmDiscard { finish() }
         } else {
             @Suppress("DEPRECATION")
             super.onBackPressed()
@@ -192,7 +186,7 @@ class MainActivity : Activity() {
         if (intent.action != Intent.ACTION_VIEW || uri == null) {
             return false
         }
-        confirmDiscard { openDocument(uri) }
+        guard.confirmDiscard { openDocument(uri) }
         return true
     }
 
@@ -248,7 +242,7 @@ class MainActivity : Activity() {
     private fun showOpenedDocument(info: DocumentInfo) {
         documentOpen = true
         documentSettings = info.settings
-        changesDiscarded = false
+        guard.changesDiscarded = false
         messageView.visibility = View.GONE
         if (!settings.colorChosen) {
             val contrasting = BrushPalette.contrastingColor(info.backgroundColor)
@@ -314,43 +308,7 @@ class MainActivity : Activity() {
         editState = state
         title = if (state.modified) "• ${saver.documentName}" else saver.documentName
         invalidateOptionsMenu()
-        updateBackHandling()
-    }
-
-    /** Asks before throwing away unsaved changes; runs [action] right away if there are none. */
-    private fun confirmDiscard(action: () -> Unit) {
-        if (!editState.modified) {
-            action()
-            return
-        }
-        AlertDialog.Builder(this)
-            .setMessage(R.string.discard_message)
-            .setPositiveButton(R.string.discard) { _, _ ->
-                changesDiscarded = true
-                recovery.clear()
-                action()
-            }
-            .setNegativeButton(android.R.string.cancel, null)
-            .show()
-    }
-
-    /** From Android 13 on, intercept back only while there are unsaved changes. */
-    private fun updateBackHandling() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-            return
-        }
-        val registered = backCallback
-        if (editState.modified && registered == null) {
-            val callback = OnBackInvokedCallback { confirmDiscard(::finish) }
-            onBackInvokedDispatcher.registerOnBackInvokedCallback(
-                OnBackInvokedDispatcher.PRIORITY_DEFAULT,
-                callback,
-            )
-            backCallback = callback
-        } else if (!editState.modified && registered != null) {
-            onBackInvokedDispatcher.unregisterOnBackInvokedCallback(registered)
-            backCallback = null
-        }
+        guard.modified = state.modified
     }
 
     private fun showMessage(text: String) {
