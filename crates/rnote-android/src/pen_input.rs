@@ -17,6 +17,8 @@ pub enum Tool {
     Shaper,
     /// Selects strokes to move, resize, rotate, duplicate or delete them.
     Selector,
+    /// Places and edits text.
+    Typewriter,
 }
 
 /// Where a batch of samples sits in a pen interaction.
@@ -28,6 +30,8 @@ pub enum PenPhase {
     Up,
     /// The interaction was aborted, e.g. because the system took over the touch.
     Cancel,
+    /// The pen hovers over the surface without touching it.
+    Proximity,
 }
 
 /// One stylus sample in document coordinates.
@@ -61,6 +65,13 @@ pub(crate) fn pen_events(phase: PenPhase, samples: &[PenSample]) -> Vec<PenEvent
             events
         }
         PenPhase::Cancel => vec![PenEvent::Cancel],
+        PenPhase::Proximity => samples
+            .iter()
+            .map(|sample| PenEvent::Proximity {
+                element: element(sample),
+                modifier_keys: HashSet::new(),
+            })
+            .collect(),
     }
 }
 
@@ -105,6 +116,14 @@ mod tests {
         let events = pen_events(PenPhase::Cancel, &[sample(1.0, 0.5)]);
 
         assert!(matches!(events.as_slice(), [PenEvent::Cancel]));
+    }
+
+    #[test]
+    fn proximity_emits_one_proximity_event_per_sample() {
+        let events = pen_events(PenPhase::Proximity, &[sample(1.0, 0.0), sample(2.0, 0.0)]);
+
+        assert_eq!(events.len(), 2);
+        assert!(events.iter().all(|event| matches!(event, PenEvent::Proximity { .. })));
     }
 
     #[test]

@@ -14,9 +14,10 @@ use std::fmt;
 use jni::EnvUnowned;
 use jni::errors::ThrowRuntimeExAndDefault;
 use jni::objects::{JByteArray, JClass, JDoubleArray, JObject, JString};
-use jni::sys::{jdouble, jint, jlong};
+use jni::sys::{jboolean, jdouble, jint, jlong};
 use num_traits::FromPrimitive;
 use rnote_compose::builders::ShapeBuilderType;
+use rnote_compose::penevent::KeyboardKey;
 use rnote_engine::pens::pensconfig::brushconfig::BrushStyle;
 use rnote_engine::pens::pensconfig::eraserconfig::EraserStyle;
 
@@ -30,6 +31,7 @@ const FLAG_CAN_UNDO: jint = 1 << 1;
 const FLAG_CAN_REDO: jint = 1 << 2;
 const FLAG_BOUNDS_CHANGED: jint = 1 << 3;
 const FLAG_HAS_SELECTION: jint = 1 << 4;
+const FLAG_TEXT_INPUT: jint = 1 << 5;
 
 /// Values per sample in the `samples` array of `handlePen`: x, y and pressure.
 const VALUES_PER_SAMPLE: usize = 3;
@@ -73,6 +75,7 @@ fn edit_flags(state: EditState) -> jint {
         (state.can_redo, FLAG_CAN_REDO),
         (state.bounds_changed, FLAG_BOUNDS_CHANGED),
         (state.has_selection, FLAG_HAS_SELECTION),
+        (state.text_input, FLAG_TEXT_INPUT),
     ] {
         if set {
             flags |= flag;
@@ -81,15 +84,35 @@ fn edit_flags(state: EditState) -> jint {
     flags
 }
 
-/// Decodes a tool: 0 brush, 1 eraser, 2 shaper, 3 selector. Mirrored in `NativeDocument.kt`.
+/// Decodes a tool: 0 brush, 1 eraser, 2 shaper, 3 selector, 4 typewriter. Mirrored in
+/// `NativeDocument.kt`.
 fn tool_from_int(tool: jint) -> Result<Tool, BridgeError> {
     match tool {
         0 => Ok(Tool::Brush),
         1 => Ok(Tool::Eraser),
         2 => Ok(Tool::Shaper),
         3 => Ok(Tool::Selector),
+        4 => Ok(Tool::Typewriter),
         other => Err(BridgeError::Rnote(format!("Unknown tool {other}"))),
     }
+}
+
+/// Decodes an editing key, as numbered by `EditingKey` in `NativeDocument.kt`.
+fn key_from_int(key: jint) -> Result<KeyboardKey, BridgeError> {
+    Ok(match key {
+        0 => KeyboardKey::BackSpace,
+        1 => KeyboardKey::Delete,
+        2 => KeyboardKey::CarriageReturn,
+        3 => KeyboardKey::Escape,
+        4 => KeyboardKey::NavLeft,
+        5 => KeyboardKey::NavRight,
+        6 => KeyboardKey::NavUp,
+        7 => KeyboardKey::NavDown,
+        8 => KeyboardKey::Home,
+        9 => KeyboardKey::End,
+        10 => KeyboardKey::HorizontalTab,
+        other => return Err(BridgeError::Rnote(format!("Unknown key {other}"))),
+    })
 }
 
 /// Decodes one of the engine's enums from its discriminant, as the Kotlin side sends them.
@@ -241,8 +264,8 @@ pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_render<'c
 /// `static native int handlePen(long handle, int phase, int tool, double[] samples,
 /// double x, double y, double zoom, int viewWidth, int viewHeight)`
 ///
-/// `phase` is 0 (down), 1 (up) or 2 (cancel); `tool` is 0 (brush) or 1 (eraser). `samples`
-/// holds `x, y, pressure` triples in document coordinates.
+/// `phase` is 0 (down), 1 (up), 2 (cancel) or 3 (proximity); `tool` as in `tool_from_int`.
+/// `samples` holds `x, y, pressure` triples in document coordinates.
 #[unsafe(no_mangle)]
 pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_handlePen<'caller>(
     mut unowned_env: EnvUnowned<'caller>,
@@ -265,6 +288,7 @@ pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_handlePen
                 0 => PenPhase::Down,
                 1 => PenPhase::Up,
                 2 => PenPhase::Cancel,
+                3 => PenPhase::Proximity,
                 other => return Err(BridgeError::Rnote(format!("Unknown pen phase {other}"))),
             };
             let tool = tool_from_int(tool)?;
@@ -429,6 +453,39 @@ pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_selection
         3 => Ok(document.duplicate_selection()),
         other => Err(BridgeError::Rnote(format!("Unknown selection action {other}"))),
     })
+}
+
+/// `static native int handleKey(long handle, int key, boolean shift, boolean ctrl)`
+#[unsafe(no_mangle)]
+pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_handleKey<'caller>(
+    mut unowned_env: EnvUnowned<'caller>,
+    _class: JClass<'caller>,
+    handle: jlong,
+    key: jint,
+    shift: jboolean,
+    ctrl: jboolean,
+) -> jint {
+    edit(&mut unowned_env, handle, |document| {
+        Ok(document.handle_key(key_from_int(key)?, shift, ctrl))
+    })
+}
+
+/// `static native int handleText(long handle, String text)`
+#[unsafe(no_mangle)]
+pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_handleText<'caller>(
+    mut unowned_env: EnvUnowned<'caller>,
+    _class: JClass<'caller>,
+    handle: jlong,
+    text: JString<'caller>,
+) -> jint {
+    unowned_env
+        .with_env(|env| -> Result<jint, BridgeError> {
+            // SAFETY: `handle` comes from `NativeDocument`, which upholds the module invariants.
+            let document = unsafe { document_from_handle(handle) }?;
+            let text = text.try_to_string(env)?;
+            Ok(edit_flags(document.handle_text(&text)))
+        })
+        .resolve::<ThrowRuntimeExAndDefault>()
 }
 
 /// `static native int markModified(long handle)`

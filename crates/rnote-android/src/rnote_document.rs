@@ -7,6 +7,9 @@ use futures::FutureExt;
 use parry2d_f64::bounding_volume::Aabb;
 use parry2d_f64::math::Vector2;
 use rnote_compose::builders::ShapeBuilderType;
+use std::collections::HashSet;
+
+use rnote_compose::penevent::{KeyboardKey, ModifierKey};
 use rnote_compose::{Color, PenEvent};
 use rnote_engine::engine::{EngineConfigShared, EngineSnapshot, EngineTaskReceiver};
 use rnote_engine::pens::pensconfig::BrushConfig;
@@ -31,6 +34,8 @@ pub struct EditState {
     pub bounds_changed: bool,
     /// Strokes are selected, so selection actions apply.
     pub has_selection: bool,
+    /// The text tool is editing text, so the keyboard should be shown.
+    pub text_input: bool,
 }
 
 /// Size of the view showing the document, in pixels.
@@ -51,6 +56,8 @@ pub struct RnoteDocument {
     tiles: BackgroundTiles,
     // The pen style used for `PenMode::Pen`, kept in sync with the engine's.
     pen_style: PenStyle,
+    // Whether the current pen takes keyboard input, as last reported by the engine.
+    text_input: bool,
     modified: bool,
 }
 
@@ -88,6 +95,7 @@ impl RnoteDocument {
             tasks,
             tiles: BackgroundTiles::default(),
             pen_style: PenStyle::Brush,
+            text_input: false,
             modified: false,
         };
         document.finish_operation(flags);
@@ -121,6 +129,7 @@ impl RnoteDocument {
             // Only the selector selects, so skip copying the selection otherwise.
             has_selection: self.pen_style == PenStyle::Selector
                 && self.engine.extract_selection_content().is_some(),
+            text_input: self.text_input,
         }
     }
 
@@ -149,6 +158,7 @@ impl RnoteDocument {
             Tool::Brush => self.use_pen_style(PenStyle::Brush),
             Tool::Shaper => self.use_pen_style(PenStyle::Shaper),
             Tool::Selector => self.use_pen_style(PenStyle::Selector),
+            Tool::Typewriter => self.use_pen_style(PenStyle::Typewriter),
             // The eraser is a pen mode, not a style: the pen side keeps its tool.
             Tool::Eraser => WidgetFlags::default(),
         };
@@ -232,6 +242,10 @@ impl RnoteDocument {
                 flags |= self.use_pen_style(PenStyle::Selector);
                 PenMode::Pen
             }
+            Tool::Typewriter => {
+                flags |= self.use_pen_style(PenStyle::Typewriter);
+                PenMode::Pen
+            }
             Tool::Eraser => PenMode::Eraser,
         };
         let now = Instant::now();
@@ -240,6 +254,31 @@ impl RnoteDocument {
                 self.engine.handle_pen_event(event, Some(pen_mode), now);
             flags |= event_flags;
         }
+        self.finish_edit(flags, bounds_before)
+    }
+
+    /// Feeds a key press to the current pen, e.g. editing keys to the text tool, or Enter to
+    /// finish a polyline or polygon.
+    pub fn handle_key(&mut self, key: KeyboardKey, shift: bool, ctrl: bool) -> EditState {
+        let mut modifier_keys = HashSet::new();
+        if shift {
+            modifier_keys.insert(ModifierKey::KeyboardShift);
+        }
+        if ctrl {
+            modifier_keys.insert(ModifierKey::KeyboardCtrl);
+        }
+        self.handle_keyboard_event(PenEvent::KeyPressed { keyboard_key: key, modifier_keys })
+    }
+
+    /// Inserts committed text at the text tool's cursor.
+    pub fn handle_text(&mut self, text: &str) -> EditState {
+        self.handle_keyboard_event(PenEvent::Text { text: text.to_owned() })
+    }
+
+    fn handle_keyboard_event(&mut self, event: PenEvent) -> EditState {
+        let bounds_before = self.bounds();
+        // No pen mode: keys go to whatever pen is active.
+        let (_propagation, flags) = self.engine.handle_pen_event(event, None, Instant::now());
         self.finish_edit(flags, bounds_before)
     }
 
@@ -331,6 +370,9 @@ impl RnoteDocument {
     fn finish_operation(&mut self, flags: WidgetFlags) {
         if flags.store_modified {
             self.modified = true;
+        }
+        if let Some(text_input) = flags.enable_text_input {
+            self.text_input = text_input;
         }
         self.drain_tasks();
     }
@@ -584,6 +626,59 @@ mod tests {
 
         assert_pixel_near(render_pixel(&mut document, 100.0, 200.0), [255, 0, 0, 255]);
         assert_pixel_near(render_pixel(&mut document, 200.0, 200.0), [255, 255, 255, 255]);
+    }
+
+    #[test]
+    fn polyline_takes_several_taps_and_finishes_with_enter() {
+        let mut document = plain_document();
+        document.set_brush(RED, 4.0);
+        document.set_shape(ShapeBuilderType::Polyline);
+        let point = |x, y| PenSample { x, y, pressure: 1.0 };
+        for corner in [point(100.0, 100.0), point(300.0, 100.0), point(300.0, 300.0)] {
+            document.handle_pen(PenPhase::Down, Tool::Shaper, &[corner], IDENTITY, VIEW);
+            document.handle_pen(PenPhase::Up, Tool::Shaper, &[corner], IDENTITY, VIEW);
+        }
+        assert!(document.engine.extract_document_content().strokes.is_empty(), "not finished yet");
+
+        let state = document.handle_key(KeyboardKey::CarriageReturn, false, false);
+
+        assert!(state.modified && state.can_undo, "got {state:?}");
+        assert_pixel_near(render_pixel(&mut document, 200.0, 100.0), [255, 0, 0, 255]);
+        assert_pixel_near(render_pixel(&mut document, 300.0, 200.0), [255, 0, 0, 255]);
+        assert_pixel_near(render_pixel(&mut document, 200.0, 200.0), [255, 255, 255, 255]);
+    }
+
+    /// The text of every text stroke in the document.
+    fn texts(document: &RnoteDocument) -> Vec<String> {
+        document
+            .engine
+            .extract_document_content()
+            .strokes
+            .iter()
+            .filter_map(|layered| match layered.stroke.as_ref() {
+                rnote_engine::strokes::Stroke::TextStroke(text) => Some(text.text.clone()),
+                _ => None,
+            })
+            .collect()
+    }
+
+    #[test]
+    fn typewriter_types_and_edits_text() {
+        let mut document = plain_document();
+        document.set_brush(RED, 4.0);
+        let spot = [PenSample { x: 100.0, y: 100.0, pressure: 1.0 }];
+        document.handle_pen(PenPhase::Down, Tool::Typewriter, &spot, IDENTITY, VIEW);
+        let tapped = document.handle_pen(PenPhase::Up, Tool::Typewriter, &spot, IDENTITY, VIEW);
+        assert!(tapped.text_input, "tapping with the text tool should ask for the keyboard");
+
+        document.handle_text("Hola");
+        document.handle_key(KeyboardKey::BackSpace, false, false);
+        let state = document.handle_text("!");
+
+        assert!(state.modified, "got {state:?}");
+        assert_eq!(texts(&document), ["Hol!"]);
+        let red_pixels = count_dark_pixels(&mut document, 80.0, 80.0, 1.0, 200);
+        assert!(red_pixels > 0, "the text should be rendered");
     }
 
     #[test]
