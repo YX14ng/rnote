@@ -11,8 +11,9 @@ the base for a native Android frontend.
   (API 28). Everything is linked statically: the binaries only need `libc`, `libm` and `libdl`.
 - `rnote-cli` exports real `.rnote` documents to PDF on Android. The output is
   pixel-identical to the Linux build.
-- `crates/rnote-android` is a JNI bridge over the engine, and `android/viewer` is a minimal
-  read-only viewer app built on it: open a file, pan, pinch/double-tap zoom, fling.
+- `crates/rnote-android` is a JNI bridge over the engine, and `android/viewer` is an app built
+  on it: open, create, edit and save documents. Files saved on Android open in the desktop
+  app.
 
 ## Prerequisites
 
@@ -38,7 +39,7 @@ cargo build -p rnote-cli --target aarch64-linux-android --release
 
 Use `x86_64` instead of `aarch64` to target the emulator or Waydroid.
 
-## Viewer app
+## App
 
 ```sh
 # Native library for both ABIs + debug APK. Needs JAVA_HOME pointing to a JDK 17-21
@@ -51,16 +52,35 @@ adb install -r android/viewer/app/build/outputs/apk/debug/app-debug.apk
 `android/scripts/build-native.sh [aarch64] [x86_64]` only rebuilds `librnote_android.so`
 into the app's `jniLibs`.
 
+What it does:
+
+- Pages are outlined like in the desktop app, when the document has borders enabled.
+- Fingers navigate: drag and fling to pan, pinch or double tap to zoom. A mouse wheel pans,
+  and zooms with Ctrl held.
+- A stylus or a mouse draws with the selected tool (pen or eraser); the stylus eraser end
+  and its primary button always erase. Fingers are ignored while the pen is down. Pressure is
+  passed to the engine.
+- Undo and redo, brush color (6 presets, black or white by default depending on the
+  background) and width (3 presets).
+- New, Open, Save (overwrites the opened file) and Save as, through the system file picker.
+  Unsaved changes are marked in the title, and leaving or replacing the document asks first.
+
 How it fits together:
 
-- `crates/rnote-android/src/document_view.rs`: `DocumentView`, plain Rust and tested on the
-  host. Loads an `.rnote` and renders any viewport to premultiplied RGBA.
+- `crates/rnote-android/src/rnote_document.rs`: `RnoteDocument`, plain Rust and tested on
+  the host. Loads or creates a document, feeds it pen samples, undoes, redoes and saves.
+- `render.rs`: renders any viewport to premultiplied RGBA. The background is drawn by
+  repeating a cached tile, like the desktop app: rendering it as one SVG took seconds when
+  zoomed out.
+- `pen_input.rs`: turns stylus samples into the engine's `PenEvent`s.
 - `crates/rnote-android/src/jni_bridge.rs` and `android_bitmap.rs`: the JNI entry points and
   the NDK bitmap access. All `unsafe` lives there, with the invariants the Kotlin side
   upholds documented in the module docs.
 - `android/viewer`: Kotlin, framework APIs only (no AndroidX). `DocumentRenderer` confines
   every native call to one thread; `NoteCanvasView` draws the last frame transformed to the
   current viewport while the next one renders.
+- While the engine renders, `NoteCanvasView` previews the stroke being drawn in Kotlin, so
+  ink shows up without waiting for a frame.
 - The app sets `FONTCONFIG_FILE` itself at startup (see below).
 
 To debug rendering on the host:
@@ -110,7 +130,9 @@ FONTCONFIG_FILE=/data/local/tmp/rnote/fonts.conf ./rnote-cli export doc -o note.
   pixels away from the document origin (pixman's 16 bit limit), e.g. far down a long
   document when zoomed in. Fixed in the engine by anchoring each pattern next to the drawn
   region; `renders_pattern_far_from_document_origin` covers it.
-- The viewer only shows the document; there is no page separation, editing or stylus
-  input yet.
+- Only the brush and the eraser are available: no shapes, text, selection or the other
+  desktop tools, and no settings for the brush style, the eraser or the document format.
+- There is no drawing with fingers, so devices without a stylus or mouse can only view.
+- Unsaved changes are lost if Android kills the app in the background; there is no autosave.
 - Edge-to-edge insets (enforced on Android 15+) are handled but untested: the test device
   (Waydroid) runs Android 13.
