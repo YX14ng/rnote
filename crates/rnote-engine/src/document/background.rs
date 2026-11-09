@@ -69,11 +69,13 @@ fn gen_hline_pattern(
 
     let line_offset = line_width * 0.5;
 
+    let (origin_x, origin_y) = pattern_origin(bounds, bounds.extents()[0], spacing);
+
     let pattern = element::Definitions::new().add(
         element::Pattern::new()
             .set("id", pattern_id.as_str())
-            .set("x", 0_f64)
-            .set("y", 0_f64)
+            .set("x", origin_x)
+            .set("y", origin_y)
             .set("width", bounds.extents()[0])
             .set("height", spacing)
             .set("patternUnits", "userSpaceOnUse")
@@ -111,11 +113,13 @@ fn gen_grid_pattern(
 
     let line_offset = line_width * 0.5;
 
+    let (origin_x, origin_y) = pattern_origin(bounds, column_spacing, row_spacing);
+
     let pattern = element::Definitions::new().add(
         element::Pattern::new()
             .set("id", pattern_id.as_str())
-            .set("x", 0_f64)
-            .set("y", 0_f64)
+            .set("x", origin_x)
+            .set("y", origin_y)
             .set("width", column_spacing)
             .set("height", row_spacing)
             .set("patternUnits", "userSpaceOnUse")
@@ -160,11 +164,13 @@ fn gen_dots_pattern(
 ) -> svg::node::element::Element {
     let pattern_id = rnote_compose::utils::svg_random_id_prefix() + "_bg_dots_pattern";
 
+    let (origin_x, origin_y) = pattern_origin(bounds, column_spacing, row_spacing);
+
     let pattern = element::Definitions::new().add(
         element::Pattern::new()
             .set("id", pattern_id.as_str())
-            .set("x", 0_f64)
-            .set("y", 0_f64)
+            .set("x", origin_x)
+            .set("y", origin_y)
             .set("width", column_spacing)
             .set("height", row_spacing)
             .set("patternUnits", "userSpaceOnUse")
@@ -196,6 +202,27 @@ fn calc_width_iso_pattern(spacing: f64) -> f64 {
     spacing * SQRT_THREE
 }
 
+/// Origin for a `userSpaceOnUse` pattern with the given tile size, snapped to the tile grid
+/// right before `bounds`.
+///
+/// Patterns repeat from their origin, so any multiple of the tile size renders the same as the
+/// document origin. Keeping the origin next to the drawn region keeps the pattern matrix offset
+/// small: cairo/pixman drop the pattern once that offset leaves the 16 bit device coordinate range,
+/// e.g. far down a long document when zoomed in.
+fn pattern_origin(bounds: Aabb, tile_width: f64, tile_height: f64) -> (f64, f64) {
+    let snap = |coord: f64, tile: f64| {
+        if tile.is_finite() && tile > 0.0 {
+            (coord / tile).floor() * tile
+        } else {
+            0.0
+        }
+    };
+    (
+        snap(bounds.mins[0], tile_width),
+        snap(bounds.mins[1], tile_height),
+    )
+}
+
 fn gen_iso_grid_pattern(
     bounds: Aabb,
     spacing: f64,
@@ -210,11 +237,13 @@ fn gen_iso_grid_pattern(
 
     let line_offset = line_width * 0.5;
 
+    let (origin_x, origin_y) = pattern_origin(bounds, pattern_width, spacing);
+
     let pattern = element::Definitions::new().add(
         element::Pattern::new()
             .set("id", pattern_id.as_str())
-            .set("x", 0_f64)
-            .set("y", 0_f64)
+            .set("x", origin_x)
+            .set("y", origin_y)
             .set("width", pattern_width)
             .set("height", spacing)
             .set("patternUnits", "userSpaceOnUse")
@@ -300,11 +329,13 @@ fn gen_iso_dots_pattern(
             .close()
     };
 
+    let (origin_x, origin_y) = pattern_origin(bounds, pattern_width, spacing);
+
     let pattern = element::Definitions::new().add(
         element::Pattern::new()
             .set("id", pattern_id.as_str())
-            .set("x", 0_f64)
-            .set("y", 0_f64)
+            .set("x", origin_x)
+            .set("y", origin_y)
             .set("width", pattern_width)
             .set("height", spacing)
             .set("patternUnits", "userSpaceOnUse")
