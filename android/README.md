@@ -69,7 +69,16 @@ What it does:
   points) and then tapping the end; polylines and polygons with one tap per point, finished
   by tapping the last point again or with "Finish shape". Hovering the stylus previews the
   next segment.
-- Text: tapping with the text tool places a text box and shows the keyboard. Soft keyboards
+- "Text format…": font (serif, sans serif, monospace, handwriting), size, bold, italic and
+  alignment, for new text and the text being edited. Generic family names keep documents
+  portable; the app's fontconfig setup maps them to Android's fonts and synthesizes bold and
+  italic where a font lacks them.
+- "Shape style…": smooth or hand-drawn (rough) shapes, with an optional fill.
+- "Document…": page size (A3, A4, A5, Letter, Legal) and orientation, layout (fixed pages,
+  continuous vertical, semi-infinite, infinite), background color and pattern, and page
+  borders. Like on the desktop, these don't go through undo.
+- Text: tapping with the text tool places a text box and shows the keyboard; the canvas
+  shrinks above the keyboard and keeps the typing spot visible. Soft keyboards
   go through `TextInputConnection` (composing text is typed live and replaced as it
   changes); hardware keys, including arrows, Home/End and Enter, through `KeyMapping`.
 - Undo and redo, color (6 presets, black or white by default depending on the background)
@@ -148,12 +157,10 @@ FONTCONFIG_FILE=/data/local/tmp/rnote/fonts.conf ./rnote-cli export doc -o note.
   pixels away from the document origin (pixman's 16 bit limit), e.g. far down a long
   document when zoomed in. Fixed in the engine by anchoring each pattern next to the drawn
   region; `renders_pattern_far_from_document_origin` covers it.
-- Text has no formatting controls (font, size, bold, ...) and keyboards get no suggestions,
-  since the engine owns the text and the keyboard can't read it back. The desktop "tools"
-  pen (offsetting, zooming) isn't exposed.
-- No rough shape style, fill colors, foci ellipse or 3D/quadrant coordinate systems.
-- Document settings (format, background, layout) can't be changed; new documents use the
-  engine defaults (infinite layout).
+- Formatting applies to a whole text box: no per-word ranges as on the desktop. Keyboards get
+  no suggestions, since the engine owns the text and the keyboard can't read it back. The
+  desktop "tools" pen (offsetting, zooming) isn't exposed.
+- Presets only: no free page size, background color or pattern size and color.
 - The selection offers no copy and paste between documents or apps.
 - Edge-to-edge insets (enforced on Android 15+) are handled but untested: the test device
   (Waydroid) runs Android 13.
