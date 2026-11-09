@@ -55,11 +55,18 @@ into the app's `jniLibs`.
 What it does:
 
 - Pages are outlined like in the desktop app, when the document has borders enabled.
+- Opening fits one page to the screen width, starting at the origin page, and the zoom stays
+  within the engine's limits (0.2 to 6). The engine's camera has to match the screen: the
+  eraser only considers strokes inside it, and infinite documents grow to keep pages around
+  it. Fitting the whole document instead made infinite documents grow on every edit on narrow
+  (portrait) screens, and the eraser then missed strokes.
 - Fingers navigate: drag and fling to pan, pinch or double tap to zoom. A mouse wheel pans,
   and zooms with Ctrl held.
 - A stylus or a mouse uses the selected tool; the stylus eraser end and its primary button
   always erase. Fingers are ignored while the pen is down. Pressure is passed to the engine.
   With "Draw with finger", one finger draws too and two fingers navigate.
+- Tools are picked from a column of icons floating at the right edge, with the desktop
+  app's icons and order (converted to vector drawables from `crates/rnote-ui/data/icons`).
 - Tools: pen (marker, solid or textured brush style), shapes, text, selection (lasso, move, resize and rotate through the
   engine's own handles; select all, duplicate, delete) and eraser (whole strokes or only
   what it touches). Shapes, the selection, the text cursor and the eraser outline are drawn
