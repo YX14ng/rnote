@@ -2,10 +2,8 @@ package io.github.yx14ng.rnote.viewer
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
-import android.graphics.Paint
 import android.text.InputType
 import android.view.GestureDetector
 import android.view.InputDevice
@@ -17,9 +15,7 @@ import android.view.ViewConfiguration
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import android.view.inputmethod.InputMethodManager
-import android.widget.OverScroller
 import kotlin.math.hypot
-import kotlin.math.roundToInt
 
 /**
  * Shows and edits a document.
@@ -34,7 +30,11 @@ import kotlin.math.roundToInt
  * drawn is previewed on top, so input stays responsive.
  */
 class NoteCanvasView(context: Context) : View(context) {
-    internal var renderer: DocumentRenderer? = null
+    internal var renderer: DocumentRenderer?
+        get() = frames.renderer
+        set(value) {
+            frames.renderer = value
+        }
     var onError: ((Throwable) -> Unit)? = null
     var onEditState: ((EditState) -> Unit)? = null
 
@@ -44,16 +44,29 @@ class NoteCanvasView(context: Context) : View(context) {
     /** When on, a single finger draws like a stylus, and two fingers pan and zoom. */
     var fingerDrawing = false
 
-    private var bounds: DocumentBounds? = null
-    private var viewport = Viewport(0.0, 0.0, 1.0)
-    private var fitZoom = 1.0
+    private val camera = ViewportController(context)
+    private val bounds: DocumentBounds?
+        get() = camera.bounds
+    private val viewport: Viewport
+        get() = camera.viewport
 
-    // Bumped for every new document, so frames of the previous one are dropped.
-    private var generation = 0
-    private var displayed: Frame? = null
-    private var spare: Bitmap? = null
-    private var renderInFlight = false
-    private var renderPending = false
+    private val frames = FrameScheduler(
+        nextRequest = {
+            if (bounds == null || width == 0 || height == 0) {
+                null
+            } else {
+                RenderRequest(viewport, width, height, editSequence)
+            }
+        },
+        onFrameShown = { frame ->
+            if (clearPreviewAt != NO_PENDING_CLEAR && frame.editSequence >= clearPreviewAt) {
+                preview.clear()
+                clearPreviewAt = NO_PENDING_CLEAR
+            }
+            invalidate()
+        },
+        onError = { error -> onError?.invoke(error) },
+    )
 
     // Edits are numbered so the preview is cleared once a frame includes the finished stroke.
     private var editSequence = 0
@@ -85,15 +98,14 @@ class NoteCanvasView(context: Context) : View(context) {
         isFocusableInTouchMode = true
     }
 
-    private val bitmapPaint = Paint(Paint.FILTER_BITMAP_FLAG)
-    private val scroller = OverScroller(context)
 
     private val scaleDetector =
         ScaleGestureDetector(
             context,
             object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
                 override fun onScale(detector: ScaleGestureDetector): Boolean {
-                    zoomAround(viewport.zoom * detector.scaleFactor, detector.focusX, detector.focusY)
+                    camera.zoomAround(viewport.zoom * detector.scaleFactor, detector.focusX, detector.focusY)
+                    onViewportChanged()
                     return true
                 }
             },
@@ -104,7 +116,7 @@ class NoteCanvasView(context: Context) : View(context) {
             context,
             object : GestureDetector.SimpleOnGestureListener() {
                 override fun onDown(e: MotionEvent): Boolean {
-                    scroller.forceFinished(true)
+                    camera.stopFling()
                     return true
                 }
 
@@ -114,7 +126,8 @@ class NoteCanvasView(context: Context) : View(context) {
                     distanceX: Float,
                     distanceY: Float,
                 ): Boolean {
-                    panBy(distanceX, distanceY)
+                    camera.panBy(distanceX, distanceY)
+                    onViewportChanged()
                     return true
                 }
 
@@ -124,15 +137,16 @@ class NoteCanvasView(context: Context) : View(context) {
                     velocityX: Float,
                     velocityY: Float,
                 ): Boolean {
-                    startFling(velocityX, velocityY)
+                    camera.fling(velocityX, velocityY)
+                    postInvalidateOnAnimation()
                     return true
                 }
 
                 override fun onSingleTapConfirmed(e: MotionEvent): Boolean = performClick()
 
                 override fun onDoubleTap(e: MotionEvent): Boolean {
-                    val zoomedIn = viewport.zoom > fitZoom * DOUBLE_TAP_THRESHOLD
-                    zoomAround(if (zoomedIn) fitZoom else fitZoom * DOUBLE_TAP_ZOOM, e.x, e.y)
+                    camera.toggleZoom(e.x, e.y)
+                    onViewportChanged()
                     return true
                 }
             },
@@ -140,14 +154,12 @@ class NoteCanvasView(context: Context) : View(context) {
 
     /** Shows a newly opened document, fitted to the view width. */
     fun showDocument(newBounds: DocumentBounds) {
-        generation++
-        displayed?.let { spare = it.bitmap }
-        displayed = null
+        frames.reset()
         penDown = false
         preview.clear()
         clearPreviewAt = NO_PENDING_CLEAR
-        bounds = newBounds
-        fitToWidth()
+        camera.showDocument(newBounds)
+        onViewportChanged()
     }
 
     /** Finishes a polyline or polygon being built, like pressing Enter. */
@@ -217,16 +229,8 @@ class NoteCanvasView(context: Context) : View(context) {
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
-        if (oldw == 0) {
-            fitToWidth()
-            return
-        }
-        // Keep the zoom relative to the width, so rotating keeps the same framing.
-        val b = bounds ?: return
-        val relativeZoom = viewport.zoom / fitZoom
-        fitZoom = w / b.width
-        viewport = viewport.copy(zoom = fitZoom * relativeZoom)
-        updateViewport()
+        camera.resize(w, h)
+        onViewportChanged()
     }
 
     // Clicks are detected by gestureDetector, which calls performClick() on a single tap.
@@ -261,10 +265,11 @@ class NoteCanvasView(context: Context) : View(context) {
         val vertical = event.getAxisValue(MotionEvent.AXIS_VSCROLL)
         val horizontal = event.getAxisValue(MotionEvent.AXIS_HSCROLL)
         if (event.metaState and KeyEvent.META_CTRL_ON != 0) {
-            zoomAround(viewport.zoom * (1 + WHEEL_ZOOM_STEP * vertical), event.x, event.y)
+            camera.zoomAround(viewport.zoom * (1 + WHEEL_ZOOM_STEP * vertical), event.x, event.y)
         } else {
-            panBy(-horizontal * WHEEL_PAN_STEP_PX, -vertical * WHEEL_PAN_STEP_PX)
+            camera.panBy(-horizontal * WHEEL_PAN_STEP_PX, -vertical * WHEEL_PAN_STEP_PX)
         }
+        onViewportChanged()
         return true
     }
 
@@ -274,28 +279,15 @@ class NoteCanvasView(context: Context) : View(context) {
     }
 
     override fun computeScroll() {
-        if (!scroller.computeScrollOffset()) {
-            return
+        if (camera.advanceFling()) {
+            onViewportChanged()
+            postInvalidateOnAnimation()
         }
-        viewport =
-            viewport.copy(x = scroller.currX / viewport.zoom, y = scroller.currY / viewport.zoom)
-        updateViewport()
-        postInvalidateOnAnimation()
     }
 
     override fun onDraw(canvas: Canvas) {
         canvas.drawColor(DESK_COLOR)
-        val frame = displayed
-        if (frame != null) {
-            val scale = (viewport.zoom / frame.viewport.zoom).toFloat()
-            val dx = ((frame.viewport.x - viewport.x) * viewport.zoom).toFloat()
-            val dy = ((frame.viewport.y - viewport.y) * viewport.zoom).toFloat()
-            canvas.save()
-            canvas.translate(dx, dy)
-            canvas.scale(scale, scale)
-            canvas.drawBitmap(frame.bitmap, 0f, 0f, bitmapPaint)
-            canvas.restore()
-        }
+        frames.draw(canvas, viewport)
         preview.draw(canvas, viewport)
     }
 
@@ -316,7 +308,7 @@ class NoteCanvasView(context: Context) : View(context) {
     private fun handlePenEvent(event: MotionEvent) {
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
-                scroller.forceFinished(true)
+                camera.stopFling()
                 beginPen(toolFor(event), samplesOf(event, withHistory = false))
             }
             MotionEvent.ACTION_MOVE -> if (penDown) continuePen(samplesOf(event, withHistory = true))
@@ -329,7 +321,7 @@ class NoteCanvasView(context: Context) : View(context) {
     private fun handleFingerEvent(event: MotionEvent) {
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
-                scroller.forceFinished(true)
+                camera.stopFling()
                 fingerGesture = FingerGesture.UNDECIDED
                 fingerDownX = event.x
                 fingerDownY = event.y
@@ -433,8 +425,8 @@ class NoteCanvasView(context: Context) : View(context) {
                 y = event.y
                 rawPressure = event.pressure
             }
-            samples[index * 3] = viewport.x + x / viewport.zoom
-            samples[index * 3 + 1] = viewport.y + y / viewport.zoom
+            samples[index * 3] = camera.toDocumentX(x)
+            samples[index * 3 + 1] = camera.toDocumentY(y)
             samples[index * 3 + 2] = if (hasPressure) rawPressure.toDouble().coerceIn(0.0, 1.0) else DEFAULT_PRESSURE
         }
         return samples
@@ -458,136 +450,32 @@ class NoteCanvasView(context: Context) : View(context) {
     private fun submitEdit(operation: (NativeDocument) -> EditState) {
         val currentRenderer = renderer ?: return
         editSequence++
-        val requestGeneration = generation
+        val requestGeneration = frames.generation
         currentRenderer.edit(operation) { result ->
-            if (requestGeneration != generation) {
+            if (requestGeneration != frames.generation) {
                 return@edit
             }
             result
                 .onSuccess { edit ->
-                    edit.bounds?.let { newBounds ->
-                        bounds = newBounds
-                        viewport = clamp(viewport)
-                    }
+                    edit.bounds?.let(camera::updateBounds)
                     updateTextInput(edit.state.textInput)
                     onEditState?.invoke(edit.state)
                 }
                 .onFailure { error -> onError?.invoke(error) }
         }
-        requestRender()
+        frames.request()
     }
 
-    private fun fitToWidth() {
-        val b = bounds ?: return
-        if (width == 0) {
-            return
-        }
-        fitZoom = width / b.width
-        viewport = Viewport(b.left, b.top, fitZoom)
-        updateViewport()
-    }
-
-    private fun panBy(dx: Float, dy: Float) {
-        viewport = viewport.copy(x = viewport.x + dx / viewport.zoom, y = viewport.y + dy / viewport.zoom)
-        updateViewport()
-    }
-
-    /** Zooms to [targetZoom], keeping the document point under ([focusX], [focusY]) fixed. */
-    private fun zoomAround(targetZoom: Double, focusX: Float, focusY: Float) {
-        val zoom = targetZoom.coerceIn(fitZoom * MIN_ZOOM_FACTOR, fitZoom * MAX_ZOOM_FACTOR)
-        val focusDocX = viewport.x + focusX / viewport.zoom
-        val focusDocY = viewport.y + focusY / viewport.zoom
-        viewport = Viewport(focusDocX - focusX / zoom, focusDocY - focusY / zoom, zoom)
-        updateViewport()
-    }
-
-    private fun startFling(velocityX: Float, velocityY: Float) {
-        val b = bounds ?: return
-        val zoom = viewport.zoom
-        val startX = (viewport.x * zoom).roundToInt()
-        val startY = (viewport.y * zoom).roundToInt()
-        val minX = (b.left * zoom).roundToInt()
-        val minY = (b.top * zoom).roundToInt()
-        val maxX = maxOf(minX, (b.right * zoom).roundToInt() - width)
-        val maxY = maxOf(minY, (b.bottom * zoom).roundToInt() - height)
-        scroller.fling(startX, startY, -velocityX.roundToInt(), -velocityY.roundToInt(), minX, maxX, minY, maxY)
-        postInvalidateOnAnimation()
-    }
-
-    /** Keeps the document on screen, then redraws and requests a sharp render. */
-    private fun updateViewport() {
-        viewport = clamp(viewport)
+    /** Redraws with the last frame right away and asks for a sharp render. */
+    private fun onViewportChanged() {
         invalidate()
-        requestRender()
-    }
-
-    private fun clamp(v: Viewport): Viewport {
-        val b = bounds ?: return v
-        val visibleWidth = width / v.zoom
-        val visibleHeight = height / v.zoom
-        val x = if (visibleWidth >= b.width) {
-            b.left - (visibleWidth - b.width) / 2
-        } else {
-            v.x.coerceIn(b.left, b.right - visibleWidth)
-        }
-        val y = if (visibleHeight >= b.height) {
-            b.top - (visibleHeight - b.height) / 2
-        } else {
-            v.y.coerceIn(b.top, b.bottom - visibleHeight)
-        }
-        return v.copy(x = x, y = y)
-    }
-
-    private fun requestRender() {
-        val currentRenderer = renderer ?: return
-        if (bounds == null || width == 0 || height == 0) {
-            return
-        }
-        if (renderInFlight) {
-            renderPending = true
-            return
-        }
-        renderInFlight = true
-        renderPending = false
-        val requestGeneration = generation
-        // The spare bitmap is not displayed, so the renderer may draw into it.
-        val reuse = spare
-        spare = null
-        currentRenderer.render(viewport, width, height, reuse, editSequence) { result ->
-            onFrameRendered(result, requestGeneration)
-        }
-    }
-
-    private fun onFrameRendered(result: Result<Frame>, requestGeneration: Int) {
-        renderInFlight = false
-        result
-            .onSuccess { frame ->
-                if (requestGeneration == generation) {
-                    displayed?.let { spare = it.bitmap }
-                    displayed = frame
-                    if (clearPreviewAt != NO_PENDING_CLEAR && frame.editSequence >= clearPreviewAt) {
-                        preview.clear()
-                        clearPreviewAt = NO_PENDING_CLEAR
-                    }
-                    invalidate()
-                } else {
-                    spare = frame.bitmap
-                }
-            }
-            .onFailure { error -> onError?.invoke(error) }
-        if (renderPending) {
-            requestRender()
-        }
+        frames.request()
     }
 
     private companion object {
         /** Matches `DESK_COLOR` in `crates/rnote-android/src/render.rs`. */
         val DESK_COLOR = Color.rgb(61, 61, 66)
 
-        const val MIN_ZOOM_FACTOR = 0.25
-        const val MAX_ZOOM_FACTOR = 8.0
-        const val DOUBLE_TAP_ZOOM = 2.0
-        const val DOUBLE_TAP_THRESHOLD = 1.5
         const val WHEEL_PAN_STEP_PX = 120f
         const val WHEEL_ZOOM_STEP = 0.1
         const val DEFAULT_PRESSURE = 0.5
