@@ -60,10 +60,18 @@ What it does:
 - A stylus or a mouse uses the selected tool; the stylus eraser end and its primary button
   always erase. Fingers are ignored while the pen is down. Pressure is passed to the engine.
   With "Draw with finger", one finger draws too and two fingers navigate.
-- Tools: pen (marker, solid or textured brush style), shapes (line, arrow, rectangle,
-  ellipse, grid, coordinate system), selection (lasso, move, resize and rotate through the
+- Tools: pen (marker, solid or textured brush style), shapes, text, selection (lasso, move, resize and rotate through the
   engine's own handles; select all, duplicate, delete) and eraser (whole strokes or only
-  what it touches). Shapes, the selection and the eraser outline are drawn by the engine.
+  what it touches). Shapes, the selection, the text cursor and the eraser outline are drawn
+  by the engine.
+- Shapes: line, arrow, rectangle, ellipse (from its center), grid and coordinate system with
+  one drag; curves by dragging from the start to the control point (twice for two control
+  points) and then tapping the end; polylines and polygons with one tap per point, finished
+  by tapping the last point again or with "Finish shape". Hovering the stylus previews the
+  next segment.
+- Text: tapping with the text tool places a text box and shows the keyboard. Soft keyboards
+  go through `TextInputConnection` (composing text is typed live and replaced as it
+  changes); hardware keys, including arrows, Home/End and Enter, through `KeyMapping`.
 - Undo and redo, color (6 presets, black or white by default depending on the background)
   and width (3 presets). The choices are remembered across documents and restarts.
 - New, Open, Save (overwrites the opened file) and Save as, through the system file picker.
@@ -140,10 +148,10 @@ FONTCONFIG_FILE=/data/local/tmp/rnote/fonts.conf ./rnote-cli export doc -o note.
   pixels away from the document origin (pixman's 16 bit limit), e.g. far down a long
   document when zoomed in. Fixed in the engine by anchoring each pattern next to the drawn
   region; `renders_pattern_far_from_document_origin` covers it.
-- No text tool: the typewriter needs Android keyboard (IME) input, which the bridge doesn't
-  have yet. The desktop "tools" pen (offsetting, zooming) isn't exposed either.
-- Shapes that take several taps (polyline, polygon, curves) aren't offered, since there is no
-  way yet to finish them; neither are rough shape styles or fill colors.
+- Text has no formatting controls (font, size, bold, ...) and keyboards get no suggestions,
+  since the engine owns the text and the keyboard can't read it back. The desktop "tools"
+  pen (offsetting, zooming) isn't exposed.
+- No rough shape style, fill colors, foci ellipse or 3D/quadrant coordinate systems.
 - Document settings (format, background, layout) can't be changed; new documents use the
   engine defaults (infinite layout).
 - The selection offers no copy and paste between documents or apps.
