@@ -59,9 +59,11 @@ What it does:
   within the engine's limits (0.2 to 6). The engine's camera has to match the screen: the
   eraser only considers strokes inside it, and infinite documents grow to keep pages around
   it. Fitting the whole document instead made infinite documents grow on every edit on narrow
-  (portrait) screens, and the eraser then missed strokes. For the same reason the view is
-  kept within the same limits as the engine's camera (`Camera::surface_mins_maxs`), so a
-  document smaller than the screen sits at the top left, like on the desktop.
+  (portrait) screens, and the eraser then missed strokes. The camera is set to exactly
+  the area on screen (`Camera::set_offset_unclamped`), so the view can center a document
+  smaller than the screen; past that it goes as far beyond the edges as the desktop app
+  lets it (`Camera::surface_mins_maxs`). While a new frame renders after zooming out, the
+  newly exposed part of the page is filled with its background color.
 - Strokes follow the pointer that started them: a palm resting before, during or after a
   stylus stroke neither draws nor moves the page.
 - Fingers navigate: drag and fling to pan, pinch or double tap to zoom. A mouse wheel pans,
