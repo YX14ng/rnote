@@ -1,21 +1,23 @@
-//! Turns freehand strokes that look like simple shapes into those shapes, like the shape
-//! recognition of other note-taking apps: lines, rectangles (squares), ellipses (circles)
-//! and triangles.
+//! Turns freehand strokes that look like shapes into those shapes, like the shape recognition
+//! of other note-taking apps: lines, rectangles (squares), ellipses (circles), triangles,
+//! any other polygon with sharp corners (pentagons, hexagons, stars, arrows drawn as an
+//! outline, ...), and open strokes made of straight segments (polylines, arrows).
 //!
 //! A stroke is recognized when it is large enough and stays close to the outline of one of
 //! the candidate shapes; the closest candidate wins. Shapes that are almost axis-aligned, or
-//! almost square or round, are snapped to be exactly so.
+//! almost square, round or regular, are snapped to be exactly so.
 
 use std::f64::consts::{FRAC_PI_2, PI};
 
 use parry2d_f64::glamx::DAffine2;
 use parry2d_f64::math::Vector2;
 use parry2d_f64::shape::Cuboid;
-use rnote_compose::shapes::{Ellipse, Line, Polygon, Rectangle, Shape};
+use rnote_compose::shapes::{Arrow, Ellipse, Line, Polygon, Polyline, Rectangle, Shape};
 
-use self::geometry::{bounding_box, convex_hull, rotated_area, rotated_bounds, segment_distance};
+use self::geometry::{bounding_box, convex_hull, rotated_area, rotated_bounds};
 
 mod geometry;
+mod polygons;
 #[cfg(test)]
 mod tests;
 
@@ -33,6 +35,9 @@ const SNAP_ANGLE: f64 = PI / 30.0;
 const SNAP_EQUAL: f64 = 0.1;
 /// Hulls with more vertices than this skip the (cubic) triangle search.
 const MAX_TRIANGLE_HULL: usize = 96;
+/// How much more a general polygon's fit error counts: when a rectangle or triangle fits
+/// almost as well, it wins, since those come out straightened.
+const POLYGON_ERROR_WEIGHT: f64 = 1.5;
 
 /// The shape `points` (a freehand stroke, in document coordinates) looks like, if any.
 /// Strokes whose bounding box is smaller than `min_size` along both axes are left alone, so
@@ -55,35 +60,90 @@ pub(crate) fn recognize(points: &[Vector2], min_size: f64) -> Option<Shape> {
         return Some(Shape::Line(snapped_line(first, last)));
     }
     if chord > MAX_CLOSING_GAP * size {
-        return None;
+        return open_shape(points, size);
     }
 
     let hull = convex_hull(points);
     if hull.len() < 3 {
         return None;
     }
-    [
-        ellipse_candidate(points, mins, maxs),
-        rectangle_candidate(points, &hull),
-        triangle_candidate(points, &hull),
-    ]
-    .into_iter()
-    .flatten()
-    .map(|candidate| (candidate.mean_distance(points) / size, candidate))
-    .filter(|(error, _)| *error <= MAX_FIT_ERROR)
-    .min_by(|(a, _), (b, _)| a.total_cmp(b))
-    .map(|(_, candidate)| candidate.into_shape())
+    let fits = |candidate: Candidate| {
+        let error = candidate.mean_distance(points) / size;
+        (error <= MAX_FIT_ERROR).then_some((error, candidate))
+    };
+    let corners = polygons::closed_corners(points, size);
+    // Four corners that aren't right angles make a rhombus, a trapezoid, ..., however well
+    // a rectangle would fit.
+    let rectangle = match &corners {
+        Some(corners) if corners.len() == 4 && !polygons::right_angled(corners) => None,
+        _ => rectangle_candidate(points, &hull),
+    };
+    let mut fitting: Vec<(f64, Candidate)> =
+        [ellipse_candidate(points, mins, maxs), rectangle, triangle_candidate(points, &hull)]
+            .into_iter()
+            .flatten()
+            .filter_map(fits)
+            .collect();
+    // A general polygon only competes where no straightened rectangle or triangle fits.
+    let has_rectangle = fitting.iter().any(|(_, c)| matches!(c, Candidate::Rectangle { .. }));
+    let has_triangle = fitting.iter().any(|(_, c)| matches!(c, Candidate::Polygon { .. }));
+    if let Some(corners) = corners {
+        let covered = (corners.len() == 4 && has_rectangle) || (corners.len() == 3 && has_triangle);
+        if !covered {
+            let polygon = Candidate::Polygon {
+                corners: polygons::regularized(corners),
+                weight: POLYGON_ERROR_WEIGHT,
+            };
+            fitting.extend(fits(polygon));
+        }
+    }
+    fitting
+        .into_iter()
+        .min_by(|(a, x), (b, y)| (a * x.weight()).total_cmp(&(b * y.weight())))
+        .map(|(_, candidate)| candidate.into_shape())
+}
+
+/// An open stroke made of straight segments: an arrow if drawn as one, else a polyline.
+fn open_shape(points: &[Vector2], size: f64) -> Option<Shape> {
+    let vertices = polygons::open_vertices(points, size)?;
+    if let Some((start, tip)) = polygons::arrow(&vertices) {
+        return Some(Shape::Arrow(Arrow::new(start, tip)));
+    }
+    let error = polygons::mean_distance_to(points, &vertices, /* closed */ false) / size;
+    (error <= MAX_FIT_ERROR)
+        .then(|| Shape::Polyline(Polyline { start: vertices[0], path: vertices[1..].to_vec() }))
 }
 
 /// A shape being considered, in a form that's easy to measure distances to.
 enum Candidate {
-    Ellipse { center: Vector2, radii: Vector2 },
-    Rectangle { center: Vector2, half_extents: Vector2, angle: f64 },
-    Triangle([Vector2; 3]),
+    Ellipse {
+        center: Vector2,
+        radii: Vector2,
+    },
+    Rectangle {
+        center: Vector2,
+        half_extents: Vector2,
+        angle: f64,
+    },
+    /// A closed outline through `corners`; `weight` scales its fit error when comparing.
+    Polygon {
+        corners: Vec<Vector2>,
+        weight: f64,
+    },
 }
 
 impl Candidate {
+    fn weight(&self) -> f64 {
+        match self {
+            Self::Polygon { weight, .. } => *weight,
+            Self::Ellipse { .. } | Self::Rectangle { .. } => 1.0,
+        }
+    }
+
     fn mean_distance(&self, points: &[Vector2]) -> f64 {
+        if let Self::Polygon { corners, .. } = self {
+            return polygons::mean_distance_to(points, corners, /* closed */ true);
+        }
         let total: f64 = points.iter().map(|&point| self.distance(point)).sum();
         total / points.len() as f64
     }
@@ -109,9 +169,7 @@ impl Candidate {
                     outside.length()
                 }
             }
-            Self::Triangle(corners) => (0..3)
-                .map(|i| segment_distance(point, corners[i], corners[(i + 1) % 3]))
-                .fold(f64::INFINITY, f64::min),
+            Self::Polygon { corners, .. } => polygons::mean_distance_to(&[point], corners, true),
         }
     }
 
@@ -124,7 +182,9 @@ impl Candidate {
                 cuboid: Cuboid::new(half_extents),
                 affine: DAffine2::from_angle_translation(angle, center),
             }),
-            Self::Triangle([a, b, c]) => Shape::Polygon(Polygon { start: a, path: vec![b, c] }),
+            Self::Polygon { corners, .. } => {
+                Shape::Polygon(Polygon { start: corners[0], path: corners[1..].to_vec() })
+            }
         }
     }
 }
@@ -183,7 +243,7 @@ fn triangle_candidate(points: &[Vector2], hull: &[Vector2]) -> Option<Candidate>
             }
         }
     }
-    best.map(Candidate::Triangle)
+    best.map(|corners| Candidate::Polygon { corners: corners.to_vec(), weight: 1.0 })
 }
 
 /// A line from `start` to `end`, made horizontal or vertical if almost so.
