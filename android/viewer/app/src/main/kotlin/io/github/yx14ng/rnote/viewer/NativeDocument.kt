@@ -21,6 +21,7 @@ data class EditState(
     val canRedo: Boolean,
     val boundsChanged: Boolean,
     val hasSelection: Boolean,
+    val textInput: Boolean,
 ) {
     companion object {
         val CLEAN = EditState(
@@ -29,6 +30,7 @@ data class EditState(
             canRedo = false,
             boundsChanged = false,
             hasSelection = false,
+            textInput = false,
         )
 
         // Mirrors the FLAG_* constants in jni_bridge.rs.
@@ -37,6 +39,7 @@ data class EditState(
         private const val FLAG_CAN_REDO = 1 shl 2
         private const val FLAG_BOUNDS_CHANGED = 1 shl 3
         private const val FLAG_HAS_SELECTION = 1 shl 4
+        private const val FLAG_TEXT_INPUT = 1 shl 5
 
         fun fromFlags(flags: Int) = EditState(
             modified = flags and FLAG_MODIFIED != 0,
@@ -44,6 +47,7 @@ data class EditState(
             canRedo = flags and FLAG_CAN_REDO != 0,
             boundsChanged = flags and FLAG_BOUNDS_CHANGED != 0,
             hasSelection = flags and FLAG_HAS_SELECTION != 0,
+            textInput = flags and FLAG_TEXT_INPUT != 0,
         )
     }
 }
@@ -54,16 +58,27 @@ enum class Tool(val nativeValue: Int) {
     ERASER(1),
     SHAPER(2),
     SELECTOR(3),
+    TYPEWRITER(4),
 }
 
-/** Shapes the shaper offers. Values are `ShapeBuilderType` discriminants in rnote-compose. */
-enum class Shape(val nativeValue: Int, val label: Int) {
+/**
+ * Shapes the shaper offers. Values are `ShapeBuilderType` discriminants in rnote-compose.
+ *
+ * Curves are built by dragging from the start to the control point(s), then tapping the end;
+ * they finish on their own. [needsFinish] shapes (polylines and polygons) take one tap per
+ * point and end with a tap on the last point or with [EditingKey.ENTER].
+ */
+enum class Shape(val nativeValue: Int, val label: Int, val needsFinish: Boolean = false) {
     LINE(0, R.string.shape_line),
     ARROW(1, R.string.shape_arrow),
     RECTANGLE(2, R.string.shape_rectangle),
     GRID(3, R.string.shape_grid),
     COORDINATE_SYSTEM(4, R.string.shape_coordinate_system),
     ELLIPSE(7, R.string.shape_ellipse),
+    QUADRATIC_CURVE(9, R.string.shape_quadratic_curve),
+    CUBIC_CURVE(10, R.string.shape_cubic_curve),
+    POLYLINE(11, R.string.shape_polyline, needsFinish = true),
+    POLYGON(12, R.string.shape_polygon, needsFinish = true),
 }
 
 /** Brush stroke looks. Values are `BrushStyle` discriminants in rnote-engine. */
@@ -92,6 +107,24 @@ enum class PenPhase(val nativeValue: Int) {
     DOWN(0),
     UP(1),
     CANCEL(2),
+
+    /** The pen hovers without touching. */
+    PROXIMITY(3),
+}
+
+/** Keys that edit text or finish shapes. Values match `key_from_int` in `jni_bridge.rs`. */
+enum class EditingKey(val nativeValue: Int) {
+    BACKSPACE(0),
+    DELETE(1),
+    ENTER(2),
+    ESCAPE(3),
+    LEFT(4),
+    RIGHT(5),
+    UP(6),
+    DOWN(7),
+    HOME(8),
+    END(9),
+    TAB(10),
 }
 
 /**
@@ -157,6 +190,11 @@ internal class NativeDocument private constructor(private var handle: Long) : Au
 
     fun selection(action: SelectionAction): EditState =
         EditState.fromFlags(NativeBridge.selection(checkOpen(), action.nativeValue))
+
+    fun handleKey(key: EditingKey, shift: Boolean, ctrl: Boolean): EditState =
+        EditState.fromFlags(NativeBridge.handleKey(checkOpen(), key.nativeValue, shift, ctrl))
+
+    fun handleText(text: String): EditState = EditState.fromFlags(NativeBridge.handleText(checkOpen(), text))
 
     fun markModified(): EditState = EditState.fromFlags(NativeBridge.markModified(checkOpen()))
 

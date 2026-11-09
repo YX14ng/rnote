@@ -57,4 +57,10 @@
     <string name="eraser_split_strokes">Only what it touches</string>
 
     <string name="recovered">Recovered the unsaved changes from last time.</string>
+    <string name="action_text">Text</string>
+    <string name="action_finish_shape">Finish shape</string>
+    <string name="shape_polyline">Polyline</string>
+    <string name="shape_polygon">Polygon</string>
+    <string name="shape_quadratic_curve">Curve (1 control point)</string>
+    <string name="shape_cubic_curve">Curve (2 control points)</string>
 </resources>

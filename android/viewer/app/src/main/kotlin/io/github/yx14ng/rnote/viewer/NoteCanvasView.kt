@@ -6,6 +6,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.text.InputType
 import android.view.GestureDetector
 import android.view.InputDevice
 import android.view.KeyEvent
@@ -13,6 +14,9 @@ import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.View
 import android.view.ViewConfiguration
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputConnection
+import android.view.inputmethod.InputMethodManager
 import android.widget.OverScroller
 import kotlin.math.hypot
 import kotlin.math.roundToInt
@@ -64,6 +68,22 @@ class NoteCanvasView(context: Context) : View(context) {
     private var fingerDownX = 0f
     private var fingerDownY = 0f
     private val touchSlop = ViewConfiguration.get(context).scaledTouchSlop
+
+    // Whether the text tool is editing, which shows the soft keyboard.
+    private var textInputActive = false
+    private val inputMethodManager = context.getSystemService(InputMethodManager::class.java)
+    private val textSink = object : TextSink {
+        override fun insertText(text: String) = submitEdit { it.handleText(text) }
+
+        override fun pressKey(key: EditingKey, shift: Boolean, ctrl: Boolean) =
+            submitEdit { it.handleKey(key, shift, ctrl) }
+    }
+
+    init {
+        // Focusable, so the soft keyboard and hardware keys reach the text tool.
+        isFocusable = true
+        isFocusableInTouchMode = true
+    }
 
     private val bitmapPaint = Paint(Paint.FILTER_BITMAP_FLAG)
     private val scroller = OverScroller(context)
@@ -128,6 +148,63 @@ class NoteCanvasView(context: Context) : View(context) {
         clearPreviewAt = NO_PENDING_CLEAR
         bounds = newBounds
         fitToWidth()
+    }
+
+    /** Finishes a polyline or polygon being built, like pressing Enter. */
+    fun finishShape() {
+        if (bounds != null && !penDown) {
+            submitEdit { it.handleKey(EditingKey.ENTER, shift = false, ctrl = false) }
+        }
+    }
+
+    override fun onCheckIsTextEditor(): Boolean = textInputActive
+
+    override fun onCreateInputConnection(outAttrs: EditorInfo): InputConnection? {
+        if (!textInputActive) {
+            return null
+        }
+        // No suggestions: the engine owns the text, so the keyboard can't read it back.
+        outAttrs.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE or
+            InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
+        outAttrs.imeOptions = EditorInfo.IME_FLAG_NO_EXTRACT_UI or EditorInfo.IME_FLAG_NO_FULLSCREEN
+        return TextInputConnection(this, textSink)
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
+        val finishesShape = tool == Tool.SHAPER &&
+            (keyCode == KeyEvent.KEYCODE_ENTER || keyCode == KeyEvent.KEYCODE_ESCAPE)
+        if (bounds != null && (textInputActive || finishesShape) && KeyMapping.dispatch(event, textSink)) {
+            return true
+        }
+        return super.onKeyDown(keyCode, event)
+    }
+
+    override fun onHoverEvent(event: MotionEvent): Boolean {
+        // Hovering moves the next segment of the shape being built. Other tools don't use it,
+        // so skip the work for them.
+        if (bounds == null || penDown || tool != Tool.SHAPER || !isPenEvent(event) ||
+            event.actionMasked != MotionEvent.ACTION_HOVER_MOVE
+        ) {
+            return super.onHoverEvent(event)
+        }
+        penTool = tool
+        sendPen(PenPhase.PROXIMITY, samplesOf(event, withHistory = true))
+        return true
+    }
+
+    /** Shows or hides the soft keyboard when the text tool starts or stops editing. */
+    private fun updateTextInput(active: Boolean) {
+        if (active == textInputActive) {
+            return
+        }
+        textInputActive = active
+        inputMethodManager.restartInput(this)
+        if (active) {
+            requestFocus()
+            inputMethodManager.showSoftInput(this, 0)
+        } else {
+            inputMethodManager.hideSoftInputFromWindow(windowToken, 0)
+        }
     }
 
     /** Undoes or redoes through [operation] and refreshes the view. */
@@ -392,6 +469,7 @@ class NoteCanvasView(context: Context) : View(context) {
                         bounds = newBounds
                         viewport = clamp(viewport)
                     }
+                    updateTextInput(edit.state.textInput)
                     onEditState?.invoke(edit.state)
                 }
                 .onFailure { error -> onError?.invoke(error) }

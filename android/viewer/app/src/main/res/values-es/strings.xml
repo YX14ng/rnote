@@ -56,4 +56,10 @@
     <string name="eraser_split_strokes">Solo lo que toca</string>
 
     <string name="recovered">Se recuperaron los cambios sin guardar de la última vez.</string>
+    <string name="action_text">Texto</string>
+    <string name="action_finish_shape">Terminar forma</string>
+    <string name="shape_polyline">Polilínea</string>
+    <string name="shape_polygon">Polígono</string>
+    <string name="shape_quadratic_curve">Curva (1 punto de control)</string>
+    <string name="shape_cubic_curve">Curva (2 puntos de control)</string>
 </resources>

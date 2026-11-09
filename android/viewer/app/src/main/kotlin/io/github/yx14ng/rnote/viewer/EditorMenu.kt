@@ -21,6 +21,7 @@ internal object EditorMenu {
         data class SelectEraserStyle(val style: EraserStyle) : Action
         data class Selection(val action: SelectionAction) : Action
         data object ToggleFingerDrawing : Action
+        data object FinishShape : Action
         data object New : Action
         data object Open : Action
         data object Save : Action
@@ -44,6 +45,7 @@ internal object EditorMenu {
     private const val BRUSH_STYLE_MENU = 15
     private const val ERASER_MENU = 16
     private const val SELECTION_MENU = 17
+    private const val FINISH_SHAPE = 18
 
     // Item ids of the choice groups are a base plus the index of the choice.
     private const val TOOL_FIRST = 100
@@ -64,6 +66,7 @@ internal object EditorMenu {
         Tool.BRUSH to R.string.action_pen,
         Tool.SHAPER to R.string.action_shapes,
         Tool.SELECTOR to R.string.action_select,
+        Tool.TYPEWRITER to R.string.action_text,
         Tool.ERASER to R.string.action_eraser,
     )
 
@@ -75,6 +78,8 @@ internal object EditorMenu {
 
     fun create(menu: Menu) {
         var order = 0
+        menu.add(Menu.NONE, FINISH_SHAPE, order++, R.string.action_finish_shape)
+            .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
         menu.add(Menu.NONE, UNDO, order++, R.string.action_undo).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM)
         menu.add(Menu.NONE, REDO, order++, R.string.action_redo).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM)
         tools.forEachIndexed { index, (_, label) ->
@@ -129,6 +134,8 @@ internal object EditorMenu {
         menu.findItem(DUPLICATE_SELECTION).isEnabled = state.editState.hasSelection
         menu.findItem(DELETE_SELECTION).isEnabled = state.editState.hasSelection
         menu.findItem(FINGER_DRAWING).isChecked = settings.fingerDrawing
+        menu.findItem(FINISH_SHAPE).isVisible =
+            state.documentOpen && settings.tool == Tool.SHAPER && settings.shape.needsFinish
     }
 
     /** The action for [item], or null for items that only open a submenu. */
@@ -138,6 +145,7 @@ internal object EditorMenu {
             UNDO -> Action.Undo
             REDO -> Action.Redo
             FINGER_DRAWING -> Action.ToggleFingerDrawing
+            FINISH_SHAPE -> Action.FinishShape
             NEW -> Action.New
             OPEN -> Action.Open
             SAVE -> Action.Save

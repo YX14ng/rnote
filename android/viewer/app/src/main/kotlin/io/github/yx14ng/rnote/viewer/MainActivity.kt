@@ -126,6 +126,7 @@ class MainActivity : Activity() {
                 }
                 canvasView.applyEdit { it.selection(action.action) }
             }
+            EditorMenu.Action.FinishShape -> canvasView.finishShape()
             EditorMenu.Action.ToggleFingerDrawing ->
                 changeSettings(settings.copy(fingerDrawing = !settings.fingerDrawing))
             EditorMenu.Action.New -> confirmDiscard(::newDocument)

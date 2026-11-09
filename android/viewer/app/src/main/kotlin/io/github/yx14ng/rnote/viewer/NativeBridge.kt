@@ -62,6 +62,12 @@ internal object NativeBridge {
     /** Runs a [SelectionAction]. Returns the packed editing state. */
     @JvmStatic external fun selection(handle: Long, action: Int): Int
 
+    /** Feeds an [EditingKey] to the current pen. Returns the packed editing state. */
+    @JvmStatic external fun handleKey(handle: Long, key: Int, shift: Boolean, ctrl: Boolean): Int
+
+    /** Inserts committed text at the text tool's cursor. Returns the packed editing state. */
+    @JvmStatic external fun handleText(handle: Long, text: String): Int
+
     /** Marks the document as having unsaved changes. Returns the packed editing state. */
     @JvmStatic external fun markModified(handle: Long): Int
 
