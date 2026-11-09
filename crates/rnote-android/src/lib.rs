@@ -1,12 +1,18 @@
-//! Bridge between `rnote-engine` and the Android viewer app.
+//! Bridge between `rnote-engine` and the Android app.
 //!
-//! [`DocumentView`] is plain Rust and is tested on the host. The JNI entry points and the
+//! [`RnoteDocument`] is plain Rust and is tested on the host. The JNI entry points and the
 //! access to Android bitmaps only exist when targeting Android.
 
 #[cfg(target_os = "android")]
 mod android_bitmap;
-mod document_view;
+mod android_color;
 #[cfg(target_os = "android")]
 mod jni_bridge;
+mod pen_input;
+mod render;
+mod rnote_document;
 
-pub use document_view::{BYTES_PER_PIXEL, DESK_COLOR, DocumentView, PixelLayout, Viewport};
+pub use android_color::{color_from_argb, color_to_argb};
+pub use pen_input::{PenPhase, PenSample, Tool};
+pub use render::{BYTES_PER_PIXEL, DESK_COLOR, PixelLayout, Viewport};
+pub use rnote_document::{EditState, RnoteDocument, ViewSize};

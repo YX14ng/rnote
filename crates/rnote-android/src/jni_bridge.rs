@@ -1,21 +1,33 @@
 //! JNI entry points for `io.github.yx14ng.rnote.viewer.NativeBridge`.
 //!
-//! A document handle is a pointer to a boxed [`DocumentView`], stored in a Java `long`.
+//! A document handle is a pointer to a boxed [`RnoteDocument`], stored in a Java `long`.
 //! The Kotlin `NativeDocument` class owns it and upholds these invariants:
 //!
-//! - every handle comes from `open` and is passed to `close` exactly once;
+//! - every handle comes from `open` or `newDocument` and is passed to `close` exactly once;
 //! - a handle is never used after `close`;
 //! - calls for one handle never overlap (they are serialized on a single thread).
+//!
+//! Operations that change the document return an [`EditState`] packed by [`edit_flags`].
 
 use std::fmt;
 
 use jni::EnvUnowned;
 use jni::errors::ThrowRuntimeExAndDefault;
-use jni::objects::{JByteArray, JClass, JDoubleArray, JObject};
-use jni::sys::{jdouble, jlong};
+use jni::objects::{JByteArray, JClass, JDoubleArray, JObject, JString};
+use jni::sys::{jdouble, jint, jlong};
 
 use crate::android_bitmap::LockedBitmap;
-use crate::{DocumentView, Viewport};
+use crate::android_color::{color_from_argb, color_to_argb};
+use crate::{EditState, PenPhase, PenSample, RnoteDocument, Tool, ViewSize, Viewport};
+
+/// Bits of the `int` returned by editing calls. Mirrored in `NativeDocument.kt`.
+const FLAG_MODIFIED: jint = 1;
+const FLAG_CAN_UNDO: jint = 1 << 1;
+const FLAG_CAN_REDO: jint = 1 << 2;
+const FLAG_BOUNDS_CHANGED: jint = 1 << 3;
+
+/// Values per sample in the `samples` array of `handlePen`: x, y and pressure.
+const VALUES_PER_SAMPLE: usize = 3;
 
 /// Errors surfaced to Java as a `RuntimeException`.
 #[derive(Debug)]
@@ -48,16 +60,36 @@ impl From<anyhow::Error> for BridgeError {
     }
 }
 
+fn edit_flags(state: EditState) -> jint {
+    let mut flags = 0;
+    for (set, flag) in [
+        (state.modified, FLAG_MODIFIED),
+        (state.can_undo, FLAG_CAN_UNDO),
+        (state.can_redo, FLAG_CAN_REDO),
+        (state.bounds_changed, FLAG_BOUNDS_CHANGED),
+    ] {
+        if set {
+            flags |= flag;
+        }
+    }
+    flags
+}
+
+fn into_handle(document: RnoteDocument) -> jlong {
+    Box::into_raw(Box::new(document)) as jlong
+}
+
 /// Resolves a handle to the document it points to.
 ///
 /// # Safety
 ///
-/// `handle` must be 0 or a handle returned by `open` that has not been closed, and no
-/// other call may use it concurrently (see the module docs).
-unsafe fn document_from_handle<'a>(handle: jlong) -> Result<&'a DocumentView, BridgeError> {
-    let document = handle as *const DocumentView;
-    // SAFETY: Non-zero handles point to a live, boxed `DocumentView` (caller contract).
-    unsafe { document.as_ref() }.ok_or_else(|| BridgeError::Rnote("Document is closed".to_owned()))
+/// `handle` must be 0 or a handle returned by `open` or `newDocument` that has not been
+/// closed, and no other call may use it concurrently (see the module docs).
+unsafe fn document_from_handle<'a>(handle: jlong) -> Result<&'a mut RnoteDocument, BridgeError> {
+    let document = handle as *mut RnoteDocument;
+    // SAFETY: Non-zero handles point to a live, boxed `RnoteDocument` that nothing else
+    // accesses during this call (caller contract).
+    unsafe { document.as_mut() }.ok_or_else(|| BridgeError::Rnote("Document is closed".to_owned()))
 }
 
 /// `static native long open(byte[] rnoteBytes)`
@@ -70,8 +102,20 @@ pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_open<'cal
     unowned_env
         .with_env(|env| -> Result<jlong, BridgeError> {
             let bytes = env.convert_byte_array(&rnote_bytes)?;
-            let document = DocumentView::try_new(bytes)?;
-            Ok(Box::into_raw(Box::new(document)) as jlong)
+            Ok(into_handle(RnoteDocument::try_open(bytes)?))
+        })
+        .resolve::<ThrowRuntimeExAndDefault>()
+}
+
+/// `static native long newDocument()`
+#[unsafe(no_mangle)]
+pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_newDocument<'caller>(
+    mut unowned_env: EnvUnowned<'caller>,
+    _class: JClass<'caller>,
+) -> jlong {
+    unowned_env
+        .with_env(|_env| -> Result<jlong, BridgeError> {
+            Ok(into_handle(RnoteDocument::new_empty()))
         })
         .resolve::<ThrowRuntimeExAndDefault>()
 }
@@ -95,6 +139,38 @@ pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_bounds<'c
                 &[bounds.mins.x, bounds.mins.y, bounds.maxs.x, bounds.maxs.y],
             )?;
             Ok(array)
+        })
+        .resolve::<ThrowRuntimeExAndDefault>()
+}
+
+/// `static native int backgroundColor(long handle)`, as an `android.graphics.Color` int.
+#[unsafe(no_mangle)]
+pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_backgroundColor<'caller>(
+    mut unowned_env: EnvUnowned<'caller>,
+    _class: JClass<'caller>,
+    handle: jlong,
+) -> jint {
+    unowned_env
+        .with_env(|_env| -> Result<jint, BridgeError> {
+            // SAFETY: `handle` comes from `NativeDocument`, which upholds the module invariants.
+            let document = unsafe { document_from_handle(handle) }?;
+            Ok(color_to_argb(document.background_color()))
+        })
+        .resolve::<ThrowRuntimeExAndDefault>()
+}
+
+/// `static native int editState(long handle)`
+#[unsafe(no_mangle)]
+pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_editState<'caller>(
+    mut unowned_env: EnvUnowned<'caller>,
+    _class: JClass<'caller>,
+    handle: jlong,
+) -> jint {
+    unowned_env
+        .with_env(|_env| -> Result<jint, BridgeError> {
+            // SAFETY: `handle` comes from `NativeDocument`, which upholds the module invariants.
+            let document = unsafe { document_from_handle(handle) }?;
+            Ok(edit_flags(document.edit_state()))
         })
         .resolve::<ThrowRuntimeExAndDefault>()
 }
@@ -125,6 +201,149 @@ pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_render<'c
         .resolve::<ThrowRuntimeExAndDefault>()
 }
 
+/// `static native int handlePen(long handle, int phase, int tool, double[] samples,
+/// double x, double y, double zoom, int viewWidth, int viewHeight)`
+///
+/// `phase` is 0 (down), 1 (up) or 2 (cancel); `tool` is 0 (brush) or 1 (eraser). `samples`
+/// holds `x, y, pressure` triples in document coordinates.
+#[unsafe(no_mangle)]
+pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_handlePen<'caller>(
+    mut unowned_env: EnvUnowned<'caller>,
+    _class: JClass<'caller>,
+    handle: jlong,
+    phase: jint,
+    tool: jint,
+    samples: JDoubleArray<'caller>,
+    x: jdouble,
+    y: jdouble,
+    zoom: jdouble,
+    view_width: jint,
+    view_height: jint,
+) -> jint {
+    unowned_env
+        .with_env(|env| -> Result<jint, BridgeError> {
+            // SAFETY: `handle` comes from `NativeDocument`, which upholds the module invariants.
+            let document = unsafe { document_from_handle(handle) }?;
+            let phase = match phase {
+                0 => PenPhase::Down,
+                1 => PenPhase::Up,
+                2 => PenPhase::Cancel,
+                other => return Err(BridgeError::Rnote(format!("Unknown pen phase {other}"))),
+            };
+            let tool = match tool {
+                0 => Tool::Brush,
+                1 => Tool::Eraser,
+                other => return Err(BridgeError::Rnote(format!("Unknown tool {other}"))),
+            };
+            let mut values = vec![0.0; samples.len(env)?];
+            samples.get_region(env, 0, &mut values)?;
+            let (triples, rest) = values.as_chunks::<VALUES_PER_SAMPLE>();
+            if !rest.is_empty() {
+                return Err(BridgeError::Rnote(format!(
+                    "Sample array length {} is not a multiple of {VALUES_PER_SAMPLE}",
+                    values.len()
+                )));
+            }
+            let samples: Vec<PenSample> =
+                triples.iter().map(|&[x, y, pressure]| PenSample { x, y, pressure }).collect();
+            let view_size = ViewSize {
+                width: u32::try_from(view_width).unwrap_or(0),
+                height: u32::try_from(view_height).unwrap_or(0),
+            };
+            let state =
+                document.handle_pen(phase, tool, &samples, Viewport { x, y, zoom }, view_size);
+            Ok(edit_flags(state))
+        })
+        .resolve::<ThrowRuntimeExAndDefault>()
+}
+
+/// `static native int undo(long handle)`
+#[unsafe(no_mangle)]
+pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_undo<'caller>(
+    mut unowned_env: EnvUnowned<'caller>,
+    _class: JClass<'caller>,
+    handle: jlong,
+) -> jint {
+    unowned_env
+        .with_env(|_env| -> Result<jint, BridgeError> {
+            // SAFETY: `handle` comes from `NativeDocument`, which upholds the module invariants.
+            let document = unsafe { document_from_handle(handle) }?;
+            Ok(edit_flags(document.undo()))
+        })
+        .resolve::<ThrowRuntimeExAndDefault>()
+}
+
+/// `static native int redo(long handle)`
+#[unsafe(no_mangle)]
+pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_redo<'caller>(
+    mut unowned_env: EnvUnowned<'caller>,
+    _class: JClass<'caller>,
+    handle: jlong,
+) -> jint {
+    unowned_env
+        .with_env(|_env| -> Result<jint, BridgeError> {
+            // SAFETY: `handle` comes from `NativeDocument`, which upholds the module invariants.
+            let document = unsafe { document_from_handle(handle) }?;
+            Ok(edit_flags(document.redo()))
+        })
+        .resolve::<ThrowRuntimeExAndDefault>()
+}
+
+/// `static native void setBrush(long handle, int argb, double width)`
+#[unsafe(no_mangle)]
+pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_setBrush<'caller>(
+    mut unowned_env: EnvUnowned<'caller>,
+    _class: JClass<'caller>,
+    handle: jlong,
+    argb: jint,
+    width: jdouble,
+) {
+    unowned_env
+        .with_env(|_env| -> Result<(), BridgeError> {
+            // SAFETY: `handle` comes from `NativeDocument`, which upholds the module invariants.
+            let document = unsafe { document_from_handle(handle) }?;
+            document.set_brush(color_from_argb(argb), width);
+            Ok(())
+        })
+        .resolve::<ThrowRuntimeExAndDefault>()
+}
+
+/// `static native byte[] save(long handle, String fileName)`
+#[unsafe(no_mangle)]
+pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_save<'caller>(
+    mut unowned_env: EnvUnowned<'caller>,
+    _class: JClass<'caller>,
+    handle: jlong,
+    file_name: JString<'caller>,
+) -> JByteArray<'caller> {
+    unowned_env
+        .with_env(|env| -> Result<JByteArray<'caller>, BridgeError> {
+            // SAFETY: `handle` comes from `NativeDocument`, which upholds the module invariants.
+            let document = unsafe { document_from_handle(handle) }?;
+            let file_name = file_name.try_to_string(env)?;
+            let bytes = document.save_to_bytes(&file_name)?;
+            Ok(env.byte_array_from_slice(&bytes)?)
+        })
+        .resolve::<ThrowRuntimeExAndDefault>()
+}
+
+/// `static native void markSaved(long handle)`
+#[unsafe(no_mangle)]
+pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_markSaved<'caller>(
+    mut unowned_env: EnvUnowned<'caller>,
+    _class: JClass<'caller>,
+    handle: jlong,
+) {
+    unowned_env
+        .with_env(|_env| -> Result<(), BridgeError> {
+            // SAFETY: `handle` comes from `NativeDocument`, which upholds the module invariants.
+            let document = unsafe { document_from_handle(handle) }?;
+            document.mark_saved();
+            Ok(())
+        })
+        .resolve::<ThrowRuntimeExAndDefault>()
+}
+
 /// `static native void close(long handle)`
 #[unsafe(no_mangle)]
 pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_close<'caller>(
@@ -135,9 +354,9 @@ pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_close<'ca
     unowned_env
         .with_env(|_env| -> Result<(), BridgeError> {
             if handle != 0 {
-                // SAFETY: Non-zero handles come from `Box::into_raw` in `open`, and
+                // SAFETY: Non-zero handles come from `Box::into_raw` in `into_handle`, and
                 // `NativeDocument` closes each one exactly once and never uses it afterwards.
-                drop(unsafe { Box::from_raw(handle as *mut DocumentView) });
+                drop(unsafe { Box::from_raw(handle as *mut RnoteDocument) });
             }
             Ok(())
         })

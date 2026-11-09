@@ -9,7 +9,7 @@ use std::env;
 use std::fs;
 
 use anyhow::Context;
-use rnote_android::{BYTES_PER_PIXEL, DocumentView, PixelLayout, Viewport};
+use rnote_android::{BYTES_PER_PIXEL, PixelLayout, RnoteDocument, Viewport};
 
 fn main() -> anyhow::Result<()> {
     let args: Vec<String> = env::args().collect();
@@ -18,7 +18,7 @@ fn main() -> anyhow::Result<()> {
             "usage: render_region <file.rnote> <x> <y> <zoom> <width> <height> <out.rgba>"
         );
     };
-    let document = DocumentView::try_new(fs::read(file).context("Reading the file failed")?)?;
+    let document = RnoteDocument::try_open(fs::read(file).context("Reading the file failed")?)?;
     let bounds = document.bounds();
     println!("bounds: {:?} .. {:?}", bounds.mins, bounds.maxs);
 

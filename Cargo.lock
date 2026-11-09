@@ -4005,6 +4005,7 @@ dependencies = [
  "futures",
  "jni 0.22.4",
  "parry2d-f64",
+ "rnote-compose",
  "rnote-engine",
 ]
 
