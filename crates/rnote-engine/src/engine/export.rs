@@ -4,6 +4,7 @@ use crate::fileformats::rnoteformat::RnoteFile;
 use crate::fileformats::{FileFormatSaver, xoppformat};
 use anyhow::Context;
 use futures::channel::oneshot;
+use p2d::bounding_volume::Aabb;
 use p2d::math::Vector2;
 use rayon::prelude::*;
 use rnote_compose::SplitOrder;
@@ -366,6 +367,19 @@ impl Engine {
                     .with_bounds(bounds)
             })
             .collect()
+    }
+
+    /// Extract the content intersecting the given bounds, with the document background.
+    ///
+    /// The returned content has the given bounds, so drawing it renders exactly that region
+    /// of the document. Used by frontends that render arbitrary viewports.
+    pub fn extract_content_in_bounds(&self, bounds: Aabb) -> StrokeContent {
+        let keys = self
+            .store
+            .stroke_keys_as_rendered_intersecting_bounds(bounds);
+
+        self.stroke_content_from_sorted_keys(keys)
+            .with_bounds(bounds)
     }
 
     pub fn extract_selection_content(&self) -> Option<StrokeContent> {
