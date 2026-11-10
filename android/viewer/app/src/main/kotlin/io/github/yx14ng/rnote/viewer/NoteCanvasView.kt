@@ -6,11 +6,8 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.text.InputType
-import android.view.GestureDetector
-import android.view.InputDevice
 import android.view.KeyEvent
 import android.view.MotionEvent
-import android.view.ScaleGestureDetector
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
@@ -166,58 +163,13 @@ class NoteCanvasView(context: Context) : View(context) {
         isFocusableInTouchMode = true
     }
 
-    private val scaleDetector =
-        ScaleGestureDetector(
-            context,
-            object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
-                override fun onScale(detector: ScaleGestureDetector): Boolean {
-                    camera.zoomAround(viewport.zoom * detector.scaleFactor, detector.focusX, detector.focusY)
-                    onViewportChanged()
-                    return true
-                }
-            },
-        )
-
-    private val gestureDetector =
-        GestureDetector(
-            context,
-            object : GestureDetector.SimpleOnGestureListener() {
-                override fun onDown(e: MotionEvent): Boolean {
-                    camera.stopFling()
-                    return true
-                }
-
-                override fun onScroll(
-                    e1: MotionEvent?,
-                    e2: MotionEvent,
-                    distanceX: Float,
-                    distanceY: Float,
-                ): Boolean {
-                    camera.panBy(distanceX, distanceY)
-                    onViewportChanged()
-                    return true
-                }
-
-                override fun onFling(
-                    e1: MotionEvent?,
-                    e2: MotionEvent,
-                    velocityX: Float,
-                    velocityY: Float,
-                ): Boolean {
-                    camera.fling(velocityX, velocityY)
-                    postInvalidateOnAnimation()
-                    return true
-                }
-
-                override fun onSingleTapConfirmed(e: MotionEvent): Boolean = performClick()
-
-                override fun onDoubleTap(e: MotionEvent): Boolean {
-                    camera.toggleZoom(e.x, e.y)
-                    onViewportChanged()
-                    return true
-                }
-            },
-        )
+    private val navigation = CanvasNavigation(
+        context,
+        camera,
+        onMoved = ::onViewportChanged,
+        onFlingStarted = ::postInvalidateOnAnimation,
+        onTap = ::performClick,
+    )
 
     /**
      * Set while another document is being opened: input and edits are dropped until it is
@@ -354,21 +306,10 @@ class NoteCanvasView(context: Context) : View(context) {
         if (acceptsInput && (action == MotionEvent.ACTION_BUTTON_PRESS || action == MotionEvent.ACTION_BUTTON_RELEASE)) {
             penButton.onButtonEvent(event)
         }
-        if (!acceptsInput ||
-            !event.isFromSource(InputDevice.SOURCE_CLASS_POINTER) ||
-            event.actionMasked != MotionEvent.ACTION_SCROLL
-        ) {
-            return super.onGenericMotionEvent(event)
+        if (acceptsInput && navigation.onWheel(event)) {
+            return true
         }
-        val vertical = event.getAxisValue(MotionEvent.AXIS_VSCROLL)
-        val horizontal = event.getAxisValue(MotionEvent.AXIS_HSCROLL)
-        if (event.metaState and KeyEvent.META_CTRL_ON != 0) {
-            camera.zoomAround(viewport.zoom * (1 + WHEEL_ZOOM_STEP * vertical), event.x, event.y)
-        } else {
-            camera.panBy(-horizontal * WHEEL_PAN_STEP_PX, -vertical * WHEEL_PAN_STEP_PX)
-        }
-        onViewportChanged()
-        return true
+        return super.onGenericMotionEvent(event)
     }
 
     override fun performClick(): Boolean {
@@ -399,10 +340,7 @@ class NoteCanvasView(context: Context) : View(context) {
         input.preview.draw(canvas, viewport)
     }
 
-    private fun navigate(event: MotionEvent) {
-        scaleDetector.onTouchEvent(event)
-        gestureDetector.onTouchEvent(event)
-    }
+    private fun navigate(event: MotionEvent) = navigation.onTouch(event)
 
     private fun sendPen(phase: PenPhase, tool: Tool, samples: DoubleArray) {
         val currentViewport = viewport
@@ -458,8 +396,6 @@ class NoteCanvasView(context: Context) : View(context) {
         /** Matches `DESK_COLOR` in `crates/rnote-android/src/render.rs`. */
         val DESK_COLOR = Color.rgb(61, 61, 66)
 
-        const val WHEEL_PAN_STEP_PX = 120f
-        const val WHEEL_ZOOM_STEP = 0.1
         const val NO_PENDING_CLEAR = -1
         const val TEXT_VISIBLE_MARGIN_PX = 300f
     }
