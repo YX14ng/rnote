@@ -4,7 +4,7 @@ use std::path::{Path, PathBuf};
 
 use gtk4::{gio, prelude::*};
 
-use crate::RnAppWindow;
+use crate::{RnAppWindow, RnCanvasWrapper};
 
 /// Where `path` is after `from` moved to `to`: `to` for `from` itself, the same place under
 /// `to` for a path inside the folder `from`, else `None`. Compares whole components, so
@@ -18,11 +18,23 @@ pub(crate) fn retarget(path: &Path, from: &Path, to: &Path) -> Option<PathBuf> {
     })
 }
 
+/// The tabs of every window of the app: a tab dragged out to another window still has its
+/// file in the library.
+fn all_tabs(appwindow: &RnAppWindow) -> Vec<RnCanvasWrapper> {
+    appwindow
+        .app()
+        .windows()
+        .into_iter()
+        .filter_map(|window| window.downcast::<RnAppWindow>().ok())
+        .flat_map(|window| window.get_all_tabs())
+        .collect()
+}
+
 /// Points the tabs with `from`, or a file inside the folder `from`, at the same file
 /// under `to`. Called right after the move, before the main loop runs again, so the tabs'
 /// file watchers are replaced before they see the move.
 pub(crate) fn retarget_open_tabs(appwindow: &RnAppWindow, from: &Path, to: &Path) {
-    for wrapper in appwindow.get_all_tabs() {
+    for wrapper in all_tabs(appwindow) {
         let canvas = wrapper.canvas();
         let Some(path) = canvas.output_file().and_then(|file| file.path()) else {
             continue;
@@ -35,7 +47,7 @@ pub(crate) fn retarget_open_tabs(appwindow: &RnAppWindow, from: &Path, to: &Path
 
 /// The name of a tab with `path`, or a file inside the folder `path`, if one is open.
 pub(crate) fn open_tab_inside(appwindow: &RnAppWindow, path: &Path) -> Option<String> {
-    appwindow.get_all_tabs().into_iter().find_map(|wrapper| {
+    all_tabs(appwindow).into_iter().find_map(|wrapper| {
         let file_path = wrapper.canvas().output_file()?.path()?;
         retarget(&file_path, path, path)?;
         Some(

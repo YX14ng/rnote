@@ -1,6 +1,7 @@
 //! The library: the home screen of the window, with the notebooks of a folder.
 
 mod actions;
+mod busy;
 mod card;
 mod dialogs;
 mod grid;
@@ -52,6 +53,7 @@ mod imp {
         pub(crate) selected: RefCell<BTreeSet<String>>,
         pub(crate) filling_sidebar: Cell<bool>,
         pub(crate) thumbnails: Thumbnails,
+        pub(crate) busy: busy::Busy,
         pub(crate) actions: gio::SimpleActionGroup,
 
         #[template_child]

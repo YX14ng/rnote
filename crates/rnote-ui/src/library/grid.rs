@@ -188,12 +188,19 @@ impl RnLibraryView {
         let Ok(mut index) = usize::try_from(index) else {
             return;
         };
+        // One open, import or creation at a time: a double click must not run it twice.
+        let Some(busy) = imp.busy.start() else {
+            return;
+        };
         if imp.new_card_shown.get() {
             if index == 0 {
                 glib::spawn_future_local(clone!(
                     #[weak(rename_to = view)]
                     self,
-                    async move { view.create_notebook().await }
+                    async move {
+                        view.create_notebook().await;
+                        drop(busy);
+                    }
                 ));
                 return;
             }
@@ -208,6 +215,7 @@ impl RnLibraryView {
         let root = self.root();
         glib::spawn_future_local(async move {
             super::open::open_notebook(&appwindow, &root, &notebook).await;
+            drop(busy);
         });
     }
 

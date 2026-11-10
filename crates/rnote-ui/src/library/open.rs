@@ -33,10 +33,16 @@ pub(crate) fn open_plan(library: &Library, notebook: &Notebook) -> OpenPlan {
     }
 }
 
+/// Opens the library at `root`, which must exist: a card shown before its disk went away
+/// must not create an empty library where the disk was.
+pub(crate) fn open_existing_library(root: &Path) -> anyhow::Result<Library> {
+    super::open_library(root, false)
+}
+
 /// Opens `notebook` of the library at `root` in a tab, or focuses the tab that has it. A
 /// Xournal++ notebook is imported first, asking when it was imported before.
 pub(crate) async fn open_notebook(appwindow: &RnAppWindow, root: &Path, notebook: &Notebook) {
-    let plan = match Library::open(root) {
+    let plan = match open_existing_library(root) {
         Ok(library) => open_plan(&library, notebook),
         Err(e) => {
             error!(
@@ -121,7 +127,8 @@ async fn import(appwindow: &RnAppWindow, root: &Path, path: &str) -> Option<Stri
     let root_buf: PathBuf = root.to_owned();
     let path_owned = path.to_owned();
     let result =
-        gio::spawn_blocking(move || Library::open(&root_buf)?.import_xopp(&path_owned)).await;
+        gio::spawn_blocking(move || open_existing_library(&root_buf)?.import_xopp(&path_owned))
+            .await;
     match result {
         Ok(Ok(new_path)) => {
             overlays.progressbar_finish();
@@ -207,6 +214,15 @@ mod tests {
                 existing: "Orga.rnote".to_owned()
             }
         );
+    }
+
+    #[test]
+    fn a_missing_root_is_an_error_and_is_not_created() {
+        let dir = tempfile::tempdir().unwrap();
+        let root = dir.path().join("Unmounted/HandNotes");
+
+        assert!(super::open_existing_library(&root).is_err());
+        assert!(!root.exists());
     }
 
     #[test]
