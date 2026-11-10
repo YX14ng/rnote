@@ -55,10 +55,62 @@
               </object>
             </child>
             <child type="end">
+              <object class="GtkToggleButton" id="select_button">
+                <property name="icon-name">selection-mode-symbolic</property>
+                <property name="action-name">library.selection-mode</property>
+                <property name="tooltip-text" translatable="yes">Select</property>
+              </object>
+            </child>
+            <child type="end">
+              <object class="GtkMenuButton" id="section_menu_button">
+                <property name="icon-name">view-more-symbolic</property>
+                <property name="visible">false</property>
+                <property name="tooltip-text" translatable="yes">Section Menu</property>
+              </object>
+            </child>
+            <child type="end">
+              <object class="GtkButton" id="empty_trash_button">
+                <property name="label" translatable="yes">Empty Trash</property>
+                <property name="action-name">library.empty-trash</property>
+                <property name="visible">false</property>
+                <style>
+                  <class name="destructive-action" />
+                </style>
+              </object>
+            </child>
+            <child type="end">
               <object class="GtkToggleButton">
                 <property name="icon-name">view-list-symbolic</property>
                 <property name="action-name">library.library-list-view</property>
                 <property name="tooltip-text" translatable="yes">List View</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child type="bottom">
+          <object class="GtkActionBar" id="selection_bar">
+            <property name="revealed">false</property>
+            <child type="start">
+              <object class="GtkLabel" id="selection_label" />
+            </child>
+            <child type="end">
+              <object class="GtkButton">
+                <property name="label" translatable="yes">Move to Trash</property>
+                <property name="action-name">library.selection-trash</property>
+                <style>
+                  <class name="destructive-action" />
+                </style>
+              </object>
+            </child>
+            <child type="end">
+              <object class="GtkButton">
+                <property name="label" translatable="yes">Tags…</property>
+                <property name="action-name">library.selection-tags</property>
+              </object>
+            </child>
+            <child type="end">
+              <object class="GtkMenuButton" id="selection_move_button">
+                <property name="label" translatable="yes">Move to</property>
               </object>
             </child>
           </object>

@@ -1,22 +1,28 @@
 //! The library: the home screen of the window, with the notebooks of a folder.
 
+mod actions;
 mod card;
+mod dialogs;
+mod grid;
 mod location;
+mod manage;
 mod open;
 mod sidebar;
+mod tabs;
+mod tagchoice;
 mod thumbnails;
 
 use std::cell::{Cell, RefCell};
+use std::collections::BTreeSet;
 use std::path::{Path, PathBuf};
 
 use anyhow::{Context, bail};
 use gettextrs::gettext;
 use gtk4::{CompositeTemplate, Widget, gio, glib, glib::clone, prelude::*, subclass::prelude::*};
-use rnote_library::{Library, Notebook, Section, SortOrder};
+use rnote_library::{Library, Notebook, Section};
 use tracing::error;
 
 use crate::RnAppWindow;
-use card::Card;
 use thumbnails::Thumbnails;
 
 /// The settings key with the library's folder; empty for the default one.
@@ -25,6 +31,8 @@ pub(crate) const LIBRARY_DIR_KEY: &str = "library-dir";
 const SORT_BY_NAME_KEY: &str = "library-sort-by-name";
 /// The settings key (and action) for the list view instead of the grid.
 const LIST_VIEW_KEY: &str = "library-list-view";
+/// The action for selection mode.
+const SELECTION_MODE: &str = "selection-mode";
 
 mod imp {
     use super::*;
@@ -40,6 +48,8 @@ mod imp {
         /// The notebooks shown, in the order of their cards (after "New").
         pub(crate) shown: RefCell<Vec<Notebook>>,
         pub(crate) new_card_shown: Cell<bool>,
+        /// The paths of the notebooks selected in selection mode.
+        pub(crate) selected: RefCell<BTreeSet<String>>,
         pub(crate) filling_sidebar: Cell<bool>,
         pub(crate) thumbnails: Thumbnails,
         pub(crate) actions: gio::SimpleActionGroup,
@@ -56,6 +66,18 @@ mod imp {
         pub(crate) flowbox: TemplateChild<gtk4::FlowBox>,
         #[template_child]
         pub(crate) error_page: TemplateChild<adw::StatusPage>,
+        #[template_child]
+        pub(crate) section_menu_button: TemplateChild<gtk4::MenuButton>,
+        #[template_child]
+        pub(crate) select_button: TemplateChild<gtk4::ToggleButton>,
+        #[template_child]
+        pub(crate) empty_trash_button: TemplateChild<gtk4::Button>,
+        #[template_child]
+        pub(crate) selection_bar: TemplateChild<gtk4::ActionBar>,
+        #[template_child]
+        pub(crate) selection_label: TemplateChild<gtk4::Label>,
+        #[template_child]
+        pub(crate) selection_move_button: TemplateChild<gtk4::MenuButton>,
     }
 
     #[glib::object_subclass]
@@ -128,8 +150,14 @@ impl RnLibraryView {
                     .ok()
                     .and_then(|index| view.imp().row_sections.borrow().get(index).cloned())
                     .flatten();
+                // The sidebar is filled again for the section: not while it is still
+                // handling the selection of the row it would drop.
                 if let Some(section) = section {
-                    view.set_section(section);
+                    glib::idle_add_local_once(clone!(
+                        #[weak]
+                        view,
+                        move || view.set_section(section)
+                    ));
                 }
             }
         ));
@@ -183,6 +211,23 @@ impl RnLibraryView {
             ));
             actions.add_action(&action);
         }
+        let selection_mode =
+            gio::SimpleAction::new_stateful(SELECTION_MODE, None, &false.to_variant());
+        selection_mode.connect_activate(clone!(
+            #[weak(rename_to = view)]
+            self,
+            move |action, _| {
+                let value = !action
+                    .state()
+                    .and_then(|state| state.get::<bool>())
+                    .unwrap_or(false);
+                view.set_selection_mode(value);
+            }
+        ));
+        actions.add_action(&selection_mode);
+
+        self.add_notebook_actions(actions);
+        self.add_manage_actions(actions);
         self.insert_action_group("library", Some(actions));
     }
 
@@ -197,6 +242,42 @@ impl RnLibraryView {
             .action_state(name)
             .and_then(|state| state.get::<bool>())
             .unwrap_or(false)
+    }
+
+    /// Turns selection mode on or off, starting with nothing selected.
+    fn set_selection_mode(&self, on: bool) {
+        let imp = self.imp();
+        imp.actions
+            .change_action_state(SELECTION_MODE, &on.to_variant());
+        imp.selected.borrow_mut().clear();
+        self.show_notebooks();
+    }
+
+    /// Shows `message` as an error toast in the window.
+    fn toast_error(&self, message: &str) {
+        if let Some(appwindow) = self.appwindow() {
+            appwindow.overlays().dispatch_toast_error(message);
+        }
+    }
+
+    /// Runs `op` on the open library, shows its error as a toast, then shows the library
+    /// again from disk. `None` when it failed or no library is open.
+    fn modify<T>(&self, op: impl FnOnce(&mut Library) -> anyhow::Result<T>) -> Option<T> {
+        let result = {
+            let mut library = self.imp().library.borrow_mut();
+            library.as_mut().map(op)
+        };
+        let value = match result {
+            Some(Ok(value)) => Some(value),
+            Some(Err(e)) => {
+                error!("A library operation failed, Err: {e:?}");
+                self.toast_error(&format!("{e:#}"));
+                None
+            }
+            None => None,
+        };
+        self.refresh();
+        value
     }
 
     /// The `library-dir` setting, empty when unset or without settings.
@@ -227,7 +308,7 @@ impl RnLibraryView {
             return;
         }
         *self.imp().section.borrow_mut() = Some(section);
-        self.show_notebooks();
+        self.set_selection_mode(false);
     }
 
     /// Opens the library again from disk and shows it, or shows why it can't be opened.
@@ -254,150 +335,6 @@ impl RnLibraryView {
                     ))));
                 imp.stack.set_visible_child_name("error");
             }
-        }
-    }
-
-    /// Fills the sidebar and the cards from the open library.
-    fn show_notebooks(&self) {
-        let imp = self.imp();
-        let library = imp.library.borrow();
-        let Some(library) = library.as_ref() else {
-            return;
-        };
-        let notebooks = library.notebooks().unwrap_or_else(|e| {
-            error!("Listing the notebooks failed, Err: {e:?}");
-            Vec::new()
-        });
-        let folders = library.folders().unwrap_or_default();
-        let tags = library.tags();
-        let counts = rnote_library::counts(&notebooks, &folders, library.trash_entries().len());
-
-        imp.filling_sidebar.set(true);
-        let row_sections = sidebar::fill(
-            &imp.sidebar_list,
-            &counts,
-            &tags,
-            "library.new-folder",
-            "library.new-tag",
-        );
-        let mut section = self.section();
-        if !row_sections.contains(&Some(section.clone())) {
-            section = Section::All;
-        }
-        if let Some(index) = row_sections
-            .iter()
-            .position(|row| row.as_ref() == Some(&section))
-        {
-            imp.sidebar_list
-                .select_row(imp.sidebar_list.row_at_index(index as i32).as_ref());
-        }
-        imp.filling_sidebar.set(false);
-        *imp.row_sections.borrow_mut() = row_sections;
-        *imp.section.borrow_mut() = Some(section.clone());
-        imp.title
-            .set_title(&sidebar::section_title(&section, &tags));
-
-        let mut shown = rnote_library::filter(&notebooks, &section);
-        let order = if self.flag(SORT_BY_NAME_KEY) {
-            SortOrder::Name
-        } else {
-            SortOrder::Modified
-        };
-        rnote_library::sort(&mut shown, order);
-        let list = self.flag(LIST_VIEW_KEY);
-        imp.flowbox
-            .set_max_children_per_line(if list { 1 } else { 12 });
-        imp.flowbox.remove_all();
-        let new_card_shown = section != Section::Trash;
-        if new_card_shown {
-            self.append_card(card::new_card(list), 0);
-        }
-        let root = library.root().to_owned();
-        let first = i32::from(new_card_shown);
-        for (index, notebook) in (first..).zip(&shown) {
-            self.append_card(
-                card::notebook_card(notebook, &root, &imp.thumbnails, list),
-                index,
-            );
-        }
-        imp.new_card_shown.set(new_card_shown);
-        *imp.shown.borrow_mut() = shown;
-    }
-
-    /// Adds `card` as the card at `index`, opening it on click.
-    fn append_card(&self, card: Card, index: i32) {
-        card.button.connect_clicked(clone!(
-            #[weak(rename_to = view)]
-            self,
-            move |_| view.card_activated(index)
-        ));
-        let child = gtk4::FlowBoxChild::builder()
-            .child(&card.widget)
-            .focusable(false)
-            .build();
-        self.imp().flowbox.append(&child);
-    }
-
-    /// Opens the notebook of the card at `index`, or creates one for "New".
-    fn card_activated(&self, index: i32) {
-        let imp = self.imp();
-        let Ok(mut index) = usize::try_from(index) else {
-            return;
-        };
-        if imp.new_card_shown.get() {
-            if index == 0 {
-                glib::spawn_future_local(clone!(
-                    #[weak(rename_to = view)]
-                    self,
-                    async move { view.create_notebook().await }
-                ));
-                return;
-            }
-            index -= 1;
-        }
-        let Some(notebook) = imp.shown.borrow().get(index).cloned() else {
-            return;
-        };
-        let Some(appwindow) = self.appwindow() else {
-            return;
-        };
-        let root = self.root();
-        glib::spawn_future_local(async move {
-            open::open_notebook(&appwindow, &root, &notebook).await;
-        });
-    }
-
-    /// Creates "Untitled.rnote" in the folder shown (the root elsewhere) and opens it.
-    async fn create_notebook(&self) {
-        let Some(appwindow) = self.appwindow() else {
-            return;
-        };
-        let folder = match self.section() {
-            Section::Folder(folder) => Some(folder),
-            _ => None,
-        };
-        let path = match self
-            .imp()
-            .library
-            .borrow()
-            .as_ref()
-            .map(|library| library.new_notebook_path(folder.as_deref(), &gettext("Untitled")))
-        {
-            Some(Ok(path)) => path,
-            Some(Err(e)) => {
-                error!("Choosing a name for the new notebook failed, Err: {e:?}");
-                appwindow
-                    .overlays()
-                    .dispatch_toast_error(&gettext("Creating the notebook failed"));
-                return;
-            }
-            None => return,
-        };
-        if let Err(e) = new_notebook_tab(&appwindow, &self.root().join(path)).await {
-            error!("Creating the new notebook failed, Err: {e:?}");
-            appwindow
-                .overlays()
-                .dispatch_toast_error(&gettext("Creating the notebook failed"));
         }
     }
 
@@ -434,27 +371,6 @@ impl RnLibraryView {
         *self.imp().section.borrow_mut() = None;
         self.refresh();
     }
-}
-
-/// Saves an empty notebook at `file` in the empty draft tab, or a new tab, and shows it.
-async fn new_notebook_tab(appwindow: &RnAppWindow, file: &Path) -> anyhow::Result<()> {
-    let reusable = appwindow
-        .active_tab_wrapper()
-        .filter(|wrapper| wrapper.canvas().empty() && wrapper.canvas().output_file().is_none());
-    let (wrapper, is_new) = match reusable {
-        Some(wrapper) => (wrapper, false),
-        None => (appwindow.new_canvas_wrapper(), true),
-    };
-    wrapper
-        .canvas()
-        .save_document_to_file(&gio::File::for_path(file))
-        .await?;
-    if is_new {
-        appwindow.append_wrapper_new_tab(&wrapper);
-    }
-    appwindow.refresh_titles(&wrapper.canvas());
-    appwindow.show_editor();
-    Ok(())
 }
 
 /// Opens the library at `root`. Only the default folder is created when missing: a set

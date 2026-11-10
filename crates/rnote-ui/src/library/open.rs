@@ -143,6 +143,26 @@ async fn import(appwindow: &RnAppWindow, root: &Path, path: &str) -> Option<Stri
     }
 }
 
+/// Saves an empty notebook at `file` in the empty draft tab, or a new tab, and shows it.
+pub(crate) async fn new_notebook_tab(appwindow: &RnAppWindow, file: &Path) -> anyhow::Result<()> {
+    let reusable = appwindow
+        .active_tab_wrapper()
+        .filter(|wrapper| wrapper.canvas().empty() && wrapper.canvas().output_file().is_none());
+    let (wrapper, is_new) = match reusable {
+        Some(wrapper) => (wrapper, false),
+        None => (appwindow.new_canvas_wrapper(), true),
+    };
+    wrapper
+        .canvas()
+        .save_document_to_file(&gio::File::for_path(file))
+        .await?;
+    if is_new {
+        appwindow.append_wrapper_new_tab(&wrapper);
+    }
+    appwindow.show_editor();
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use std::fs;

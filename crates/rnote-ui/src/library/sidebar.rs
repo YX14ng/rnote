@@ -1,7 +1,7 @@
 //! The library's sidebar: its sections with the number of notebooks in each.
 
 use gettextrs::gettext;
-use gtk4::{Align, gdk, prelude::*};
+use gtk4::{Align, prelude::*};
 use rnote_library::{Section, SectionCounts, Tag};
 
 /// The title of `section`, given the library's `tags`.
@@ -94,13 +94,7 @@ pub(crate) fn tag_dot(color: u32) -> gtk4::Widget {
         .content_height(12)
         .valign(Align::Center)
         .build();
-    let [a, r, g, b] = color.to_be_bytes();
-    let rgba = gdk::RGBA::new(
-        f32::from(r) / 255.0,
-        f32::from(g) / 255.0,
-        f32::from(b) / 255.0,
-        f32::from(a) / 255.0,
-    );
+    let rgba = super::dialogs::argb_to_rgba(color);
     dot.set_draw_func(move |_, cx, width, height| {
         let radius = f64::from(width.min(height)) / 2.0;
         cx.arc(

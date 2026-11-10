@@ -3,8 +3,8 @@
 use std::path::Path;
 
 use gettextrs::gettext;
-use gtk4::{Align, Orientation, glib, pango, prelude::*};
-use rnote_library::{Notebook, NotebookKind};
+use gtk4::{Align, Orientation, gio, glib, pango, prelude::*};
+use rnote_library::{Notebook, NotebookKind, TrashEntry};
 
 use super::thumbnails::{THUMBNAIL_WIDTH, Thumbnails};
 
@@ -22,8 +22,24 @@ pub(crate) struct Card {
     /// The button that opens the card.
     pub(crate) button: gtk4::Button,
     /// The button with the card's menu; hidden until it gets one.
-    #[expect(dead_code, reason = "the card menus come with the library operations")]
     pub(crate) menu_button: gtk4::MenuButton,
+    /// The check of the card in selection mode; hidden otherwise.
+    pub(crate) check: gtk4::CheckButton,
+}
+
+impl Card {
+    /// Gives the card `menu`.
+    pub(crate) fn set_menu(&self, menu: &gio::MenuModel) {
+        self.menu_button.set_menu_model(Some(menu));
+        self.menu_button.set_visible(true);
+    }
+
+    /// Shows the selection check instead of the menu, checked when `selected`.
+    pub(crate) fn set_selectable(&self, selected: bool) {
+        self.check.set_active(selected);
+        self.check.set_visible(true);
+        self.menu_button.set_visible(false);
+    }
 }
 
 /// The cover of a card: a plain page of a fixed size with `child` filling it. The child is
@@ -104,27 +120,43 @@ fn layout(cover: &gtk4::Overlay, title: &str, subtitle: &str, list: bool) -> Car
         .tooltip_text(gettext("Notebook Menu"))
         .build();
     menu_button.add_css_class("flat");
+    let check = gtk4::CheckButton::builder()
+        .halign(Align::Start)
+        .valign(Align::Start)
+        .margin_start(10)
+        .margin_top(10)
+        .visible(false)
+        .tooltip_text(gettext("Select"))
+        .build();
+    check.add_css_class("selection-mode");
     let widget = gtk4::Overlay::builder().child(&button).build();
     widget.add_overlay(&menu_button);
+    widget.add_overlay(&check);
     Card {
         widget: widget.upcast(),
         button,
         menu_button,
+        check,
     }
 }
 
-/// The "New" card, which creates a notebook.
-pub(crate) fn new_card(list: bool) -> Card {
+/// A cover with a dim `icon_name` icon.
+fn icon_cover(icon_name: &str, list: bool) -> gtk4::Overlay {
     let icon = gtk4::Image::builder()
-        .icon_name("list-add-symbolic")
+        .icon_name(icon_name)
         .pixel_size(if list { 24 } else { 48 })
         .hexpand(true)
         .halign(Align::Center)
         .valign(Align::Center)
         .build();
     icon.add_css_class("dim-label");
+    cover(&icon, list)
+}
+
+/// The "New" card, which creates a notebook.
+pub(crate) fn new_card(list: bool) -> Card {
     let card = layout(
-        &cover(&icon, list),
+        &icon_cover("list-add-symbolic", list),
         &gettext("New"),
         &gettext("Notebook"),
         list,
@@ -150,23 +182,24 @@ pub(crate) fn notebook_card(
             thumbnails.load(&picture, root.to_owned(), notebook);
             cover(&picture, list)
         }
-        NotebookKind::Xopp => {
-            let icon = gtk4::Image::builder()
-                .icon_name("x-office-document-symbolic")
-                .pixel_size(if list { 24 } else { 48 })
-                .hexpand(true)
-                .halign(Align::Center)
-                .valign(Align::Center)
-                .build();
-            icon.add_css_class("dim-label");
-            cover(&icon, list)
-        }
+        NotebookKind::Xopp => icon_cover("x-office-document-symbolic", list),
     };
     let subtitle = match notebook.kind {
         NotebookKind::Rnote => format_date(notebook.modified_ms),
         NotebookKind::Xopp => gettext("Xournal++ · import"),
     };
     layout(&cover, &notebook.name, &subtitle, list)
+}
+
+/// The card of a notebook in the trash.
+pub(crate) fn trash_card(entry: &TrashEntry, list: bool) -> Card {
+    let subtitle = gettext("Deleted {date}").replace("{date}", &format_date(entry.deleted_at_ms));
+    layout(
+        &icon_cover("user-trash-symbolic", list),
+        &entry.name,
+        &subtitle,
+        list,
+    )
 }
 
 /// A date in the user's format, from milliseconds since the Unix epoch.
