@@ -19,7 +19,7 @@ internal object ToolOptionsPanel {
     val PRESET_WIDTHS = listOf(1.0, 2.0, 3.0, 6.0, 10.0)
 
     fun build(context: Context, tool: Tool, settings: EditorSettings, onAction: (EditorMenu.Action) -> Unit): View {
-        val panel = PanelViews.column(context, widthDp = PANEL_WIDTH_DP)
+        val panel = PanelViews.column(context)
         when (tool) {
             Tool.BRUSH -> brush(context, panel, settings, onAction)
             Tool.SHAPER -> shapes(context, panel, settings, onAction)
@@ -141,5 +141,6 @@ internal object ToolOptionsPanel {
         }
     }
 
-    private const val PANEL_WIDTH_DP = 340f
+    /** How wide the panel is. */
+    const val PANEL_WIDTH_DP = 340f
 }

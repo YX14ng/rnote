@@ -23,7 +23,7 @@ import android.widget.TextView
  */
 internal object PanelViews {
     /** A vertical panel with the floating panel background. */
-    fun column(context: Context, widthDp: Float? = null): LinearLayout = LinearLayout(context).apply {
+    fun column(context: Context): LinearLayout = LinearLayout(context).apply {
         orientation = LinearLayout.VERTICAL
         background = Graphite.panel(context)
         val pad = Graphite.dp(context, 12f)
@@ -31,7 +31,6 @@ internal object PanelViews {
         elevation = Graphite.dp(context, 12f).toFloat()
         // Taps on the panel itself must not reach the overlay, which closes it.
         isClickable = true
-        widthDp?.let { minimumWidth = Graphite.dp(context, it) }
     }
 
     fun title(context: Context, label: Int): TextView = TextView(context).apply {
@@ -94,7 +93,7 @@ internal object PanelViews {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
             minimumHeight = Graphite.dp(context, 52f)
-            val pad = Graphite.dp(context, 8f)
+            val pad = Graphite.dp(context, 14f)
             setPadding(pad, 0, pad, 0)
             val texts = LinearLayout(context).apply {
                 orientation = LinearLayout.VERTICAL
@@ -159,7 +158,13 @@ internal object PanelViews {
             contentDescription = context.getString(label)
             setOnClickListener { onClick() }
             addView(icon(context, icon, tint), LinearLayout.LayoutParams(Graphite.dp(context, 20f), Graphite.dp(context, 20f)))
-            addView(TextView(context).apply { setText(label); textSize = 12f; setTextColor(tint) })
+            addView(TextView(context).apply {
+                setText(label)
+                textSize = 12f
+                setTextColor(tint)
+                gravity = Gravity.CENTER
+                maxLines = 1
+            }, LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT))
         }
 
     fun divider(context: Context): View = View(context).apply { setBackgroundColor(Graphite.DIVIDER) }
@@ -194,13 +199,14 @@ internal object PanelViews {
 }
 
 /**
- * Covers the screen with a floating [panel]; a tap outside the panel calls [onDismiss].
- * Tall panels scroll.
+ * Covers the screen with a floating [panel], [panelWidthDp] wide; a tap outside the panel
+ * calls [onDismiss]. Tall panels scroll.
  */
 @SuppressLint("ViewConstructor") // Built in code only, with what it shows.
 internal class PanelOverlay(
     context: Context,
     panel: View,
+    panelWidthDp: Float,
     gravity: Int,
     marginEndDp: Float,
     marginTopDp: Float,
@@ -208,10 +214,12 @@ internal class PanelOverlay(
 ) : FrameLayout(context) {
     init {
         isClickable = true
+        // Above the tool sidebar, which floats with an elevation of its own.
+        elevation = Graphite.dp(context, OVERLAY_ELEVATION_DP).toFloat()
         setOnClickListener { onDismiss() }
         val scroller = ScrollView(context).apply {
             isVerticalScrollBarEnabled = false
-            addView(panel)
+            addView(panel, LayoutParams(Graphite.dp(context, panelWidthDp), WRAP_CONTENT))
         }
         val margin = Graphite.dp(context, 8f)
         addView(scroller, LayoutParams(WRAP_CONTENT, WRAP_CONTENT, gravity).apply {
@@ -219,5 +227,9 @@ internal class PanelOverlay(
             topMargin = Graphite.dp(context, marginTopDp)
             bottomMargin = margin
         })
+    }
+
+    private companion object {
+        const val OVERLAY_ELEVATION_DP = 24f
     }
 }

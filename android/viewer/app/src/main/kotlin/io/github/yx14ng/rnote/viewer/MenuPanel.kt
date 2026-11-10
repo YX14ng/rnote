@@ -10,7 +10,7 @@ import android.widget.LinearLayout
  */
 internal object MenuPanel {
     fun build(context: Context, state: MenuState, onAction: (EditorMenu.Action) -> Unit): View {
-        val panel = PanelViews.column(context, widthDp = PANEL_WIDTH_DP)
+        val panel = PanelViews.column(context)
         val open = state.documentOpen
 
         if (open) {
@@ -70,5 +70,6 @@ internal object MenuPanel {
         return panel
     }
 
-    private const val PANEL_WIDTH_DP = 320f
+    /** How wide the panel is. */
+    const val PANEL_WIDTH_DP = 320f
 }

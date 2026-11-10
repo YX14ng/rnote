@@ -60,6 +60,8 @@ internal class PenWheel(
 
     init {
         contentDescription = context.getString(R.string.pen_wheel)
+        // Above the tool sidebar, which floats with an elevation of its own.
+        elevation = Graphite.dp(context, WHEEL_ELEVATION_DP).toFloat()
     }
 
     /** Centers the wheel on ([x], [y]), moved inward as needed to fit on screen. */
@@ -232,6 +234,7 @@ internal class PenWheel(
         const val DIAL_START = 120f
         const val DIAL_SWEEP = 300f
         const val SNAP_DEGREES = 4f
+        const val WHEEL_ELEVATION_DP = 24f
         const val MIN_WIDTH = 0.5
         const val MAX_WIDTH = 20.0
     }

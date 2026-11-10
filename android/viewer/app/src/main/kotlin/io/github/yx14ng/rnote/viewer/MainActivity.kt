@@ -137,7 +137,9 @@ class MainActivity : Activity() {
 
     private fun showMenu() {
         val panel = MenuPanel.build(this, menuState(), ::perform)
-        layout.showOverlay(PanelOverlay(this, panel, Gravity.END or Gravity.TOP, 8f, 8f, onDismiss = layout::hideOverlay))
+        layout.showOverlay(
+            PanelOverlay(this, panel, MenuPanel.PANEL_WIDTH_DP, Gravity.END or Gravity.TOP, 8f, 8f, layout::hideOverlay),
+        )
     }
 
     /** Opens the options of [tool] beside the sidebar, or closes them if open. */
@@ -148,7 +150,15 @@ class MainActivity : Activity() {
         }
         val panel = ToolOptionsPanel.build(this, tool, controls.settings, ::perform)
         layout.showOverlay(
-            PanelOverlay(this, panel, Gravity.END or Gravity.CENTER_VERTICAL, TOOL_OPTIONS_MARGIN_DP, 0f, layout::hideOverlay),
+            PanelOverlay(
+                this,
+                panel,
+                ToolOptionsPanel.PANEL_WIDTH_DP,
+                Gravity.END or Gravity.CENTER_VERTICAL,
+                TOOL_OPTIONS_MARGIN_DP,
+                0f,
+                layout::hideOverlay,
+            ),
         )
     }
 
