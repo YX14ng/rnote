@@ -6,8 +6,14 @@ same library the Android app uses (`crates/rnote-library`), so both read and wri
 `.rnote-library/library.json`.
 
 It installs as its own Flatpak, `io.github.yx14ng.rnote`, shown as **Rnote (YX14ng)**, beside
-Flathub's Rnote (`com.github.flxzt.rnote`), which stays as it is. Files stay compatible:
-the official Rnote opens the fork's notebooks.
+Flathub's Rnote (`com.github.flxzt.rnote`), which stays as it is.
+
+**Don't open notebooks saved by the fork (or by the Android app) in Rnote 0.14.2.** The fork
+is built on upstream's development branch, which saves the newer `.rnote` format 0.15
+(shapes, images, PDF pages and text keep their position as an `affine` transform). Rnote
+0.14.2 reads that file without an error but places all of those at the top left corner, and
+saving there makes it permanent. The other way is fine: the fork opens notebooks saved by
+0.14.2.
 
 ## Install
 

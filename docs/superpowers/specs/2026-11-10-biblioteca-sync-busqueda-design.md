@@ -298,8 +298,11 @@ no sirve tal cual (perfil de desarrollo, logging debug, sin `--share=network`, q
 Drive necesitan). Se agrega un manifiesto propio de release, con app id propio del fork y
 `--share=network`, que se instala al lado del oficial sin pisarlo. El preset A4 oscuro se
 copia al esquema del fork. El asistente compila e instala; las variables de Drive se pasan
-al build. Los archivos del fork siguen abriéndose en el 0.14.2 oficial (sin cambios de
-formato desde esa versión).
+al build. ~~Los archivos del fork siguen abriéndose en el 0.14.2 oficial (sin cambios de
+formato desde esa versión).~~ **Corrección (2026-11-10, revisión final de la etapa 2):**
+falso. El fork guarda el formato 0.15 (upstream f3f7efd6, posterior a v0.14.2), y el 0.14.2
+lo lee sin error pero manda imágenes, PDF, textos y formas al origen. Un cuaderno guardado
+por el fork o por Android no se abre en el 0.14.2.
 
 Si el Rnote oficial u otro programa edita archivos de la biblioteca, la sincronización lo
 ve igual (escanea el disco, no depende de eventos de guardado).
