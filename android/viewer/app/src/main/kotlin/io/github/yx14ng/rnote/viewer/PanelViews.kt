@@ -6,6 +6,7 @@ import android.content.res.ColorStateList
 import android.graphics.Color
 import android.view.Gravity
 import android.view.View
+import android.view.ViewTreeObserver
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.FrameLayout
@@ -199,37 +200,60 @@ internal object PanelViews {
 }
 
 /**
- * Covers the screen with a floating [panel], [panelWidthDp] wide; a tap outside the panel
- * calls [onDismiss]. Tall panels scroll.
+ * Covers the screen with a floating [panel], [panelWidthDp] wide, right below [anchor] (the
+ * button that opened it) and kept on screen; a tap outside the panel calls [onDismiss].
+ * Tall panels scroll.
  */
 @SuppressLint("ViewConstructor") // Built in code only, with what it shows.
 internal class PanelOverlay(
     context: Context,
     panel: View,
     panelWidthDp: Float,
-    gravity: Int,
-    marginEndDp: Float,
-    marginTopDp: Float,
+    private val anchor: View,
     private val onDismiss: () -> Unit,
 ) : FrameLayout(context) {
+    private val panelWidth = Graphite.dp(context, panelWidthDp)
+    private val scroller = ScrollView(context).apply {
+        isVerticalScrollBarEnabled = false
+        addView(panel, LayoutParams(panelWidth, WRAP_CONTENT))
+    }
+
     init {
         isClickable = true
-        // Above the tool sidebar, which floats with an elevation of its own.
+        // Above the canvas and the bars, which float with elevations of their own.
         elevation = Graphite.dp(context, OVERLAY_ELEVATION_DP).toFloat()
         setOnClickListener { onDismiss() }
-        val scroller = ScrollView(context).apply {
-            isVerticalScrollBarEnabled = false
-            addView(panel, LayoutParams(Graphite.dp(context, panelWidthDp), WRAP_CONTENT))
-        }
-        val margin = Graphite.dp(context, 8f)
-        addView(scroller, LayoutParams(WRAP_CONTENT, WRAP_CONTENT, gravity).apply {
-            marginEnd = Graphite.dp(context, marginEndDp)
-            topMargin = Graphite.dp(context, marginTopDp)
-            bottomMargin = margin
+        addView(scroller, LayoutParams(WRAP_CONTENT, WRAP_CONTENT, Gravity.TOP or Gravity.START))
+    }
+
+    init {
+        // Placed once both are laid out, before the first frame shows the panel.
+        viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
+            override fun onPreDraw(): Boolean {
+                viewTreeObserver.removeOnPreDrawListener(this)
+                placeBelowAnchor()
+                return false
+            }
         })
+    }
+
+    private fun placeBelowAnchor() {
+        val margin = Graphite.dp(context, EDGE_MARGIN_DP)
+        val anchorAt = IntArray(2).also(anchor::getLocationInWindow)
+        val overlayAt = IntArray(2).also(::getLocationInWindow)
+        val x = (anchorAt[0] - overlayAt[0] + anchor.width / 2 - panelWidth / 2)
+            .coerceIn(margin, maxOf(margin, width - panelWidth - margin))
+        val y = anchorAt[1] - overlayAt[1] + anchor.height + Graphite.dp(context, GAP_DP)
+        scroller.layoutParams = (scroller.layoutParams as LayoutParams).apply {
+            leftMargin = x
+            topMargin = y
+            bottomMargin = margin
+        }
     }
 
     private companion object {
         const val OVERLAY_ELEVATION_DP = 24f
+        const val EDGE_MARGIN_DP = 8f
+        const val GAP_DP = 6f
     }
 }

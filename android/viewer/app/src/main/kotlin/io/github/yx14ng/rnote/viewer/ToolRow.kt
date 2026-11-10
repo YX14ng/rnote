@@ -15,15 +15,15 @@ import android.widget.TextView
 import java.util.Locale
 
 /**
- * The tools as a column of icons floating beside the canvas, like the desktop app's pen
- * picker, with the desktop icons in the same order; below them a palette of colors and the
- * current brush width.
+ * The tools as a row of icons, in the desktop app's order, and beside them a palette of
+ * colors and the current brush width: two groups, [tools] and [palette], that the editor's
+ * top bar places apart.
  *
  * Tapping a tool calls [onToolSelected], or [onToolOptions] when it is already the active
  * one. Tapping a color calls [onColorSelected] with its slot; long-pressing it calls
  * [onColorEdit]. The width button calls [onWidthTapped].
  */
-internal class ToolSidebar(context: Context) : LinearLayout(context) {
+internal class ToolRow(private val context: Context) {
     var onToolSelected: ((Tool) -> Unit)? = null
     var onToolOptions: ((Tool) -> Unit)? = null
     var onColorSelected: ((Int) -> Unit)? = null
@@ -51,15 +51,28 @@ internal class ToolSidebar(context: Context) : LinearLayout(context) {
         gravity = Gravity.CENTER
     }
     private val widthButton = LinearLayout(context).apply {
-        orientation = VERTICAL
+        orientation = LinearLayout.VERTICAL
         gravity = Gravity.CENTER
         background = Graphite.pressable(context, Graphite.rounded(context, Graphite.RAISED, TOOL_RADIUS_DP), TOOL_RADIUS_DP)
         contentDescription = context.getString(R.string.brush_width)
         tooltipText = contentDescription
-        addView(widthBar, LayoutParams(dp(WIDTH_BAR_DP), dp(4f)))
-        addView(widthLabel, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).apply { topMargin = dp(3f) })
+        addView(widthBar, LinearLayout.LayoutParams(dp(WIDTH_BAR_DP), dp(4f)))
+        addView(widthLabel, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(3f) })
         setOnClickListener { onWidthTapped?.invoke() }
     }
+
+    /** The tool buttons. */
+    val tools = LinearLayout(context).apply { gravity = Gravity.CENTER_VERTICAL }
+
+    /** The palette and the width button. */
+    val palette = LinearLayout(context).apply { gravity = Gravity.CENTER_VERTICAL }
+
+    /** The button of [tool], where its options panel opens. */
+    fun buttonFor(tool: Tool): View = buttons.getValue(tool)
+
+    /** The width button, where the pen's options open from. */
+    val widthAnchor: View
+        get() = widthButton
 
     var selectedTool: Tool = Tool.BRUSH
         set(value) {
@@ -74,23 +87,16 @@ internal class ToolSidebar(context: Context) : LinearLayout(context) {
         }
 
     init {
-        orientation = VERTICAL
-        gravity = Gravity.CENTER_HORIZONTAL
-        val padding = dp(8f)
-        setPadding(padding, padding, padding, padding)
-        background = Graphite.rounded(context, Graphite.RAIL, RAIL_RADIUS_DP, Graphite.OUTLINE)
-        elevation = dp(8f).toFloat()
-        val toolSpacing = dp(2f)
+        val toolSpacing = dp(3f)
         for (button in buttons.values) {
-            addView(button, LayoutParams(dp(TOOL_DP), dp(TOOL_DP)).apply { setMargins(0, toolSpacing, 0, toolSpacing) })
+            tools.addView(button, LinearLayout.LayoutParams(dp(TOOL_DP), dp(TOOL_DP)).apply { setMargins(toolSpacing, 0, toolSpacing, 0) })
         }
-        addView(divider(), dividerParams())
         for (swatch in swatches) {
             val cell = dp(SWATCH_CELL_DP)
-            addView(FrameLayout(context).apply { addView(swatch, FrameLayout.LayoutParams(cell, cell, Gravity.CENTER)) })
+            palette.addView(FrameLayout(context).apply { addView(swatch, FrameLayout.LayoutParams(cell, cell, Gravity.CENTER)) })
         }
-        addView(divider(), dividerParams())
-        addView(widthButton, LayoutParams(dp(TOOL_DP), dp(TOOL_DP)))
+        palette.addView(divider(), dividerParams())
+        palette.addView(widthButton, LinearLayout.LayoutParams(dp(TOOL_DP), dp(TOOL_DP)))
         selectedTool = Tool.BRUSH
     }
 
@@ -138,7 +144,7 @@ internal class ToolSidebar(context: Context) : LinearLayout(context) {
 
     private fun divider() = View(context).apply { setBackgroundColor(DIVIDER_COLOR) }
 
-    private fun dividerParams() = LayoutParams(dp(32f), dp(1f)).apply { setMargins(0, dp(8f), 0, dp(8f)) }
+    private fun dividerParams() = LinearLayout.LayoutParams(dp(1f), dp(28f)).apply { setMargins(dp(8f), 0, dp(8f), 0) }
 
     private fun dp(value: Float): Int = Graphite.dp(context, value)
 
@@ -157,8 +163,7 @@ internal class ToolSidebar(context: Context) : LinearLayout(context) {
         /** How many colors the palette holds. */
         private const val PALETTE_SIZE = 5
         private const val TOOL_DP = 48f
-        private const val TOOL_RADIUS_DP = 16f
-        private const val RAIL_RADIUS_DP = 24f
+        private const val TOOL_RADIUS_DP = 14f
         private const val SWATCH_CELL_DP = 40f
         private const val WIDTH_BAR_DP = 22f
 

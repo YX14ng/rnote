@@ -42,7 +42,7 @@ internal object ToolOptionsPanel {
         val selected = PRESET_WIDTHS.indexOfFirst { it == settings.brush.width }
         panel.addView(PanelViews.segmented(
             context,
-            PRESET_WIDTHS.map { ToolSidebar.formatWidth(it) },
+            PRESET_WIDTHS.map { ToolRow.formatWidth(it) },
             selected,
         ) { onAction(EditorMenu.Action.SelectWidth(PRESET_WIDTHS[it])) })
         panel.addView(StrokeSample(context, settings.brush), LinearLayout.LayoutParams(MATCH_PARENT, Graphite.dp(context, 56f)))

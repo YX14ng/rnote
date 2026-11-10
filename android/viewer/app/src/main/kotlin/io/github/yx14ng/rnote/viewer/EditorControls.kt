@@ -4,14 +4,14 @@ import android.content.Context
 
 /**
  * The editing choices (tool, brush, shapes, text, ...): kept in [EditorSettings] across
- * restarts, shown by the canvas and the tool sidebar, and applied to the open document.
+ * restarts, shown by the canvas and the tool row, and applied to the open document.
  *
  * [onChanged] runs after every change, e.g. to refresh the menu.
  */
 internal class EditorControls(
     private val context: Context,
     private val canvas: NoteCanvasView,
-    private val sidebar: ToolSidebar,
+    private val sidebar: ToolRow,
     private val renderer: DocumentRenderer,
     private val onChanged: () -> Unit,
 ) {

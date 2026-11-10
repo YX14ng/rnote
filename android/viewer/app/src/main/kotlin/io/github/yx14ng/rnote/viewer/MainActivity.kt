@@ -6,11 +6,8 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
-import android.view.Gravity
 import android.view.HapticFeedbackConstants
 import android.view.KeyEvent
-import android.view.Menu
-import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 
@@ -23,7 +20,8 @@ class MainActivity : Activity() {
     private lateinit var saver: DocumentSaver
     private lateinit var guard: UnsavedChangesGuard
     private lateinit var clipboard: ClipboardActions
-    private lateinit var toolSidebar: ToolSidebar
+    private lateinit var toolRow: ToolRow
+    private lateinit var topBar: EditorTopBar
     private lateinit var controls: EditorControls
     private lateinit var selectionBar: SelectionBar
     private var shownZoomPercent = 0
@@ -50,19 +48,20 @@ class MainActivity : Activity() {
             // Moving the selection or drawing: the selection bar returns after the edit.
             onCanvasTouched = { selectionBar.hide() }
         }
-        toolSidebar = ToolSidebar(this).apply { visibility = View.GONE }
-        controls = EditorControls(this, canvasView, toolSidebar, renderer, onChanged = ::invalidateOptionsMenu)
-        toolSidebar.onToolSelected = controls::selectTool
-        toolSidebar.onColorSelected = controls::selectPaletteColor
-        toolSidebar.onColorEdit = controls::editPaletteColor
-        toolSidebar.onToolOptions = ::toggleToolOptions
-        toolSidebar.onWidthTapped = { toggleToolOptions(Tool.BRUSH) }
+        toolRow = ToolRow(this)
+        controls = EditorControls(this, canvasView, toolRow, renderer, onChanged = ::refreshBar)
+        toolRow.onToolSelected = controls::selectTool
+        toolRow.onColorSelected = controls::selectPaletteColor
+        toolRow.onColorEdit = controls::editPaletteColor
+        toolRow.onToolOptions = { tool -> toggleToolOptions(tool, toolRow.buttonFor(tool)) }
+        toolRow.onWidthTapped = { toggleToolOptions(Tool.BRUSH, toolRow.widthAnchor) }
+        topBar = EditorTopBar(this, toolRow, onAction = ::perform, onBack = ::leave, onTitle = ::renameNotebook)
         selectionBar = SelectionBar(this, palette = { controls.settings.palette }, onAction = ::perform)
         clipboard = ClipboardActions(this, canvasView, renderer, onToolChanged = { tool ->
             // The engine already switched to the tool that shows what was pasted.
             controls.change(controls.settings.copy(tool = tool))
         }, onError = ::showError)
-        layout = EditorLayout(this, canvasView, toolSidebar)
+        layout = EditorLayout(this, canvasView, topBar)
         layout.selectionBar = selectionBar
         setContentView(layout.root)
         if (!handleIntent(intent) && recovery.exists) {
@@ -84,28 +83,13 @@ class MainActivity : Activity() {
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        EditorMenu.create(menu)
-        return true
-    }
-
-    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        EditorMenu.prepare(menu, menuState())
-        return true
-    }
-
-    // Ctrl+Y redoes too, as on the desktop; the menu shortcuts cover the rest.
     override fun onKeyShortcut(keyCode: Int, event: KeyEvent): Boolean {
-        if (keyCode == KeyEvent.KEYCODE_Y && event.isCtrlPressed && documentOpen && editState.canRedo) {
-            canvasView.applyEdit(NativeDocument::redo)
-            return true
+        val action = KeyShortcuts.actionFor(keyCode, event.isCtrlPressed, event.isShiftPressed)
+            ?: return super.onKeyShortcut(keyCode, event)
+        val needsDocument = action != EditorMenu.Action.New && action != EditorMenu.Action.Open
+        if (documentOpen || !needsDocument) {
+            perform(action)
         }
-        return super.onKeyShortcut(keyCode, event)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val action = EditorMenu.actionFor(item) ?: return super.onOptionsItemSelected(item)
-        perform(action)
         return true
     }
 
@@ -125,7 +109,7 @@ class MainActivity : Activity() {
                 EditorMenu.Action.Cut -> clipboard.cut()
                 EditorMenu.Action.Paste -> clipboard.paste()
                 EditorMenu.Action.Document -> showDocumentDialog()
-                EditorMenu.Action.New -> guard.confirmDiscard(::newDocument)
+                EditorMenu.Action.New -> newNotebook()
                 EditorMenu.Action.Open ->
                     guard.confirmDiscard { startActivityForResult(DocumentFiles.openIntent(saver.currentUri), REQUEST_OPEN) }
                 EditorMenu.Action.Save -> saver.save()
@@ -133,36 +117,70 @@ class MainActivity : Activity() {
                 else -> {}
             }
         }
-        invalidateOptionsMenu()
+        refreshBar()
+    }
+
+    /** Shows the notebook's name and state in the top bar. */
+    private fun refreshBar() {
+        topBar.show(saver.documentName.removeSuffix(".rnote"), menuState())
     }
 
     private fun menuState() = MenuState(documentOpen, editState, controls.settings, canvasView.zoomPercent)
 
     private fun showMenu() {
         val panel = MenuPanel.build(this, menuState(), ::perform)
-        layout.showOverlay(
-            PanelOverlay(this, panel, MenuPanel.PANEL_WIDTH_DP, Gravity.END or Gravity.TOP, 8f, 8f, layout::hideOverlay),
-        )
+        layout.showOverlay(PanelOverlay(this, panel, MenuPanel.PANEL_WIDTH_DP, topBar.moreButton, layout::hideOverlay))
     }
 
-    /** Opens the options of [tool] beside the sidebar, or closes them if open. */
-    private fun toggleToolOptions(tool: Tool) {
+    /** Opens the options of [tool] below [anchor], the button tapped, or closes them if open. */
+    private fun toggleToolOptions(tool: Tool, anchor: View) {
         if (layout.overlayShown) {
             layout.hideOverlay()
             return
         }
         val panel = ToolOptionsPanel.build(this, tool, controls.settings, ::perform)
-        layout.showOverlay(
-            PanelOverlay(
-                this,
-                panel,
-                ToolOptionsPanel.PANEL_WIDTH_DP,
-                Gravity.END or Gravity.CENTER_VERTICAL,
-                TOOL_OPTIONS_MARGIN_DP,
-                0f,
-                layout::hideOverlay,
-            ),
-        )
+        layout.showOverlay(PanelOverlay(this, panel, ToolOptionsPanel.PANEL_WIDTH_DP, anchor, layout::hideOverlay))
+    }
+
+    /** Renames the open library notebook, from its name in the top bar. */
+    private fun renameNotebook() {
+        val path = libraryPath ?: return
+        val form = FormDialog(this, R.string.library_rename)
+        val field = form.addText(R.string.library_name, saver.documentName.removeSuffix(".rnote"))
+        form.show {
+            if (field.text.isEmpty()) return@show
+            val store = LibraryStore.forApp(this)
+            store.call(LibraryStore.request("rename", "path" to path, "new_name" to field.text)) { result ->
+                result
+                    .onSuccess { answer ->
+                        val renamed = answer.getString("path")
+                        libraryPath = renamed
+                        saver.currentUri = Uri.fromFile(store.file(renamed))
+                        saver.documentName = store.file(renamed).name
+                        refreshBar()
+                    }
+                    .onFailure(::showError)
+            }
+        }
+    }
+
+    /**
+     * A new notebook in the library, beside the open one; the open one is saved first, or
+     * its unsaved changes dropped on agreement if it isn't a library notebook.
+     */
+    private fun newNotebook() {
+        val folder = libraryPath?.let { path -> if ('/' in path) path.substringBefore('/') else null }
+        val create = {
+            val request = LibraryStore.request("new_notebook_path", "folder" to folder, "stem" to getString(R.string.untitled))
+            LibraryStore.forApp(this).call(request) { result ->
+                result.onSuccess { openLibraryNotebook(it.getString("path"), isNew = true) }.onFailure(::showError)
+            }
+        }
+        when {
+            !editState.modified -> create()
+            libraryPath != null -> saver.save(onDone = create)
+            else -> guard.confirmDiscard(create)
+        }
     }
 
     private fun showDocumentDialog() {
@@ -185,7 +203,7 @@ class MainActivity : Activity() {
         val percent = canvasView.zoomPercent
         if (percent != shownZoomPercent) {
             shownZoomPercent = percent
-            invalidateOptionsMenu()
+            refreshBar()
         }
     }
 
@@ -233,10 +251,18 @@ class MainActivity : Activity() {
      */
     private fun leave() {
         when {
-            !editState.modified -> finish()
-            libraryPath != null -> saver.save(onDone = ::finish)
-            else -> guard.confirmDiscard { finish() }
+            !editState.modified -> toLibrary()
+            libraryPath != null -> saver.save(onDone = ::toLibrary)
+            else -> guard.confirmDiscard(::toLibrary)
         }
+    }
+
+    /** Closes the editor; opened from another app, the library shows instead. */
+    private fun toLibrary() {
+        if (isTaskRoot) {
+            startActivity(Intent(this, LibraryActivity::class.java))
+        }
+        finish()
     }
 
     override fun onDestroy() {
@@ -374,7 +400,6 @@ class MainActivity : Activity() {
         documentSettings = info.settings
         guard.changesDiscarded = false
         layout.hideMessage()
-        toolSidebar.visibility = View.VISIBLE
         controls.adaptToBackground(info.backgroundColor)
         canvasView.showDocument(info.bounds, info.settings)
         controls.applyToDocument()
@@ -428,10 +453,8 @@ class MainActivity : Activity() {
 
     private fun updateEditState(state: EditState) {
         editState = state
-        title = saver.documentName
-        actionBar?.subtitle = if (state.modified) getString(R.string.unsaved) else null
         refreshSelectionBar()
-        invalidateOptionsMenu()
+        refreshBar()
         guard.modified = state.modified
     }
 
@@ -453,9 +476,6 @@ class MainActivity : Activity() {
         const val EXTRA_NEW = "io.github.yx14ng.rnote.viewer.NEW"
 
         private const val TAG = "RnoteViewer"
-
-        /** The sidebar's width and margin, plus a gap: tool options open beside it. */
-        private const val TOOL_OPTIONS_MARGIN_DP = 94f
 
         private const val REQUEST_OPEN = 1
         private const val REQUEST_SAVE_AS = 2

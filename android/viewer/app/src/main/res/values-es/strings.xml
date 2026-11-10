@@ -178,4 +178,9 @@
     <string name="library_select">Seleccionar</string>
     <string name="library_import">Importar</string>
     <string name="library_import_unsupported">Solo se pueden importar cuadernos .rnote y de Xournal++ (.xopp).</string>
+    <string name="back_to_library">Volver a la biblioteca</string>
+    <string name="toolbar_fold">Ocultar las herramientas</string>
+    <string name="toolbar_unfold">Mostrar las herramientas</string>
+    <string name="action_zoom_fit">Ajustar al ancho de la página</string>
+    <string name="zoom_percent">%d %%</string>
 </resources>

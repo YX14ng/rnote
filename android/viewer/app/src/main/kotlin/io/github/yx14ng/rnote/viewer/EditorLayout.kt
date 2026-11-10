@@ -8,29 +8,34 @@ import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.WindowInsets
 import android.widget.FrameLayout
+import android.widget.LinearLayout
 import android.widget.TextView
 
 /**
- * The editor screen: the canvas, a centered message over it (hints, loading, errors) and the
- * tool sidebar floating at the right edge, kept clear of the system bars and the keyboard.
+ * The editor screen: the top bar, and below it the canvas with a centered message over it
+ * (hints, loading, errors), kept clear of the system bars and the keyboard. Overlays (panels,
+ * the pen wheel) cover everything.
  */
-internal class EditorLayout(activity: Activity, canvas: NoteCanvasView, sidebar: ToolSidebar) {
+internal class EditorLayout(activity: Activity, canvas: NoteCanvasView, topBar: EditorTopBar) {
     private val messageView = TextView(activity).apply {
         gravity = Gravity.CENTER
         textSize = MESSAGE_TEXT_SIZE_SP
         setText(R.string.empty_hint)
     }
 
-    val root: FrameLayout = FrameLayout(activity).apply {
+    /** The canvas and what floats over it, in the canvas's coordinates. */
+    private val content = FrameLayout(activity).apply {
         addView(canvas, FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT))
         addView(messageView, FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT))
-        // Floating beside the canvas, like the desktop app's toolbars.
-        val margin = (SIDEBAR_MARGIN_DP * activity.resources.displayMetrics.density).toInt()
-        addView(
-            sidebar,
-            FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, Gravity.END or Gravity.CENTER_VERTICAL)
-                .apply { marginEnd = margin },
-        )
+    }
+
+    val root: FrameLayout = FrameLayout(activity).apply {
+        setBackgroundColor(Graphite.BAR)
+        addView(LinearLayout(activity).apply {
+            orientation = LinearLayout.VERTICAL
+            addView(topBar, LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT))
+            addView(content, LinearLayout.LayoutParams(MATCH_PARENT, 0, 1f))
+        }, FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT))
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             // Edge-to-edge is enforced from Android 15 on: keep content out of the bars, and
             // above the keyboard so the text being typed stays visible.
@@ -54,10 +59,10 @@ internal class EditorLayout(activity: Activity, canvas: NoteCanvasView, sidebar:
     /** The actions for the lasso's selection, floating over the canvas. */
     var selectionBar: View? = null
         set(value) {
-            field?.let(root::removeView)
+            field?.let(content::removeView)
             field = value
-            // Above the canvas, below the sidebar and any overlay.
-            value?.let { root.addView(it, 1, FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, Gravity.TOP or Gravity.START)) }
+            // Above the canvas, below any overlay.
+            value?.let { content.addView(it, 1, FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, Gravity.TOP or Gravity.START)) }
         }
 
     private var overlay: View? = null
@@ -80,6 +85,5 @@ internal class EditorLayout(activity: Activity, canvas: NoteCanvasView, sidebar:
 
     private companion object {
         const val MESSAGE_TEXT_SIZE_SP = 18f
-        const val SIDEBAR_MARGIN_DP = 18f
     }
 }

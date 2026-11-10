@@ -15,8 +15,7 @@
         <!-- The start screen: the notebooks of the library. -->
         <activity
             android:name=".LibraryActivity"
-            android:exported="true"
-            android:theme="@style/Theme.Rnote.NoActionBar">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

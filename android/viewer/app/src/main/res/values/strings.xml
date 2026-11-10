@@ -177,4 +177,9 @@
     <string name="library_select">Select</string>
     <string name="library_import">Import</string>
     <string name="library_import_unsupported">Only .rnote and Xournal++ (.xopp) notebooks can be imported.</string>
+    <string name="back_to_library">Back to the library</string>
+    <string name="toolbar_fold">Hide the tools</string>
+    <string name="toolbar_unfold">Show the tools</string>
+    <string name="action_zoom_fit">Fit the page width</string>
+    <string name="zoom_percent">%d %%</string>
 </resources>

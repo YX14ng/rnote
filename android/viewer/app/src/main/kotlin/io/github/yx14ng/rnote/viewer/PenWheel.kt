@@ -181,7 +181,7 @@ internal class PenWheel(
             text.color = if (active) Graphite.TEXT else Graphite.TEXT_SECONDARY
             val x = centerX + labelRadius * cos(radians).toFloat()
             val y = centerY + labelRadius * sin(radians).toFloat() - (text.ascent() + text.descent()) / 2
-            canvas.drawText(ToolSidebar.formatWidth(preset), x, y, text)
+            canvas.drawText(ToolRow.formatWidth(preset), x, y, text)
         }
 
         val radians = radiansAt(fraction)
@@ -220,7 +220,7 @@ internal class PenWheel(
         text.textSize = sp(13f)
         text.isFakeBoldText = true
         text.color = Graphite.TEXT
-        canvas.drawText(ToolSidebar.formatWidth(brushWidth), centerX, centerY + dp(26f), text)
+        canvas.drawText(ToolRow.formatWidth(brushWidth), centerX, centerY + dp(26f), text)
     }
 
     private fun drawCloseButton(canvas: Canvas) {
