@@ -135,4 +135,16 @@
     <string name="section_input">Input</string>
     <string name="page_and_background">Page and background…</string>
     <string name="stroke_preview">Stroke preview</string>
+    <!-- Library -->
+    <string name="untitled">Untitled</string>
+    <string name="library_all">All notes</string>
+    <string name="library_new">New</string>
+    <string name="library_notebook_menu">Notebook options</string>
+    <string name="library_xopp_import">Xournal++ · import</string>
+    <string name="library_importing">Importing…</string>
+    <string name="library_view_grid">Show as grid</string>
+    <string name="library_view_list">Show as list</string>
+    <string name="library_sort">Sort</string>
+    <string name="library_sorted_by_name">Sorted by name</string>
+    <string name="library_sorted_by_date">Sorted by date</string>
 </resources>

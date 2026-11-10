@@ -134,4 +134,16 @@
     <string name="section_input">Entrada</string>
     <string name="page_and_background">Página y fondo…</string>
     <string name="stroke_preview">Vista previa del trazo</string>
+    <!-- Biblioteca -->
+    <string name="untitled">Sin título</string>
+    <string name="library_all">Todas las notas</string>
+    <string name="library_new">Nuevo</string>
+    <string name="library_notebook_menu">Opciones del cuaderno</string>
+    <string name="library_xopp_import">Xournal++ · importar</string>
+    <string name="library_importing">Importando…</string>
+    <string name="library_view_grid">Ver como grilla</string>
+    <string name="library_view_list">Ver como lista</string>
+    <string name="library_sort">Ordenar</string>
+    <string name="library_sorted_by_name">Ordenado por nombre</string>
+    <string name="library_sorted_by_date">Ordenado por fecha</string>
 </resources>

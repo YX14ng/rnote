@@ -7,4 +7,9 @@
         <item name="android:colorAccent">@color/graphite_accent</item>
         <item name="android:windowBackground">@color/graphite_desk</item>
     </style>
+
+    <style name="Theme.Rnote.NoActionBar">
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
 </resources>

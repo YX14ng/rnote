@@ -12,7 +12,12 @@ import android.window.OnBackInvokedDispatcher
  *
  * [onDiscard] runs once the user agreed to drop them, before the action that drops them.
  */
-internal class UnsavedChangesGuard(private val activity: Activity, private val onDiscard: () -> Unit) {
+internal class UnsavedChangesGuard(
+    private val activity: Activity,
+    private val onDiscard: () -> Unit,
+    /** What back does while there are unsaved changes: by default, ask before dropping them. */
+    private val onBack: (() -> Unit)? = null,
+) {
     /** Whether the open document has unsaved changes. */
     var modified = false
         set(value) {
@@ -56,7 +61,7 @@ internal class UnsavedChangesGuard(private val activity: Activity, private val o
         }
         val registered = backCallback
         if (modified && registered == null) {
-            val callback = OnBackInvokedCallback { confirmDiscard(activity::finish) }
+            val callback = OnBackInvokedCallback { onBack?.invoke() ?: confirmDiscard(activity::finish) }
             activity.onBackInvokedDispatcher.registerOnBackInvokedCallback(
                 OnBackInvokedDispatcher.PRIORITY_DEFAULT,
                 callback,

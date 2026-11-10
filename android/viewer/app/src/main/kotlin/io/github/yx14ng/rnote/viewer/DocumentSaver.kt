@@ -22,13 +22,13 @@ internal class DocumentSaver(
     /** The name shown in the title and stored in the file. */
     var documentName = ""
 
-    /** Saves to the current file, or asks where to save it. */
-    fun save() {
+    /** Saves to the current file, or asks where to save it; [onDone] runs once saved. */
+    fun save(onDone: (() -> Unit)? = null) {
         val uri = currentUri
         if (uri == null) {
             requestSaveAs()
         } else {
-            writeTo(uri)
+            writeTo(uri, onDone = onDone)
         }
     }
 
@@ -53,7 +53,7 @@ internal class DocumentSaver(
      * Saves to [uri]. When [quiet], failures fall back to a recovery copy instead of asking
      * the user, since this runs while the app goes to the background.
      */
-    private fun writeTo(uri: Uri, quiet: Boolean = false) {
+    private fun writeTo(uri: Uri, quiet: Boolean = false, onDone: (() -> Unit)? = null) {
         renderer.save(documentName, { bytes -> DocumentFiles.write(context.contentResolver, uri, bytes) }) { result ->
             result
                 .onSuccess { state ->
@@ -62,6 +62,7 @@ internal class DocumentSaver(
                     if (!quiet) {
                         Toast.makeText(context, R.string.saved, Toast.LENGTH_SHORT).show()
                     }
+                    onDone?.invoke()
                 }
                 .onFailure { error ->
                     Log.e(TAG, "Saving to $uri failed", error)

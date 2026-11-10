@@ -29,13 +29,16 @@ class MainActivity : Activity() {
     private var shownZoomPercent = 0
 
     private var documentOpen = false
+
+    /** The open notebook's path in the library, if it is one of its notebooks. */
+    private var libraryPath: String? = null
     private var editState = EditState.CLEAN
     private var documentSettings: DocumentSettings? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         recovery = Recovery(this)
-        guard = UnsavedChangesGuard(this, onDiscard = recovery::clear)
+        guard = UnsavedChangesGuard(this, onDiscard = recovery::clear, onBack = ::leave)
         saver = DocumentSaver(this, renderer, recovery, onSaved = ::updateEditState, requestSaveAs = ::saveAs)
         canvasView = NoteCanvasView(this).apply {
             renderer = this@MainActivity.renderer
@@ -217,10 +220,22 @@ class MainActivity : Activity() {
     @Deprecated("Only used before Android 13; later versions use OnBackInvokedCallback.")
     override fun onBackPressed() {
         if (editState.modified) {
-            guard.confirmDiscard { finish() }
+            leave()
         } else {
             @Suppress("DEPRECATION")
             super.onBackPressed()
+        }
+    }
+
+    /**
+     * Back to the library. A library notebook is saved first, and the editor only closes once
+     * that worked; a file opened from elsewhere asks before dropping unsaved changes.
+     */
+    private fun leave() {
+        when {
+            !editState.modified -> finish()
+            libraryPath != null -> saver.save(onDone = ::finish)
+            else -> guard.confirmDiscard { finish() }
         }
     }
 
@@ -229,8 +244,15 @@ class MainActivity : Activity() {
         super.onDestroy()
     }
 
-    /** Opens the document an ACTION_VIEW intent points to. Returns whether there was one. */
+    /**
+     * Opens the library notebook or the document an ACTION_VIEW intent points to. Returns
+     * whether there was one.
+     */
     private fun handleIntent(intent: Intent): Boolean {
+        intent.getStringExtra(EXTRA_LIBRARY_PATH)?.let { path ->
+            guard.confirmDiscard { openLibraryNotebook(path, isNew = intent.getBooleanExtra(EXTRA_NEW, false)) }
+            return true
+        }
         val uri = intent.data
         if (intent.action != Intent.ACTION_VIEW || uri == null) {
             return false
@@ -239,11 +261,42 @@ class MainActivity : Activity() {
         return true
     }
 
+    /** Opens the library notebook at [path], or creates it there when [isNew]. */
+    private fun openLibraryNotebook(path: String, isNew: Boolean) {
+        val file = LibraryStore.forApp(this).file(path)
+        val uri = Uri.fromFile(file)
+        startLoading()
+        val onOpened = { result: Result<DocumentInfo> ->
+            result
+                .onSuccess { info ->
+                    libraryPath = path
+                    saver.currentUri = uri
+                    saver.documentName = file.name
+                    recovery.clear()
+                    showOpenedDocument(info)
+                    // A new notebook exists in the library from the start.
+                    if (isNew) saver.autosave()
+                }
+                .onFailure { error ->
+                    guard.keepChanges()
+                    endLoading()
+                    showError(error)
+                }
+            Unit
+        }
+        if (isNew) {
+            renderer.createEmpty(brush = null, onOpened)
+        } else {
+            renderer.open({ file.readBytes() }, brush = null, onOpened)
+        }
+    }
+
     private fun openDocument(uri: Uri) {
         startLoading()
         renderer.open({ DocumentFiles.read(contentResolver, uri) }, brush = null) { result ->
             result
                 .onSuccess { info ->
+                    libraryPath = null
                     saver.currentUri = uri
                     saver.documentName = DocumentFiles.displayName(contentResolver, uri)
                         ?: uri.lastPathSegment
@@ -265,6 +318,7 @@ class MainActivity : Activity() {
         renderer.createEmpty(brush = null) { result ->
             result
                 .onSuccess { info ->
+                    libraryPath = null
                     saver.currentUri = null
                     saver.documentName = getString(R.string.untitled_file_name)
                     recovery.clear()
@@ -391,13 +445,19 @@ class MainActivity : Activity() {
         }
     }
 
-    private companion object {
-        const val TAG = "RnoteViewer"
+    companion object {
+        /** The path, in the app's library, of the notebook to open. */
+        const val EXTRA_LIBRARY_PATH = "io.github.yx14ng.rnote.viewer.LIBRARY_PATH"
+
+        /** With [EXTRA_LIBRARY_PATH]: create the notebook there instead of opening it. */
+        const val EXTRA_NEW = "io.github.yx14ng.rnote.viewer.NEW"
+
+        private const val TAG = "RnoteViewer"
 
         /** The sidebar's width and margin, plus a gap: tool options open beside it. */
-        const val TOOL_OPTIONS_MARGIN_DP = 94f
+        private const val TOOL_OPTIONS_MARGIN_DP = 94f
 
-        const val REQUEST_OPEN = 1
-        const val REQUEST_SAVE_AS = 2
+        private const val REQUEST_OPEN = 1
+        private const val REQUEST_SAVE_AS = 2
     }
 }
