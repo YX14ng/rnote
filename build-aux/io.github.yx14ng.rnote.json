@@ -1,0 +1,58 @@
+{
+  "id": "io.github.yx14ng.rnote",
+  "runtime": "org.gnome.Platform",
+  "runtime-version": "50",
+  "sdk": "org.gnome.Sdk",
+  "sdk-extensions": [
+    "org.freedesktop.Sdk.Extension.rust-stable"
+  ],
+  "command": "rnote",
+  "finish-args": [
+    "--socket=wayland",
+    "--socket=fallback-x11",
+    "--device=dri",
+    "--share=ipc",
+    "--share=network",
+    "--socket=pulseaudio",
+    "--filesystem=xdg-documents",
+    "--filesystem=xdg-pictures",
+    "--filesystem=xdg-desktop",
+    "--talk-name=org.gtk.vfs.*",
+    "--filesystem=xdg-run/gvfsd",
+    "--env=RUST_LOG=rnote=warn,rnote-cli=warn,rnote-engine=warn,rnote-compose=warn",
+    "--env=GTK_PATH=/app/lib/gtk-4.0"
+  ],
+  "build-options": {
+    "append-path": "/usr/lib/sdk/rust-stable/bin",
+    "build-args": [
+      "--share=network"
+    ]
+  },
+  "modules": [
+    {
+      "name": "rnote",
+      "buildsystem": "meson",
+      "run-tests": false,
+      "config-opts": [
+        "-Dprofile=default",
+        "-Dcli=false",
+        "-Dapp-id=io.github.yx14ng.rnote",
+        "-Dapp-name=Rnote (YX14ng)"
+      ],
+      "sources": [
+        {
+          "type": "dir",
+          "path": "../",
+          "skip": [
+            "target",
+            "_mesonbuild",
+            "_flatpak_build",
+            ".flatpak-builder",
+            ".superpowers",
+            "android"
+          ]
+        }
+      ]
+    }
+  ]
+}

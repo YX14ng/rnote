@@ -2,6 +2,7 @@
 /target
 /_flatpak_repo
 /_flatpak_app
+/_flatpak_build
 /_mesonbuild
 /.flatpak-builder
 /.editorconfig
