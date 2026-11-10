@@ -19,6 +19,8 @@ data class EditorSettings(
     val shapeStyle: ShapeStyle = ShapeStyle(),
     /** The colors in the tool sidebar, which the user can change. */
     val palette: List<Int> = BrushPalette.DEFAULT_SIDEBAR_COLORS,
+    /** Colors kept in the color menu, to reuse in any palette slot. */
+    val savedColors: List<Int> = DEFAULT_SAVED_COLORS,
 ) {
     fun save(context: Context) {
         context.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE).edit()
@@ -31,6 +33,7 @@ data class EditorSettings(
             .putString(KEY_ERASER_STYLE, eraserStyle.name)
             .putBoolean(KEY_FINGER_DRAWING, fingerDrawing)
             .putString(KEY_PALETTE, palette.joinToString(","))
+            .putString(KEY_SAVED_COLORS, savedColors.joinToString(","))
             .putBoolean(KEY_SHAPE_RECOGNITION, shapeRecognition)
             .putString(KEY_FONT_FAMILY, textFormat.fontFamily.name)
             .putFloat(KEY_FONT_SIZE, textFormat.fontSize.toFloat())
@@ -46,6 +49,12 @@ data class EditorSettings(
     companion object {
         private const val PREFERENCES = "editor_settings"
         private const val KEY_TOOL = "tool"
+        private const val KEY_SAVED_COLORS = "saved_colors"
+
+        /** Kept colors to start with: dark gray, red, blue, green, amber, white, yellow, light gray. */
+        val DEFAULT_SAVED_COLORS = listOf(
+            0xFF2E2F33, 0xFFB3262E, 0xFF2F4FB3, 0xFF00704A, 0xFFE0A100, 0xFFFFFFFF, 0xFFFFE01A, 0xFFF2F2F2,
+        ).map { it.toInt() }
         private const val KEY_COLOR = "color"
         private const val KEY_WIDTH = "width"
         private const val KEY_COLOR_CHOSEN = "color_chosen"
@@ -98,8 +107,13 @@ data class EditorSettings(
                     fill = if (preferences.getBoolean(KEY_FILLED, false)) preferences.getInt(KEY_FILL, 0) else null,
                 ),
                 palette = parsePalette(preferences.getString(KEY_PALETTE, null)) ?: defaults.palette,
+                savedColors = preferences.getString(KEY_SAVED_COLORS, null)?.let(::parseColors) ?: defaults.savedColors,
             )
         }
+
+        /** Colors saved as comma-separated ints; empty when none were kept. */
+        private fun parseColors(saved: String): List<Int>? =
+            if (saved.isEmpty()) emptyList() else saved.split(",").map { it.toIntOrNull() ?: return null }
 
         /** Colors saved as comma-separated ints, if there are as many as the palette holds. */
         private fun parsePalette(saved: String?): List<Int>? {

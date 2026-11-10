@@ -52,7 +52,8 @@ class MainActivity : Activity() {
         controls = EditorControls(this, canvasView, toolRow, renderer, onChanged = ::refreshBar)
         toolRow.onToolSelected = controls::selectTool
         toolRow.onColorSelected = controls::selectPaletteColor
-        toolRow.onColorEdit = controls::editPaletteColor
+        toolRow.onColorEdit = { slot -> showColorPanel(slot, toolRow.swatch(slot)) }
+        toolRow.onColorOptions = ::showColorPanel
         toolRow.onToolOptions = { tool -> toggleToolOptions(tool, toolRow.buttonFor(tool)) }
         toolRow.onWidthTapped = { toggleToolOptions(Tool.BRUSH, toolRow.widthAnchor) }
         topBar = EditorTopBar(this, toolRow, onAction = ::perform, onBack = ::leave, onTitle = ::renameNotebook)
@@ -140,6 +141,20 @@ class MainActivity : Activity() {
         }
         val panel = ToolOptionsPanel.build(this, tool, controls.settings, ::perform)
         layout.showOverlay(PanelOverlay(this, panel, ToolOptionsPanel.PANEL_WIDTH_DP, anchor, layout::hideOverlay))
+    }
+
+    /** Opens the color menu of the palette color in [slot] below [anchor]; changes apply at once. */
+    private fun showColorPanel(slot: Int, anchor: View) {
+        val settings = controls.settings
+        val start = settings.palette.getOrNull(slot) ?: return
+        val panel = ColorPanel(
+            this,
+            start,
+            settings.savedColors,
+            onChange = { color -> controls.setPaletteColor(slot, color) },
+            onSavedChange = controls::keepColors,
+        )
+        layout.showOverlay(PanelOverlay(this, panel.view, ColorPanel.PANEL_WIDTH_DP, anchor, layout::hideOverlay))
     }
 
     /** Renames the open library notebook, from its name in the top bar. */

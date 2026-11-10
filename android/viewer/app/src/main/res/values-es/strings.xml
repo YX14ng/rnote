@@ -119,7 +119,6 @@
     <string name="label_pattern_spacing">Espaciado del patrón</string>
     <string name="invalid_value">Valor inválido: no se cambió nada</string>
     <string name="palette_color">Color %1$d (mantené presionado para cambiarlo)</string>
-    <string name="title_palette_color">Color de la paleta</string>
     <string name="pen_wheel">Rueda del lápiz: color y grosor</string>
     <string name="unsaved">Sin guardar</string>
     <string name="more_options">Más opciones</string>
@@ -184,4 +183,6 @@
     <string name="action_zoom_fit">Ajustar al ancho de la página</string>
     <string name="zoom_percent">%d %%</string>
     <string name="library_bad_path">"%1$s" no es un cuaderno de la biblioteca, o ya existe.</string>
+    <string name="color_hex">Hex</string>
+    <string name="color_keep">Guardar este color</string>
 </resources>

@@ -120,7 +120,6 @@
     <string name="label_pattern_spacing">Pattern spacing</string>
     <string name="invalid_value">Invalid value: nothing was changed</string>
     <string name="palette_color">Color %1$d (long-press to change it)</string>
-    <string name="title_palette_color">Palette color</string>
     <string name="pen_wheel">Pen wheel: color and width</string>
     <string name="unsaved">Unsaved</string>
     <string name="more_options">More options</string>
@@ -183,4 +182,6 @@
     <string name="action_zoom_fit">Fit the page width</string>
     <string name="zoom_percent">%d %%</string>
     <string name="library_bad_path">"%1$s" is not a notebook of the library, or it already exists.</string>
+    <string name="color_hex">Hex</string>
+    <string name="color_keep">Keep this color</string>
 </resources>

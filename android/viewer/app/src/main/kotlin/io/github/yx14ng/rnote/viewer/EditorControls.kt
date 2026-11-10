@@ -55,15 +55,17 @@ internal class EditorControls(
         }
     }
 
-    /** Lets the user change the palette color in [slot], which then becomes the pen's. */
-    fun editPaletteColor(slot: Int) {
-        val current = settings.palette.getOrNull(slot) ?: return
-        ColorPicker.show(context, R.string.title_palette_color, current) { color ->
-            val palette = settings.palette.toMutableList().also { it[slot] = color }
-            change(settings.copy(palette = palette))
-            selectPaletteColor(slot)
-        }
+    /** Sets the palette color in [slot] to [color], which becomes the pen's at once. */
+    fun setPaletteColor(slot: Int, color: Int) {
+        if (slot !in settings.palette.indices) return
+        val palette = settings.palette.toMutableList().also { it[slot] = color }
+        change(settings.copy(palette = palette))
+        selectPaletteColor(slot)
     }
+
+    /** Remembers the colors kept in the color menu. */
+    fun keepColors(colors: List<Int>) = change(settings.copy(savedColors = colors))
+
 
     /** Applies a color and width picked on the pen wheel. */
     fun pickFromWheel(color: Int?, width: Double?) {

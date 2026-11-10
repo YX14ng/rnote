@@ -3,6 +3,7 @@ package io.github.yx14ng.rnote.viewer
 import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.LayerDrawable
 import android.view.Gravity
@@ -28,6 +29,9 @@ internal class ToolRow(private val context: Context) {
     var onToolOptions: ((Tool) -> Unit)? = null
     var onColorSelected: ((Int) -> Unit)? = null
     var onColorEdit: ((Int) -> Unit)? = null
+
+    /** The active color was tapped again: its color menu opens below [anchor]. */
+    var onColorOptions: ((slot: Int, anchor: View) -> Unit)? = null
     var onWidthTapped: (() -> Unit)? = null
 
     private val buttons = TOOLS.associate { (tool, icon, label) -> tool to toolButton(tool, icon, label) }
@@ -36,7 +40,9 @@ internal class ToolRow(private val context: Context) {
         View(context).apply {
             contentDescription = context.getString(R.string.palette_color, slot + 1)
             tooltipText = contentDescription
-            setOnClickListener { onColorSelected?.invoke(slot) }
+            setOnClickListener { view ->
+                if (view.isSelected) onColorOptions?.invoke(slot, view) else onColorSelected?.invoke(slot)
+            }
             setOnLongClickListener {
                 onColorEdit?.invoke(slot)
                 true
@@ -69,6 +75,9 @@ internal class ToolRow(private val context: Context) {
 
     /** The button of [tool], where its options panel opens. */
     fun buttonFor(tool: Tool): View = buttons.getValue(tool)
+
+    /** The palette color in [slot], where its color menu opens. */
+    fun swatch(slot: Int): View = swatches[slot]
 
     /** The width button, where the pen's options open from. */
     val widthAnchor: View
@@ -117,7 +126,10 @@ internal class ToolRow(private val context: Context) {
         widthLabel.text = formatWidth(width)
     }
 
-    /** A dot in [color]; the current one gets a white ring, separated by the rail color. */
+    /**
+     * A dot in [color]; the current one gets a white ring, separated by the rail color, and a
+     * small arrow: tapping it again opens its color menu.
+     */
     private fun swatchDrawable(color: Int, selected: Boolean): LayerDrawable {
         fun oval(fill: Int) = GradientDrawable().apply {
             shape = GradientDrawable.OVAL
@@ -125,10 +137,20 @@ internal class ToolRow(private val context: Context) {
         }
         val ring = if (selected) Color.WHITE else Graphite.OUTLINE
         val gap = if (selected) dp(2f) else dp(1f)
-        return LayerDrawable(arrayOf(oval(ring), oval(Graphite.BAR), oval(color))).apply {
+        val layers = mutableListOf<Drawable>(oval(ring), oval(Graphite.BAR), oval(color))
+        if (selected) {
+            val arrow = context.getDrawable(R.drawable.ic_chevron_down)?.mutate()
+            arrow?.setTint(if (Color.luminance(color) > LIGHT_LUMINANCE) Color.BLACK else Color.WHITE)
+            arrow?.let(layers::add)
+        }
+        return LayerDrawable(layers.toTypedArray()).apply {
             setLayerInset(1, gap, gap, gap, gap)
             val inner = if (selected) dp(4f) else dp(1f)
             setLayerInset(2, inner, inner, inner, inner)
+            if (numberOfLayers > 3) {
+                val arrowInset = dp(10f)
+                setLayerInset(3, arrowInset, arrowInset, arrowInset, arrowInset)
+            }
         }
     }
 
@@ -165,6 +187,9 @@ internal class ToolRow(private val context: Context) {
         private const val TOOL_DP = 48f
         private const val TOOL_RADIUS_DP = 14f
         private const val SWATCH_CELL_DP = 40f
+
+        /** Colors lighter than this get a dark arrow. */
+        private const val LIGHT_LUMINANCE = 0.5f
         private const val WIDTH_BAR_DP = 22f
 
         /** A brush width for display: whole numbers as such, others with one decimal. */
