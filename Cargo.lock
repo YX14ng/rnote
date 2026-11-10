@@ -4117,6 +4117,10 @@ name = "rnote-library"
 version = "0.15.0"
 dependencies = [
  "anyhow",
+ "futures",
+ "image",
+ "rnote-compose",
+ "rnote-engine",
  "serde",
  "serde_json",
  "tempfile",

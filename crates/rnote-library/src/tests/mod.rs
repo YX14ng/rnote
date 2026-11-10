@@ -5,6 +5,7 @@
 mod meta;
 mod ops;
 mod scan;
+mod thumbnail;
 
 use std::fs;
 use std::path::Path;

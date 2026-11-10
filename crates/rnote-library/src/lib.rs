@@ -3,11 +3,13 @@
 //!
 //! The library is plain files, so other programs (and the sync) can work on it too.
 
+mod import;
 mod meta;
 pub mod names;
 mod ops;
 mod scan;
 mod tags;
+mod thumbnail;
 mod trash;
 
 #[cfg(test)]
@@ -22,6 +24,7 @@ use serde::Serialize;
 use crate::meta::Meta;
 
 pub use crate::tags::Tag;
+pub use crate::thumbnail::{render_thumbnail, thumbnail_key};
 pub use crate::trash::TrashEntry;
 
 /// The folder with the library's own data, inside the root.
