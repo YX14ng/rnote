@@ -72,6 +72,18 @@ into the app's `jniLibs`.
 
 What it does:
 
+- The app opens on a library of notebooks kept in its private storage
+  (`filesDir/library`), like other note-taking apps: on the left all notes, uncategorized,
+  folders and tags (each with a `+` to create one, long-press to rename or delete) and the
+  trash, with counts; on the right a grid or list of the section's notebooks with a
+  thumbnail of the first page with content, name and date, sorted by date or name. A
+  "New" card creates "Untitled" in the folder shown. Each notebook's menu renames, moves to
+  a folder, sets tags, duplicates or sends it to the trash; the trash restores (with a
+  suffix if the name was taken) or deletes for good, and empties. "Select" acts on several
+  notebooks at once. "Import" copies an `.rnote` or Xournal++ `.xopp` from the system
+  picker; `.xopp` files in the library show as cards that open as the `.rnote` made from
+  them. The library itself is `crates/rnote-library` (plain files, `library.json` for tags
+  and the trash), shared with the desktop app and the Google Drive sync to come.
 - Pages are outlined like in the desktop app, when the document has borders enabled.
 - Opening fits one page to the screen width, starting at the origin page, and the zoom stays
   within the engine's limits (0.2 to 6). The engine's camera has to match the screen: the
@@ -91,11 +103,15 @@ What it does:
   With "Draw with finger", one finger draws too and two fingers navigate.
 - The look ("Graphite") is dark neutral chrome, so the page stands out, with one blue
   accent; its design lives in a Claude Design canvas, and its colors in `Graphite.kt`.
-- Tools are picked from a column floating at the right edge, with the desktop app's icons
-  and order (converted to vector drawables from `crates/rnote-ui/data/icons`), five palette
-  colors (tap to use, long-press to change) and the current width. Tapping the active tool
-  opens its options beside it: pen style, preset widths and switches; shapes and their
-  style; text format and the selected text's emphasis; eraser mode; lasso actions.
+- The editor's top bar has two rows. The first: back to the library, the notebook's name
+  ("Unsaved" below it when needed; tap to rename a library notebook), "Finish shape" when
+  needed, the zoom relative to the page width (tap to fit again), the menu and an arrow
+  that folds the second row away. The second: undo and redo; the tools in the middle, with
+  the desktop app's icons and order (converted to vector drawables from
+  `crates/rnote-ui/data/icons`); five palette colors (tap to use, long-press to change) and
+  the current width at the end. Tapping the active tool opens its options right below it:
+  pen style, preset widths and switches; shapes and their style; text format and the
+  selected text's emphasis; eraser mode; lasso actions.
 - Tools: pen (marker, solid or textured brush style), shapes, text, lasso selection (move,
   resize and rotate through the engine's own handles) and eraser (whole strokes or only
   what it touches). What the lasso encloses gets a floating bar: copy, cut, duplicate,
@@ -137,20 +153,21 @@ What it does:
   (pasted back as strokes, also when a synced clipboard turned them into plain text), the
   selected text as plain text. Pasting also takes text and images from other apps. Pasted
   content lands in the middle of the view, selected.
-- The top bar shows the document name ("Unsaved" below it when needed), undo, redo, the zoom
-  relative to the page width (tap to fit again) and the menu, a panel in sections: cut,
-  copy and paste; file; document; input. Hardware keyboard shortcuts keep working through
-  hidden menu items: Ctrl+Z undo, Ctrl+Shift+Z or Ctrl+Y redo, Ctrl+X/C/V, Ctrl+A select
-  all, Ctrl+N/O/S new, open and save.
+- The menu is a panel in sections: cut, copy and paste; file; document; input. Hardware
+  keyboard shortcuts (`KeyShortcuts.kt`): Ctrl+Z undo, Ctrl+Shift+Z or Ctrl+Y redo,
+  Ctrl+X/C/V, Ctrl+A select all, Ctrl+N new notebook beside the open one, Ctrl+O open,
+  Ctrl+S save.
 - Text: tapping with the text tool places a text box and shows the keyboard; the canvas
   shrinks above the keyboard and keeps the typing spot visible. Soft keyboards
   go through `TextInputConnection` (composing text is typed live and replaced as it
   changes); hardware keys, including arrows, Home/End and Enter, through `KeyMapping`.
 - Until a color is picked, the pen is black or white depending on the background. The
   choices are remembered across documents and restarts.
-- New, Open, Save (overwrites the opened file) and Save as, through the system file picker,
-  which starts in the folder of the open file or else in the shared Documents folder.
-  Leaving or replacing a document with unsaved changes asks first.
+- Back (the arrow or the system gesture) saves a library notebook before returning to the
+  library, and stays in the editor if saving fails. Open, Save (overwrites the opened file)
+  and Save as go through the system file picker, which starts in the folder of the open
+  file or else in the shared Documents folder; leaving or replacing a file opened that way
+  with unsaved changes asks first.
 - Autosave: when the app goes to the background with unsaved changes, it saves to the open
   file, or keeps a recovery copy (in the app's private storage) for documents without one
   or that are read-only. The copy is restored on the next start.
