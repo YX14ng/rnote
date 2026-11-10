@@ -262,3 +262,43 @@ fn delete_folder_with_subfolders_moves_nothing() {
     assert!(dir.path().join("F/a.rnote").exists());
     assert!(library.trash_entries().is_empty());
 }
+
+#[test]
+fn imported_rnote_of_finds_the_rnote_beside_the_xopp() {
+    let dir = tempfile::tempdir().unwrap();
+    write(dir.path(), "F/x.xopp", b"x");
+    write(dir.path(), "F/x.rnote", b"r");
+    write(dir.path(), "x.rnote", b"other folder");
+    let library = library_at(dir.path());
+
+    assert_eq!(library.imported_rnote_of("F/x.xopp").as_deref(), Some("F/x.rnote"));
+}
+
+#[test]
+fn imported_rnote_of_is_none_before_importing() {
+    let dir = tempfile::tempdir().unwrap();
+    write(dir.path(), "x.xopp", b"x");
+    write(dir.path(), "x (2).rnote", b"not the same name");
+    let library = library_at(dir.path());
+
+    assert_eq!(library.imported_rnote_of("x.xopp"), None);
+}
+
+#[test]
+fn imported_rnote_of_ignores_case() {
+    let dir = tempfile::tempdir().unwrap();
+    write(dir.path(), "Orga.xopp", b"x");
+    write(dir.path(), "orga.RNOTE", b"r");
+    let library = library_at(dir.path());
+
+    assert_eq!(library.imported_rnote_of("Orga.xopp").as_deref(), Some("orga.RNOTE"));
+}
+
+#[test]
+fn imported_rnote_of_rejects_paths_outside_the_library() {
+    let dir = tempfile::tempdir().unwrap();
+    write(dir.path(), "x.rnote", b"r");
+    let library = library_at(dir.path());
+
+    assert_eq!(library.imported_rnote_of("../x.xopp"), None);
+}

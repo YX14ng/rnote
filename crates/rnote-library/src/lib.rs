@@ -8,8 +8,10 @@ mod meta;
 pub mod names;
 mod ops;
 mod scan;
+mod section;
 mod tags;
 mod thumbnail;
+mod thumbnail_cache;
 mod trash;
 
 #[cfg(test)]
@@ -23,8 +25,10 @@ use serde::Serialize;
 
 use crate::meta::Meta;
 
+pub use crate::section::{Section, SectionCounts, SortOrder, counts, filter, sort};
 pub use crate::tags::Tag;
 pub use crate::thumbnail::{render_thumbnail, thumbnail_key};
+pub use crate::thumbnail_cache::ThumbnailCache;
 pub use crate::trash::TrashEntry;
 
 /// The folder with the library's own data, inside the root.

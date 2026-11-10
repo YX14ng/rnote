@@ -33,4 +33,22 @@ impl Library {
             .with_context(|| format!("Writing {new_path}"))?;
         Ok(new_path)
     }
+
+    /// The `.rnote` an import of the `.xopp` at `path` would have made, if it exists: the
+    /// one with the same name in the same folder, ignoring case.
+    #[must_use]
+    pub fn imported_rnote_of(&self, path: &str) -> Option<String> {
+        let file = self.notebook_file(path).ok()?;
+        let (folder, file_name) = split_path(path);
+        let (stem, _) = split_extension(file_name);
+        let wanted = format!("{stem}.rnote").to_lowercase();
+        let dir = file.parent()?;
+        fs::read_dir(dir)
+            .ok()?
+            .flatten()
+            .filter(|entry| entry.file_type().is_ok_and(|kind| kind.is_file()))
+            .map(|entry| entry.file_name().to_string_lossy().into_owned())
+            .find(|name| name.to_lowercase() == wanted)
+            .map(|name| relative_path(folder, &name))
+    }
 }
