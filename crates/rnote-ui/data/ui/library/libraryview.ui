@@ -4,6 +4,12 @@
   <menu id="library_menu">
     <section>
       <item>
+        <attribute name="label" translatable="yes">Sort by Name</attribute>
+        <attribute name="action">library.library-sort-by-name</attribute>
+      </item>
+    </section>
+    <section>
+      <item>
         <attribute name="label" translatable="yes">Library Folder…</attribute>
         <attribute name="action">library.choose-folder</attribute>
       </item>
@@ -28,6 +34,13 @@
               </object>
             </property>
             <child type="start">
+              <object class="GtkToggleButton">
+                <property name="icon-name">sidebar-show-symbolic</property>
+                <property name="tooltip-text" translatable="yes">Show/Hide Sidebar</property>
+                <property name="active" bind-source="split" bind-property="show-sidebar" bind-flags="sync-create|bidirectional" />
+              </object>
+            </child>
+            <child type="start">
               <object class="GtkButton">
                 <property name="icon-name">view-grid-symbolic</property>
                 <property name="action-name">win.show-editor</property>
@@ -41,6 +54,13 @@
                 <property name="tooltip-text" translatable="yes">Library Menu</property>
               </object>
             </child>
+            <child type="end">
+              <object class="GtkToggleButton">
+                <property name="icon-name">view-list-symbolic</property>
+                <property name="action-name">library.library-list-view</property>
+                <property name="tooltip-text" translatable="yes">List View</property>
+              </object>
+            </child>
           </object>
         </child>
         <property name="content">
@@ -50,9 +70,41 @@
               <object class="GtkStackPage">
                 <property name="name">content</property>
                 <property name="child">
-                  <object class="AdwStatusPage" id="empty_page">
-                    <property name="icon-name">folder-documents-symbolic</property>
-                    <property name="title" translatable="yes">No Notebooks</property>
+                  <object class="AdwOverlaySplitView" id="split">
+                    <property name="min-sidebar-width">200</property>
+                    <property name="max-sidebar-width">280</property>
+                    <property name="sidebar">
+                      <object class="GtkScrolledWindow">
+                        <property name="hscrollbar-policy">never</property>
+                        <property name="child">
+                          <object class="GtkListBox" id="sidebar_list">
+                            <property name="selection-mode">single</property>
+                            <style>
+                              <class name="navigation-sidebar" />
+                            </style>
+                          </object>
+                        </property>
+                      </object>
+                    </property>
+                    <property name="content">
+                      <object class="GtkScrolledWindow">
+                        <property name="hscrollbar-policy">never</property>
+                        <property name="child">
+                          <object class="GtkFlowBox" id="flowbox">
+                            <property name="valign">start</property>
+                            <property name="selection-mode">none</property>
+                            <property name="homogeneous">true</property>
+                            <property name="column-spacing">18</property>
+                            <property name="row-spacing">18</property>
+                            <property name="margin-start">18</property>
+                            <property name="margin-end">18</property>
+                            <property name="margin-top">18</property>
+                            <property name="margin-bottom">18</property>
+                            <property name="max-children-per-line">12</property>
+                          </object>
+                        </property>
+                      </object>
+                    </property>
                   </object>
                 </property>
               </object>
