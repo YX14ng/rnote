@@ -10,22 +10,11 @@
     <string name="action_redo">Redo</string>
     <string name="action_pen">Pen</string>
     <string name="action_eraser">Eraser</string>
-    <string name="action_color">Color</string>
-    <string name="action_width">Width</string>
     <string name="action_new">New</string>
     <string name="action_open">Open</string>
     <string name="action_save">Save</string>
     <string name="action_save_as">Save as…</string>
 
-    <string name="color_black">Black</string>
-    <string name="color_white">White</string>
-    <string name="color_red">Red</string>
-    <string name="color_blue">Blue</string>
-    <string name="color_green">Green</string>
-    <string name="color_yellow">Yellow</string>
-    <string name="width_fine">Fine</string>
-    <string name="width_medium">Medium</string>
-    <string name="width_thick">Thick</string>
 
     <string name="saved">Saved</string>
     <string name="save_failed">Could not save: %1$s</string>
@@ -34,10 +23,6 @@
     <string name="discard">Discard</string>
     <string name="action_shapes">Shapes</string>
     <string name="action_select">Lasso select</string>
-    <string name="action_brush_style">Brush style</string>
-    <string name="action_shape">Shape</string>
-    <string name="action_eraser_mode">Eraser mode</string>
-    <string name="action_selection">Selection</string>
     <string name="action_select_all">Select all</string>
     <string name="action_deselect_all">Deselect</string>
     <string name="action_duplicate_selection">Duplicate</string>
@@ -64,19 +49,14 @@
     <string name="shape_quadratic_curve">Curve (1 control point)</string>
     <string name="shape_cubic_curve">Curve (2 control points)</string>
     <string name="action_text_format">Text format…</string>
-    <string name="action_shape_style">Shape style…</string>
-    <string name="action_document">Document…</string>
     <string name="apply">Apply</string>
     <string name="title_text_format">Text format</string>
-    <string name="title_shape_style">Shape style</string>
     <string name="title_document">Document</string>
     <string name="label_font">Font</string>
     <string name="label_text_size">Size</string>
     <string name="label_bold">Bold</string>
     <string name="label_italic">Italic</string>
     <string name="label_alignment">Alignment</string>
-    <string name="label_shape_style">Style</string>
-    <string name="label_fill">Fill</string>
     <string name="label_page_size">Page size</string>
     <string name="label_orientation">Orientation</string>
     <string name="label_layout">Layout</string>
@@ -93,7 +73,6 @@
     <string name="align_fill">Justified</string>
     <string name="shape_style_smooth">Smooth</string>
     <string name="shape_style_rough">Hand-drawn</string>
-    <string name="fill_none">No fill</string>
     <string name="shape_coordinate_system_3d">3D coordinate system</string>
     <string name="shape_quadrant_coordinate_system">Quadrant coordinate system</string>
     <string name="shape_foci_ellipse">Ellipse by foci</string>
@@ -124,7 +103,6 @@
     <string name="emphasis_italic">Italic</string>
     <string name="emphasis_underline">Underline</string>
     <string name="emphasis_strikethrough">Strikethrough</string>
-    <string name="action_custom_color">Custom…</string>
     <string name="action_text_selection">Selected text</string>
     <string name="action_color_selected_text">Apply pen color</string>
     <string name="action_select_all_text">Select all text</string>
@@ -134,8 +112,6 @@
     <string name="clipboard_empty">Nothing to paste</string>
     <string name="nothing_selected">Nothing is selected</string>
     <string name="clipboard_label">Rnote content</string>
-    <string name="title_custom_color">Pen color</string>
-    <string name="label_color_hex">Color in hex, e.g. #1C71D8</string>
     <string name="label_page_width">Width (mm)</string>
     <string name="label_page_height">Height (mm)</string>
     <string name="background_custom">Custom</string>
@@ -143,8 +119,20 @@
     <string name="label_pattern_color">Pattern color (hex)</string>
     <string name="label_pattern_spacing">Pattern spacing</string>
     <string name="invalid_value">Invalid value: nothing was changed</string>
-    <string name="action_shape_recognition">Recognize shapes (hold the pen still)</string>
     <string name="palette_color">Color %1$d (long-press to change it)</string>
     <string name="title_palette_color">Palette color</string>
     <string name="pen_wheel">Pen wheel: color and width</string>
+    <string name="unsaved">Unsaved</string>
+    <string name="more_options">More options</string>
+    <string name="brush_width">Width</string>
+    <string name="label_style">Style</string>
+    <string name="shape_recognition_short">Recognize shapes</string>
+    <string name="shape_recognition_hint">Hold the pen still for 1 s at the end</string>
+    <string name="fill_with_pen_color">Fill with the pen color</string>
+    <string name="recolor_selection">Color</string>
+    <string name="section_file">File</string>
+    <string name="section_document">Document</string>
+    <string name="section_input">Input</string>
+    <string name="page_and_background">Page and background…</string>
+    <string name="stroke_preview">Stroke preview</string>
 </resources>

@@ -56,6 +56,12 @@ internal object NativeBridge {
 
     @JvmStatic external fun setPageBorders(handle: Long, show: Boolean): Int
 
+    /** The selection's bounds as `[minX, minY, maxX, maxY]`, or empty if nothing is selected. */
+    @JvmStatic external fun selectionBounds(handle: Long): DoubleArray
+
+    /** Gives the selected strokes a color. Returns the packed editing state. */
+    @JvmStatic external fun recolorSelection(handle: Long, argb: Int): Int
+
     /**
      * Turns the replacement of brush strokes that look like shapes on or off; strokes smaller
      * than [minSizePx] screen pixels are kept. Returns the packed editing state.

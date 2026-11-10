@@ -277,6 +277,15 @@ internal class NativeDocument private constructor(private var handle: Long) : Au
     fun setShapeRecognition(enabled: Boolean, minSizePx: Double): EditState =
         EditState.fromFlags(NativeBridge.setShapeRecognition(checkOpen(), enabled, minSizePx))
 
+    /** Where the selected strokes are, if any. */
+    fun selectionBounds(): DocumentBounds? {
+        val raw = NativeBridge.selectionBounds(checkOpen())
+        return if (raw.size == 4) DocumentBounds(raw[0], raw[1], raw[2], raw[3]) else null
+    }
+
+    fun recolorSelection(color: Int): EditState =
+        EditState.fromFlags(NativeBridge.recolorSelection(checkOpen(), color))
+
     fun markModified(): EditState = EditState.fromFlags(NativeBridge.markModified(checkOpen()))
 
     fun undo(): EditState = EditState.fromFlags(NativeBridge.undo(checkOpen()))

@@ -223,3 +223,21 @@ fn lasso_elsewhere_selects_nothing() {
 
     assert!(!elsewhere.has_selection, "got {elsewhere:?}");
 }
+
+#[test]
+fn selection_bounds_follow_the_selected_strokes_and_recolor_them() {
+    let mut document = plain_document();
+    document.set_brush(RED, 6.0);
+    draw_line(&mut document, 200.0);
+    assert!(document.selection_bounds().is_none());
+
+    lasso(&mut document, &[(80.0, 150.0), (330.0, 140.0), (320.0, 260.0), (90.0, 250.0)]);
+    let bounds = document.selection_bounds().expect("the line should be selected");
+    let state = document.recolor_selection(Color { r: 0.0, g: 0.0, b: 1.0, a: 1.0 });
+    document.deselect_all();
+
+    assert!(bounds.mins.x <= 100.0 && bounds.maxs.x >= 300.0, "got {bounds:?}");
+    assert!(bounds.mins.y <= 200.0 && bounds.maxs.y >= 200.0, "got {bounds:?}");
+    assert!(state.modified && state.can_undo, "got {state:?}");
+    assert_pixel_near(render_pixel(&mut document, 200.0, 200.0), [0, 0, 255, 255]);
+}

@@ -6,6 +6,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.view.Gravity
 import android.view.HapticFeedbackConstants
 import android.view.KeyEvent
 import android.view.Menu
@@ -24,6 +25,8 @@ class MainActivity : Activity() {
     private lateinit var clipboard: ClipboardActions
     private lateinit var toolSidebar: ToolSidebar
     private lateinit var controls: EditorControls
+    private lateinit var selectionBar: SelectionBar
+    private var shownZoomPercent = 0
 
     private var documentOpen = false
     private var editState = EditState.CLEAN
@@ -40,17 +43,24 @@ class MainActivity : Activity() {
             onEditState = ::updateEditState
             onTwoFingerTap = ::undoByGesture
             onPenWheel = ::showPenWheel
+            onViewportMoved = ::onViewportMoved
+            // Moving the selection or drawing: the selection bar returns after the edit.
+            onCanvasTouched = { selectionBar.hide() }
         }
         toolSidebar = ToolSidebar(this).apply { visibility = View.GONE }
         controls = EditorControls(this, canvasView, toolSidebar, renderer, onChanged = ::invalidateOptionsMenu)
         toolSidebar.onToolSelected = controls::selectTool
         toolSidebar.onColorSelected = controls::selectPaletteColor
         toolSidebar.onColorEdit = controls::editPaletteColor
+        toolSidebar.onToolOptions = ::toggleToolOptions
+        toolSidebar.onWidthTapped = { toggleToolOptions(Tool.BRUSH) }
+        selectionBar = SelectionBar(this, palette = { controls.settings.palette }, onAction = ::perform)
         clipboard = ClipboardActions(this, canvasView, renderer, onToolChanged = { tool ->
             // The engine already switched to the tool that shows what was pasted.
             controls.change(controls.settings.copy(tool = tool))
         }, onError = ::showError)
         layout = EditorLayout(this, canvasView, toolSidebar)
+        layout.selectionBar = selectionBar
         setContentView(layout.root)
         if (!handleIntent(intent) && recovery.exists) {
             restoreRecovery()
@@ -77,7 +87,7 @@ class MainActivity : Activity() {
     }
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        EditorMenu.prepare(menu, MenuState(documentOpen, editState, controls.settings), this)
+        EditorMenu.prepare(menu, menuState())
         return true
     }
 
@@ -92,77 +102,89 @@ class MainActivity : Activity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val action = EditorMenu.actionFor(item) ?: return super.onOptionsItemSelected(item)
-        val settings = controls.settings
-        when (action) {
-            EditorMenu.Action.Undo -> canvasView.applyEdit(NativeDocument::undo)
-            EditorMenu.Action.Redo -> canvasView.applyEdit(NativeDocument::redo)
-            is EditorMenu.Action.SelectColor ->
-                controls.changeBrush(settings.brush.copy(color = action.color), colorChosen = true)
-            EditorMenu.Action.CustomColor -> FormatDialogs.showCustomColor(this, settings.brush.color) { color ->
-                controls.changeBrush(controls.settings.brush.copy(color = color), colorChosen = true)
-                invalidateOptionsMenu()
+        perform(action)
+        return true
+    }
+
+    /** Runs [action], from the top bar, a panel, the selection bar or a shortcut. */
+    private fun perform(action: EditorMenu.Action) {
+        // Panels close once something is picked; switches and text emphasis keep them open.
+        val keepsPanel = action is EditorMenu.Action.ToggleFingerDrawing ||
+            action is EditorMenu.Action.ToggleShapeRecognition || action is EditorMenu.Action.Emphasis
+        if (!keepsPanel) {
+            layout.hideOverlay()
+        }
+        if (!controls.perform(action)) {
+            when (action) {
+                EditorMenu.Action.More -> showMenu()
+                EditorMenu.Action.ZoomToFit -> canvasView.zoomToFit()
+                EditorMenu.Action.Copy -> clipboard.copy()
+                EditorMenu.Action.Cut -> clipboard.cut()
+                EditorMenu.Action.Paste -> clipboard.paste()
+                EditorMenu.Action.Document -> showDocumentDialog()
+                EditorMenu.Action.New -> guard.confirmDiscard(::newDocument)
+                EditorMenu.Action.Open ->
+                    guard.confirmDiscard { startActivityForResult(DocumentFiles.openIntent(saver.currentUri), REQUEST_OPEN) }
+                EditorMenu.Action.Save -> saver.save()
+                EditorMenu.Action.SaveAs -> saveAs()
+                else -> {}
             }
-            is EditorMenu.Action.SelectWidth ->
-                controls.changeBrush(settings.brush.copy(width = action.width), settings.colorChosen)
-            is EditorMenu.Action.SelectShape -> {
-                // Picking a shape means drawing it next.
-                controls.change(settings.copy(shape = action.shape, tool = Tool.SHAPER))
-                canvasView.applyEdit { it.setShape(action.shape); it.setTool(Tool.SHAPER) }
-            }
-            is EditorMenu.Action.SelectBrushStyle -> {
-                controls.change(settings.copy(brushStyle = action.style))
-                canvasView.applyEdit { it.setBrushStyle(action.style) }
-            }
-            is EditorMenu.Action.SelectEraserStyle -> {
-                controls.change(settings.copy(eraserStyle = action.style))
-                canvasView.applyEdit { it.setEraserStyle(action.style) }
-            }
-            is EditorMenu.Action.Selection -> {
-                if (action.action == SelectionAction.SELECT_ALL) {
-                    // The engine switches to the selector to show the selection.
-                    controls.change(settings.copy(tool = Tool.SELECTOR))
-                }
-                canvasView.applyEdit { it.selection(action.action) }
-            }
-            EditorMenu.Action.Copy -> clipboard.copy()
-            EditorMenu.Action.Cut -> clipboard.cut()
-            EditorMenu.Action.Paste -> clipboard.paste()
-            is EditorMenu.Action.Emphasis -> canvasView.applyEdit { it.toggleTextEmphasis(action.emphasis) }
-            EditorMenu.Action.ColorSelectedText -> canvasView.applyEdit { it.colorSelectedText(settings.brush.color) }
-            EditorMenu.Action.SelectAllText ->
-                canvasView.applyEdit { it.handleCharKey('a'.code, shift = false, ctrl = true) }
-            EditorMenu.Action.FinishShape -> canvasView.finishShape()
-            EditorMenu.Action.TextFormat -> FormatDialogs.showTextFormat(this, settings.textFormat) { format ->
-                controls.change(controls.settings.copy(textFormat = format))
-                canvasView.applyEdit { it.setTextFormat(format) }
-            }
-            EditorMenu.Action.ShapeStyle -> FormatDialogs.showShapeStyle(this, settings.shapeStyle) { style ->
-                controls.change(controls.settings.copy(shapeStyle = style))
-                canvasView.applyEdit { it.setShapeStyle(style) }
-            }
-            EditorMenu.Action.Document -> documentSettings?.let { current ->
-                FormatDialogs.showDocument(this, current) { change ->
-                    canvasView.applyEdit(change)
-                    // Runs after the edit, so the view already has the new bounds. Only a new
-                    // page width or layout moves the view; a new background keeps it.
-                    refreshDocumentSettings(onRefreshed = { updated ->
-                        if (updated.pageWidth != current.pageWidth || updated.layout != current.layout) {
-                            canvasView.refit(updated)
-                        }
-                    })
-                }
-            }
-            EditorMenu.Action.ToggleFingerDrawing ->
-                controls.change(settings.copy(fingerDrawing = !settings.fingerDrawing))
-            EditorMenu.Action.ToggleShapeRecognition -> controls.toggleShapeRecognition()
-            EditorMenu.Action.New -> guard.confirmDiscard(::newDocument)
-            EditorMenu.Action.Open ->
-                guard.confirmDiscard { startActivityForResult(DocumentFiles.openIntent(saver.currentUri), REQUEST_OPEN) }
-            EditorMenu.Action.Save -> saver.save()
-            EditorMenu.Action.SaveAs -> saveAs()
         }
         invalidateOptionsMenu()
-        return true
+    }
+
+    private fun menuState() = MenuState(documentOpen, editState, controls.settings, canvasView.zoomPercent)
+
+    private fun showMenu() {
+        val panel = MenuPanel.build(this, menuState(), ::perform)
+        layout.showOverlay(PanelOverlay(this, panel, Gravity.END or Gravity.TOP, 8f, 8f, onDismiss = layout::hideOverlay))
+    }
+
+    /** Opens the options of [tool] beside the sidebar, or closes them if open. */
+    private fun toggleToolOptions(tool: Tool) {
+        if (layout.overlayShown) {
+            layout.hideOverlay()
+            return
+        }
+        val panel = ToolOptionsPanel.build(this, tool, controls.settings, ::perform)
+        layout.showOverlay(
+            PanelOverlay(this, panel, Gravity.END or Gravity.CENTER_VERTICAL, TOOL_OPTIONS_MARGIN_DP, 0f, layout::hideOverlay),
+        )
+    }
+
+    private fun showDocumentDialog() {
+        val current = documentSettings ?: return
+        FormatDialogs.showDocument(this, current) { change ->
+            canvasView.applyEdit(change)
+            // Runs after the edit, so the view already has the new bounds. Only a new page
+            // width or layout moves the view; a new background keeps it.
+            refreshDocumentSettings(onRefreshed = { updated ->
+                if (updated.pageWidth != current.pageWidth || updated.layout != current.layout) {
+                    canvasView.refit(updated)
+                }
+            })
+        }
+    }
+
+    /** The view moved: the selection bar follows, and the zoom shown updates. */
+    private fun onViewportMoved() {
+        selectionBar.follow(canvasView.currentViewport)
+        val percent = canvasView.zoomPercent
+        if (percent != shownZoomPercent) {
+            shownZoomPercent = percent
+            invalidateOptionsMenu()
+        }
+    }
+
+    /** Shows the selection bar over what the lasso selected, if anything. */
+    private fun refreshSelectionBar() {
+        if (!documentOpen || !editState.hasSelection || controls.settings.tool != Tool.SELECTOR) {
+            selectionBar.hide()
+            return
+        }
+        renderer.query({ it.selectionBounds() }) { result ->
+            result.onSuccess { bounds -> selectionBar.show(bounds, canvasView.currentViewport) }
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -318,7 +340,7 @@ class MainActivity : Activity() {
         val wheel = PenWheel(
             this,
             colors = settings.palette,
-            widths = BrushPalette.WHEEL_WIDTHS,
+            presets = ToolOptionsPanel.PRESET_WIDTHS,
             color = settings.brush.color,
             brushWidth = settings.brush.width,
             onPick = controls::pickFromWheel,
@@ -342,7 +364,9 @@ class MainActivity : Activity() {
 
     private fun updateEditState(state: EditState) {
         editState = state
-        title = if (state.modified) "• ${saver.documentName}" else saver.documentName
+        title = saver.documentName
+        actionBar?.subtitle = if (state.modified) getString(R.string.unsaved) else null
+        refreshSelectionBar()
         invalidateOptionsMenu()
         guard.modified = state.modified
     }
@@ -359,6 +383,9 @@ class MainActivity : Activity() {
 
     private companion object {
         const val TAG = "RnoteViewer"
+
+        /** The sidebar's width and margin, plus a gap: tool options open beside it. */
+        const val TOOL_OPTIONS_MARGIN_DP = 94f
 
         const val REQUEST_OPEN = 1
         const val REQUEST_SAVE_AS = 2

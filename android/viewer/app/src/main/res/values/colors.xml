@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Mirrors Graphite.kt. -->
+    <color name="graphite_bar">#FF17181C</color>
+    <color name="graphite_desk">#FF26282D</color>
+    <color name="graphite_accent">#FF3584E4</color>
+</resources>

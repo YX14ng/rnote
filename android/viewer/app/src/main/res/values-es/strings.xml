@@ -9,22 +9,11 @@
     <string name="action_redo">Rehacer</string>
     <string name="action_pen">Lápiz</string>
     <string name="action_eraser">Goma</string>
-    <string name="action_color">Color</string>
-    <string name="action_width">Grosor</string>
     <string name="action_new">Nuevo</string>
     <string name="action_open">Abrir</string>
     <string name="action_save">Guardar</string>
     <string name="action_save_as">Guardar como…</string>
 
-    <string name="color_black">Negro</string>
-    <string name="color_white">Blanco</string>
-    <string name="color_red">Rojo</string>
-    <string name="color_blue">Azul</string>
-    <string name="color_green">Verde</string>
-    <string name="color_yellow">Amarillo</string>
-    <string name="width_fine">Fino</string>
-    <string name="width_medium">Medio</string>
-    <string name="width_thick">Grueso</string>
 
     <string name="saved">Guardado</string>
     <string name="save_failed">No se pudo guardar: %1$s</string>
@@ -33,10 +22,6 @@
     <string name="discard">Descartar</string>
     <string name="action_shapes">Formas</string>
     <string name="action_select">Seleccionar con lazo</string>
-    <string name="action_brush_style">Estilo del pincel</string>
-    <string name="action_shape">Forma</string>
-    <string name="action_eraser_mode">Modo de la goma</string>
-    <string name="action_selection">Selección</string>
     <string name="action_select_all">Seleccionar todo</string>
     <string name="action_deselect_all">Deseleccionar</string>
     <string name="action_duplicate_selection">Duplicar</string>
@@ -63,19 +48,14 @@
     <string name="shape_quadratic_curve">Curva (1 punto de control)</string>
     <string name="shape_cubic_curve">Curva (2 puntos de control)</string>
     <string name="action_text_format">Formato de texto…</string>
-    <string name="action_shape_style">Estilo de formas…</string>
-    <string name="action_document">Documento…</string>
     <string name="apply">Aplicar</string>
     <string name="title_text_format">Formato de texto</string>
-    <string name="title_shape_style">Estilo de formas</string>
     <string name="title_document">Documento</string>
     <string name="label_font">Fuente</string>
     <string name="label_text_size">Tamaño</string>
     <string name="label_bold">Negrita</string>
     <string name="label_italic">Cursiva</string>
     <string name="label_alignment">Alineación</string>
-    <string name="label_shape_style">Estilo</string>
-    <string name="label_fill">Relleno</string>
     <string name="label_page_size">Tamaño de página</string>
     <string name="label_orientation">Orientación</string>
     <string name="label_layout">Disposición</string>
@@ -92,7 +72,6 @@
     <string name="align_fill">Justificado</string>
     <string name="shape_style_smooth">Liso</string>
     <string name="shape_style_rough">A mano alzada</string>
-    <string name="fill_none">Sin relleno</string>
     <string name="shape_coordinate_system_3d">Ejes 3D</string>
     <string name="shape_quadrant_coordinate_system">Ejes por cuadrante</string>
     <string name="shape_foci_ellipse">Elipse por focos</string>
@@ -123,7 +102,6 @@
     <string name="emphasis_italic">Cursiva</string>
     <string name="emphasis_underline">Subrayado</string>
     <string name="emphasis_strikethrough">Tachado</string>
-    <string name="action_custom_color">Personalizado…</string>
     <string name="action_text_selection">Texto seleccionado</string>
     <string name="action_color_selected_text">Aplicar el color del lápiz</string>
     <string name="action_select_all_text">Seleccionar todo el texto</string>
@@ -133,8 +111,6 @@
     <string name="clipboard_empty">No hay nada para pegar</string>
     <string name="nothing_selected">No hay nada seleccionado</string>
     <string name="clipboard_label">Contenido de Rnote</string>
-    <string name="title_custom_color">Color del lápiz</string>
-    <string name="label_color_hex">Color en hexadecimal, por ejemplo #1C71D8</string>
     <string name="label_page_width">Ancho (mm)</string>
     <string name="label_page_height">Alto (mm)</string>
     <string name="background_custom">Personalizado</string>
@@ -142,8 +118,20 @@
     <string name="label_pattern_color">Color del patrón (hex)</string>
     <string name="label_pattern_spacing">Espaciado del patrón</string>
     <string name="invalid_value">Valor inválido: no se cambió nada</string>
-    <string name="action_shape_recognition">Reconocer formas (mantener el lápiz quieto)</string>
     <string name="palette_color">Color %1$d (mantené presionado para cambiarlo)</string>
     <string name="title_palette_color">Color de la paleta</string>
     <string name="pen_wheel">Rueda del lápiz: color y grosor</string>
+    <string name="unsaved">Sin guardar</string>
+    <string name="more_options">Más opciones</string>
+    <string name="brush_width">Grosor</string>
+    <string name="label_style">Estilo</string>
+    <string name="shape_recognition_short">Reconocer formas</string>
+    <string name="shape_recognition_hint">Mantené el lápiz quieto 1 s al terminar</string>
+    <string name="fill_with_pen_color">Rellenar con el color del lápiz</string>
+    <string name="recolor_selection">Color</string>
+    <string name="section_file">Archivo</string>
+    <string name="section_document">Documento</string>
+    <string name="section_input">Entrada</string>
+    <string name="page_and_background">Página y fondo…</string>
+    <string name="stroke_preview">Vista previa del trazo</string>
 </resources>

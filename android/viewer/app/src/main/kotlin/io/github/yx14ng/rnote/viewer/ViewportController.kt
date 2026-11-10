@@ -81,6 +81,13 @@ internal class ViewportController(context: Context) {
         viewport = clamp(Viewport(focusDocX - focusX / zoom, focusDocY - focusY / zoom, zoom))
     }
 
+    /** The zoom relative to fitting a page to the width, in percent. */
+    val zoomPercent: Int
+        get() = (viewport.zoom / fitZoom * PERCENT).roundToInt()
+
+    /** Fits a page to the width again, keeping the point at ([focusX], [focusY]) in place. */
+    fun zoomToFit(focusX: Float, focusY: Float) = zoomAround(fitZoom, focusX, focusY)
+
     /** Double tap: zooms in around the point, or back out to the width if zoomed in. */
     fun toggleZoom(focusX: Float, focusY: Float) {
         val zoomedIn = viewport.zoom > fitZoom * DOUBLE_TAP_THRESHOLD
@@ -200,6 +207,7 @@ internal class ViewportController(context: Context) {
 
         /** `Camera::OVERSHOOT_HORIZONTAL` and `OVERSHOOT_VERTICAL`, in screen pixels. */
         const val OVERSHOOT_PX = 96.0
+        const val PERCENT = 100.0
 
         const val MIN_ZOOM_FACTOR = 0.25
         const val MAX_ZOOM_FACTOR = 8.0

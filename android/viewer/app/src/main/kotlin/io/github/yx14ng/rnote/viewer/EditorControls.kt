@@ -74,6 +74,62 @@ internal class EditorControls(
         }
     }
 
+    /**
+     * Runs the editing [action]s: tools, styles, selection and text formatting. Returns false
+     * for the ones it leaves to the activity (files, clipboard, document, zoom, panels).
+     */
+    fun perform(action: EditorMenu.Action): Boolean {
+        val current = settings
+        when (action) {
+            EditorMenu.Action.Undo -> canvas.applyEdit(NativeDocument::undo)
+            EditorMenu.Action.Redo -> canvas.applyEdit(NativeDocument::redo)
+            EditorMenu.Action.FinishShape -> canvas.finishShape()
+            is EditorMenu.Action.SelectWidth ->
+                changeBrush(current.brush.copy(width = action.width), current.colorChosen)
+            is EditorMenu.Action.SelectShape -> {
+                // Picking a shape means drawing it next.
+                change(current.copy(shape = action.shape, tool = Tool.SHAPER))
+                canvas.applyEdit { it.setShape(action.shape); it.setTool(Tool.SHAPER) }
+            }
+            is EditorMenu.Action.SelectBrushStyle -> {
+                change(current.copy(brushStyle = action.style))
+                canvas.applyEdit { it.setBrushStyle(action.style) }
+            }
+            is EditorMenu.Action.SelectEraserStyle -> {
+                change(current.copy(eraserStyle = action.style))
+                canvas.applyEdit { it.setEraserStyle(action.style) }
+            }
+            is EditorMenu.Action.ShapeRough -> changeShapeStyle(current.shapeStyle.copy(rough = action.rough))
+            is EditorMenu.Action.ShapeFill ->
+                changeShapeStyle(current.shapeStyle.copy(fill = if (action.filled) current.brush.color else null))
+            is EditorMenu.Action.Selection -> {
+                if (action.action == SelectionAction.SELECT_ALL) {
+                    // The engine switches to the selector to show the selection.
+                    change(current.copy(tool = Tool.SELECTOR))
+                }
+                canvas.applyEdit { it.selection(action.action) }
+            }
+            is EditorMenu.Action.RecolorSelection -> canvas.applyEdit { it.recolorSelection(action.color) }
+            is EditorMenu.Action.Emphasis -> canvas.applyEdit { it.toggleTextEmphasis(action.emphasis) }
+            EditorMenu.Action.ColorSelectedText -> canvas.applyEdit { it.colorSelectedText(current.brush.color) }
+            EditorMenu.Action.SelectAllText ->
+                canvas.applyEdit { it.handleCharKey('a'.code, shift = false, ctrl = true) }
+            EditorMenu.Action.TextFormat -> FormatDialogs.showTextFormat(context, current.textFormat) { format ->
+                change(settings.copy(textFormat = format))
+                canvas.applyEdit { it.setTextFormat(format) }
+            }
+            EditorMenu.Action.ToggleFingerDrawing -> change(current.copy(fingerDrawing = !current.fingerDrawing))
+            EditorMenu.Action.ToggleShapeRecognition -> toggleShapeRecognition()
+            else -> return false
+        }
+        return true
+    }
+
+    private fun changeShapeStyle(style: ShapeStyle) {
+        change(settings.copy(shapeStyle = style))
+        canvas.applyEdit { it.setShapeStyle(style) }
+    }
+
     fun toggleShapeRecognition() {
         change(settings.copy(shapeRecognition = !settings.shapeRecognition))
         val enabled = settings.shapeRecognition
@@ -115,6 +171,7 @@ internal class EditorControls(
     private fun applyToView() {
         sidebar.selectedTool = settings.tool
         sidebar.showPalette(settings.palette, settings.brush.color)
+        sidebar.showWidth(settings.brush.width)
         canvas.tool = settings.tool
         canvas.brush = settings.brush
         canvas.fingerDrawing = settings.fingerDrawing

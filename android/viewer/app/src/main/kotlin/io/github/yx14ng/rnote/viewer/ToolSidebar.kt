@@ -3,41 +3,63 @@ package io.github.yx14ng.rnote.viewer
 import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color
-import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
-import android.util.TypedValue
+import android.graphics.drawable.LayerDrawable
 import android.view.Gravity
 import android.view.View
+import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.TextView
+import java.util.Locale
 
 /**
  * The tools as a column of icons floating beside the canvas, like the desktop app's pen
- * picker, with the desktop icons in the same order, and below them a palette of colors.
+ * picker, with the desktop icons in the same order; below them a palette of colors and the
+ * current brush width.
  *
- * Tapping a tool calls [onToolSelected], and [selectedTool] marks the active one. Tapping a
- * color calls [onColorSelected] with its slot; long-pressing it calls [onColorEdit].
+ * Tapping a tool calls [onToolSelected], or [onToolOptions] when it is already the active
+ * one. Tapping a color calls [onColorSelected] with its slot; long-pressing it calls
+ * [onColorEdit]. The width button calls [onWidthTapped].
  */
 internal class ToolSidebar(context: Context) : LinearLayout(context) {
     var onToolSelected: ((Tool) -> Unit)? = null
+    var onToolOptions: ((Tool) -> Unit)? = null
     var onColorSelected: ((Int) -> Unit)? = null
     var onColorEdit: ((Int) -> Unit)? = null
+    var onWidthTapped: (() -> Unit)? = null
 
     private val buttons = TOOLS.associate { (tool, icon, label) -> tool to toolButton(tool, icon, label) }
 
-    private val swatches: List<View> =
-        List(PALETTE_SIZE) { slot ->
-            View(context).apply {
-                contentDescription = context.getString(R.string.palette_color, slot + 1)
-                tooltipText = contentDescription
-                setOnClickListener { onColorSelected?.invoke(slot) }
-                setOnLongClickListener {
-                    onColorEdit?.invoke(slot)
-                    true
-                }
+    private val swatches: List<View> = List(PALETTE_SIZE) { slot ->
+        View(context).apply {
+            contentDescription = context.getString(R.string.palette_color, slot + 1)
+            tooltipText = contentDescription
+            setOnClickListener { onColorSelected?.invoke(slot) }
+            setOnLongClickListener {
+                onColorEdit?.invoke(slot)
+                true
             }
         }
+    }
+
+    private val widthBar = View(context)
+    private val widthLabel = TextView(context).apply {
+        textSize = 11f
+        setTextColor(Graphite.TEXT)
+        gravity = Gravity.CENTER
+    }
+    private val widthButton = LinearLayout(context).apply {
+        orientation = VERTICAL
+        gravity = Gravity.CENTER
+        background = Graphite.pressable(context, Graphite.rounded(context, Graphite.RAISED, TOOL_RADIUS_DP), TOOL_RADIUS_DP)
+        contentDescription = context.getString(R.string.brush_width)
+        tooltipText = contentDescription
+        addView(widthBar, LayoutParams(dp(WIDTH_BAR_DP), dp(4f)))
+        addView(widthLabel, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).apply { topMargin = dp(3f) })
+        setOnClickListener { onWidthTapped?.invoke() }
+    }
 
     var selectedTool: Tool = Tool.BRUSH
         set(value) {
@@ -45,37 +67,30 @@ internal class ToolSidebar(context: Context) : LinearLayout(context) {
             for ((tool, button) in buttons) {
                 val selected = tool == value
                 button.isSelected = selected
-                button.background = if (selected) highlight() else ripple()
-                button.imageTintList = ColorStateList.valueOf(if (selected) Color.WHITE else ICON_COLOR)
+                val resting = if (selected) Graphite.rounded(context, Graphite.ACCENT, TOOL_RADIUS_DP) else null
+                button.background = Graphite.pressable(context, resting, TOOL_RADIUS_DP)
+                button.imageTintList = ColorStateList.valueOf(if (selected) Color.WHITE else Graphite.ICON)
             }
         }
 
     init {
         orientation = VERTICAL
         gravity = Gravity.CENTER_HORIZONTAL
-        val padding = dp(PADDING_DP)
+        val padding = dp(8f)
         setPadding(padding, padding, padding, padding)
-        background = GradientDrawable().apply {
-            setColor(BAR_COLOR)
-            cornerRadius = dp(BAR_RADIUS_DP).toFloat()
-        }
-        elevation = dp(ELEVATION_DP).toFloat()
+        background = Graphite.rounded(context, Graphite.RAIL, RAIL_RADIUS_DP, Graphite.OUTLINE)
+        elevation = dp(8f).toFloat()
+        val toolSpacing = dp(2f)
         for (button in buttons.values) {
-            addView(button, LayoutParams(dp(BUTTON_DP), dp(BUTTON_DP)))
+            addView(button, LayoutParams(dp(TOOL_DP), dp(TOOL_DP)).apply { setMargins(0, toolSpacing, 0, toolSpacing) })
         }
-        addView(
-            View(context).apply { setBackgroundColor(DIVIDER_COLOR) },
-            LayoutParams(dp(DIVIDER_WIDTH_DP), dp(1f)).apply { setMargins(0, dp(6f), 0, dp(6f)) },
-        )
-        val swatchMargin = dp((SWATCH_CELL_DP - SWATCH_DP) / 2)
+        addView(divider(), dividerParams())
         for (swatch in swatches) {
-            addView(
-                swatch,
-                LayoutParams(dp(SWATCH_DP), dp(SWATCH_DP)).apply {
-                    setMargins(swatchMargin, swatchMargin, swatchMargin, swatchMargin)
-                },
-            )
+            val cell = dp(SWATCH_CELL_DP)
+            addView(FrameLayout(context).apply { addView(swatch, FrameLayout.LayoutParams(cell, cell, Gravity.CENTER)) })
         }
+        addView(divider(), dividerParams())
+        addView(widthButton, LayoutParams(dp(TOOL_DP), dp(TOOL_DP)))
         selectedTool = Tool.BRUSH
     }
 
@@ -84,13 +99,30 @@ internal class ToolSidebar(context: Context) : LinearLayout(context) {
         swatches.forEachIndexed { slot, swatch ->
             val color = colors.getOrElse(slot) { Color.BLACK }
             val selected = color == current
-            swatch.background = GradientDrawable().apply {
-                shape = GradientDrawable.OVAL
-                setColor(color)
-                // A light ring marks the current color; a faint one keeps dark colors visible.
-                if (selected) setStroke(dp(3f), Color.WHITE) else setStroke(dp(1f), SWATCH_OUTLINE)
-            }
             swatch.isSelected = selected
+            swatch.background = swatchDrawable(color, selected)
+        }
+    }
+
+    /** Shows the current brush [width] (document units) on the width button. */
+    fun showWidth(width: Double) {
+        widthBar.background = Graphite.rounded(context, Graphite.TEXT, 2f)
+        widthBar.layoutParams = widthBar.layoutParams.apply { height = dp((width.toFloat() * 0.8f).coerceIn(1.5f, 10f)) }
+        widthLabel.text = formatWidth(width)
+    }
+
+    /** A dot in [color]; the current one gets a white ring, separated by the rail color. */
+    private fun swatchDrawable(color: Int, selected: Boolean): LayerDrawable {
+        fun oval(fill: Int) = GradientDrawable().apply {
+            shape = GradientDrawable.OVAL
+            setColor(fill)
+        }
+        val ring = if (selected) Color.WHITE else Graphite.OUTLINE
+        val gap = if (selected) dp(2f) else dp(1f)
+        return LayerDrawable(arrayOf(oval(ring), oval(Graphite.BAR), oval(color))).apply {
+            setLayerInset(1, gap, gap, gap, gap)
+            val inner = if (selected) dp(4f) else dp(1f)
+            setLayerInset(2, inner, inner, inner, inner)
         }
     }
 
@@ -99,27 +131,20 @@ internal class ToolSidebar(context: Context) : LinearLayout(context) {
         contentDescription = context.getString(label)
         tooltipText = contentDescription
         scaleType = ImageView.ScaleType.CENTER
-        setOnClickListener { onToolSelected?.invoke(tool) }
+        setOnClickListener {
+            if (tool == selectedTool) onToolOptions?.invoke(tool) else onToolSelected?.invoke(tool)
+        }
     }
 
-    private fun highlight() = GradientDrawable().apply {
-        setColor(HIGHLIGHT_COLOR)
-        cornerRadius = dp(HIGHLIGHT_RADIUS_DP).toFloat()
-    }
+    private fun divider() = View(context).apply { setBackgroundColor(DIVIDER_COLOR) }
 
-    /** The theme's touch feedback, without a resting background. */
-    private fun ripple(): Drawable? {
-        val value = TypedValue()
-        context.theme.resolveAttribute(android.R.attr.selectableItemBackgroundBorderless, value, true)
-        return context.getDrawable(value.resourceId)
-    }
+    private fun dividerParams() = LayoutParams(dp(32f), dp(1f)).apply { setMargins(0, dp(8f), 0, dp(8f)) }
 
-    private fun dp(value: Float): Int =
-        TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, resources.displayMetrics).toInt()
+    private fun dp(value: Float): Int = Graphite.dp(context, value)
 
-    private companion object {
+    companion object {
         /** Tool, icon and label, in the desktop app's order. */
-        val TOOLS = listOf(
+        private val TOOLS = listOf(
             Triple(Tool.BRUSH, R.drawable.ic_pen_brush, R.string.action_pen),
             Triple(Tool.SHAPER, R.drawable.ic_pen_shaper, R.string.action_shapes),
             Triple(Tool.TYPEWRITER, R.drawable.ic_pen_typewriter, R.string.action_text),
@@ -127,22 +152,22 @@ internal class ToolSidebar(context: Context) : LinearLayout(context) {
             Triple(Tool.SELECTOR, R.drawable.ic_pen_lasso, R.string.action_select),
         )
 
-        val BAR_COLOR = Color.argb(0xEB, 0x30, 0x30, 0x35)
-        val HIGHLIGHT_COLOR = Color.argb(0xFF, 0x35, 0x84, 0xE4)
-        val ICON_COLOR = Color.argb(0xD9, 0xFF, 0xFF, 0xFF)
-        val DIVIDER_COLOR = Color.argb(0x55, 0xFF, 0xFF, 0xFF)
-        val SWATCH_OUTLINE = Color.argb(0x80, 0xFF, 0xFF, 0xFF)
+        private val DIVIDER_COLOR = Color.rgb(0x3A, 0x3D, 0x45)
 
         /** How many colors the palette holds. */
-        const val PALETTE_SIZE = 5
-        const val SWATCH_CELL_DP = 44f
-        const val SWATCH_DP = 32f
-        const val DIVIDER_WIDTH_DP = 32f
+        private const val PALETTE_SIZE = 5
+        private const val TOOL_DP = 48f
+        private const val TOOL_RADIUS_DP = 16f
+        private const val RAIL_RADIUS_DP = 24f
+        private const val SWATCH_CELL_DP = 40f
+        private const val WIDTH_BAR_DP = 22f
 
-        const val PADDING_DP = 6f
-        const val BUTTON_DP = 52f
-        const val BAR_RADIUS_DP = 16f
-        const val HIGHLIGHT_RADIUS_DP = 12f
-        const val ELEVATION_DP = 6f
+        /** A brush width for display: whole numbers as such, others with one decimal. */
+        fun formatWidth(width: Double): String =
+            if (width >= 10 || width == Math.rint(width)) {
+                String.format(Locale.ROOT, "%.0f", width)
+            } else {
+                String.format(Locale.ROOT, "%.1f", width)
+            }
     }
 }

@@ -36,33 +36,6 @@ internal object FormatDialogs {
         }
     }
 
-    fun showShapeStyle(context: Context, current: ShapeStyle, onApply: (ShapeStyle) -> Unit) {
-        val form = FormDialog(context, R.string.title_shape_style)
-        val style = form.addChoice(
-            R.string.label_shape_style,
-            form.labels(listOf(R.string.shape_style_smooth, R.string.shape_style_rough)),
-            if (current.rough) 1 else 0,
-        )
-        // "No fill" first, then the brush colors.
-        val fills = listOf<Int?>(null) + BrushPalette.colors.map { it.value }
-        val fill = form.addChoice(
-            R.string.label_fill,
-            form.labels(listOf(R.string.fill_none) + BrushPalette.colors.map { it.label }),
-            fills.indexOf(current.fill).coerceAtLeast(0),
-        )
-        form.show { onApply(ShapeStyle(rough = style() == 1, fill = fills[fill()])) }
-    }
-
-    /** Asks for a brush color in hex; [onApply] gets it if it is valid. */
-    fun showCustomColor(context: Context, current: Int, onApply: (Int) -> Unit) {
-        val form = FormDialog(context, R.string.title_custom_color)
-        val hex = form.addText(R.string.label_color_hex, FormValues.formatColor(current))
-        form.show {
-            val color = FormValues.parseColor(hex.text)
-            if (color == null) invalid(context) else onApply(color)
-        }
-    }
-
     /**
      * Shows the page, layout and background settings. [onApply] gets one operation with only
      * what the user changed, or nothing if nothing changed or a typed value is invalid.

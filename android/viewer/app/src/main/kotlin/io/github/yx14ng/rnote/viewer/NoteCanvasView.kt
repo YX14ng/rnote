@@ -75,6 +75,26 @@ class NoteCanvasView(context: Context) : View(context) {
     var onPenWheel: ((x: Float, y: Float) -> Unit)? = null
     private val penButton = PenButtonHold { x, y -> onPenWheel?.invoke(x, y) }
 
+    /** Called whenever the view pans or zooms. */
+    var onViewportMoved: (() -> Unit)? = null
+
+    /** Called when something starts touching the canvas. */
+    var onCanvasTouched: (() -> Unit)? = null
+
+    /** The region on screen. */
+    val currentViewport: Viewport
+        get() = viewport
+
+    /** The zoom relative to a page fitted to the width, in percent. */
+    val zoomPercent: Int
+        get() = camera.zoomPercent
+
+    /** Fits a page to the width again, around the middle of the view. */
+    fun zoomToFit() {
+        camera.zoomToFit(width / 2f, height / 2f)
+        onViewportChanged()
+    }
+
     /** Called on a quick two-finger tap, the undo gesture of other note-taking apps. */
     var onTwoFingerTap: (() -> Unit)? = null
 
@@ -319,6 +339,9 @@ class NoteCanvasView(context: Context) : View(context) {
         if (!acceptsInput) {
             return false
         }
+        if (event.actionMasked == MotionEvent.ACTION_DOWN) {
+            onCanvasTouched?.invoke()
+        }
         penButton.onTouch()
         twoFingerTap.onTouch(event)
         input.onTouch(event)
@@ -428,6 +451,7 @@ class NoteCanvasView(context: Context) : View(context) {
     private fun onViewportChanged() {
         invalidate()
         frames.request()
+        onViewportMoved?.invoke()
     }
 
     private companion object {

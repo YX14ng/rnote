@@ -51,7 +51,20 @@ internal class EditorLayout(activity: Activity, canvas: NoteCanvasView, sidebar:
         messageView.visibility = View.GONE
     }
 
+    /** The actions for the lasso's selection, floating over the canvas. */
+    var selectionBar: View? = null
+        set(value) {
+            field?.let(root::removeView)
+            field = value
+            // Above the canvas, below the sidebar and any overlay.
+            value?.let { root.addView(it, 1, FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, Gravity.TOP or Gravity.START)) }
+        }
+
     private var overlay: View? = null
+
+    /** Whether an overlay (a panel, the pen wheel) shows. */
+    val overlayShown: Boolean
+        get() = overlay != null
 
     /** Shows [view] over everything, e.g. the pen wheel, replacing any other overlay. */
     fun showOverlay(view: View) {

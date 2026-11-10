@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- "Graphite": dark neutral chrome, so the page stands out; one blue accent. -->
+    <style name="Theme.Rnote" parent="@android:style/Theme.Material">
+        <item name="android:colorPrimary">@color/graphite_bar</item>
+        <item name="android:colorPrimaryDark">@color/graphite_bar</item>
+        <item name="android:colorAccent">@color/graphite_accent</item>
+        <item name="android:windowBackground">@color/graphite_desk</item>
+    </style>
+</resources>

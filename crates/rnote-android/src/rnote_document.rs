@@ -213,6 +213,7 @@ impl RnoteDocument {
 mod clipboard;
 mod editing;
 mod recognition;
+mod selection;
 mod settings;
 #[cfg(test)]
 mod tests;
