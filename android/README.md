@@ -108,8 +108,12 @@ What it does:
   needed, the zoom relative to the page width (tap to fit again), the menu and an arrow
   that folds the second row away. The second: undo and redo; the tools in the middle, with
   the desktop app's icons and order (converted to vector drawables from
-  `crates/rnote-ui/data/icons`); five palette colors (tap to use, long-press to change) and
-  the current width at the end. Tapping the active tool opens its options right below it:
+  `crates/rnote-ui/data/icons`); five palette colors and the current width at the end.
+  Tapping a color uses it; tapping the active one (marked with a small arrow) or
+  long-pressing any opens its color menu below it, like other note-taking apps': a
+  saturation and value square, hue and opacity bars, hex code and opacity, a preview with
+  `+` to keep the color, and the kept colors (tap to use, long-press to forget). Changes
+  apply at once. Tapping the active tool opens its options right below it:
   pen style, preset widths and switches; shapes and their style; text format and the
   selected text's emphasis; eraser mode; lasso actions.
 - Tools: pen (marker, solid or textured brush style), shapes, text, lasso selection (move,
