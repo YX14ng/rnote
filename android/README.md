@@ -90,7 +90,9 @@ What it does:
   next segment.
 - Pen wheel: holding the stylus button in the air and releasing it without touching the
   screen opens a wheel at the pen: palette colors around it, and a dial inside that sets the
-  width continuously (ticks and a light snap at the preset widths).
+  width continuously (labelled ticks, a light snap and a haptic tick at the preset widths).
+  The dial's track thickens along the way, the center previews the brush color and width,
+  and the button at the bottom, the center or a tap outside close it.
 - "Text format…": font (serif, sans serif, monospace, handwriting), size, bold, italic and
   alignment, for new text and the text being edited. Generic family names keep documents
   portable; the app's fontconfig setup maps them to Android's fonts and synthesizes bold and
