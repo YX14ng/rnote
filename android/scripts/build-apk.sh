@@ -24,6 +24,13 @@ if [[ -z "${JAVA_HOME:-}" ]]; then
   exit 1
 fi
 
+# The stable signing key (see android/README.md); without it, debug builds use the debug key.
+signing_env="${RNOTE_SIGNING_ENV:-$HOME/.config/rnote-android/signing.env}"
+if [[ -z "${RNOTE_KEYSTORE:-}" && -f "$signing_env" ]]; then
+  # shellcheck source=/dev/null
+  . "$signing_env"
+fi
+
 cd "$script_dir/../viewer"
 ./gradlew --no-daemon assembleDebug
 echo "APK: $(pwd)/app/build/outputs/apk/debug/app-debug.apk"
