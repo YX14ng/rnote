@@ -58,6 +58,12 @@ in `RNOTE_SIGNING_ENV`). Without it, debug builds use the debug key with a warni
 release builds refuse to build. Back both files up outside the computer: they can't be
 recreated. Never commit them.
 
+The `Android` GitHub Actions workflow (`.github/workflows/android.yml`) builds the same APK
+on every push to `android/engine-build` and signs it with that key, kept in the repository
+secrets `RNOTE_KEYSTORE_BASE64` (`base64 -w0 release.jks`) and `RNOTE_KEYSTORE_PASSWORD`;
+it fails if the APK's certificate isn't the stable one. The APK is the run's artifact, and
+a tag `android-v*` also attaches it to a draft release, published by hand.
+
 An app signed with another key must be uninstalled once before installing one signed with
 the stable key; uninstalling offers to keep the app's data (`hasFragileUserData`), which
 holds the notebook library.
