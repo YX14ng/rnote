@@ -71,17 +71,26 @@ What it does:
 - A stylus or a mouse uses the selected tool; the stylus eraser end and its primary button
   always erase. Fingers are ignored while the pen is down. Pressure is passed to the engine.
   With "Draw with finger", one finger draws too and two fingers navigate.
-- Tools are picked from a column of icons floating at the right edge, with the desktop
-  app's icons and order (converted to vector drawables from `crates/rnote-ui/data/icons`).
-- Tools: pen (marker, solid or textured brush style), shapes, text, selection (lasso, move, resize and rotate through the
-  engine's own handles; select all, duplicate, delete) and eraser (whole strokes or only
-  what it touches). Shapes, the selection, the text cursor and the eraser outline are drawn
+- The look ("Graphite") is dark neutral chrome, so the page stands out, with one blue
+  accent; its design lives in a Claude Design canvas, and its colors in `Graphite.kt`.
+- Tools are picked from a column floating at the right edge, with the desktop app's icons
+  and order (converted to vector drawables from `crates/rnote-ui/data/icons`), five palette
+  colors (tap to use, long-press to change) and the current width. Tapping the active tool
+  opens its options beside it: pen style, preset widths and switches; shapes and their
+  style; text format and the selected text's emphasis; eraser mode; lasso actions.
+- Tools: pen (marker, solid or textured brush style), shapes, text, lasso selection (move,
+  resize and rotate through the engine's own handles) and eraser (whole strokes or only
+  what it touches). What the lasso encloses gets a floating bar: copy, cut, duplicate,
+  recolor with a palette color, delete. Shapes, the selection, the text cursor and the eraser outline are drawn
   by the engine.
 - Shapes: line, arrow, rectangle, ellipse (from its center), grid and coordinate system with
   one drag; curves by dragging from the start to the control point (twice for two control
   points) and then tapping the end; polylines and polygons with one tap per point, finished
   by tapping the last point again or with "Finish shape". Hovering the stylus previews the
   next segment.
+- Pen wheel: holding the stylus button in the air and releasing it without touching the
+  screen opens a wheel at the pen: palette colors around it, and a dial inside that sets the
+  width continuously (ticks and a light snap at the preset widths).
 - "Text format…": font (serif, sans serif, monospace, handwriting), size, bold, italic and
   alignment, for new text and the text being edited. Generic family names keep documents
   portable; the app's fontconfig setup maps them to Android's fonts and synthesizes bold and
@@ -89,7 +98,6 @@ What it does:
 - "Selected text": bold, italic, underline, strikethrough or the pen color on the selected
   part of the text being edited (select with Shift and the arrows, or "Select all text" /
   Ctrl+A), like the desktop app's per-range formatting.
-- "Shape style…": smooth or hand-drawn (rough) shapes, with an optional fill.
 - "Recognize shapes" (off by default): holding the pen still for a second at the end of a
   pen stroke that looks like a shape turns it into that shape: a line, rectangle, ellipse,
   triangle, any polygon with sharp corners (pentagons, hexagons, rhombi, stars, L shapes,
@@ -109,17 +117,20 @@ What it does:
   (pasted back as strokes, also when a synced clipboard turned them into plain text), the
   selected text as plain text. Pasting also takes text and images from other apps. Pasted
   content lands in the middle of the view, selected.
-- Hardware keyboard shortcuts through the menu: Ctrl+Z undo, Ctrl+Shift+Z or Ctrl+Y redo,
-  Ctrl+X/C/V, Ctrl+A select all, Ctrl+N/O/S new, open and save.
+- The top bar shows the document name ("Unsaved" below it when needed), undo, redo, the zoom
+  relative to the page width (tap to fit again) and the menu, a panel in sections: cut,
+  copy and paste; file; document; input. Hardware keyboard shortcuts keep working through
+  hidden menu items: Ctrl+Z undo, Ctrl+Shift+Z or Ctrl+Y redo, Ctrl+X/C/V, Ctrl+A select
+  all, Ctrl+N/O/S new, open and save.
 - Text: tapping with the text tool places a text box and shows the keyboard; the canvas
   shrinks above the keyboard and keeps the typing spot visible. Soft keyboards
   go through `TextInputConnection` (composing text is typed live and replaced as it
   changes); hardware keys, including arrows, Home/End and Enter, through `KeyMapping`.
-- Undo and redo, color (6 presets or any hex color, black or white by default depending on
-  the background) and width (3 presets). The choices are remembered across documents and restarts.
+- Until a color is picked, the pen is black or white depending on the background. The
+  choices are remembered across documents and restarts.
 - New, Open, Save (overwrites the opened file) and Save as, through the system file picker,
   which starts in the folder of the open file or else in the shared Documents folder.
-  Unsaved changes are marked in the title, and leaving or replacing the document asks first.
+  Leaving or replacing a document with unsaved changes asks first.
 - Autosave: when the app goes to the background with unsaved changes, it saves to the open
   file, or keeps a recovery copy (in the app's private storage) for documents without one
   or that are read-only. The copy is restored on the next start.
