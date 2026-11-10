@@ -23,6 +23,7 @@ crates/rnote-ui/data/ui/colorpicker.ui
 crates/rnote-ui/data/ui/contextmenu.ui
 crates/rnote-ui/data/ui/filerow.ui
 crates/rnote-ui/data/ui/iconpicker.ui
+crates/rnote-ui/data/ui/library/libraryview.ui
 crates/rnote-ui/data/ui/mainheader.ui
 crates/rnote-ui/data/ui/overlays.ui
 crates/rnote-ui/data/ui/penshortcutrow.ui
@@ -44,6 +45,14 @@ crates/rnote-ui/src/canvaswrapper.rs
 crates/rnote-ui/src/dialogs/export.rs
 crates/rnote-ui/src/dialogs/import.rs
 crates/rnote-ui/src/dialogs/mod.rs
+crates/rnote-ui/src/library/actions.rs
+crates/rnote-ui/src/library/card.rs
+crates/rnote-ui/src/library/dialogs.rs
+crates/rnote-ui/src/library/grid.rs
+crates/rnote-ui/src/library/manage.rs
+crates/rnote-ui/src/library/mod.rs
+crates/rnote-ui/src/library/open.rs
+crates/rnote-ui/src/library/sidebar.rs
 crates/rnote-ui/src/penssidebar/shaperpage.rs
 crates/rnote-ui/src/settingspanel/mod.rs
 crates/rnote-ui/src/settingspanel/penshortcutmodels.rs

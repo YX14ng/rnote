@@ -3099,8 +3099,6 @@ msgstr "blanco"
 #~ msgid "Paste from Clipboard"
 #~ msgstr "Pegar del portapapeles"
 
-#~ msgid "New"
-#~ msgstr "Nuevo"
 
 #~ msgid ".rnote file"
 #~ msgstr "Archivo .rnote"
@@ -3179,3 +3177,171 @@ msgstr "blanco"
 #~ msgstr ""
 #~ "Establece si las barras de desplazamiento del lienzo se ocultan "
 #~ "permanentemente."
+# Library (fork YX14ng)
+
+msgid "Rename…"
+msgstr "Renombrar…"
+
+msgid "Tags…"
+msgstr "Etiquetas…"
+
+msgid "Move to"
+msgstr "Mover a"
+
+msgid "Restore"
+msgstr "Restaurar"
+
+msgid "Delete Forever…"
+msgstr "Eliminar para siempre…"
+
+msgid "Uncategorized"
+msgstr "Sin categoría"
+
+msgid "Rename Folder…"
+msgstr "Renombrar carpeta…"
+
+msgid "Delete Folder…"
+msgstr "Eliminar carpeta…"
+
+msgid "Edit Tag…"
+msgstr "Editar etiqueta…"
+
+msgid "Delete Tag…"
+msgstr "Eliminar etiqueta…"
+
+msgid "Delete Forever?"
+msgstr "¿Eliminar para siempre?"
+
+msgid "The notebook can’t be recovered."
+msgstr "El cuaderno no se podrá recuperar."
+
+msgid "Delete"
+msgstr "Eliminar"
+
+msgid "Empty Trash?"
+msgstr "¿Vaciar la papelera?"
+
+msgid "The notebooks in the trash can’t be recovered."
+msgstr "Los cuadernos de la papelera no se podrán recuperar."
+
+msgid "Empty Trash"
+msgstr "Vaciar papelera"
+
+msgid "Rename Notebook"
+msgstr "Renombrar cuaderno"
+
+msgid "Close “{name}” first"
+msgstr "Primero cierre «{name}»"
+
+msgid "Notebook Menu"
+msgstr "Menú del cuaderno"
+
+msgid "New"
+msgstr "Nuevo"
+
+msgid "Notebook"
+msgstr "Cuaderno"
+
+msgid "New Notebook"
+msgstr "Cuaderno nuevo"
+
+msgid "Xournal++ · import"
+msgstr "Xournal++ · importar"
+
+msgid "Deleted {date}"
+msgstr "Eliminado el {date}"
+
+msgid "Tags"
+msgstr "Etiquetas"
+
+msgid "There are no tags yet: create one in the sidebar."
+msgstr "Todavía no hay etiquetas: cree una en la barra lateral."
+
+msgid "{n} selected"
+msgid_plural "{n} selected"
+msgstr[0] "{n} seleccionado"
+msgstr[1] "{n} seleccionados"
+
+msgid "Untitled"
+msgstr "Sin título"
+
+msgid "Creating the notebook failed"
+msgstr "No se pudo crear el cuaderno"
+
+msgid "Create"
+msgstr "Crear"
+
+msgid "Rename Folder"
+msgstr "Renombrar carpeta"
+
+msgid "Delete “{folder}”?"
+msgstr "¿Eliminar «{folder}»?"
+
+msgid "Its notebooks go to the trash."
+msgstr "Sus cuadernos van a la papelera."
+
+msgid "New Tag"
+msgstr "Etiqueta nueva"
+
+msgid "Edit Tag"
+msgstr "Editar etiqueta"
+
+msgid "Delete Tag?"
+msgstr "¿Eliminar la etiqueta?"
+
+msgid "The notebooks stay; only the tag is removed from them."
+msgstr "Los cuadernos se conservan; solo se les quita la etiqueta."
+
+msgid "Library Folder"
+msgstr "Carpeta de la biblioteca"
+
+msgid "Choose"
+msgstr "Elegir"
+
+msgid "The folder doesn’t exist"
+msgstr "La carpeta no existe"
+
+msgid "Already Imported"
+msgstr "Ya importado"
+
+msgid "“{name}” was imported before as “{existing}”."
+msgstr "«{name}» ya se importó como «{existing}»."
+
+msgid "Import Again"
+msgstr "Importar de nuevo"
+
+msgid "Importing the Xournal++ notebook failed"
+msgstr "No se pudo importar el cuaderno de Xournal++"
+
+msgid "All Notes"
+msgstr "Todas las notas"
+
+msgid "Folders"
+msgstr "Carpetas"
+
+msgid "Sort by Name"
+msgstr "Ordenar por nombre"
+
+msgid "Library Folder…"
+msgstr "Carpeta de la biblioteca…"
+
+msgid "Refresh"
+msgstr "Actualizar"
+
+msgid "Open Tabs"
+msgstr "Pestañas abiertas"
+
+msgid "Library Menu"
+msgstr "Menú de la biblioteca"
+
+msgid "Section Menu"
+msgstr "Menú de la sección"
+
+msgid "List View"
+msgstr "Vista de lista"
+
+msgid "The Library Can’t Be Opened"
+msgstr "No se puede abrir la biblioteca"
+
+msgid "Choose Folder…"
+msgstr "Elegir carpeta…"

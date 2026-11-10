@@ -3088,8 +3088,6 @@ msgstr "白色"
 #~ msgid "Paste from Clipboard"
 #~ msgstr "从剪切板粘贴"
 
-#~ msgid "New"
-#~ msgstr "新建"
 
 #~ msgid ".rnote file"
 #~ msgstr ".rnote文件"
@@ -3164,3 +3162,170 @@ msgstr "白色"
 
 #~ msgid "Change the workspace name"
 #~ msgstr "更改工作区名称"
+# Library (fork YX14ng)
+
+msgid "Rename…"
+msgstr "重命名…"
+
+msgid "Tags…"
+msgstr "标签…"
+
+msgid "Move to"
+msgstr "移动到"
+
+msgid "Restore"
+msgstr "恢复"
+
+msgid "Delete Forever…"
+msgstr "永久删除…"
+
+msgid "Uncategorized"
+msgstr "未分类"
+
+msgid "Rename Folder…"
+msgstr "重命名文件夹…"
+
+msgid "Delete Folder…"
+msgstr "删除文件夹…"
+
+msgid "Edit Tag…"
+msgstr "编辑标签…"
+
+msgid "Delete Tag…"
+msgstr "删除标签…"
+
+msgid "Delete Forever?"
+msgstr "永久删除？"
+
+msgid "The notebook can’t be recovered."
+msgstr "笔记本将无法恢复。"
+
+msgid "Delete"
+msgstr "删除"
+
+msgid "Empty Trash?"
+msgstr "清空回收站？"
+
+msgid "The notebooks in the trash can’t be recovered."
+msgstr "回收站中的笔记本将无法恢复。"
+
+msgid "Empty Trash"
+msgstr "清空回收站"
+
+msgid "Rename Notebook"
+msgstr "重命名笔记本"
+
+msgid "Close “{name}” first"
+msgstr "请先关闭“{name}”"
+
+msgid "Notebook Menu"
+msgstr "笔记本菜单"
+
+msgid "New"
+msgstr "新建"
+
+msgid "Notebook"
+msgstr "笔记本"
+
+msgid "New Notebook"
+msgstr "新建笔记本"
+
+msgid "Xournal++ · import"
+msgstr "Xournal++ · 导入"
+
+msgid "Deleted {date}"
+msgstr "删除于 {date}"
+
+msgid "Tags"
+msgstr "标签"
+
+msgid "There are no tags yet: create one in the sidebar."
+msgstr "还没有标签：请在侧边栏中创建。"
+
+msgid "{n} selected"
+msgid_plural "{n} selected"
+msgstr[0] "已选择 {n} 项"
+
+msgid "Untitled"
+msgstr "未命名"
+
+msgid "Creating the notebook failed"
+msgstr "创建笔记本失败"
+
+msgid "Create"
+msgstr "创建"
+
+msgid "Rename Folder"
+msgstr "重命名文件夹"
+
+msgid "Delete “{folder}”?"
+msgstr "删除“{folder}”？"
+
+msgid "Its notebooks go to the trash."
+msgstr "其中的笔记本将移到回收站。"
+
+msgid "New Tag"
+msgstr "新建标签"
+
+msgid "Edit Tag"
+msgstr "编辑标签"
+
+msgid "Delete Tag?"
+msgstr "删除标签？"
+
+msgid "The notebooks stay; only the tag is removed from them."
+msgstr "笔记本会保留，只会移除它们的这个标签。"
+
+msgid "Library Folder"
+msgstr "资料库文件夹"
+
+msgid "Choose"
+msgstr "选择"
+
+msgid "The folder doesn’t exist"
+msgstr "文件夹不存在"
+
+msgid "Already Imported"
+msgstr "已导入"
+
+msgid "“{name}” was imported before as “{existing}”."
+msgstr "“{name}”之前已导入为“{existing}”。"
+
+msgid "Import Again"
+msgstr "重新导入"
+
+msgid "Importing the Xournal++ notebook failed"
+msgstr "导入 Xournal++ 笔记本失败"
+
+msgid "All Notes"
+msgstr "全部笔记"
+
+msgid "Folders"
+msgstr "文件夹"
+
+msgid "Sort by Name"
+msgstr "按名称排序"
+
+msgid "Library Folder…"
+msgstr "资料库文件夹…"
+
+msgid "Refresh"
+msgstr "刷新"
+
+msgid "Open Tabs"
+msgstr "打开的标签页"
+
+msgid "Library Menu"
+msgstr "资料库菜单"
+
+msgid "Section Menu"
+msgstr "分区菜单"
+
+msgid "List View"
+msgstr "列表视图"
+
+msgid "The Library Can’t Be Opened"
+msgstr "无法打开资料库"
+
+msgid "Choose Folder…"
+msgstr "选择文件夹…"
