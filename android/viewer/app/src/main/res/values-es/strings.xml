@@ -146,4 +146,36 @@
     <string name="library_sort">Ordenar</string>
     <string name="library_sorted_by_name">Ordenado por nombre</string>
     <string name="library_sorted_by_date">Ordenado por fecha</string>
+    <string name="library_uncategorized">Sin categoría</string>
+    <string name="library_folders">Carpetas</string>
+    <string name="library_tags">Etiquetas</string>
+    <string name="library_trash">Papelera</string>
+    <string name="library_sections">Secciones</string>
+    <string name="library_new_folder">Nueva carpeta</string>
+    <string name="library_new_tag">Nueva etiqueta</string>
+    <string name="library_tag_color">Color de la etiqueta</string>
+    <string name="library_name">Nombre</string>
+    <string name="library_rename">Renombrar</string>
+    <string name="library_move">Mover a carpeta</string>
+    <string name="library_duplicate">Duplicar</string>
+    <string name="library_to_trash">A la papelera</string>
+    <string name="library_restore">Restaurar</string>
+    <string name="library_delete">Borrar</string>
+    <string name="library_delete_forever">Borrar definitivamente</string>
+    <string name="library_empty_trash">Vaciar papelera</string>
+    <string name="library_empty_trash_message">¿Borrar definitivamente todo lo que hay en la papelera?</string>
+    <string name="library_delete_tag_message">¿Borrar la etiqueta \"%1$s\"? Los cuadernos no se tocan.</string>
+    <plurals name="library_delete_forever_message">
+        <item quantity="one">¿Borrar este cuaderno definitivamente?</item>
+        <item quantity="many">¿Borrar estos %d cuadernos definitivamente?</item>
+        <item quantity="other">¿Borrar estos %d cuadernos definitivamente?</item>
+    </plurals>
+    <plurals name="library_delete_folder_message">
+        <item quantity="one">¿Borrar la carpeta \"%1$s\"? Su cuaderno va a la papelera.</item>
+        <item quantity="many">¿Borrar la carpeta \"%1$s\"? Sus %2$d cuadernos van a la papelera.</item>
+        <item quantity="other">¿Borrar la carpeta \"%1$s\"? Sus %2$d cuadernos van a la papelera.</item>
+    </plurals>
+    <string name="library_select">Seleccionar</string>
+    <string name="library_import">Importar</string>
+    <string name="library_import_unsupported">Solo se pueden importar cuadernos .rnote y de Xournal++ (.xopp).</string>
 </resources>

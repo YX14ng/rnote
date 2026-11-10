@@ -48,11 +48,24 @@ internal class LibraryStore(val root: File) {
 
     /** Runs [request] (an object with an `op` and its arguments). */
     fun call(request: JSONObject, done: (Result<JSONObject>) -> Unit) {
+        run({
+            root.mkdirs()
+            JSONObject(NativeBridge.libraryCall(root.path, request.toString()))
+        }, done)
+    }
+
+    /** Runs [requests] one after the other, stopping at the first failure. */
+    fun callAll(requests: List<JSONObject>, done: (Result<Unit>) -> Unit) {
+        run({
+            root.mkdirs()
+            for (request in requests) NativeBridge.libraryCall(root.path, request.toString())
+        }, done)
+    }
+
+    /** Runs [block] on the library's thread, after the requests before it. */
+    fun <T> run(block: () -> T, done: (Result<T>) -> Unit) {
         worker.execute {
-            val result = runCatching {
-                root.mkdirs()
-                JSONObject(NativeBridge.libraryCall(root.path, request.toString()))
-            }
+            val result = runCatching(block)
             main.post { done(result) }
         }
     }

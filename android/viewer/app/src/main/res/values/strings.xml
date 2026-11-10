@@ -147,4 +147,34 @@
     <string name="library_sort">Sort</string>
     <string name="library_sorted_by_name">Sorted by name</string>
     <string name="library_sorted_by_date">Sorted by date</string>
+    <string name="library_uncategorized">Uncategorized</string>
+    <string name="library_folders">Folders</string>
+    <string name="library_tags">Tags</string>
+    <string name="library_trash">Trash</string>
+    <string name="library_sections">Sections</string>
+    <string name="library_new_folder">New folder</string>
+    <string name="library_new_tag">New tag</string>
+    <string name="library_tag_color">Tag color</string>
+    <string name="library_name">Name</string>
+    <string name="library_rename">Rename</string>
+    <string name="library_move">Move to folder</string>
+    <string name="library_duplicate">Duplicate</string>
+    <string name="library_to_trash">Move to trash</string>
+    <string name="library_restore">Restore</string>
+    <string name="library_delete">Delete</string>
+    <string name="library_delete_forever">Delete forever</string>
+    <string name="library_empty_trash">Empty trash</string>
+    <string name="library_empty_trash_message">Delete everything in the trash forever?</string>
+    <string name="library_delete_tag_message">Delete the tag \"%1$s\"? Notebooks keep their contents.</string>
+    <plurals name="library_delete_forever_message">
+        <item quantity="one">Delete this notebook forever?</item>
+        <item quantity="other">Delete these %d notebooks forever?</item>
+    </plurals>
+    <plurals name="library_delete_folder_message">
+        <item quantity="one">Delete the folder \"%1$s\"? Its notebook goes to the trash.</item>
+        <item quantity="other">Delete the folder \"%1$s\"? Its %2$d notebooks go to the trash.</item>
+    </plurals>
+    <string name="library_select">Select</string>
+    <string name="library_import">Import</string>
+    <string name="library_import_unsupported">Only .rnote and Xournal++ (.xopp) notebooks can be imported.</string>
 </resources>
