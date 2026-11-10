@@ -29,7 +29,8 @@ import java.util.Date
  */
 @SuppressLint("ViewConstructor") // Built in code only, with what it shows.
 internal class NotebookGrid(context: Context, private val thumbnails: ThumbnailCache) : GridView(context) {
-    var onOpen: ((Notebook) -> Unit)? = null
+    /** A card was tapped; the view is the card. */
+    var onOpen: ((Notebook, View) -> Unit)? = null
     var onNew: (() -> Unit)? = null
     var onMenu: ((Notebook, View) -> Unit)? = null
 
@@ -67,14 +68,18 @@ internal class NotebookGrid(context: Context, private val thumbnails: ThumbnailC
         adapter.notifyDataSetChanged()
     }
 
-    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
-        super.onSizeChanged(w, h, oldw, oldh)
-        updateColumns()
+    // The columns follow the width; set while measuring, so the first layout already has them.
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        updateColumns(MeasureSpec.getSize(widthMeasureSpec))
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
     }
 
-    private fun updateColumns() {
-        val widthDp = width / resources.displayMetrics.density
-        numColumns = if (listMode) 1 else (widthDp / CARD_WIDTH_DP).toInt().coerceIn(2, MAX_COLUMNS)
+    private fun updateColumns(widthPx: Int = width) {
+        val widthDp = widthPx / resources.displayMetrics.density
+        val columns = if (listMode) 1 else (widthDp / CARD_WIDTH_DP).toInt().coerceIn(2, MAX_COLUMNS)
+        if (columns != numColumns) {
+            numColumns = columns
+        }
     }
 
     private inner class Adapter : BaseAdapter() {
@@ -118,7 +123,7 @@ internal class NotebookGrid(context: Context, private val thumbnails: ThumbnailC
             setTextColor(Graphite.ACCENT)
             textSize = 15f
             setPadding(dp(8f), dp(6f), dp(8f), 0)
-        })
+        }, LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT))
     }
 
     /** A notebook: thumbnail over name and date, or beside them in the list. */
@@ -166,7 +171,7 @@ internal class NotebookGrid(context: Context, private val thumbnails: ThumbnailC
             gravity = if (listMode) Gravity.CENTER_VERTICAL else Gravity.CENTER_HORIZONTAL
             foreground = Graphite.pressable(context, null, 12f)
             isClickable = true
-            setOnClickListener { notebook?.let { onOpen?.invoke(it) } }
+            setOnClickListener { card -> notebook?.let { onOpen?.invoke(it, card) } }
             menu.setOnClickListener { view -> notebook?.let { onMenu?.invoke(it, view) } }
             val texts = LinearLayout(context).apply {
                 orientation = VERTICAL

@@ -187,14 +187,14 @@ class LibraryActivity : Activity() {
         updateSelectionBar()
     }
 
-    private fun onNotebookTapped(notebook: Notebook) {
+    private fun onNotebookTapped(notebook: Notebook, card: View) {
         val selection = grid.selection
         when {
             selection != null -> {
                 grid.selection = if (notebook.path in selection) selection - notebook.path else selection + notebook.path
                 updateSelectionBar()
             }
-            section == LibrarySection.Trash -> actions.notebookMenu(notebook, grid, inTrash = true)
+            section == LibrarySection.Trash -> actions.notebookMenu(notebook, card, inTrash = true)
             !notebook.isXopp -> startEditor(notebook.path, isNew = false)
             else -> {
                 // A Xournal++ notebook opens as the .rnote made from it; the .xopp stays.
