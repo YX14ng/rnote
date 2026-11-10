@@ -69,9 +69,7 @@ impl Library {
         fs::rename(&from, self.root.join(&restored))
             .with_context(|| format!("Restoring {}", from.display()))?;
         let now = self.now();
-        if restored != record.original_path {
-            self.meta.move_tags(&record.original_path, &restored, now);
-        }
+        self.meta.move_tags(&trash_key(id), &restored, now);
         self.bury_trash_record(id, now);
         self.save_meta()?;
         Ok(restored)
@@ -102,6 +100,8 @@ impl Library {
         let from = self.notebook_file(path)?;
         fs::rename(&from, self.trash_dir().join(&id))
             .with_context(|| format!("Moving {} to the trash", from.display()))?;
+        // Its tags wait in the trash with it, so a new notebook at its path starts untagged.
+        self.meta.move_tags(path, &trash_key(&id), now);
         self.meta.trash.insert(
             id,
             TrashRecord {
@@ -124,12 +124,7 @@ impl Library {
             }
         }
         let now = self.now();
-        if let Some(original) = self.meta.trash.get(id).map(|record| record.original_path.clone()) {
-            // The tags go with it, unless another notebook took its place.
-            if !self.root.join(&original).exists() {
-                self.meta.forget_tags(&original, now);
-            }
-        }
+        self.meta.forget_tags(&trash_key(id), now);
         self.bury_trash_record(id, now);
         Ok(())
     }
@@ -151,4 +146,9 @@ impl Library {
     fn trash_dir(&self) -> std::path::PathBuf {
         self.root.join(LIBRARY_DIR).join(TRASH_DIR)
     }
+}
+
+/// The key under which the tags of the notebook in the trash with `id` wait.
+fn trash_key(id: &str) -> String {
+    format!("{LIBRARY_DIR}/{TRASH_DIR}/{id}")
 }

@@ -206,3 +206,22 @@ fn free_path_keeps_the_extension_and_avoids_taken_names() {
     assert_eq!(library.free_path(None, "y.rnote").unwrap(), "y.rnote");
     assert!(library.free_path(None, "../y.rnote").is_err());
 }
+
+#[test]
+fn a_new_notebook_does_not_inherit_the_tags_of_a_trashed_one() {
+    let dir = tempfile::tempdir().unwrap();
+    write(dir.path(), "a.rnote", b"old");
+    let mut library = library_at(dir.path());
+    let tag = library.create_tag("t", 1).unwrap();
+    library.set_tags("a.rnote", std::slice::from_ref(&tag)).unwrap();
+    library.trash("a.rnote").unwrap();
+
+    write(dir.path(), "a.rnote", b"new");
+
+    assert!(library.notebooks().unwrap()[0].tags.is_empty());
+    let id = library.trash_entries()[0].id.clone();
+    let restored = library.restore(&id).unwrap();
+    let tags_of_restored =
+        library.notebooks().unwrap().into_iter().find(|n| n.path == restored).unwrap().tags;
+    assert_eq!(tags_of_restored, vec![tag]);
+}
