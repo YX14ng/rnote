@@ -15,6 +15,21 @@
       <object class="AdwTabOverview" id="overview">
         <property name="enable-new-tab">true</property>
         <child>
+          <object class="AdwViewStack" id="main_stack">
+            <property name="enable-transitions">true</property>
+            <child>
+              <object class="AdwViewStackPage">
+                <property name="name">library</property>
+                <property name="child">
+                  <object class="RnLibraryView" id="library_view">
+                  </object>
+                </property>
+              </object>
+            </child>
+            <child>
+              <object class="AdwViewStackPage">
+                <property name="name">editor</property>
+                <property name="child">
           <object class="AdwOverlaySplitView" id="split_view">
             <property name="pin-sidebar">true</property>
             <property name="min-sidebar-width">500</property>
@@ -50,6 +65,10 @@
                 </property>
               </object>
             </property>
+          </object>
+                </property>
+              </object>
+            </child>
           </object>
         </child>
       </object>

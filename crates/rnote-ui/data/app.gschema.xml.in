@@ -181,5 +181,18 @@
       <default>true</default>
       <summary>lock the eraser tool</summary>
     </key>
+    <key name="library-dir" type="s">
+      <default>""</default>
+      <summary>The folder of the library</summary>
+      <description>Empty for the Rnote folder in the documents folder.</description>
+    </key>
+    <key name="library-sort-by-name" type="b">
+      <default>false</default>
+      <summary>Whether the library is sorted by name instead of by modification</summary>
+    </key>
+    <key name="library-list-view" type="b">
+      <default>false</default>
+      <summary>Whether the library shows a list instead of a grid</summary>
+    </key>
   </schema>
 </schemalist>

@@ -36,6 +36,13 @@
               <object class="GtkBox">
                 <property name="spacing">3</property>
                 <child>
+                  <object class="GtkButton">
+                    <property name="icon-name">go-home-symbolic</property>
+                    <property name="action-name">win.show-library</property>
+                    <property name="tooltip-text" translatable="yes">Library</property>
+                  </object>
+                </child>
+                <child>
                   <object class="GtkToggleButton" id="left_sidebar_reveal_toggle">
                     <property name="icon_name">sidebar-reveal-symbolic</property>
                     <property name="tooltip_text" translatable="yes">Show/Hide Sidebar</property>

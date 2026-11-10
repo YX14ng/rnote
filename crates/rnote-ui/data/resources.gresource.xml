@@ -23,6 +23,7 @@
         <file compressed="true" preprocess="xml-stripblanks">ui/contextmenu.ui</file>
         <file compressed="true" preprocess="xml-stripblanks">ui/filerow.ui</file>
         <file compressed="true" preprocess="xml-stripblanks">ui/iconpicker.ui</file>
+        <file compressed="true" preprocess="xml-stripblanks">ui/library/libraryview.ui</file>
         <file compressed="true" preprocess="xml-stripblanks">ui/mainheader.ui</file>
         <file compressed="true" preprocess="xml-stripblanks">ui/overlays.ui</file>
         <file compressed="true" preprocess="xml-stripblanks">ui/penmoderow.ui</file>

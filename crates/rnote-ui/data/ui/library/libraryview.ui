@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ### The library: the home screen of the window ### -->
+<interface>
+  <menu id="library_menu">
+    <section>
+      <item>
+        <attribute name="label" translatable="yes">Library Folder…</attribute>
+        <attribute name="action">library.choose-folder</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Refresh</attribute>
+        <attribute name="action">library.refresh</attribute>
+      </item>
+    </section>
+  </menu>
+  <template class="RnLibraryView" parent="GtkWidget">
+    <property name="layout-manager">
+      <object class="GtkBinLayout" />
+    </property>
+    <child>
+      <object class="AdwToolbarView">
+        <property name="top-bar-style">raised</property>
+        <child type="top">
+          <object class="AdwHeaderBar" id="headerbar">
+            <property name="title-widget">
+              <object class="AdwWindowTitle" id="title">
+                <property name="title" translatable="yes">Library</property>
+              </object>
+            </property>
+            <child type="start">
+              <object class="GtkButton">
+                <property name="icon-name">view-grid-symbolic</property>
+                <property name="action-name">win.show-editor</property>
+                <property name="tooltip-text" translatable="yes">Open Tabs</property>
+              </object>
+            </child>
+            <child type="end">
+              <object class="GtkMenuButton">
+                <property name="icon-name">open-menu-symbolic</property>
+                <property name="menu-model">library_menu</property>
+                <property name="tooltip-text" translatable="yes">Library Menu</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <property name="content">
+          <object class="GtkStack" id="stack">
+            <property name="transition-type">crossfade</property>
+            <child>
+              <object class="GtkStackPage">
+                <property name="name">content</property>
+                <property name="child">
+                  <object class="AdwStatusPage" id="empty_page">
+                    <property name="icon-name">folder-documents-symbolic</property>
+                    <property name="title" translatable="yes">No Notebooks</property>
+                  </object>
+                </property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkStackPage">
+                <property name="name">error</property>
+                <property name="child">
+                  <object class="AdwStatusPage" id="error_page">
+                    <property name="icon-name">dialog-warning-symbolic</property>
+                    <property name="title" translatable="yes">The Library Can’t Be Opened</property>
+                    <property name="child">
+                      <object class="GtkButton">
+                        <property name="label" translatable="yes">Choose Folder…</property>
+                        <property name="action-name">library.choose-folder</property>
+                        <property name="halign">center</property>
+                        <style>
+                          <class name="pill" />
+                          <class name="suggested-action" />
+                        </style>
+                      </object>
+                    </property>
+                  </object>
+                </property>
+              </object>
+            </child>
+          </object>
+        </property>
+      </object>
+    </child>
+  </template>
+</interface>

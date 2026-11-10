@@ -3983,6 +3983,7 @@ dependencies = [
  "regex",
  "rnote-compose",
  "rnote-engine",
+ "rnote-library",
  "rough_piet",
  "roughr",
  "serde",

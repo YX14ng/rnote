@@ -1,4 +1,5 @@
 // Imports
+use crate::library::RnLibraryView;
 use crate::{RnMainHeader, RnOverlays, RnSidebar, config, dialogs};
 use adw::{prelude::*, subclass::prelude::*};
 use gettextrs::gettext;
@@ -45,6 +46,10 @@ pub(crate) struct RnAppWindow {
     #[template_child]
     pub(crate) overview: TemplateChild<adw::TabOverview>,
     #[template_child]
+    pub(crate) main_stack: TemplateChild<adw::ViewStack>,
+    #[template_child]
+    pub(crate) library_view: TemplateChild<RnLibraryView>,
+    #[template_child]
     pub(crate) main_header: TemplateChild<RnMainHeader>,
     #[template_child]
     pub(crate) split_view: TemplateChild<adw::OverlaySplitView>,
@@ -85,6 +90,8 @@ impl Default for RnAppWindow {
             close_in_progress: Cell::new(false),
 
             overview: TemplateChild::<adw::TabOverview>::default(),
+            main_stack: TemplateChild::<adw::ViewStack>::default(),
+            library_view: TemplateChild::<RnLibraryView>::default(),
             main_header: TemplateChild::<RnMainHeader>::default(),
             split_view: TemplateChild::<adw::OverlaySplitView>::default(),
             sidebar: TemplateChild::<RnSidebar>::default(),

@@ -2,6 +2,7 @@
 mod actions;
 mod appsettings;
 mod imp;
+mod library;
 
 // Imports
 use crate::{
@@ -269,6 +270,7 @@ impl RnAppWindow {
         self.setup_icon_theme();
         self.setup_actions();
         self.setup_action_accels();
+        self.setup_library();
 
         if !self.app().settings_schema_found() {
             // Display an error toast if settings schema could not be found
@@ -620,6 +622,9 @@ impl RnAppWindow {
         target_pos: Option<Vector2>,
         rnote_file_new_tab: bool,
     ) {
+        if !matches!(FileType::lookup_file_type(&input_file), FileType::Folder) {
+            self.show_editor();
+        }
         self.overlays().progressbar_start_pulsing();
         match self
             .try_open_file(input_file, target_pos, rnote_file_new_tab)

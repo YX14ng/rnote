@@ -127,6 +127,7 @@ mod imp {
             RnStrokeContentPreview::static_type();
             RnSidebar::static_type();
             RnPenPicker::static_type();
+            crate::library::RnLibraryView::static_type();
         }
 
         /// Initializes and shows a new app window
@@ -142,7 +143,7 @@ mod imp {
 
             appwindow.present();
 
-            // Loading in input file in the first tab, if Some
+            // Loading in input file in the first tab, if Some, else the home screen.
             if let Some(input_file) = input_file {
                 glib::spawn_future_local(clone!(
                     #[weak]
@@ -151,6 +152,8 @@ mod imp {
                         appwindow.open_file_w_dialogs(input_file, None, false).await;
                     }
                 ));
+            } else {
+                appwindow.show_library();
             }
         }
 
