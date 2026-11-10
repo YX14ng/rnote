@@ -42,20 +42,25 @@ Use `x86_64` instead of `aarch64` to target the emulator or Waydroid.
 ### Signing
 
 Published APKs are signed with one stable key, so installed apps can be updated and the
-Google Drive OAuth client, registered with the key's SHA-1, keeps working. Create it once:
+Google Drive OAuth client, registered with the key's SHA-1, keeps working. Create it once,
+with nothing to type:
 
 ```sh
-android/scripts/create-keystore.sh   # ~/.config/rnote-android/release.jks
+android/scripts/create-keystore.sh   # ~/.config/rnote-android/release.jks + signing.env
 ```
 
-The script writes `~/.config/rnote-android/signing.env` with the variables the build reads
-(`RNOTE_KEYSTORE`, `RNOTE_KEY_ALIAS`, `RNOTE_KEYSTORE_PASSWORD`, `RNOTE_KEY_PASSWORD`); type
-the passwords into it by hand. `build-apk.sh` loads it (or the file in `RNOTE_SIGNING_ENV`).
-Without it, debug builds use the usual debug key and release builds refuse to build. Back
-the keystore up outside the computer: it can't be recreated. Never commit it.
+It takes the key of this computer's debug keystore (`~/.android/debug.keystore`), which
+signed the APKs built before, so installed apps keep updating; `RNOTE_NEW_KEY=1` generates
+a new key instead. The password is random and goes, with the other variables the build
+reads (`RNOTE_KEYSTORE`, `RNOTE_KEY_ALIAS`, `RNOTE_KEYSTORE_PASSWORD`,
+`RNOTE_KEY_PASSWORD`), to `signing.env` (mode 600), which `build-apk.sh` loads (or the file
+in `RNOTE_SIGNING_ENV`). Without it, debug builds use the debug key with a warning and
+release builds refuse to build. Back both files up outside the computer: they can't be
+recreated. Never commit them.
 
 An app signed with another key must be uninstalled once before installing one signed with
-the stable key; files saved outside the app, e.g. in Documents, stay.
+the stable key; uninstalling offers to keep the app's data (`hasFragileUserData`), which
+holds the notebook library.
 
 ## App
 
