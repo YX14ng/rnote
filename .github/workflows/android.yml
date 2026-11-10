@@ -1,0 +1,155 @@
+---
+
+# Builds the Android APK and signs it with the stable key kept in the repository secrets, so
+# every APK carries the same signature whichever computer the work comes from. A tag
+# `android-v*` also attaches the APK to a draft release, published by hand.
+name: Android
+
+"on":
+  push:
+    branches:
+      - android/engine-build
+    tags:
+      - android-v*
+    paths:
+      - .github/workflows/android.yml
+      - android/**
+      - crates/**
+      - Cargo.toml
+      - Cargo.lock
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_TOOLCHAIN: "1.99.1"
+  NDK_VERSION: r30
+  # SHA-256 of the stable key's certificate (public). A build signed otherwise fails.
+  STABLE_CERT_SHA256: 90d255ec9579ca4680ffaa154b8df870e287f9d818e61f6fa8983ae5b6150000
+  RNOTE_ANDROID_HOME: ${{ github.workspace }}/.rnote-android
+
+permissions:
+  contents: write
+
+concurrency:
+  group: android-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  apk:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Check the signing secrets
+        env:
+          KEYSTORE_BASE64: ${{ secrets.RNOTE_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.RNOTE_KEYSTORE_PASSWORD }}
+        run: |
+          if [[ -z "$KEYSTORE_BASE64" || -z "$KEYSTORE_PASSWORD" ]]; then
+            echo "::error::RNOTE_KEYSTORE_BASE64 or RNOTE_KEYSTORE_PASSWORD missing:" \
+              "see android/README.md, \"Signing\""
+            exit 1
+          fi
+
+      - name: Install rust toolchain
+        id: toolchain
+        uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8
+        with:
+          toolchain: ${{ env.RUST_TOOLCHAIN }}
+          targets: aarch64-linux-android, x86_64-linux-android
+
+      - name: Install JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Install build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends ninja-build pkg-config gperf
+          pipx install "meson>=1.4"
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "platforms;android-36"
+
+      - name: Cache the NDK
+        id: ndk-cache
+        uses: actions/cache@v5
+        with:
+          path: ${{ env.RNOTE_ANDROID_HOME }}/toolchain/android-ndk-${{ env.NDK_VERSION }}
+          key: ndk-${{ env.NDK_VERSION }}
+
+      - name: Download the NDK
+        if: steps.ndk-cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p "$RNOTE_ANDROID_HOME/toolchain"
+          curl -fsSLo "$RUNNER_TEMP/ndk.zip" \
+            "https://dl.google.com/android/repository/android-ndk-$NDK_VERSION-linux.zip"
+          unzip -q "$RUNNER_TEMP/ndk.zip" -d "$RNOTE_ANDROID_HOME/toolchain"
+          rm "$RUNNER_TEMP/ndk.zip"
+
+      # The C dependencies take the longest; they only change with their pinned wraps.
+      - name: Cache the C dependencies
+        uses: actions/cache@v5
+        with:
+          path: ${{ env.RNOTE_ANDROID_HOME }}/prefix
+          key: "android-deps-${{ env.NDK_VERSION }}-${{ hashFiles('android/deps/**',
+            'android/meson/**', 'android/scripts/build-deps.sh', 'android/scripts/env.sh') }}"
+
+      - name: Cache cargo and gradle
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+            ~/.gradle/caches/
+            ~/.gradle/wrapper/
+          key: "android-build-${{ steps.toolchain.outputs.cachekey }}-
+            ${{ hashFiles('**/Cargo.lock') }}-${{ github.sha }}"
+          restore-keys: android-build-${{ steps.toolchain.outputs.cachekey }}-
+
+      - name: Build the signed APK
+        env:
+          KEYSTORE_BASE64: ${{ secrets.RNOTE_KEYSTORE_BASE64 }}
+          RNOTE_KEYSTORE_PASSWORD: ${{ secrets.RNOTE_KEYSTORE_PASSWORD }}
+          RNOTE_KEY_PASSWORD: ${{ secrets.RNOTE_KEYSTORE_PASSWORD }}
+          RNOTE_KEY_ALIAS: rnote
+        run: |
+          export RNOTE_KEYSTORE="$RUNNER_TEMP/release.jks"
+          printf '%s' "$KEYSTORE_BASE64" | base64 -d >"$RNOTE_KEYSTORE"
+          android/scripts/build-apk.sh
+          rm "$RNOTE_KEYSTORE"
+
+      - name: Check the signature
+        run: |
+          apk=android/viewer/app/build/outputs/apk/debug/app-debug.apk
+          apksigner="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 | sort -V | tail -n1)/apksigner"
+          "$apksigner" verify --print-certs "$apk" | tee "$RUNNER_TEMP/certs.txt"
+          if ! grep -q "certificate SHA-256 digest: $STABLE_CERT_SHA256" "$RUNNER_TEMP/certs.txt"; then
+            echo "::error::the APK isn't signed with the stable key"
+            exit 1
+          fi
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then version="$GITHUB_REF_NAME"; else version="${GITHUB_SHA::8}"; fi
+          cp "$apk" "$RUNNER_TEMP/rnote-android-$version.apk"
+          echo "APK=$RUNNER_TEMP/rnote-android-$version.apk" >>"$GITHUB_ENV"
+
+      - name: Upload the APK
+        uses: actions/upload-artifact@v5
+        with:
+          name: rnote-android-apk
+          path: ${{ env.APK }}
+
+      - name: Attach to a draft release
+        if: startsWith(github.ref, 'refs/tags/android-v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="${GITHUB_REF#refs/tags/}"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release upload "$tag" "$APK" --clobber
+          else
+            gh release create "$tag" "$APK" --draft --prerelease --title "Rnote para Android $tag" \
+              --notes "APK firmado con la clave estable."
+          fi
