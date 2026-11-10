@@ -4113,6 +4113,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "rnote-library"
+version = "0.15.0"
+dependencies = [
+ "anyhow",
+ "serde",
+ "serde_json",
+ "tempfile",
+]
+
+[[package]]
 name = "robust"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"

@@ -1,0 +1,34 @@
+[package]
+name = "rnote-library"
+description = "The notebook library shared by the Rnote apps: folders, tags, trash and thumbnails"
+publish = false
+authors.workspace = true
+edition.workspace = true
+homepage.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+version.workspace = true
+
+[dependencies]
+anyhow = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }
+
+# Lints referenced by the Google Rust Style Guide, plus documented unsafe.
+[lints.rust]
+missing_docs = "warn"
+unsafe_op_in_unsafe_fn = "deny"
+
+[lints.clippy]
+borrowed_box = "warn"
+len_without_is_empty = "warn"
+new_without_default = "warn"
+ptr_arg = "warn"
+should_implement_trait = "warn"
+undocumented_unsafe_blocks = "warn"
+unwrap_used = "warn"
+wrong_self_convention = "warn"

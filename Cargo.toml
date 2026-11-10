@@ -5,6 +5,7 @@ members = [
     "crates/rnote-cli",
     "crates/rnote-ui",
     "crates/rnote-android",
+    "crates/rnote-library",
 ]
 resolver = "2"
 
@@ -20,6 +21,7 @@ version = "0.15.0"
 [workspace.dependencies]
 rnote-compose = { version = "0.15.0", path = "crates/rnote-compose" }
 rnote-engine = { version = "0.15.0", path = "crates/rnote-engine" }
+rnote-library = { version = "0.15.0", path = "crates/rnote-library" }
 
 adw = { version = "0.9.2", package = "libadwaita", features = ["v1_9"] }
 anyhow = "1.0"
