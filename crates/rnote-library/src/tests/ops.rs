@@ -225,3 +225,40 @@ fn a_new_notebook_does_not_inherit_the_tags_of_a_trashed_one() {
         library.notebooks().unwrap().into_iter().find(|n| n.path == restored).unwrap().tags;
     assert_eq!(tags_of_restored, vec![tag]);
 }
+
+#[test]
+fn renaming_to_another_notebooks_name_in_other_case_never_overwrites_it() {
+    let dir = tempfile::tempdir().unwrap();
+    write(dir.path(), "clase.rnote", b"lower");
+    write(dir.path(), "Clase.rnote", b"upper");
+    let mut library = library_at(dir.path());
+
+    assert!(library.rename("clase.rnote", "Clase").is_err());
+    assert_eq!(fs::read(dir.path().join("clase.rnote")).unwrap(), b"lower");
+    assert_eq!(fs::read(dir.path().join("Clase.rnote")).unwrap(), b"upper");
+}
+
+#[test]
+fn delete_folder_trashes_hidden_files_too() {
+    let dir = tempfile::tempdir().unwrap();
+    write(dir.path(), "F/a.rnote", b"a");
+    write(dir.path(), "F/.a.autosave.xopp", b"x");
+    let mut library = library_at(dir.path());
+
+    library.delete_folder("F").unwrap();
+
+    assert!(!dir.path().join("F").exists());
+    assert_eq!(library.trash_entries().len(), 2);
+}
+
+#[test]
+fn delete_folder_with_subfolders_moves_nothing() {
+    let dir = tempfile::tempdir().unwrap();
+    write(dir.path(), "F/a.rnote", b"a");
+    write(dir.path(), "F/G/b.rnote", b"b");
+    let mut library = library_at(dir.path());
+
+    assert!(library.delete_folder("F").is_err());
+    assert!(dir.path().join("F/a.rnote").exists());
+    assert!(library.trash_entries().is_empty());
+}

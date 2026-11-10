@@ -93,11 +93,18 @@ impl Library {
     /// Moves the file at the relative `path` to the trash and records it, without saving
     /// the metadata.
     pub(crate) fn trash_file(&mut self, path: &str) -> anyhow::Result<()> {
+        self.notebook_file(path)?;
+        self.trash_relative(path)
+    }
+
+    /// Like [`Library::trash_file`] for any file in the root or a first-level folder, hidden
+    /// ones included; `path` must come from listing the library.
+    pub(crate) fn trash_relative(&mut self, path: &str) -> anyhow::Result<()> {
         let now = self.now();
         let (_, file_name) = split_path(path);
         let (stem, extension) = split_extension(file_name);
         let id = unique_file_name(&self.trash_dir(), &format!("{now}-{stem}"), extension);
-        let from = self.notebook_file(path)?;
+        let from = self.root.join(path);
         fs::rename(&from, self.trash_dir().join(&id))
             .with_context(|| format!("Moving {} to the trash", from.display()))?;
         // Its tags wait in the trash with it, so a new notebook at its path starts untagged.

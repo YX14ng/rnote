@@ -88,3 +88,11 @@ fn unique_file_name_appends_counter() {
 
     assert_eq!(unique_file_name(dir.path(), "x", "rnote"), "x (3).rnote");
 }
+
+#[test]
+fn unique_file_name_treats_names_differing_in_case_as_taken() {
+    let dir = tempfile::tempdir().unwrap();
+    write(dir.path(), "X.rnote", b"");
+
+    assert_eq!(unique_file_name(dir.path(), "x", "rnote"), "x (2).rnote");
+}

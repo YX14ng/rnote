@@ -4,7 +4,7 @@ use std::fs;
 
 use anyhow::{Context, bail};
 
-use crate::names::{unique_file_name, validate_name};
+use crate::names::{name_taken, unique_file_name, validate_name};
 use crate::{Library, relative_path, split_extension};
 
 impl Library {
@@ -45,19 +45,25 @@ impl Library {
     /// Deletes a folder, sending everything in it to the trash.
     pub fn delete_folder(&mut self, folder: &str) -> anyhow::Result<()> {
         let dir = self.folder_dir(Some(folder))?;
+        // Everything is checked before anything moves.
         let mut files = Vec::new();
         for entry in fs::read_dir(&dir).with_context(|| format!("Reading {}", dir.display()))? {
             let entry = entry?;
             if entry.file_type()?.is_dir() {
                 bail!("{folder:?} has folders inside; move them out first");
             }
-            files.push(entry.file_name().to_string_lossy().into_owned());
+            let Ok(file_name) = entry.file_name().into_string() else {
+                bail!("{folder:?} has a file whose name isn't valid text");
+            };
+            files.push(file_name);
         }
         for file_name in files {
-            self.trash_file(&relative_path(Some(folder), &file_name))?;
+            // Hidden files too, e.g. other programs' autosaves; recorded one by one, so a
+            // failure halfway leaves nothing in the trash without its record.
+            self.trash_relative(&relative_path(Some(folder), &file_name))?;
+            self.save_meta()?;
         }
-        fs::remove_dir(&dir).with_context(|| format!("Removing {}", dir.display()))?;
-        self.save_meta()
+        fs::remove_dir(&dir).with_context(|| format!("Removing {}", dir.display()))
     }
 
     /// Renames the notebook at `path` to `new_name` (without extension) in the same folder.
@@ -73,11 +79,11 @@ impl Library {
             return Ok(new_path);
         }
         let to = self.root.join(&new_path);
-        let only_case = new_path.to_lowercase() == path.to_lowercase();
-        if to.exists() && !only_case {
+        let dir = self.folder_dir(folder)?;
+        if name_taken(&dir, &new_file_name, Some(&from)) {
             bail!("There is already a notebook named {new_name:?}");
         }
-        if only_case {
+        if to.exists() {
             // On case-insensitive file systems (exFAT, NTFS) the new name is the old file:
             // go through a temporary name.
             let temporary = from.with_extension(format!("{extension}.renaming"));
