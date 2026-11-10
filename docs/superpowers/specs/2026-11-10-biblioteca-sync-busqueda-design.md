@@ -303,6 +303,9 @@ formato desde esa versión).~~ **Corrección (2026-11-10, revisión final de la 
 falso. El fork guarda el formato 0.15 (upstream f3f7efd6, posterior a v0.14.2), y el 0.14.2
 lo lee sin error pero manda imágenes, PDF, textos y formas al origen. Un cuaderno guardado
 por el fork o por Android no se abre en el 0.14.2.
+**Decisión del usuario (2026-11-10):** la biblioteca (`/mnt/Storage/HandNotes`) se usa
+solo con el fork; no se escribe el formato 0.13. El fork es la app predeterminada para
+`application/rnote` en la PC.
 
 Si el Rnote oficial u otro programa edita archivos de la biblioteca, la sincronización lo
 ve igual (escanea el disco, no depende de eventos de guardado).
