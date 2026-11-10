@@ -57,6 +57,14 @@ else
     rust_target_folder = 'release'
 endif
 
+# A fork installs beside Rnote under its own id and shown name.
+if get_option('app-id') != ''
+    app_id = get_option('app-id')
+endif
+if get_option('app-name') != ''
+    app_name_capitalized = get_option('app-name')
+endif
+
 # Dependencies
 dependency('glib-2.0', version: '>= 2.88')
 dependency('gio-2.0', version: '>= 2.88')

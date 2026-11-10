@@ -35,3 +35,15 @@ option(
   value: 'C:\\msys64\\ucrt64',
   description: 'Only relevant for builds on Windows: the path of the installed msys/ucrt64 environment.',
 )
+option(
+  'app-id',
+  type: 'string',
+  value: '',
+  description: 'The application id, to install a fork beside Rnote. Empty: the id of the profile.',
+)
+option(
+  'app-name',
+  type: 'string',
+  value: '',
+  description: 'The name shown to the user, to tell a fork apart from Rnote. Empty: "Rnote".',
+)
