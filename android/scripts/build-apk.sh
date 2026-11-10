@@ -30,6 +30,12 @@ if [[ -z "${RNOTE_KEYSTORE:-}" && -f "$signing_env" ]]; then
   # shellcheck source=/dev/null
   . "$signing_env"
 fi
+if [[ -z "${RNOTE_KEYSTORE:-}" ]]; then
+  # An APK signed otherwise can't update one signed with the stable key, and uninstalling
+  # to install it deletes the notebooks in the app's library.
+  echo "build-apk.sh: WARNING: no stable key ($signing_env missing): signing with the debug key." >&2
+  echo "build-apk.sh: WARNING: don't install this over an app signed with the stable key." >&2
+fi
 
 cd "$script_dir/../viewer"
 ./gradlew --no-daemon assembleDebug

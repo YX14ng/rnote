@@ -54,6 +54,10 @@ class LibraryActivity : Activity() {
             onTagMenu = actions::tagMenu
         }
         setContentView(buildLayout())
+        // Unsaved changes kept when the app last stopped: the editor restores them first.
+        if (savedInstanceState == null && Recovery(this).exists) {
+            startActivity(Intent(this, MainActivity::class.java))
+        }
     }
 
     override fun onResume() {

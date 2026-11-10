@@ -73,6 +73,21 @@ internal class LibraryStore(val root: File) {
     /** The file of the notebook at the relative [path]. */
     fun file(path: String): File = File(root, path)
 
+    /**
+     * The file of the `.rnote` notebook at [path], or null if [path] doesn't name one at the
+     * root or in a first-level folder: the editor takes paths from intents, which other apps
+     * can send too.
+     */
+    fun notebookFile(path: String): File? {
+        val parts = path.split('/')
+        val valid = parts.size in 1..2 &&
+            parts.all { it.isNotEmpty() && !it.startsWith('.') && '\\' !in it } &&
+            path.endsWith(".rnote", ignoreCase = true)
+        if (!valid) return null
+        val file = file(path)
+        return file.takeIf { it.canonicalPath.startsWith(root.canonicalPath + File.separator) }
+    }
+
     companion object {
         /** The app's own library, in its private storage. */
         fun forApp(context: Context): LibraryStore = LibraryStore(File(context.filesDir, "library"))

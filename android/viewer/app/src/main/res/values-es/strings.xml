@@ -183,4 +183,5 @@
     <string name="toolbar_unfold">Mostrar las herramientas</string>
     <string name="action_zoom_fit">Ajustar al ancho de la página</string>
     <string name="zoom_percent">%d %%</string>
+    <string name="library_bad_path">"%1$s" no es un cuaderno de la biblioteca, o ya existe.</string>
 </resources>

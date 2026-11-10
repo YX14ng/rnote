@@ -289,7 +289,12 @@ class MainActivity : Activity() {
 
     /** Opens the library notebook at [path], or creates it there when [isNew]. */
     private fun openLibraryNotebook(path: String, isNew: Boolean) {
-        val file = LibraryStore.forApp(this).file(path)
+        val file = LibraryStore.forApp(this).notebookFile(path)
+        // A new notebook never replaces one, whoever asks.
+        if (file == null || (isNew && file.exists())) {
+            showError(IllegalArgumentException(getString(R.string.library_bad_path, path)))
+            return
+        }
         val uri = Uri.fromFile(file)
         startLoading()
         val onOpened = { result: Result<DocumentInfo> ->
@@ -298,7 +303,7 @@ class MainActivity : Activity() {
                     libraryPath = path
                     saver.currentUri = uri
                     saver.documentName = file.name
-                    recovery.clear()
+                    // A recovery copy belongs to another document: it stays until restored.
                     showOpenedDocument(info)
                     // A new notebook exists in the library from the start.
                     if (isNew) saver.autosave()

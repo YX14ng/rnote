@@ -40,20 +40,26 @@ internal class TagDialogs(
 
     /**
      * Chooses the tags of the notebooks at [paths]: checked are the ones all of them have.
-     * The chosen set replaces their tags.
+     * Only what the user toggles changes: a tag checked is added to all of them, one
+     * unchecked is removed from all of them, and the others stay as each notebook had them.
      */
     fun assign(paths: List<String>, snapshot: LibrarySnapshot) {
         val tags = snapshot.tags
         val notebooks = snapshot.notebooks.filter { it.path in paths }
-        val checked = BooleanArray(tags.size) { i -> notebooks.isNotEmpty() && notebooks.all { tags[i].id in it.tags } }
+        val initially = BooleanArray(tags.size) { i -> notebooks.isNotEmpty() && notebooks.all { tags[i].id in it.tags } }
+        val checked = initially.copyOf()
         AlertDialog.Builder(context)
             .setTitle(R.string.library_tags)
             .setMultiChoiceItems(tags.map { it.name }.toTypedArray(), checked) { _, which, isChecked ->
                 checked[which] = isChecked
             }
             .setPositiveButton(R.string.apply) { _, _ ->
-                val chosen = tags.filterIndexed { i, _ -> checked[i] }.map { it.id }
-                val requests = paths.map { LibraryStore.request("set_tags", "path" to it, "tags" to org.json.JSONArray(chosen)) }
+                val added = tags.filterIndexed { i, _ -> checked[i] && !initially[i] }.map { it.id }
+                val removed = tags.filterIndexed { i, _ -> !checked[i] && initially[i] }.map { it.id }.toSet()
+                val requests = notebooks.map { notebook ->
+                    val tagsOfNotebook = (notebook.tags.filter { it !in removed } + added).distinct()
+                    LibraryStore.request("set_tags", "path" to notebook.path, "tags" to org.json.JSONArray(tagsOfNotebook))
+                }
                 store.callAll(requests) { result -> result.onSuccess { onChanged() }.onFailure(onError) }
             }
             .setNeutralButton(R.string.library_new_tag) { _, _ -> create() }

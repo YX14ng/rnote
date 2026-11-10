@@ -5,6 +5,8 @@ import android.content.Intent
 import android.net.Uri
 import android.provider.DocumentsContract
 import android.provider.OpenableColumns
+import java.io.File
+import java.io.FileOutputStream
 import java.io.IOException
 
 /** Reading and writing documents through the Storage Access Framework. */
@@ -48,8 +50,25 @@ internal object DocumentFiles {
     fun read(resolver: ContentResolver, uri: Uri): ByteArray =
         resolver.openInputStream(uri)?.use { it.readBytes() } ?: throw IOException("Cannot read $uri")
 
-    /** Replaces the contents of [uri] with [bytes]. */
+    /**
+     * Replaces the contents of [uri] with [bytes]. A file of the app's own (a library
+     * notebook) is replaced at once, so a crash or a full disk never leaves it half written.
+     */
     fun write(resolver: ContentResolver, uri: Uri, bytes: ByteArray) {
+        val path = uri.path
+        if (uri.scheme == "file" && path != null) {
+            val target = File(path)
+            val temporary = File(target.parentFile, ".${target.name}.saving")
+            FileOutputStream(temporary).use { output ->
+                output.write(bytes)
+                output.fd.sync()
+            }
+            if (!temporary.renameTo(target)) {
+                temporary.delete()
+                throw IOException("Cannot replace $target")
+            }
+            return
+        }
         val output = resolver.openOutputStream(uri, "wt") ?: throw IOException("Cannot write $uri")
         output.use { it.write(bytes) }
     }
