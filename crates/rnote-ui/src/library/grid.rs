@@ -180,6 +180,8 @@ impl RnLibraryView {
                 action.set_enabled(count > 0);
             }
         }
+        // A menu button has no action of its own: it would open a menu of disabled items.
+        self.imp().selection_move_button.set_sensitive(count > 0);
     }
 
     /// Opens the notebook of the card at `index`, or creates one for "New".

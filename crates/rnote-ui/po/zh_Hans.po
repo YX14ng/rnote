@@ -1269,7 +1269,7 @@ msgstr "移至回收站"
 
 #: crates/rnote-ui/data/ui/filerow.ui:77
 msgid "Duplicate"
-msgstr "重复所选内容"
+msgstr "创建副本"
 
 #: crates/rnote-ui/data/ui/mainheader.ui:23
 #: crates/rnote-ui/src/canvas/mod.rs:732
