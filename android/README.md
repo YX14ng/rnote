@@ -39,6 +39,24 @@ cargo build -p rnote-cli --target aarch64-linux-android --release
 
 Use `x86_64` instead of `aarch64` to target the emulator or Waydroid.
 
+### Signing
+
+Published APKs are signed with one stable key, so installed apps can be updated and the
+Google Drive OAuth client, registered with the key's SHA-1, keeps working. Create it once:
+
+```sh
+android/scripts/create-keystore.sh   # ~/.config/rnote-android/release.jks
+```
+
+The script writes `~/.config/rnote-android/signing.env` with the variables the build reads
+(`RNOTE_KEYSTORE`, `RNOTE_KEY_ALIAS`, `RNOTE_KEYSTORE_PASSWORD`, `RNOTE_KEY_PASSWORD`); type
+the passwords into it by hand. `build-apk.sh` loads it (or the file in `RNOTE_SIGNING_ENV`).
+Without it, debug builds use the usual debug key and release builds refuse to build. Back
+the keystore up outside the computer: it can't be recreated. Never commit it.
+
+An app signed with another key must be uninstalled once before installing one signed with
+the stable key; files saved outside the app, e.g. in Documents, stay.
+
 ## App
 
 ```sh
