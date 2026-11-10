@@ -5,8 +5,8 @@ import android.graphics.Bitmap
 /**
  * JNI entry points implemented in `crates/rnote-android/src/jni_bridge.rs`.
  *
- * Only [NativeDocument] calls these, since it upholds the invariants the native side
- * relies on.
+ * Only [NativeDocument] calls the document functions, since it upholds the invariants the
+ * native side relies on; [LibraryStore] calls the library ones.
  */
 internal object NativeBridge {
     init {
@@ -166,4 +166,10 @@ internal object NativeBridge {
 
     /** Frees the document. The handle must not be used afterwards. */
     @JvmStatic external fun close(handle: Long)
+
+    /** Runs a JSON request on the library at [root]; returns the JSON answer, throws on errors. */
+    @JvmStatic external fun libraryCall(root: String, request: String): String
+
+    /** A PNG of the notebook's first page, at most [sizePx] wide and high, or null. */
+    @JvmStatic external fun libraryThumbnail(rnoteBytes: ByteArray, sizePx: Int): ByteArray?
 }

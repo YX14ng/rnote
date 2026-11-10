@@ -195,3 +195,14 @@ fn rename_changing_only_case_works() {
     assert_eq!(library.rename("algebra.rnote", "Algebra").unwrap(), "Algebra.rnote");
     assert_eq!(paths(&library), vec!["Algebra.rnote"]);
 }
+
+#[test]
+fn free_path_keeps_the_extension_and_avoids_taken_names() {
+    let dir = tempfile::tempdir().unwrap();
+    write(dir.path(), "F/x.xopp", b"");
+    let library = library_at(dir.path());
+
+    assert_eq!(library.free_path(Some("F"), "x.xopp").unwrap(), "F/x (2).xopp");
+    assert_eq!(library.free_path(None, "y.rnote").unwrap(), "y.rnote");
+    assert!(library.free_path(None, "../y.rnote").is_err());
+}

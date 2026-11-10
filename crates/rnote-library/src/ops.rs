@@ -138,6 +138,18 @@ impl Library {
         Ok(relative_path(folder, &unique_file_name(&dir, &stem, "rnote")))
     }
 
+    /// A free path for a file named like `file_name` (a name with extension) in `folder`,
+    /// with a suffix if the name is taken, e.g. to copy a file into the library.
+    pub fn free_path(&self, folder: Option<&str>, file_name: &str) -> anyhow::Result<String> {
+        let (stem, extension) = split_extension(file_name);
+        let stem = validate_name(stem)?;
+        if extension.is_empty() || extension.contains(['/', '\\']) {
+            bail!("{file_name:?} has no valid extension");
+        }
+        let dir = self.folder_dir(folder)?;
+        Ok(relative_path(folder, &unique_file_name(&dir, &stem, extension)))
+    }
+
     /// The file of the notebook at `path`, which must exist.
     pub(crate) fn existing_notebook(&self, path: &str) -> anyhow::Result<std::path::PathBuf> {
         let file = self.notebook_file(path)?;

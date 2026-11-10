@@ -9,6 +9,7 @@ mod android_color;
 mod document_settings;
 #[cfg(target_os = "android")]
 mod jni_bridge;
+mod library_bridge;
 mod pen_input;
 mod render;
 mod rnote_document;
