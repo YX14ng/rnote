@@ -28,6 +28,7 @@ class LibraryActivity : Activity() {
     private lateinit var viewButton: ImageButton
     private lateinit var barButtons: LinearLayout
     private lateinit var selectionBar: LinearLayout
+    private lateinit var syncButton: SyncButton
     private val preferences by lazy { getSharedPreferences(PREFERENCES, MODE_PRIVATE) }
 
     private var snapshot = LibrarySnapshot(emptyList(), emptyList(), emptyList(), emptyList())
@@ -53,6 +54,10 @@ class LibraryActivity : Activity() {
             onFolderMenu = actions::folderMenu
             onTagMenu = actions::tagMenu
         }
+        syncButton = SyncButton(this).apply {
+            onLibraryChanged = ::reload
+            view.layoutParams = LinearLayout.LayoutParams(dp(48f), dp(48f))
+        }
         setContentView(buildLayout())
         // Unsaved changes kept when the app last stopped: the editor restores them first.
         if (savedInstanceState == null && Recovery(this).exists) {
@@ -64,12 +69,22 @@ class LibraryActivity : Activity() {
         super.onResume()
         // Back from the editor: the notebook changed, and so did its thumbnail's key.
         reload()
+        syncButton.attach()
+        SyncManager.syncNow(this)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        syncButton.detach()
     }
 
     @Deprecated("Picking a file to import still goes through startActivityForResult: no AndroidX here.")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         @Suppress("DEPRECATION")
         super.onActivityResult(requestCode, resultCode, data)
+        if (syncButton.onActivityResult(requestCode, resultCode, data)) {
+            return
+        }
         val uri = data?.data
         if (requestCode == REQUEST_IMPORT && resultCode == RESULT_OK && uri != null) {
             LibraryImport(this, store, folder = (section as? LibrarySection.Folder)?.name).import(uri) { result ->
@@ -129,6 +144,7 @@ class LibraryActivity : Activity() {
         if (grid.selection != null) {
             return
         }
+        barButtons.addView(syncButton.view)
         if (section == LibrarySection.Trash) {
             if (snapshot.trash.isNotEmpty()) {
                 barButtons.addView(barButton(R.drawable.ic_delete, R.string.library_empty_trash) { actions.emptyTrash() })

@@ -185,4 +185,24 @@
     <string name="library_bad_path">"%1$s" no es un cuaderno de la biblioteca, o ya existe.</string>
     <string name="color_hex">Hex</string>
     <string name="color_keep">Guardar este color</string>
+    <string name="sync_button">Sincronización con Google Drive</string>
+    <string name="sync_unavailable">Esta compilación no puede sincronizar con Google Drive: no está firmada con la clave registrada en Google.</string>
+    <string name="sync_status_done">Sincronizado %s</string>
+    <string name="sync_status_waiting">Esperando para sincronizar</string>
+    <string name="sync_status_pending">Pendiente: %s</string>
+    <string name="sync_status_running">Sincronizando…</string>
+    <string name="sync_status_failed">Falló la sincronización: %s</string>
+    <string name="sync_now">Sincronizar ahora</string>
+    <string name="sync_sign_out">Cerrar sesión de Google Drive</string>
+    <string name="sync_sign_out_message">Los cuadernos quedan en este dispositivo y en tu Drive. La sincronización se detiene hasta que vuelvas a iniciar sesión.</string>
+    <string name="sync_signed_out_offline">Se cerró la sesión acá, pero no se pudo avisar a Google: quitale el acceso a Rnote en myaccount.google.com/permissions.</string>
+    <string name="sync_sign_in_failed">No se pudo iniciar sesión: %s</string>
+    <string name="sync_saved_as_copy">Este cuaderno cambió en otro dispositivo: tus cambios se guardaron como una copia.</string>
+    <string name="sync_reloaded">Se actualizó desde otro dispositivo</string>
+    <string name="sync_removed">Este cuaderno se borró en otro dispositivo</string>
+    <plurals name="sync_conflicts">
+        <item quantity="one">Se guardó una copia de conflicto</item>
+        <item quantity="many">Se guardaron %d copias de conflicto</item>
+        <item quantity="other">Se guardaron %d copias de conflicto</item>
+    </plurals>
 </resources>

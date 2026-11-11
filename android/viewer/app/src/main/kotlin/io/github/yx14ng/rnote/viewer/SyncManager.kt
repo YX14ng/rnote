@@ -1,5 +1,6 @@
 package io.github.yx14ng.rnote.viewer
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.os.Handler
@@ -61,6 +62,8 @@ internal sealed interface SyncStatus {
  * with a token asked without showing anything. Nothing here shows UI; everything runs and
  * calls back on the main thread.
  */
+// It only keeps the application context, which lives as long as the process.
+@SuppressLint("StaticFieldLeak")
 internal object SyncManager {
     private const val PREFERENCES = "sync"
     private const val KEY_ENABLED = "enabled"

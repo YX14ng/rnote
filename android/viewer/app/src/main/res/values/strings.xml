@@ -184,4 +184,23 @@
     <string name="library_bad_path">"%1$s" is not a notebook of the library, or it already exists.</string>
     <string name="color_hex">Hex</string>
     <string name="color_keep">Keep this color</string>
+    <string name="sync_button">Google Drive sync</string>
+    <string name="sync_unavailable">This build can\'t sync with Google Drive: it isn\'t signed with the key registered in Google.</string>
+    <string name="sync_status_done">Synced %s</string>
+    <string name="sync_status_waiting">Waiting to sync</string>
+    <string name="sync_status_pending">Pending: %s</string>
+    <string name="sync_status_running">Syncing…</string>
+    <string name="sync_status_failed">Sync failed: %s</string>
+    <string name="sync_now">Sync now</string>
+    <string name="sync_sign_out">Sign out of Google Drive</string>
+    <string name="sync_sign_out_message">The notebooks stay on this device and in your Drive. The sync stops until you sign in again.</string>
+    <string name="sync_signed_out_offline">Signed out here, but Google couldn\'t be told: remove Rnote\'s access at myaccount.google.com/permissions.</string>
+    <string name="sync_sign_in_failed">Couldn\'t sign in: %s</string>
+    <string name="sync_saved_as_copy">This notebook changed on another device: your changes were saved as a copy.</string>
+    <string name="sync_reloaded">Updated from another device</string>
+    <string name="sync_removed">This notebook was deleted on another device</string>
+    <plurals name="sync_conflicts">
+        <item quantity="one">A conflict copy was saved</item>
+        <item quantity="other">%d conflict copies were saved</item>
+    </plurals>
 </resources>
