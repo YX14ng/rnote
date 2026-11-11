@@ -172,4 +172,23 @@ internal object NativeBridge {
 
     /** A PNG of the notebook's first page, at most [sizePx] wide and high, or null. */
     @JvmStatic external fun libraryThumbnail(rnoteBytes: ByteArray, sizePx: Int): ByteArray?
+
+    /**
+     * Saves the open notebook to [path] in the library at [root], or to a conflict copy beside
+     * it if the file isn't the one with hash [expectedSha256] anymore; returns the JSON
+     * `{"path", "sha256", "conflict"}`, throws on errors.
+     */
+    @JvmStatic external fun libraryWriteNotebook(
+        root: String,
+        path: String,
+        expectedSha256: String?,
+        device: String,
+        bytes: ByteArray,
+    ): String
+
+    /** Syncs the library at [root] with Google Drive; returns the JSON outcome. Blocks on the network. */
+    @JvmStatic external fun syncRun(root: String, statePath: String, device: String, token: String): String
+
+    /** Revokes the access [token], signing out of Google Drive; throws on errors. Blocks on the network. */
+    @JvmStatic external fun syncRevoke(token: String)
 }

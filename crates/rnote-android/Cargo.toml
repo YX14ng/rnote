@@ -17,16 +17,20 @@ crate-type = ["cdylib", "rlib"]
 rnote-compose = { workspace = true }
 rnote-engine = { workspace = true }
 rnote-library = { workspace = true }
+rnote-sync = { workspace = true }
 
 anyhow = { workspace = true }
 cairo-rs = { workspace = true }
+chrono = { workspace = true }
 futures = { workspace = true }
 num-traits = { workspace = true }
 parry2d-f64 = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
+sha2 = { workspace = true }
 
 [dev-dependencies]
+rnote-sync = { workspace = true, features = ["fake"] }
 tempfile = { workspace = true }
 
 [target.'cfg(target_os = "android")'.dependencies]

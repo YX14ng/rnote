@@ -16,3 +16,4 @@ mod editing;
 mod library;
 mod selection;
 mod settings;
+mod sync;
