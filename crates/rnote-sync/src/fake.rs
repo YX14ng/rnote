@@ -319,5 +319,5 @@ impl Remote for FakeDrive {
 }
 
 fn md5_hex(bytes: &[u8]) -> String {
-    Md5::digest(bytes).iter().map(|byte| format!("{byte:02x}")).collect()
+    crate::hex(&Md5::digest(bytes))
 }
