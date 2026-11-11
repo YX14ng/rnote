@@ -6,6 +6,7 @@ mod basic;
 mod conflicts;
 mod fake;
 mod local;
+mod moves;
 
 use std::fs;
 use std::path::{Path, PathBuf};

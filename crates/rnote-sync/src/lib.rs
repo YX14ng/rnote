@@ -10,6 +10,7 @@ mod content;
 pub mod fake;
 mod local;
 mod lock;
+mod moves;
 mod names;
 mod remote;
 mod run;
@@ -109,6 +110,7 @@ pub fn sync(ctx: &SyncContext, remote: &mut dyn Remote) -> Result<SyncReport, Sy
     let local = local::scan(ctx.library_root)?;
     let tree = RemoteTree::new(&listing, &root);
     let mut run = Run::new(ctx, remote, state, tree, local);
+    moves::apply_moves(&mut run)?;
     content::reconcile(&mut run)?;
     content::clean_folders(&mut run)?;
     Ok(run.report)
