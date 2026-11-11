@@ -1,5 +1,7 @@
 //! Names for the copies the sync makes so that no version is ever overwritten.
 
+use std::path::Path;
+
 use chrono::NaiveDateTime;
 
 /// Where the other version of the notebook at `path` goes when both sides changed it:
@@ -12,6 +14,19 @@ pub(crate) fn conflict_name(path: &str, device: &str, now: NaiveDateTime) -> Str
         .collect();
     let date = now.format("%Y-%m-%d %H.%M");
     with_suffix(path, &format!(" (conflicto, {device}, {date})"))
+}
+
+/// Where a copy of the notebook at `path` goes so it doesn't overwrite a version: the
+/// name [`conflict_name`] gives it, made free against what exists in `library_root`. The
+/// sync names its copies the same way.
+pub fn conflict_copy_path(
+    library_root: &Path,
+    path: &str,
+    device: &str,
+    now: NaiveDateTime,
+) -> String {
+    let wanted = conflict_name(path, device, now);
+    free_path(&wanted, &|candidate| library_root.join(candidate).exists())
 }
 
 /// `wanted` if `taken` says it's free, or else the first free of `Name (2).ext`,

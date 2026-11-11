@@ -388,8 +388,8 @@ fn should_retry(status: u16, body: &[u8]) -> bool {
     status == 429 || (500..600).contains(&status) || (status == 403 && rate_limited())
 }
 
-/// A failure to talk to Drive at all.
-fn transport_error(error: ureq::Error) -> RemoteError {
+/// A failure to talk to Google at all.
+pub(crate) fn transport_error(error: ureq::Error) -> RemoteError {
     match error {
         ureq::Error::Io(_)
         | ureq::Error::Timeout(_)

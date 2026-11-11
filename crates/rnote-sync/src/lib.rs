@@ -14,6 +14,7 @@ mod lock;
 mod moves;
 mod names;
 mod remote;
+mod revoke;
 mod run;
 mod state;
 mod tree;
@@ -26,9 +27,11 @@ use std::path::Path;
 use chrono::NaiveDateTime;
 
 pub use crate::drive::DriveClient;
+pub use crate::names::conflict_copy_path;
 pub use crate::remote::{
     Listing, ROOT_FOLDER_NAME, Remote, RemoteError, RemoteFile, RemoteFolder, Revision,
 };
+pub use crate::revoke::{revoke, revoke_at};
 use crate::run::Run;
 use crate::state::SyncState;
 use crate::tree::RemoteTree;
