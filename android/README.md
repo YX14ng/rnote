@@ -110,7 +110,20 @@ What it does:
   notebooks at once. "Import" copies an `.rnote` or Xournal++ `.xopp` from the system
   picker; `.xopp` files in the library show as cards that open as the `.rnote` made from
   them. The library itself is `crates/rnote-library` (plain files, `library.json` for tags
-  and the trash), shared with the desktop app and the Google Drive sync to come.
+  and the trash), shared with the desktop app.
+- The cloud in the library's top bar syncs the library with a folder `Rnote` in the user's
+  own Google Drive (`crates/rnote-sync`), with the `drive.file` permission: the app sees
+  only what it created. Tapping it signs in with Google's account picker (the Authorization
+  API of Play Services; Google knows the app by its package and the stable key's SHA-1, so
+  there is no client id in the code); signed in, it shows the last sync and offers "Sync
+  now" and "Sign out of Google Drive", which revokes the access. The library syncs when
+  it shows (opening the app, coming back from the editor) and five seconds after saving a
+  notebook; offline, it stays pending until the next time. The sync state lives in
+  `filesDir/sync/state.json`, outside the library. A notebook open in the editor is never
+  written over: without unsaved changes it reloads when a sync brings another version, and
+  with them, saving puts them in a copy `Name (conflicto, <device>, <date>).rnote` beside it.
+  APKs not signed with the stable key (see "Signing") can't sign in: the cloud explains
+  why.
 - Pages are outlined like in the desktop app, when the document has borders enabled.
 - Opening fits one page to the screen width, starting at the origin page, and the zoom stays
   within the engine's limits (0.2 to 6). The engine's camera has to match the screen: the
