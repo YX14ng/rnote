@@ -10,6 +10,33 @@ use crate::library::RnLibraryView;
 const LIBRARY_PAGE: &str = "library";
 /// The name of the editor page of the window's stack.
 const EDITOR_PAGE: &str = "editor";
+/// The window actions that change or use the active document. They are off while the
+/// library is shown, so their shortcuts can't touch a document that isn't on screen.
+const DOCUMENT_ACTIONS: [&str; 23] = [
+    "undo",
+    "redo",
+    "clear-doc",
+    "add-page-to-doc",
+    "remove-page-from-doc",
+    "import-file",
+    "print-doc",
+    "clipboard-copy",
+    "clipboard-cut",
+    "clipboard-paste",
+    "text-bold",
+    "text-italic",
+    "text-underline",
+    "pen-style",
+    "set-color-1",
+    "set-color-2",
+    "set-color-3",
+    "set-color-4",
+    "set-color-5",
+    "set-color-6",
+    "set-color-7",
+    "set-color-8",
+    "set-color-9",
+];
 
 impl RnAppWindow {
     /// The library view.
@@ -21,11 +48,34 @@ impl RnAppWindow {
     pub(crate) fn show_library(&self) {
         self.library_view().refresh();
         self.imp().main_stack.set_visible_child_name(LIBRARY_PAGE);
+        self.set_document_actions_enabled(false);
     }
 
     /// Shows the editor with the tabs.
     pub(crate) fn show_editor(&self) {
         self.imp().main_stack.set_visible_child_name(EDITOR_PAGE);
+        self.set_document_actions_enabled(true);
+    }
+
+    fn set_document_actions_enabled(&self, enabled: bool) {
+        for name in DOCUMENT_ACTIONS {
+            if let Some(action) = self.lookup_action(name)
+                && let Ok(action) = action.downcast::<gio::SimpleAction>()
+            {
+                action.set_enabled(enabled);
+            }
+        }
+        // Enabling an action makes its buttons sensitive again, but the undo and redo
+        // buttons follow the document's history instead.
+        if enabled && let Some(canvas) = self.active_tab_canvas() {
+            let (can_undo, can_redo) = {
+                let engine = canvas.engine_ref();
+                (engine.can_undo(), engine.can_redo())
+            };
+            let penpicker = self.overlays().penpicker();
+            penpicker.undo_button().set_sensitive(can_undo);
+            penpicker.redo_button().set_sensitive(can_redo);
+        }
     }
 
     /// Sets up the library view, the actions to switch views, and showing the editor
