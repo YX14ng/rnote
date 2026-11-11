@@ -6,6 +6,7 @@
 
 mod conflicts;
 mod content;
+mod drive;
 #[cfg(any(test, feature = "fake"))]
 pub mod fake;
 mod local;
@@ -24,6 +25,7 @@ use std::path::Path;
 
 use chrono::NaiveDateTime;
 
+pub use crate::drive::DriveClient;
 pub use crate::remote::{Listing, ROOT_FOLDER_NAME, Remote, RemoteError, RemoteFile, RemoteFolder};
 use crate::run::Run;
 use crate::state::SyncState;

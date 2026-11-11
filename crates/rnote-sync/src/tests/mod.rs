@@ -5,9 +5,11 @@
 mod basic;
 mod conflicts;
 mod devices;
+mod drive;
 mod fake;
 mod local;
 mod moves;
+mod stub_http;
 
 use std::fs;
 use std::path::{Path, PathBuf};
