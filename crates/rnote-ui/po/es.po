@@ -3345,3 +3345,6 @@ msgstr "No se puede abrir la biblioteca"
 
 msgid "Choose Folder…"
 msgstr "Elegir carpeta…"
+
+msgid "_Quit"
+msgstr "_Salir"

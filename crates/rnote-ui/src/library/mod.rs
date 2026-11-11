@@ -187,6 +187,23 @@ impl RnLibraryView {
             move |_, _| view.refresh()
         ));
         actions.add_action(&refresh);
+        // The settings live in the editor's sidebar.
+        let open_settings = gio::SimpleAction::new("open-settings", None);
+        open_settings.connect_activate(clone!(
+            #[weak(rename_to = view)]
+            self,
+            move |_, _| {
+                if let Some(appwindow) = view.appwindow() {
+                    appwindow.show_editor();
+                    gio::prelude::ActionGroupExt::activate_action(
+                        &appwindow,
+                        "open-settings",
+                        None,
+                    );
+                }
+            }
+        ));
+        actions.add_action(&open_settings);
 
         // View options, saved to the settings when the window is known.
         for key in [SORT_BY_NAME_KEY, LIST_VIEW_KEY] {

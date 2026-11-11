@@ -18,6 +18,24 @@
         <attribute name="action">library.refresh</attribute>
       </item>
     </section>
+    <section>
+      <item>
+        <attribute name="label" translatable="yes">Se_ttings</attribute>
+        <attribute name="action">library.open-settings</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">_Keyboard Shortcuts</attribute>
+        <attribute name="action">win.keyboard-shortcuts</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">A_bout Rnote</attribute>
+        <attribute name="action">win.about</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">_Quit</attribute>
+        <attribute name="action">app.quit</attribute>
+      </item>
+    </section>
   </menu>
   <template class="RnLibraryView" parent="GtkWidget">
     <property name="layout-manager">
