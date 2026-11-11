@@ -2,6 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- The Google Drive sync. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <!-- enableOnBackInvokedCallback only exists from API 33 on; older versions ignore it and
          use onBackPressed, which MainActivity still handles. hasFragileUserData: uninstalling
          offers to keep the data, which holds the notebook library. -->

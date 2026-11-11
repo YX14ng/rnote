@@ -17,6 +17,14 @@ android {
         ndk {
             abiFilters += listOf("arm64-v8a", "x86_64")
         }
+
+        // Google identifies the app by its package and the SHA-1 of the stable key: an APK
+        // signed with another key can't sign in, so its sync is off and says why.
+        buildConfigField("boolean", "DRIVE_SYNC", (System.getenv("RNOTE_KEYSTORE") != null).toString())
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 
     // The stable key every published APK is signed with, so the OAuth client registered
@@ -50,6 +58,11 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+}
+
+dependencies {
+    // The Authorization API, for the access token of the Drive sync.
+    implementation("com.google.android.gms:play-services-auth:22.0.0")
 }
 
 // A release must be signed with the stable key: an APK signed otherwise couldn't update
