@@ -5,6 +5,7 @@ use std::collections::BTreeSet;
 use std::fs;
 
 use crate::SyncError;
+use crate::conflicts::{both_changed, download_new, split_duplicates, unclaimed_files_at};
 use crate::local::sha256_hex;
 use crate::run::Run;
 use crate::tree::split;
@@ -35,54 +36,68 @@ fn reconcile_path(run: &mut Run, path: &str) -> Result<(), SyncError> {
             let local_changed = sha256 != entry.sha256;
             let remote_changed = file.md5 != entry.md5;
             match (local_changed, remote_changed) {
-                (false, false) => Ok(()),
-                (true, false) => run.upload_update(path, &file.id),
-                (false, true) => run.download(path, &file),
-                (true, true) => both_changed(run, path, &file),
+                (false, false) => {}
+                (true, false) => run.upload_update(path, &file.id)?,
+                (false, true) => run.download(path, &file)?,
+                (true, true) => {
+                    let bytes = run.remote.download(&file.id)?;
+                    both_changed(run, path, &file, &bytes)?;
+                }
             }
         }
         // Gone from Drive: a local edit wins and comes back; otherwise it goes here too.
         (Some(sha256), None) => {
             if sha256 == entry.sha256 {
-                run.delete_local(path)
+                run.delete_local(path)?;
             } else {
                 run.forget(path)?;
-                run.upload_new(path)
+                run.upload_new(path)?;
             }
         }
         // Gone from here: an edit in Drive wins and comes back; otherwise it goes there too.
         (None, Some(file)) => {
             if file.md5 == entry.md5 {
-                run.trash_remote(path, &file.id)
+                run.trash_remote(path, &file.id)?;
             } else {
-                run.download(path, &file)
+                run.download(path, &file)?;
             }
         }
-        (None, None) => run.forget(path),
+        (None, None) => run.forget(path)?,
+    }
+    // Files another device put at the same path meanwhile.
+    match run.state.entries.get(path).map(|entry| entry.id.clone()) {
+        Some(kept) => split_duplicates(run, path, &kept),
+        None if !unclaimed_files_at(run, path).is_empty() => {
+            let local = run.local.get(path).cloned();
+            reconcile_new(run, path, local)
+        }
+        None => Ok(()),
     }
 }
 
 /// A path the last sync didn't see.
 fn reconcile_new(run: &mut Run, path: &str, local: Option<String>) -> Result<(), SyncError> {
-    let remote = run.tree.files_at(path).into_iter().next();
-    match (local, remote) {
-        (Some(_), None) => run.upload_new(path),
-        (None, Some(file)) => run.download(path, &file),
-        (Some(sha256), Some(file)) => {
+    let Some(file) = unclaimed_files_at(run, path).into_iter().next() else {
+        return match local {
+            Some(_) => run.upload_new(path),
+            None => Ok(()),
+        };
+    };
+    match local {
+        None => download_new(run, path, &file)?,
+        Some(sha256) => {
             let bytes = run.remote.download(&file.id)?;
             if sha256_hex(&bytes) == sha256 {
-                run.record(path, &file, sha256)
+                run.record(path, &file, sha256)?;
             } else {
-                both_changed(run, path, &file)
+                both_changed(run, path, &file, &bytes)?;
             }
         }
-        (None, None) => Ok(()),
     }
-}
-
-/// Both sides have a different version of `path`.
-fn both_changed(_run: &mut Run, path: &str, _file: &crate::RemoteFile) -> Result<(), SyncError> {
-    Err(SyncError::Failed(anyhow::anyhow!("Conflicts aren't handled yet: {path}")))
+    match run.state.entries.get(path).map(|entry| entry.id.clone()) {
+        Some(kept) => split_duplicates(run, path, &kept),
+        None => Ok(()),
+    }
 }
 
 /// Trashes the folders in Drive that were left without files and aren't here, and

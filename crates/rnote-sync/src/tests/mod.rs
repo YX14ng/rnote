@@ -3,6 +3,7 @@
 #![allow(clippy::unwrap_used)]
 
 mod basic;
+mod conflicts;
 mod fake;
 mod local;
 

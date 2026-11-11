@@ -4,13 +4,12 @@
 //! Drive is reached through the [`Remote`] trait, so the whole algorithm is tested against
 //! an in-memory Drive.
 
+mod conflicts;
 mod content;
 #[cfg(any(test, feature = "fake"))]
 pub mod fake;
 mod local;
 mod lock;
-// Used by the conflict copies, in the next commit.
-#[allow(dead_code)]
 mod names;
 mod remote;
 mod run;
