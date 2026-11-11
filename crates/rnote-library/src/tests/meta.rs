@@ -113,3 +113,96 @@ fn json_round_trip_matches_the_v1_format() {
     assert_eq!(json["trash"][&trash_id]["original_path"], "b.rnote");
     assert_eq!(json["trash"][&trash_id]["deleted_at"], 1_000);
 }
+
+/// A `library.json` with `tags`, `notebook_tags` and `trash` given as JSON objects.
+fn meta_json(tags: Value, notebook_tags: Value, trash: Value) -> Vec<u8> {
+    serde_json::to_vec(&serde_json::json!({
+        "version": 1,
+        "tags": tags,
+        "notebook_tags": notebook_tags,
+        "trash": trash,
+    }))
+    .unwrap()
+}
+
+fn tag(name: &str, updated_at: i64, deleted: bool) -> Value {
+    serde_json::json!({"name": name, "color": 1, "updated_at": updated_at, "deleted": deleted})
+}
+
+fn merged(local: &[u8], remote: &[u8]) -> Value {
+    serde_json::from_slice(&crate::merge_meta(local, remote).unwrap()).unwrap()
+}
+
+#[test]
+fn merge_keeps_entries_from_both_sides() {
+    let empty = serde_json::json!({});
+    let local =
+        meta_json(serde_json::json!({"a": tag("A", 1, false)}), empty.clone(), empty.clone());
+    let remote = meta_json(serde_json::json!({"b": tag("B", 1, false)}), empty.clone(), empty);
+
+    let json = merged(&local, &remote);
+
+    assert_eq!(json["tags"]["a"]["name"], "A");
+    assert_eq!(json["tags"]["b"]["name"], "B");
+}
+
+#[test]
+fn merge_takes_the_newer_record_of_each_entry() {
+    let empty = serde_json::json!({});
+    let local = meta_json(
+        serde_json::json!({"a": tag("Viejo", 5, false)}),
+        serde_json::json!({"x.rnote": {"tags": ["a"], "updated_at": 9, "deleted": false}}),
+        empty.clone(),
+    );
+    let remote = meta_json(
+        serde_json::json!({"a": tag("Nuevo", 9, false)}),
+        serde_json::json!({"x.rnote": {"tags": [], "updated_at": 4, "deleted": false}}),
+        empty,
+    );
+
+    let json = merged(&local, &remote);
+
+    assert_eq!(json["tags"]["a"]["name"], "Nuevo");
+    assert_eq!(json["notebook_tags"]["x.rnote"]["tags"], serde_json::json!(["a"]));
+}
+
+#[test]
+fn merge_keeps_tombstones() {
+    let empty = serde_json::json!({});
+    let live = serde_json::json!({"x": {"original_path": "a.rnote", "deleted_at": 1,
+        "updated_at": 5, "deleted": false}});
+    let tombstone = serde_json::json!({"x": {"original_path": "a.rnote", "deleted_at": 1,
+        "updated_at": 9, "deleted": true}});
+    let local = meta_json(empty.clone(), empty.clone(), live);
+    let remote = meta_json(empty.clone(), empty, tombstone);
+
+    assert_eq!(merged(&local, &remote)["trash"]["x"]["deleted"], true);
+}
+
+#[test]
+fn merge_is_commutative() {
+    let empty = serde_json::json!({});
+    let a = meta_json(serde_json::json!({"t": tag("Uno", 7, false)}), empty.clone(), empty.clone());
+    let b = meta_json(serde_json::json!({"t": tag("Dos", 7, true)}), empty.clone(), empty.clone());
+    let c = meta_json(serde_json::json!({"t": tag("Tres", 7, false)}), empty.clone(), empty);
+
+    assert_eq!(crate::merge_meta(&a, &b).unwrap(), crate::merge_meta(&b, &a).unwrap());
+    assert_eq!(crate::merge_meta(&a, &c).unwrap(), crate::merge_meta(&c, &a).unwrap());
+    assert_eq!(merged(&a, &b)["tags"]["t"]["deleted"], true);
+}
+
+#[test]
+fn merge_with_an_unreadable_side_keeps_the_readable_one() {
+    let empty = serde_json::json!({});
+    let good = meta_json(serde_json::json!({"a": tag("A", 1, false)}), empty.clone(), empty);
+    let expected: Value = serde_json::from_slice(&good).unwrap();
+
+    assert_eq!(merged(&good, b"{"), expected);
+    assert_eq!(merged(b"{", &good), expected);
+    assert_eq!(merged(&good, br#"{"version": 99}"#), expected);
+}
+
+#[test]
+fn merge_of_two_unreadable_sides_is_an_error() {
+    assert!(crate::merge_meta(b"{", b"nope").is_err());
+}

@@ -8,11 +8,11 @@ use std::fs;
 use std::io::ErrorKind;
 use std::path::Path;
 
-use anyhow::Context;
+use anyhow::{Context, bail};
 use serde::{Deserialize, Serialize};
 
-/// The file name, inside the library's data folder.
-pub(crate) const META_FILE: &str = "library.json";
+/// The file name of the metadata, inside [`crate::LIBRARY_DIR`].
+pub const META_FILE: &str = "library.json";
 /// Where a file that can't be read is set aside.
 const BAD_META_FILE: &str = "library.json.bad";
 /// The format version this code reads and writes.
@@ -137,4 +137,73 @@ impl Meta {
             record.deleted = true;
         }
     }
+}
+
+/// An entry of `library.json` that merges by its change time.
+trait Record: Clone + Serialize {
+    fn updated_at(&self) -> i64;
+    fn deleted(&self) -> bool;
+}
+
+macro_rules! impl_record {
+    ($($record:ty),*) => {$(
+        impl Record for $record {
+            fn updated_at(&self) -> i64 {
+                self.updated_at
+            }
+
+            fn deleted(&self) -> bool {
+                self.deleted
+            }
+        }
+    )*};
+}
+
+impl_record!(TagRecord, NotebookTagsRecord, TrashRecord);
+
+/// Merges two copies of `library.json` entry by entry: the newer change of each entry
+/// wins, tombstones included. Ties go to the tombstone and then to the larger serialized
+/// entry, so every device gets the same result whatever the order. A copy that can't be
+/// read, or is of another version, counts as missing; it's an error only if both are.
+pub fn merge_meta(local: &[u8], remote: &[u8]) -> anyhow::Result<Vec<u8>> {
+    let merged = match (parse(local), parse(remote)) {
+        (Some(local), Some(remote)) => Meta {
+            version: VERSION,
+            tags: merge_map(&local.tags, &remote.tags),
+            notebook_tags: merge_map(&local.notebook_tags, &remote.notebook_tags),
+            trash: merge_map(&local.trash, &remote.trash),
+        },
+        (Some(meta), None) | (None, Some(meta)) => meta,
+        (None, None) => bail!("Neither copy of {META_FILE} can be read"),
+    };
+    Ok(serde_json::to_vec_pretty(&merged)?)
+}
+
+fn parse(bytes: &[u8]) -> Option<Meta> {
+    serde_json::from_slice::<Meta>(bytes).ok().filter(|meta| meta.version == VERSION)
+}
+
+fn merge_map<R: Record>(
+    local: &BTreeMap<String, R>,
+    remote: &BTreeMap<String, R>,
+) -> BTreeMap<String, R> {
+    let mut merged = local.clone();
+    for (key, theirs) in remote {
+        let keep_theirs = match merged.get(key) {
+            Some(ours) => wins(theirs, ours),
+            None => true,
+        };
+        if keep_theirs {
+            merged.insert(key.clone(), theirs.clone());
+        }
+    }
+    merged
+}
+
+/// Whether record `a` wins over record `b`.
+fn wins<R: Record>(a: &R, b: &R) -> bool {
+    let key = |record: &R| {
+        (record.updated_at(), record.deleted(), serde_json::to_string(record).unwrap_or_default())
+    };
+    key(a) > key(b)
 }
