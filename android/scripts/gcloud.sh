@@ -90,13 +90,27 @@ setup() {
     echo "Using the project $project."
   else
     echo "Creating the project $project ..."
-    gcloud projects create "$project" --name="Rnote" \
-      || die "couldn't create it. If it's about the terms of service, open" \
+    local output
+    if ! output="$(gcloud projects create "$project" --name="Rnote" 2>&1)"; then
+      echo "$output" >&2
+      # Projects being deleted keep counting for 30 days, so deleting one doesn't help.
+      if grep -q "project quota" <<<"$output"; then
+        die "the account has no room for another project: reuse one with" \
+          "'android/scripts/gcloud.sh setup <project id>' (ids in 'gcloud.sh projects list')"
+      fi
+      die "couldn't create it. If it's about the terms of service, open" \
         "https://console.cloud.google.com once, accept them and run this again."
+    fi
   fi
   gcloud config set core/project "$project" --quiet
   echo "Enabling the Google Drive API ..."
-  gcloud services enable drive.googleapis.com --project="$project"
+  # A project just created or restored takes a minute or two to show up for this.
+  local try
+  for try in 1 2 3 4 5 6; do
+    gcloud services enable drive.googleapis.com --project="$project" 2>/dev/null && break
+    [[ "$try" -lt 6 ]] || gcloud services enable drive.googleapis.com --project="$project"
+    sleep 30
+  done
 
   local sha1 console="https://console.cloud.google.com/auth"
   sha1="$(signing_sha1)"
