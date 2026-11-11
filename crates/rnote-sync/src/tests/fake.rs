@@ -129,3 +129,14 @@ fn md5_is_the_md5_of_the_content() {
 
     assert_eq!(file.md5, "900150983cd24fb0d6963f7d28e17f72");
 }
+
+#[test]
+fn lose_reply_after_does_the_operation_but_fails_it() {
+    let mut drive = FakeDrive::new();
+    let root = root(&mut drive);
+    drive.lose_reply_after(drive.ops());
+
+    assert!(matches!(drive.create_file(&root, "a.rnote", b"a"), Err(RemoteError::Offline(_))));
+    assert!(matches!(drive.list(), Err(RemoteError::Offline(_))));
+    assert_eq!(drive.paths(), vec!["a.rnote"]);
+}

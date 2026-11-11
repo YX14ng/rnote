@@ -4,6 +4,7 @@
 
 mod basic;
 mod conflicts;
+mod devices;
 mod fake;
 mod local;
 mod moves;

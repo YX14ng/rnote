@@ -28,6 +28,7 @@ struct Inner {
     clock: u64,
     ops: usize,
     fail_after: Option<usize>,
+    lose_reply: bool,
 }
 
 /// A Drive in memory. Like Drive, a folder can hold two files with the same name.
@@ -46,7 +47,17 @@ impl FakeDrive {
     /// Makes every operation after the first `ops` ones (counted since the start) fail as
     /// offline.
     pub fn fail_after(&self, ops: usize) {
-        self.inner.borrow_mut().fail_after = Some(ops);
+        let mut inner = self.inner.borrow_mut();
+        inner.fail_after = Some(ops);
+        inner.lose_reply = false;
+    }
+
+    /// Like [`Self::fail_after`], but the first failing operation is done in Drive before
+    /// it fails: its reply is lost, as when the connection drops at the wrong moment.
+    pub fn lose_reply_after(&self, ops: usize) {
+        let mut inner = self.inner.borrow_mut();
+        inner.fail_after = Some(ops);
+        inner.lose_reply = true;
     }
 
     /// Stops the failures of [`Self::fail_after`].
@@ -130,16 +141,26 @@ impl FakeDrive {
         paths
     }
 
-    /// Counts an operation and fails it if [`Self::fail_after`] says so.
-    fn tick(&self) -> Result<std::cell::RefMut<'_, Inner>, RemoteError> {
+    /// Runs the operation `op` as Drive would, failing it as [`Self::fail_after`] and
+    /// [`Self::lose_reply_after`] say.
+    fn call<T>(
+        &self,
+        op: impl FnOnce(&mut Inner) -> Result<T, RemoteError>,
+    ) -> Result<T, RemoteError> {
         let mut inner = self.inner.borrow_mut();
         inner.ops += 1;
-        match inner.fail_after {
-            Some(limit) if inner.ops > limit => {
-                Err(RemoteError::Offline("the fake Drive is offline".to_owned()))
-            }
-            _ => Ok(inner),
+        let offline = || Err(RemoteError::Offline("the fake Drive is offline".to_owned()));
+        let Some(limit) = inner.fail_after else {
+            return op(&mut inner);
+        };
+        if inner.ops <= limit {
+            return op(&mut inner);
         }
+        if inner.lose_reply && inner.ops == limit + 1 {
+            // Done in Drive, but the reply never arrives.
+            op(&mut inner)?;
+        }
+        offline()
     }
 }
 
@@ -242,28 +263,29 @@ impl Inner {
 
 impl Remote for FakeDrive {
     fn find_root(&mut self) -> Result<Option<String>, RemoteError> {
-        Ok(self.tick()?.root())
+        self.call(|inner| Ok(inner.root()))
     }
 
     fn list(&mut self) -> Result<Listing, RemoteError> {
-        let inner = self.tick()?;
-        let mut listing = Listing::default();
-        for (id, node) in inner.nodes.iter().filter(|(_, node)| !node.trashed) {
-            if node.folder {
-                listing.folders.push(RemoteFolder {
-                    id: id.clone(),
-                    parent: node.parent.clone(),
-                    name: node.name.clone(),
-                });
-            } else {
-                listing.files.push(inner.remote_file(id));
+        self.call(|inner| {
+            let mut listing = Listing::default();
+            for (id, node) in inner.nodes.iter().filter(|(_, node)| !node.trashed) {
+                if node.folder {
+                    listing.folders.push(RemoteFolder {
+                        id: id.clone(),
+                        parent: node.parent.clone(),
+                        name: node.name.clone(),
+                    });
+                } else {
+                    listing.files.push(inner.remote_file(id));
+                }
             }
-        }
-        Ok(listing)
+            Ok(listing)
+        })
     }
 
     fn download(&mut self, id: &str) -> Result<Vec<u8>, RemoteError> {
-        Ok(self.tick()?.live_file(id)?.bytes.clone())
+        self.call(|inner| Ok(inner.live_file(id)?.bytes.clone()))
     }
 
     fn create_file(
@@ -272,19 +294,21 @@ impl Remote for FakeDrive {
         name: &str,
         bytes: &[u8],
     ) -> Result<RemoteFile, RemoteError> {
-        let mut inner = self.tick()?;
-        let id = inner.insert(Some(parent.to_owned()), name, false, bytes);
-        Ok(inner.remote_file(&id))
+        self.call(|inner| {
+            let id = inner.insert(Some(parent.to_owned()), name, false, bytes);
+            Ok(inner.remote_file(&id))
+        })
     }
 
     fn update_file(&mut self, id: &str, bytes: &[u8]) -> Result<RemoteFile, RemoteError> {
-        let mut inner = self.tick()?;
-        let modified = inner.tick_clock();
-        let node = inner.live_file(id)?;
-        node.bytes = bytes.to_vec();
-        node.md5 = md5_hex(bytes);
-        node.modified = modified;
-        Ok(inner.remote_file(id))
+        self.call(|inner| {
+            let modified = inner.tick_clock();
+            let node = inner.live_file(id)?;
+            node.bytes = bytes.to_vec();
+            node.md5 = md5_hex(bytes);
+            node.modified = modified;
+            Ok(inner.remote_file(id))
+        })
     }
 
     fn move_file(
@@ -294,27 +318,29 @@ impl Remote for FakeDrive {
         to_parent: &str,
         name: &str,
     ) -> Result<RemoteFile, RemoteError> {
-        let mut inner = self.tick()?;
-        let node = inner.live_file(id)?;
-        if node.parent.as_deref() != Some(from_parent) {
-            return Err(RemoteError::Failed(anyhow!("{id} isn't in {from_parent}")));
-        }
-        node.parent = Some(to_parent.to_owned());
-        node.name = name.to_owned();
-        Ok(inner.remote_file(id))
+        self.call(|inner| {
+            let node = inner.live_file(id)?;
+            if node.parent.as_deref() != Some(from_parent) {
+                return Err(RemoteError::Failed(anyhow!("{id} isn't in {from_parent}")));
+            }
+            node.parent = Some(to_parent.to_owned());
+            node.name = name.to_owned();
+            Ok(inner.remote_file(id))
+        })
     }
 
     fn create_folder(&mut self, parent: Option<&str>, name: &str) -> Result<String, RemoteError> {
-        Ok(self.tick()?.insert(parent.map(str::to_owned), name, true, &[]))
+        self.call(|inner| Ok(inner.insert(parent.map(str::to_owned), name, true, &[])))
     }
 
     fn trash(&mut self, id: &str) -> Result<(), RemoteError> {
-        let mut inner = self.tick()?;
-        if !inner.nodes.contains_key(id) {
-            return Err(RemoteError::Failed(anyhow!("No file with id {id}")));
-        }
-        inner.trash_tree(id);
-        Ok(())
+        self.call(|inner| {
+            if !inner.nodes.contains_key(id) {
+                return Err(RemoteError::Failed(anyhow!("No file with id {id}")));
+            }
+            inner.trash_tree(id);
+            Ok(())
+        })
     }
 }
 
