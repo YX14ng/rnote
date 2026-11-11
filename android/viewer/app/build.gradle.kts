@@ -54,6 +54,11 @@ android {
         }
     }
 
+    lint {
+        // The app doesn't use AndroidX (only Play Services pulls it in), so no KTX helpers.
+        disable += "UseKtx"
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
