@@ -135,8 +135,14 @@ internal object SyncManager {
         init(context)
         DriveAuth.token(app) { result ->
             val token = (result as? TokenResult.Token)?.value
+            // Without a token Google can't be told, unless the access is already gone.
+            val unreachable = when (result) {
+                is TokenResult.Offline -> Result.failure(IllegalStateException(result.message))
+                is TokenResult.Failed -> Result.failure(result.error)
+                else -> Result.success(Unit)
+            }
             worker.execute {
-                val revoked = token?.let { runCatching { NativeBridge.syncRevoke(it) } } ?: Result.success(Unit)
+                val revoked = token?.let { runCatching { NativeBridge.syncRevoke(it) } } ?: unreachable
                 main.post {
                     val finish = {
                         preferences().edit().putBoolean(KEY_ENABLED, false).apply()
@@ -169,6 +175,7 @@ internal object SyncManager {
                 is TokenResult.Token -> runSync(result.value, retried)
                 is TokenResult.NeedsUser -> finish(SyncStatus.SignInNeeded)
                 TokenResult.NotRegistered -> finish(SyncStatus.Unavailable)
+                is TokenResult.Offline -> finish(SyncStatus.Pending(result.message))
                 is TokenResult.Failed -> finish(SyncStatus.Failed(messageOf(result.error)))
             }
         }

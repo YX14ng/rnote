@@ -90,6 +90,7 @@ impl Meta {
     /// Writes the metadata to `dir`, replacing the file at once so a crash never leaves
     /// half of it.
     pub(crate) fn save(&self, dir: &Path) -> anyhow::Result<()> {
+        let _guard = crate::write_guard();
         let path = dir.join(META_FILE);
         let temporary = dir.join(format!("{META_FILE}.tmp"));
         fs::write(&temporary, serde_json::to_vec_pretty(self)?)

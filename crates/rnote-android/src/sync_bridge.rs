@@ -73,6 +73,7 @@ pub(crate) fn write_notebook(
     bytes: &[u8],
 ) -> anyhow::Result<WrittenNotebook> {
     check_notebook_path(path)?;
+    let _guard = rnote_library::write_guard();
     let current = match fs::read(root.join(path)) {
         Ok(current) => Some(current),
         Err(error) if error.kind() == ErrorKind::NotFound => None,
@@ -106,6 +107,8 @@ fn check_notebook_path(path: &str) -> anyhow::Result<()> {
 fn write_atomic(target: &Path, bytes: &[u8]) -> anyhow::Result<()> {
     let dir = target.parent().context("A notebook has a folder")?;
     let name = target.file_name().context("A notebook has a name")?.to_string_lossy();
+    // A sync may have removed the folder with the notebook's last copy here.
+    fs::create_dir_all(dir).with_context(|| format!("Creating {}", dir.display()))?;
     let temporary = dir.join(format!(".{name}.write-tmp"));
     fs::write(&temporary, bytes).with_context(|| format!("Writing {}", temporary.display()))?;
     fs::rename(&temporary, target).map_err(|error| {
@@ -322,5 +325,36 @@ mod tests {
             assert!(write_notebook(&root, path, None, "Tab", now(), b"x").is_err(), "{path}");
         }
         assert!(!Path::new(&dir.path().join("x.rnote")).exists());
+    }
+
+    #[test]
+    fn write_notebook_recreates_a_removed_folder() {
+        let dir = tempfile::tempdir().unwrap();
+
+        let written =
+            write_notebook(dir.path(), "Orga/a.rnote", Some(&sha256(b"old")), "Tab", now(), b"x")
+                .unwrap();
+
+        assert_eq!(written.path, "Orga/a.rnote");
+        assert_eq!(fs::read(dir.path().join("Orga/a.rnote")).unwrap(), b"x");
+    }
+
+    #[test]
+    fn write_notebook_waits_for_the_write_guard() {
+        let dir = tempfile::tempdir().unwrap();
+        let root = dir.path().to_owned();
+        fs::write(root.join("a.rnote"), b"old").unwrap();
+        let held = rnote_library::write_guard();
+
+        let writer = std::thread::spawn(move || {
+            write_notebook(&root, "a.rnote", Some(&sha256(b"old")), "Tab", now(), b"new").unwrap();
+        });
+        std::thread::sleep(std::time::Duration::from_millis(300));
+        let while_held = fs::read(dir.path().join("a.rnote")).unwrap();
+        drop(held);
+        writer.join().unwrap();
+
+        assert_eq!(while_held, b"old");
+        assert_eq!(fs::read(dir.path().join("a.rnote")).unwrap(), b"new");
     }
 }

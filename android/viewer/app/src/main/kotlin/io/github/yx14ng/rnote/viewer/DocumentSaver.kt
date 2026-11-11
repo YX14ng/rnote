@@ -27,11 +27,14 @@ internal class DocumentSaver(
     /** The name shown in the title and stored in the file. */
     var documentName = ""
 
-    /** The open notebook's path in the library, if it is one of its notebooks. */
-    var libraryPath: String? = null
+    /**
+     * The open notebook's path in the library, if it is one of its notebooks. Read and changed
+     * by each write on the renderer's thread, so a save queued right behind another sees it.
+     */
+    @Volatile var libraryPath: String? = null
 
-    /** The SHA-256 of the library notebook as the editor last read or wrote it. */
-    var knownSha256: String? = null
+    /** The SHA-256 of the library notebook as the editor last read or wrote it; like [libraryPath]. */
+    @Volatile var knownSha256: String? = null
 
     /** Runs when the document went to the conflict copy at this library path instead. */
     var onConflictCopy: (String) -> Unit = {}
@@ -70,15 +73,18 @@ internal class DocumentSaver(
      * the user, since this runs while the app goes to the background.
      */
     private fun writeTo(uri: Uri, quiet: Boolean = false, onDone: (() -> Unit)? = null) {
-        val path = libraryPath
-        val expected = knownSha256
         // Written on the renderer's thread, read back on the main one.
         var written: JSONObject? = null
         val write = { bytes: ByteArray ->
+            val path = libraryPath
             if (path == null) {
                 DocumentFiles.write(context.contentResolver, uri, bytes)
             } else {
-                written = JSONObject(NativeBridge.libraryWriteNotebook(library.root.path, path, expected, Build.MODEL, bytes))
+                val answer = JSONObject(NativeBridge.libraryWriteNotebook(library.root.path, path, knownSha256, Build.MODEL, bytes))
+                // Right away, on this thread: the next queued save compares against it.
+                knownSha256 = answer.getString("sha256")
+                if (answer.getBoolean("conflict")) libraryPath = answer.getString("path")
+                written = answer
             }
             Unit
         }
@@ -112,13 +118,11 @@ internal class DocumentSaver(
         }
     }
 
-    /** Keeps what writing a library notebook did; a conflict copy becomes the open notebook. */
+    /** Shows what writing a library notebook did: a conflict copy became the open notebook. */
     private fun applyLibraryWrite(written: JSONObject) {
-        knownSha256 = written.getString("sha256")
         if (written.getBoolean("conflict")) {
             val path = written.getString("path")
             val file = library.file(path)
-            libraryPath = path
             currentUri = Uri.fromFile(file)
             documentName = file.name
             onConflictCopy(path)

@@ -36,8 +36,6 @@ class MainActivity : Activity() {
             if (path == null) saver.knownSha256 = null
         }
 
-    /** When the open library notebook was read: syncs that ended before don't concern it. */
-    private var libraryReadAtMs = 0L
     private val syncListener: (SyncStatus) -> Unit = ::onSyncStatus
     private var editState = EditState.CLEAN
     private var documentSettings: DocumentSettings? = null
@@ -342,13 +340,14 @@ class MainActivity : Activity() {
                 .onSuccess { info ->
                     libraryPath = path
                     saver.knownSha256 = readSha256
-                    libraryReadAtMs = System.currentTimeMillis()
                     saver.currentUri = uri
                     saver.documentName = file.name
                     // A recovery copy belongs to another document: it stays until restored.
                     showOpenedDocument(info)
                     // A new notebook exists in the library from the start.
                     if (isNew) saver.autosave()
+                    // A sync may have written it while it was being read.
+                    (SyncManager.status as? SyncStatus.Done)?.let(::onSyncStatus)
                 }
                 .onFailure { error ->
                     guard.keepChanges()
@@ -504,21 +503,29 @@ class MainActivity : Activity() {
         if (libraryPath != null) SyncManager.syncSoon(this)
     }
 
-    /**
-     * A sync wrote the open library notebook: without unsaved changes it reopens, or closes if
-     * it's gone; with them, saving decides (a conflict copy if the file changed).
-     */
+    /** A sync wrote the open library notebook: see whether it's still the file the editor has. */
     private fun onSyncStatus(status: SyncStatus) {
         val path = libraryPath ?: return
-        if (status !is SyncStatus.Done || status.atMs <= libraryReadAtMs || path !in status.report.changedHere) return
-        libraryReadAtMs = status.atMs
-        if (editState.modified) return
-        if (LibraryStore.forApp(this).notebookFile(path)?.exists() == true) {
-            openLibraryNotebook(path, isNew = false)
-            Toast.makeText(this, R.string.sync_reloaded, Toast.LENGTH_SHORT).show()
-        } else {
-            Toast.makeText(this, R.string.sync_removed, Toast.LENGTH_LONG).show()
-            toLibrary()
+        if (status is SyncStatus.Done && path in status.report.changedHere) checkOpenNotebook(path)
+    }
+
+    /**
+     * If the file at [path] isn't what the editor read or wrote: without unsaved changes it
+     * reopens, or closes if it's gone; with them, saving decides (a conflict copy).
+     */
+    private fun checkOpenNotebook(path: String) {
+        val known = saver.knownSha256
+        val store = LibraryStore.forApp(this)
+        store.run({ store.notebookFile(path)?.takeIf { it.exists() }?.readBytes()?.let(DocumentSaver::sha256Hex) }) done@{ result ->
+            val current = result.getOrElse { return@done }
+            if (libraryPath != path || saver.knownSha256 != known || editState.modified || current == known) return@done
+            if (current != null) {
+                openLibraryNotebook(path, isNew = false)
+                Toast.makeText(this, R.string.sync_reloaded, Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, R.string.sync_removed, Toast.LENGTH_LONG).show()
+                toLibrary()
+            }
         }
     }
 

@@ -91,8 +91,11 @@ impl<'a> Run<'a> {
     /// Writes `bytes` to the local `path`, if nothing changed it since the scan. Returns
     /// their hash.
     pub(crate) fn write_local(&mut self, path: &str, bytes: &[u8]) -> Result<String, SyncError> {
-        self.expect_local(path)?;
-        write_atomic(self.ctx.library_root, path, bytes)?;
+        {
+            let _guard = rnote_library::write_guard();
+            self.expect_local(path)?;
+            write_atomic(self.ctx.library_root, path, bytes)?;
+        }
         let sha256 = sha256_hex(bytes);
         self.local.insert(path.to_owned(), sha256.clone());
         self.report.changed_here.push(path.to_owned());
@@ -185,9 +188,12 @@ impl<'a> Run<'a> {
     /// Takes the local `path` out of the library, if nothing changed it since the scan. It
     /// isn't deleted: it's set aside in a hidden folder that isn't synced.
     pub(crate) fn delete_local(&mut self, path: &str) -> Result<(), SyncError> {
-        self.expect_local(path)?;
         let stamp = self.ctx.now.format("%Y-%m-%d %H.%M").to_string();
-        set_aside(self.ctx.library_root, path, &stamp)?;
+        {
+            let _guard = rnote_library::write_guard();
+            self.expect_local(path)?;
+            set_aside(self.ctx.library_root, path, &stamp)?;
+        }
         self.local.remove(path);
         self.emptied.insert(split(path).0.to_owned());
         self.report.changed_here.push(path.to_owned());

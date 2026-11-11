@@ -486,3 +486,26 @@ fn a_device_without_its_library_marker_never_deletes() {
     assert_eq!(a.read("x.rnote"), b"x");
     assert_eq!(b.read("x.rnote"), b"x");
 }
+
+/// The editor's save and the sync's write of the same file never interleave their check
+/// and their write: the sync waits for the library's write guard.
+#[test]
+fn sync_writes_wait_for_the_write_guard() {
+    let device = Device::new("Tab");
+    let root = device.root().to_owned();
+    let held = rnote_library::write_guard();
+
+    let syncer = std::thread::spawn(move || {
+        let drive = FakeDrive::new();
+        drive.add_file("a.rnote", b"remote");
+        device.sync(&drive);
+        device
+    });
+    std::thread::sleep(std::time::Duration::from_millis(300));
+    let written_while_held = root.join("a.rnote").exists();
+    drop(held);
+    let device = syncer.join().unwrap();
+
+    assert!(!written_while_held);
+    assert_eq!(device.read("a.rnote"), b"remote");
+}

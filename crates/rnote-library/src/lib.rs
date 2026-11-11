@@ -13,6 +13,7 @@ mod tags;
 mod thumbnail;
 mod thumbnail_cache;
 mod trash;
+mod write_guard;
 
 #[cfg(test)]
 mod tests;
@@ -31,6 +32,7 @@ pub use crate::tags::Tag;
 pub use crate::thumbnail::{render_thumbnail, thumbnail_key};
 pub use crate::thumbnail_cache::ThumbnailCache;
 pub use crate::trash::TrashEntry;
+pub use crate::write_guard::write_guard;
 
 /// The folder with the library's own data, inside the root.
 pub const LIBRARY_DIR: &str = ".rnote-library";

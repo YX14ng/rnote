@@ -26,6 +26,9 @@ internal sealed interface TokenResult {
     /** This build isn't registered in Google: signed with another key than the stable one. */
     data object NotRegistered : TokenResult
 
+    /** Google can't be reached, e.g. the cached token expired while offline. */
+    data class Offline(val message: String) : TokenResult
+
     data class Failed(val error: Throwable) : TokenResult
 }
 
@@ -99,10 +102,11 @@ internal object DriveAuth {
 
     private fun failureOf(error: Exception): TokenResult {
         Log.w(TAG, "Authorization failed", error)
-        return if (error is ApiException && error.statusCode == CommonStatusCodes.DEVELOPER_ERROR) {
-            TokenResult.NotRegistered
-        } else {
-            TokenResult.Failed(error)
+        val code = (error as? ApiException)?.statusCode
+        return when (code) {
+            CommonStatusCodes.DEVELOPER_ERROR -> TokenResult.NotRegistered
+            CommonStatusCodes.NETWORK_ERROR, CommonStatusCodes.TIMEOUT -> TokenResult.Offline(error.message ?: error.toString())
+            else -> TokenResult.Failed(error)
         }
     }
 }

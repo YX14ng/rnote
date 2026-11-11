@@ -206,3 +206,22 @@ fn merge_with_an_unreadable_side_keeps_the_readable_one() {
 fn merge_of_two_unreadable_sides_is_an_error() {
     assert!(crate::merge_meta(b"{", b"nope").is_err());
 }
+
+#[test]
+fn saving_the_metadata_waits_for_the_write_guard() {
+    let dir = tempfile::tempdir().unwrap();
+    let root = dir.path().to_owned();
+    let meta = root.join(".rnote-library").join(crate::META_FILE);
+    let held = crate::write_guard();
+
+    let writer = std::thread::spawn(move || {
+        crate::Library::open(&root).unwrap().create_tag("Parcial", 1).unwrap();
+    });
+    std::thread::sleep(std::time::Duration::from_millis(300));
+    let written_while_held = meta.exists();
+    drop(held);
+    writer.join().unwrap();
+
+    assert!(!written_while_held);
+    assert!(meta.exists());
+}

@@ -53,6 +53,7 @@ fn remote_move(run: &mut Run, old: &str, id: &str) -> Result<(), SyncError> {
         new.clone()
     };
     if run.local.contains_key(old) {
+        let _guard = rnote_library::write_guard();
         run.expect_local(old)?;
         move_local(run, old, &target)?;
     }
