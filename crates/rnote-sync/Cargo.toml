@@ -1,0 +1,44 @@
+[package]
+name = "rnote-sync"
+description = "Syncs an Rnote library folder with a folder in Google Drive"
+publish = false
+authors.workspace = true
+edition.workspace = true
+homepage.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+version.workspace = true
+
+[features]
+# The in-memory Drive the tests use, for other crates' tests too.
+fake = ["dep:md-5"]
+
+[dependencies]
+rnote-library = { workspace = true }
+
+anyhow = { workspace = true }
+chrono = { workspace = true }
+md-5 = { workspace = true, optional = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+sha2 = { workspace = true }
+thiserror = { workspace = true }
+
+[dev-dependencies]
+md-5 = { workspace = true }
+tempfile = { workspace = true }
+
+[lints.rust]
+missing_docs = "warn"
+unsafe_op_in_unsafe_fn = "deny"
+
+[lints.clippy]
+borrowed_box = "warn"
+len_without_is_empty = "warn"
+new_without_default = "warn"
+ptr_arg = "warn"
+should_implement_trait = "warn"
+undocumented_unsafe_blocks = "warn"
+unwrap_used = "warn"
+wrong_self_convention = "warn"
