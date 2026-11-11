@@ -34,4 +34,5 @@ including the Limited Use requirements.
 
 ## Contact
 
-Questions about this policy: <https://github.com/YX14ng/rnote/issues>.
+Questions about this policy: write to the support email shown on Google's sign-in screen
+for Rnote.
