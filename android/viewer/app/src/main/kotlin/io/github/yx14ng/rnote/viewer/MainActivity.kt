@@ -28,8 +28,17 @@ class MainActivity : Activity() {
 
     private var documentOpen = false
 
-    /** The open notebook's path in the library, if it is one of its notebooks. */
-    private var libraryPath: String? = null
+    /** The open notebook's path in the library, if it is one of its notebooks; kept by [saver]. */
+    private var libraryPath: String?
+        get() = saver.libraryPath
+        set(path) {
+            saver.libraryPath = path
+            if (path == null) saver.knownSha256 = null
+        }
+
+    /** When the open library notebook was read: syncs that ended before don't concern it. */
+    private var libraryReadAtMs = 0L
+    private val syncListener: (SyncStatus) -> Unit = ::onSyncStatus
     private var editState = EditState.CLEAN
     private var documentSettings: DocumentSettings? = null
 
@@ -37,7 +46,11 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         recovery = Recovery(this)
         guard = UnsavedChangesGuard(this, onDiscard = recovery::clear, onBack = ::leave)
-        saver = DocumentSaver(this, renderer, recovery, onSaved = ::updateEditState, requestSaveAs = ::saveAs)
+        saver = DocumentSaver(this, renderer, recovery, onSaved = ::onSaved, requestSaveAs = ::saveAs)
+        saver.onConflictCopy = {
+            Toast.makeText(this, R.string.sync_saved_as_copy, Toast.LENGTH_LONG).show()
+            refreshBar()
+        }
         canvasView = NoteCanvasView(this).apply {
             renderer = this@MainActivity.renderer
             onError = ::showError
@@ -73,6 +86,16 @@ class MainActivity : Activity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         handleIntent(intent)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        SyncManager.addListener(this, syncListener)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        SyncManager.removeListener(syncListener)
     }
 
     override fun onStop() {
@@ -312,10 +335,14 @@ class MainActivity : Activity() {
         }
         val uri = Uri.fromFile(file)
         startLoading()
+        // Read on the renderer's thread, used on the main one.
+        var readSha256: String? = null
         val onOpened = { result: Result<DocumentInfo> ->
             result
                 .onSuccess { info ->
                     libraryPath = path
+                    saver.knownSha256 = readSha256
+                    libraryReadAtMs = System.currentTimeMillis()
                     saver.currentUri = uri
                     saver.documentName = file.name
                     // A recovery copy belongs to another document: it stays until restored.
@@ -333,7 +360,7 @@ class MainActivity : Activity() {
         if (isNew) {
             renderer.createEmpty(brush = null, onOpened)
         } else {
-            renderer.open({ file.readBytes() }, brush = null, onOpened)
+            renderer.open({ file.readBytes().also { readSha256 = DocumentSaver.sha256Hex(it) } }, brush = null, onOpened)
         }
     }
 
@@ -469,6 +496,30 @@ class MainActivity : Activity() {
 
     private fun saveAs() {
         startActivityForResult(DocumentFiles.createIntent(saver.documentName, saver.currentUri), REQUEST_SAVE_AS)
+    }
+
+    /** Saved: a library notebook goes to Drive a few seconds later. */
+    private fun onSaved(state: EditState) {
+        updateEditState(state)
+        if (libraryPath != null) SyncManager.syncSoon(this)
+    }
+
+    /**
+     * A sync wrote the open library notebook: without unsaved changes it reopens, or closes if
+     * it's gone; with them, saving decides (a conflict copy if the file changed).
+     */
+    private fun onSyncStatus(status: SyncStatus) {
+        val path = libraryPath ?: return
+        if (status !is SyncStatus.Done || status.atMs <= libraryReadAtMs || path !in status.report.changedHere) return
+        libraryReadAtMs = status.atMs
+        if (editState.modified) return
+        if (LibraryStore.forApp(this).notebookFile(path)?.exists() == true) {
+            openLibraryNotebook(path, isNew = false)
+            Toast.makeText(this, R.string.sync_reloaded, Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(this, R.string.sync_removed, Toast.LENGTH_LONG).show()
+            toLibrary()
+        }
     }
 
     private fun updateEditState(state: EditState) {
