@@ -78,3 +78,25 @@ fn import_xopp_never_overwrites_an_rnote() {
     assert_eq!(library.import_xopp("x.xopp").unwrap(), "x (2).rnote");
     assert_eq!(fs::read(dir.path().join("x.rnote")).unwrap(), b"mine");
 }
+
+#[test]
+fn import_xopp_gives_the_new_rnote_the_tags_of_the_xopp() {
+    let dir = tempfile::tempdir().unwrap();
+    let prefs = DocExportPrefs { export_format: DocExportFormat::Xopp, ..Default::default() };
+    let xopp =
+        block_on(Engine::default().export_doc("x".to_owned(), Some(prefs))).unwrap().unwrap();
+    write(dir.path(), "x.xopp", &xopp);
+    let mut library = library_at(dir.path());
+    let tag = library.create_tag("Parcial", 0xFFFF_0000).unwrap();
+    library.set_tags("x.xopp", std::slice::from_ref(&tag)).unwrap();
+
+    let imported = library.import_xopp("x.xopp").unwrap();
+
+    let notebooks = library.notebooks().unwrap();
+    let rnote = notebooks.iter().find(|notebook| notebook.path == imported).unwrap();
+    assert_eq!(rnote.tags, vec![tag.clone()]);
+    let reopened = library_at(dir.path());
+    let notebooks = reopened.notebooks().unwrap();
+    let rnote = notebooks.iter().find(|notebook| notebook.path == imported).unwrap();
+    assert_eq!(rnote.tags, vec![tag]);
+}
