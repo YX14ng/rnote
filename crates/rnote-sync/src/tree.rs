@@ -2,6 +2,7 @@
 
 use std::collections::BTreeMap;
 
+use crate::local::{is_plain_name, is_synced};
 use crate::remote::{Listing, Remote, RemoteError, RemoteFile};
 
 /// What's under the `Rnote` folder, kept up to date as the sync changes Drive.
@@ -34,7 +35,9 @@ impl RemoteTree {
             .iter()
             .filter_map(|file| {
                 let folder = paths_by_id.get(&file.parent)?;
-                Some((file.id.clone(), (join(folder, &file.name), file.clone())))
+                let path = join(folder, &file.name);
+                // Only what the library syncs; a name that could lead outside it is left out.
+                is_synced(&path).then(|| (file.id.clone(), (path, file.clone())))
             })
             .collect();
         Self { folders, files }
@@ -121,6 +124,9 @@ fn folder_path(
             return Some(parts.join("/"));
         }
         let (parent, name) = parents.get(current)?;
+        if !is_plain_name(name) {
+            return None;
+        }
         parts.push(*name);
         current = (*parent)?;
     }

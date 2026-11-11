@@ -5,7 +5,10 @@ use std::collections::BTreeSet;
 use std::fs;
 
 use crate::SyncError;
-use crate::conflicts::{both_changed, download_new, split_duplicates, unclaimed_files_at};
+use crate::conflicts::{
+    both_changed, download_new, meta_path, split_duplicates, unclaimed_files_at, upload_meta,
+    upload_over,
+};
 use crate::local::sha256_hex;
 use crate::run::Run;
 use crate::tree::split;
@@ -16,9 +19,27 @@ pub(crate) fn reconcile(run: &mut Run) -> Result<(), SyncError> {
     paths.extend(run.state.entries.keys().cloned());
     paths.extend(run.tree.paths());
     for path in paths {
-        reconcile_path(run, &path)?;
+        let result = reconcile_path(run, &path);
+        skip_on_failure(run, &path, result)?;
     }
     Ok(())
+}
+
+/// Lets the sync go on without `path` when only that file failed (it can't be written
+/// here, or it changed during the sync); the next sync tries it again. Being offline or
+/// signed out stops the whole sync.
+pub(crate) fn skip_on_failure(
+    run: &mut Run,
+    path: &str,
+    result: Result<(), SyncError>,
+) -> Result<(), SyncError> {
+    match result {
+        Err(SyncError::Failed(error)) => {
+            run.report.skipped.push(format!("{path}: {error:#}"));
+            Ok(())
+        }
+        other => other,
+    }
 }
 
 fn reconcile_path(run: &mut Run, path: &str) -> Result<(), SyncError> {
@@ -37,7 +58,8 @@ fn reconcile_path(run: &mut Run, path: &str) -> Result<(), SyncError> {
             let remote_changed = file.md5 != entry.md5;
             match (local_changed, remote_changed) {
                 (false, false) => {}
-                (true, false) => run.upload_update(path, &file.id)?,
+                (true, false) if path == meta_path() => upload_meta(run, path, &file.id, None)?,
+                (true, false) => upload_over(run, path, &file.id)?,
                 (false, true) => run.download(path, &file)?,
                 (true, true) => {
                     let bytes = run.remote.download(&file.id)?;
@@ -46,12 +68,14 @@ fn reconcile_path(run: &mut Run, path: &str) -> Result<(), SyncError> {
             }
         }
         // Gone from Drive: a local edit wins and comes back; otherwise it goes here too.
+        // Gone from the `Rnote` folder: only a file Drive confirms trashed or gone is
+        // removed here; one renamed or moved elsewhere in Drive stays in the library.
         (Some(sha256), None) => {
-            if sha256 == entry.sha256 {
+            if sha256 == entry.sha256 && run.remote.get(&entry.id)?.is_none() {
                 run.delete_local(path)?;
             } else {
                 run.forget(path)?;
-                run.upload_new(path)?;
+                return reconcile_new(run, path, Some(sha256));
             }
         }
         // Gone from here: an edit in Drive wins and comes back; otherwise it goes there too.

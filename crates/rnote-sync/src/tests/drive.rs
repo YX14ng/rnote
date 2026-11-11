@@ -252,3 +252,62 @@ fn a_failing_token_source_stops_the_request() {
 
     assert!(matches!(client.list(), Err(RemoteError::Unauthorized)));
 }
+
+#[test]
+fn get_returns_the_file_or_none_when_trashed_or_missing() {
+    let mut trashed = file_json("n", "a.rnote", "r");
+    trashed["trashed"] = serde_json::json!(true);
+    let stub = Stub::start(vec![
+        (200, JSON, json(file_json("n", "a.rnote", "r"))),
+        (200, JSON, json(trashed)),
+        (404, JSON, json(serde_json::json!({"error": {"code": 404}}))),
+    ]);
+    let (mut client, sleeps) = client(&stub);
+
+    assert_eq!(client.get("n").unwrap(), Some(remote_file("n", "a.rnote", "r")));
+    assert_eq!(client.get("n").unwrap(), None);
+    assert_eq!(client.get("n").unwrap(), None);
+    let request = &stub.requests()[0];
+    assert_eq!((request.method.as_str(), request.path()), ("GET", "/drive/v3/files/n"));
+    assert!(request.query("fields").unwrap().contains("trashed"));
+    assert!(sleeps.borrow().is_empty());
+}
+
+#[test]
+fn revisions_follow_page_tokens_and_download_one() {
+    let first = serde_json::json!({"nextPageToken": "p2",
+        "revisions": [{"id": "r1", "md5Checksum": "m1"}]});
+    let second = serde_json::json!({"revisions": [{"id": "r2", "md5Checksum": "m2"}]});
+    let stub = Stub::start(vec![
+        (200, JSON, json(first)),
+        (200, JSON, json(second)),
+        (200, "application/octet-stream", b"old".to_vec()),
+    ]);
+    let (mut client, _) = client(&stub);
+
+    let revisions = client.revisions("n").unwrap();
+    let bytes = client.download_revision("n", "r1").unwrap();
+
+    let pairs: Vec<(&str, &str)> =
+        revisions.iter().map(|r| (r.id.as_str(), r.md5.as_str())).collect();
+    assert_eq!(pairs, vec![("r1", "m1"), ("r2", "m2")]);
+    assert_eq!(bytes, b"old");
+    let requests = stub.requests();
+    assert_eq!(requests[0].path(), "/drive/v3/files/n/revisions");
+    assert_eq!(requests[1].query("pageToken").as_deref(), Some("p2"));
+    assert_eq!(requests[2].path(), "/drive/v3/files/n/revisions/r1");
+    assert_eq!(requests[2].query("alt").as_deref(), Some("media"));
+}
+
+#[test]
+fn list_reads_when_folders_were_created() {
+    let page = serde_json::json!({"files": [{"id": "r", "name": "Rnote", "mimeType": FOLDER,
+        "parents": ["top"], "createdTime": "2026-11-10T10:00:00.000Z"}]});
+    let stub = Stub::start(vec![(200, JSON, json(page))]);
+    let (mut client, _) = client(&stub);
+
+    let listing = client.list().unwrap();
+
+    assert_eq!(listing.folders[0].created, "2026-11-10T10:00:00.000Z");
+    assert!(stub.requests()[0].query("fields").unwrap().contains("createdTime"));
+}

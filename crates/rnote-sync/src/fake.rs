@@ -8,7 +8,9 @@ use std::rc::Rc;
 use anyhow::anyhow;
 use md5::{Digest, Md5};
 
-use crate::remote::{Listing, ROOT_FOLDER_NAME, Remote, RemoteError, RemoteFile, RemoteFolder};
+use crate::remote::{
+    Listing, ROOT_FOLDER_NAME, Remote, RemoteError, RemoteFile, RemoteFolder, Revision,
+};
 
 #[derive(Debug, Clone)]
 struct Node {
@@ -18,7 +20,10 @@ struct Node {
     bytes: Vec<u8>,
     md5: String,
     modified: String,
+    created: String,
     trashed: bool,
+    /// Every content the file had, oldest first: (revision id, bytes).
+    revisions: Vec<(String, Vec<u8>)>,
 }
 
 #[derive(Debug, Default)]
@@ -168,14 +173,17 @@ impl Inner {
     fn insert(&mut self, parent: Option<String>, name: &str, folder: bool, bytes: &[u8]) -> String {
         self.next_id += 1;
         let id = format!("id{:06}", self.next_id);
+        let now = self.tick_clock();
         let node = Node {
             parent,
             name: name.to_owned(),
             folder,
             bytes: bytes.to_vec(),
             md5: md5_hex(bytes),
-            modified: self.tick_clock(),
+            modified: now.clone(),
+            created: now.clone(),
             trashed: false,
+            revisions: if folder { Vec::new() } else { vec![(now, bytes.to_vec())] },
         };
         self.nodes.insert(id.clone(), node);
         id
@@ -275,12 +283,42 @@ impl Remote for FakeDrive {
                         id: id.clone(),
                         parent: node.parent.clone(),
                         name: node.name.clone(),
+                        created: node.created.clone(),
                     });
                 } else {
                     listing.files.push(inner.remote_file(id));
                 }
             }
             Ok(listing)
+        })
+    }
+
+    fn get(&mut self, id: &str) -> Result<Option<RemoteFile>, RemoteError> {
+        self.call(|inner| {
+            let live = inner.nodes.get(id).is_some_and(|node| !node.folder && !node.trashed);
+            Ok(live.then(|| inner.remote_file(id)))
+        })
+    }
+
+    fn revisions(&mut self, id: &str) -> Result<Vec<Revision>, RemoteError> {
+        self.call(|inner| {
+            let node = inner.live_file(id)?;
+            Ok(node
+                .revisions
+                .iter()
+                .map(|(revision, bytes)| Revision { id: revision.clone(), md5: md5_hex(bytes) })
+                .collect())
+        })
+    }
+
+    fn download_revision(&mut self, id: &str, revision: &str) -> Result<Vec<u8>, RemoteError> {
+        self.call(|inner| {
+            let node = inner.live_file(id)?;
+            node.revisions
+                .iter()
+                .find(|(stored, _)| stored == revision)
+                .map(|(_, bytes)| bytes.clone())
+                .ok_or_else(|| RemoteError::Failed(anyhow!("No revision {revision} of {id}")))
         })
     }
 
@@ -306,6 +344,7 @@ impl Remote for FakeDrive {
             let node = inner.live_file(id)?;
             node.bytes = bytes.to_vec();
             node.md5 = md5_hex(bytes);
+            node.revisions.push((modified.clone(), bytes.to_vec()));
             node.modified = modified;
             Ok(inner.remote_file(id))
         })

@@ -15,6 +15,12 @@ const NOTEBOOK_EXTENSION: &str = ".rnote";
 const TRASH_DIR: &str = "trash";
 /// Appended to the temporary copy of a file being written (which is hidden too).
 const TEMPORARY_SUFFIX: &str = ".sync-tmp";
+/// This library's sync identity, inside [`LIBRARY_DIR`]; not synced.
+const LIBRARY_ID_FILE: &str = "sync-id";
+/// Where files the sync removes are set aside, inside [`LIBRARY_DIR`]; not synced.
+const REMOVED_DIR: &str = ".sync-removed";
+/// Characters exFAT, FAT and Windows don't allow in names.
+const UNPORTABLE_CHARS: [char; 8] = ['"', '*', ':', '<', '>', '?', '|', '\\'];
 
 /// Whether the file at the relative `path` (with `/`) is synced: notebooks outside hidden
 /// folders, `library.json` and the notebooks in the library's trash.
@@ -26,21 +32,50 @@ pub(crate) fn is_synced(path: &str) -> bool {
     match folders {
         [LIBRARY_DIR] => *name == META_FILE,
         [LIBRARY_DIR, TRASH_DIR] => is_notebook_name(name),
-        _ => {
-            is_notebook_name(name)
-                && folders.iter().all(|folder| visible(folder) && !folder.is_empty())
-        }
+        _ => is_notebook_name(name) && folders.iter().all(|folder| visible(folder)),
     }
+}
+
+/// Whether `name` is one name (not empty, `.` or `..`, no `/`, `\\` or control characters),
+/// so joining it to the library folder can't lead outside.
+pub(crate) fn is_plain_name(name: &str) -> bool {
+    !name.is_empty()
+        && name != "."
+        && name != ".."
+        && !name.chars().any(|c| c == '/' || c == '\\' || c.is_control())
+}
+
+/// `path` with the characters exFAT, FAT and Windows reject replaced by `-`, and the dots
+/// and spaces they drop from the end of a folder name removed.
+pub(crate) fn portable_path(path: &str) -> String {
+    let parts: Vec<String> = path
+        .split('/')
+        .map(|part| {
+            part.chars().map(|c| if UNPORTABLE_CHARS.contains(&c) { '-' } else { c }).collect()
+        })
+        .collect();
+    let last = parts.len().saturating_sub(1);
+    parts
+        .into_iter()
+        .enumerate()
+        .map(
+            |(index, part)| {
+                if index == last { part } else { part.trim_end_matches(['.', ' ']).to_owned() }
+            },
+        )
+        .collect::<Vec<_>>()
+        .join("/")
 }
 
 fn is_notebook_name(name: &str) -> bool {
     visible(name)
+        && is_plain_name(name)
         && name.len() > NOTEBOOK_EXTENSION.len()
         && name.to_lowercase().ends_with(NOTEBOOK_EXTENSION)
 }
 
 fn visible(name: &str) -> bool {
-    !name.starts_with('.')
+    is_plain_name(name) && !name.starts_with('.')
 }
 
 /// The synced files under `root`: relative path (with `/`) → SHA-256 of the content, in
@@ -86,4 +121,51 @@ pub(crate) fn write_atomic(root: &Path, path: &str, bytes: &[u8]) -> anyhow::Res
     let temporary = dir.join(format!(".{name}{TEMPORARY_SUFFIX}"));
     fs::write(&temporary, bytes).with_context(|| format!("Writing {}", temporary.display()))?;
     fs::rename(&temporary, &target).with_context(|| format!("Replacing {path}"))
+}
+
+/// The SHA-256 of the local file at `path` right now, or `None` if there's none.
+pub(crate) fn hash_now(root: &Path, path: &str) -> anyhow::Result<Option<String>> {
+    match fs::read(root.join(path)) {
+        Ok(bytes) => Ok(Some(sha256_hex(&bytes))),
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(None),
+        Err(error) => Err(error).with_context(|| format!("Reading {path}")),
+    }
+}
+
+/// This library's sync identity, created the first time. A state made for another
+/// identity doesn't apply here: the folder was changed, replaced or isn't mounted.
+pub(crate) fn library_id(root: &Path) -> anyhow::Result<String> {
+    let file = root.join(LIBRARY_DIR).join(LIBRARY_ID_FILE);
+    match fs::read_to_string(&file) {
+        Ok(id) if !id.trim().is_empty() => return Ok(id.trim().to_owned()),
+        Ok(_) => {}
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
+        Err(error) => return Err(error).with_context(|| format!("Reading {}", file.display())),
+    }
+    let nanos = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map_or(0, |time| time.as_nanos());
+    let seed = format!("{nanos}-{}-{}", std::process::id(), root.display());
+    let id = sha256_hex(seed.as_bytes())[..32].to_owned();
+    write_atomic(root, &format!("{LIBRARY_DIR}/{LIBRARY_ID_FILE}"), id.as_bytes())?;
+    Ok(id)
+}
+
+/// Moves the local file at `path` out of the library, to a hidden folder that isn't
+/// synced, instead of deleting it.
+pub(crate) fn set_aside(root: &Path, path: &str, stamp: &str) -> anyhow::Result<()> {
+    let dir = root.join(LIBRARY_DIR).join(REMOVED_DIR);
+    fs::create_dir_all(&dir).with_context(|| format!("Creating {}", dir.display()))?;
+    let flat = path.replace('/', " - ");
+    let target = (1..)
+        .map(|n| {
+            if n == 1 {
+                dir.join(format!("{stamp} {flat}"))
+            } else {
+                dir.join(format!("{stamp} ({n}) {flat}"))
+            }
+        })
+        .find(|candidate| !candidate.exists())
+        .context("A free name to set a file aside")?;
+    fs::rename(root.join(path), &target).with_context(|| format!("Setting {path} aside"))
 }

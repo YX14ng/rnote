@@ -11,14 +11,16 @@ use ureq::Agent;
 use ureq::http::{Method, Request};
 
 use crate::local::sha256_hex;
-use crate::remote::{Listing, ROOT_FOLDER_NAME, Remote, RemoteError, RemoteFile, RemoteFolder};
+use crate::remote::{
+    Listing, ROOT_FOLDER_NAME, Remote, RemoteError, RemoteFile, RemoteFolder, Revision,
+};
 
 /// Drive's API, unless a test points elsewhere.
 const DEFAULT_BASE_URL: &str = "https://www.googleapis.com";
 /// The type Drive gives folders.
 const FOLDER_MIME_TYPE: &str = "application/vnd.google-apps.folder";
 /// The fields of a file the sync reads.
-const FILE_FIELDS: &str = "id,name,mimeType,parents,md5Checksum,modifiedTime";
+const FILE_FIELDS: &str = "id,name,mimeType,parents,md5Checksum,modifiedTime,createdTime";
 /// The waits before each retry of a request Drive asked to slow down.
 const RETRY_WAITS_SECS: [u64; 5] = [1, 2, 4, 8, 16];
 /// The longest a request may take, uploads of big notebooks included.
@@ -56,7 +58,32 @@ struct FileJson {
     md5_checksum: String,
     #[serde(default)]
     modified_time: String,
+    #[serde(default)]
+    created_time: String,
+    #[serde(default)]
+    trashed: bool,
 }
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct RevisionJson {
+    id: String,
+    #[serde(default)]
+    md5_checksum: String,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct RevisionListJson {
+    #[serde(default)]
+    revisions: Vec<RevisionJson>,
+    next_page_token: Option<String>,
+}
+
+/// Drive answered 404: the file isn't there (or the app can't see it).
+#[derive(Debug, thiserror::Error)]
+#[error("Google Drive has no such file")]
+struct NotFound;
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -142,6 +169,9 @@ impl DriveClient {
             if status == 401 {
                 return Err(RemoteError::Unauthorized);
             }
+            if status == 404 {
+                return Err(RemoteError::Failed(NotFound.into()));
+            }
             match waits.next() {
                 Some(&wait) if should_retry(status, &text) => {
                     (self.sleep)(Duration::from_secs(wait));
@@ -222,6 +252,7 @@ impl Remote for DriveClient {
                         parent: file.parents.first().cloned(),
                         id: file.id,
                         name: file.name,
+                        created: file.created_time,
                     });
                 } else {
                     listing.files.push(file.into_remote_file());
@@ -232,6 +263,50 @@ impl Remote for DriveClient {
                 None => return Ok(listing),
             }
         }
+    }
+
+    fn get(&mut self, id: &str) -> Result<Option<RemoteFile>, RemoteError> {
+        let fields = format!("{FILE_FIELDS},trashed");
+        let query = [("fields", fields.as_str())];
+        match self.send_json::<FileJson>(
+            Method::GET,
+            &format!("/drive/v3/files/{id}"),
+            &query,
+            Body::Empty,
+        ) {
+            Ok(file) if file.trashed => Ok(None),
+            Ok(file) => Ok(Some(file.into_remote_file())),
+            Err(RemoteError::Failed(error)) if error.is::<NotFound>() => Ok(None),
+            Err(error) => Err(error),
+        }
+    }
+
+    fn revisions(&mut self, id: &str) -> Result<Vec<Revision>, RemoteError> {
+        let path = format!("/drive/v3/files/{id}/revisions");
+        let mut revisions = Vec::new();
+        let mut page_token: Option<String> = None;
+        loop {
+            let mut query =
+                vec![("fields", "nextPageToken,revisions(id,md5Checksum)"), ("pageSize", "1000")];
+            if let Some(token) = &page_token {
+                query.push(("pageToken", token.as_str()));
+            }
+            let page: RevisionListJson = self.send_json(Method::GET, &path, &query, Body::Empty)?;
+            revisions.extend(
+                page.revisions
+                    .into_iter()
+                    .map(|revision| Revision { id: revision.id, md5: revision.md5_checksum }),
+            );
+            match page.next_page_token {
+                Some(token) => page_token = Some(token),
+                None => return Ok(revisions),
+            }
+        }
+    }
+
+    fn download_revision(&mut self, id: &str, revision: &str) -> Result<Vec<u8>, RemoteError> {
+        let path = format!("/drive/v3/files/{id}/revisions/{revision}");
+        self.send(Method::GET, &path, &[("alt", "media")], Body::Empty)
     }
 
     fn download(&mut self, id: &str) -> Result<Vec<u8>, RemoteError> {

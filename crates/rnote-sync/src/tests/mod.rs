@@ -9,6 +9,7 @@ mod drive;
 mod fake;
 mod local;
 mod moves;
+mod regressions;
 mod stub_http;
 
 use std::fs;

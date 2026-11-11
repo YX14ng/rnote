@@ -26,7 +26,9 @@ use std::path::Path;
 use chrono::NaiveDateTime;
 
 pub use crate::drive::DriveClient;
-pub use crate::remote::{Listing, ROOT_FOLDER_NAME, Remote, RemoteError, RemoteFile, RemoteFolder};
+pub use crate::remote::{
+    Listing, ROOT_FOLDER_NAME, Remote, RemoteError, RemoteFile, RemoteFolder, Revision,
+};
 use crate::run::Run;
 use crate::state::SyncState;
 use crate::tree::RemoteTree;
@@ -57,6 +59,12 @@ pub struct SyncReport {
     pub deleted: usize,
     /// The local paths of the conflict copies made.
     pub conflicts: Vec<String>,
+    /// The local paths this sync wrote, moved or removed, so open notebooks can be
+    /// reloaded or protected.
+    pub changed_here: Vec<String>,
+    /// The paths that couldn't be synced this time, each with the reason; the next sync
+    /// tries them again.
+    pub skipped: Vec<String>,
 }
 
 /// Why a sync stopped. What it did until then is kept.
@@ -92,21 +100,24 @@ pub fn sync(ctx: &SyncContext, remote: &mut dyn Remote) -> Result<SyncReport, Sy
         return Err(SyncError::Busy);
     };
     let mut state = SyncState::load(ctx.state_path)?;
+    let library_id = local::library_id(ctx.library_root)?;
     let listing = remote.list()?;
-    let known_root =
-        state.root_id.clone().filter(|id| listing.folders.iter().any(|folder| &folder.id == id));
-    let root = match known_root {
+    let root = match oldest_root(&listing) {
         Some(id) => id,
         None => match remote.find_root()? {
             Some(id) => id,
             None => remote.create_folder(None, ROOT_FOLDER_NAME)?,
         },
     };
-    // Another `Rnote` folder: what the state says about Drive no longer holds, and reading
-    // it as "deleted in Drive" would delete local notebooks.
-    if state.root_id.as_deref() != Some(root.as_str()) {
+    // Another `Rnote` folder, or another library folder here (changed in the settings,
+    // replaced, or a disk that isn't mounted): what the state says no longer holds, and
+    // reading it as "deleted" would delete notebooks. Both sides are compared afresh.
+    if state.root_id.as_deref() != Some(root.as_str())
+        || state.library_id.as_deref() != Some(library_id.as_str())
+    {
         state.entries.clear();
         state.root_id = Some(root.clone());
+        state.library_id = Some(library_id);
         state.save(ctx.state_path)?;
     }
     let local = local::scan(ctx.library_root)?;
@@ -115,7 +126,24 @@ pub fn sync(ctx: &SyncContext, remote: &mut dyn Remote) -> Result<SyncReport, Sy
     moves::apply_moves(&mut run)?;
     content::reconcile(&mut run)?;
     content::clean_folders(&mut run)?;
-    Ok(run.report)
+    let mut report = run.report;
+    report.changed_here.sort();
+    report.changed_here.dedup();
+    Ok(report)
+}
+
+/// The oldest `Rnote` folder at the top of what the app sees: every device picks the same
+/// one, even if two created one at the same time.
+fn oldest_root(listing: &Listing) -> Option<String> {
+    let ids: std::collections::BTreeSet<&str> =
+        listing.folders.iter().map(|folder| folder.id.as_str()).collect();
+    listing
+        .folders
+        .iter()
+        .filter(|folder| folder.name == ROOT_FOLDER_NAME)
+        .filter(|folder| folder.parent.as_deref().is_none_or(|parent| !ids.contains(parent)))
+        .min_by(|a, b| (&a.created, &a.id).cmp(&(&b.created, &b.id)))
+        .map(|folder| folder.id.clone())
 }
 
 /// `bytes` in lower-case hex.

@@ -26,6 +26,9 @@ pub(crate) struct Entry {
 pub(crate) struct SyncState {
     /// Drive's id of the `Rnote` folder the entries belong to.
     pub root_id: Option<String>,
+    /// The identity of the library folder the entries belong to.
+    #[serde(default)]
+    pub library_id: Option<String>,
     /// By relative path.
     pub entries: BTreeMap<String, Entry>,
 }

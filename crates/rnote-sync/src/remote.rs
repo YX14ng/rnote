@@ -27,6 +27,17 @@ pub struct RemoteFolder {
     pub parent: Option<String>,
     /// Its name.
     pub name: String,
+    /// When it was created (Drive's `createdTime`, RFC 3339).
+    pub created: String,
+}
+
+/// A stored version of a file's content.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Revision {
+    /// Drive's id of the revision.
+    pub id: String,
+    /// The MD5 of that content, in lower-case hex.
+    pub md5: String,
 }
 
 /// Everything the app can see in Drive that isn't in Drive's trash.
@@ -60,6 +71,15 @@ pub trait Remote {
 
     /// Every file and folder the app can see that isn't trashed.
     fn list(&mut self) -> Result<Listing, RemoteError>;
+
+    /// The file `id` as it is now, wherever it is, or `None` if it's trashed or gone.
+    fn get(&mut self, id: &str) -> Result<Option<RemoteFile>, RemoteError>;
+
+    /// The stored versions of the file `id`, oldest first.
+    fn revisions(&mut self, id: &str) -> Result<Vec<Revision>, RemoteError>;
+
+    /// The content of the version `revision` of the file `id`.
+    fn download_revision(&mut self, id: &str, revision: &str) -> Result<Vec<u8>, RemoteError>;
 
     /// The content of the file `id`.
     fn download(&mut self, id: &str) -> Result<Vec<u8>, RemoteError>;

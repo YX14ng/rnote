@@ -11,6 +11,9 @@ use std::fs;
 use anyhow::Context;
 
 use crate::SyncError;
+use crate::conflicts::meta_path;
+use crate::content::skip_on_failure;
+use crate::local::portable_path;
 use crate::names::free_path;
 use crate::run::Run;
 use crate::tree::split;
@@ -22,40 +25,48 @@ pub(crate) fn apply_moves(run: &mut Run) -> Result<(), SyncError> {
 }
 
 /// A file of the state that Drive now has at another path is moved here too. If that path
-/// is taken here, it lands under a free name, and Drive's file is renamed to match.
+/// is taken here, or not portable, it lands under a free name, and Drive's file is renamed
+/// to match.
 fn remote_moves(run: &mut Run) -> Result<(), SyncError> {
     let entries: Vec<(String, String)> =
         run.state.entries.iter().map(|(path, entry)| (path.clone(), entry.id.clone())).collect();
     for (old, id) in entries {
-        let Some((new, file)) =
-            run.tree.file(&id).map(|(path, file)| (path.to_owned(), file.clone()))
-        else {
-            continue;
-        };
-        if new == old {
-            continue;
-        }
-        let target = if taken_here(run, &new, &old) {
-            free_path(&new, &|candidate| taken_here(run, candidate, &old))
-        } else {
-            new.clone()
-        };
-        if run.local.contains_key(&old) {
-            move_local(run, &old, &target)?;
-        }
-        if target != new {
-            let (folder, name) = split(&target);
-            let parent = run.tree.ensure_folder(run.remote, folder)?;
-            let moved = run.remote.move_file(&id, &file.parent, &parent, name)?;
-            run.tree.put_file(&target, moved);
-        }
-        if let Some(entry) = run.state.entries.remove(&old) {
-            run.state.entries.insert(target, entry);
-        }
-        run.report.moved += 1;
-        run.save()?;
+        let result = remote_move(run, &old, &id);
+        skip_on_failure(run, &old, result)?;
     }
     Ok(())
+}
+
+fn remote_move(run: &mut Run, old: &str, id: &str) -> Result<(), SyncError> {
+    let Some((new, file)) = run.tree.file(id).map(|(path, file)| (path.to_owned(), file.clone()))
+    else {
+        return Ok(());
+    };
+    // `library.json` is merged, never moved.
+    if new == old || old == meta_path() || new == meta_path() {
+        return Ok(());
+    }
+    let wanted = portable_path(&new);
+    let target = if wanted != new || taken_here(run, &new, old) {
+        free_path(&wanted, &|candidate| taken_here(run, candidate, old))
+    } else {
+        new.clone()
+    };
+    if run.local.contains_key(old) {
+        run.expect_local(old)?;
+        move_local(run, old, &target)?;
+    }
+    if target != new {
+        let (folder, name) = split(&target);
+        let parent = run.tree.ensure_folder(run.remote, folder)?;
+        let moved = run.remote.move_file(id, &file.parent, &parent, name)?;
+        run.tree.put_file(&target, moved);
+    }
+    if let Some(entry) = run.state.entries.remove(old) {
+        run.state.entries.insert(target, entry);
+    }
+    run.report.moved += 1;
+    run.save()
 }
 
 /// A file of the state gone from here, unchanged in Drive, whose content turned up at a
@@ -77,6 +88,9 @@ fn local_moves(run: &mut Run) -> Result<(), SyncError> {
         .map(|(path, entry)| (path.clone(), entry.clone()))
         .collect();
     for (old, entry) in gone {
+        if old == meta_path() {
+            continue;
+        }
         let Some(file) = run
             .tree
             .file(&entry.id)
@@ -89,15 +103,26 @@ fn local_moves(run: &mut Run) -> Result<(), SyncError> {
             continue;
         };
         let (new, sha256) = unknown.remove(index);
-        let (folder, name) = split(&new);
-        let parent = run.tree.ensure_folder(run.remote, folder)?;
-        let moved = run.remote.move_file(&file.id, &file.parent, &parent, name)?;
-        run.tree.put_file(&new, moved.clone());
-        run.state.entries.remove(&old);
-        run.report.moved += 1;
-        run.record(&new, &moved, sha256)?;
+        let result = local_move(run, &old, &new, &file, sha256);
+        skip_on_failure(run, &old, result)?;
     }
     Ok(())
+}
+
+fn local_move(
+    run: &mut Run,
+    old: &str,
+    new: &str,
+    file: &crate::RemoteFile,
+    sha256: String,
+) -> Result<(), SyncError> {
+    let (folder, name) = split(new);
+    let parent = run.tree.ensure_folder(run.remote, folder)?;
+    let moved = run.remote.move_file(&file.id, &file.parent, &parent, name)?;
+    run.tree.put_file(new, moved.clone());
+    run.state.entries.remove(old);
+    run.report.moved += 1;
+    run.record(new, &moved, sha256)
 }
 
 /// Moves the local file `from` to `to`, creating its folder.
@@ -112,6 +137,7 @@ fn move_local(run: &mut Run, from: &str, to: &str) -> Result<(), SyncError> {
         run.local.insert(to.to_owned(), sha256);
     }
     run.emptied.insert(split(from).0.to_owned());
+    run.report.changed_here.extend([from.to_owned(), to.to_owned()]);
     Ok(())
 }
 
