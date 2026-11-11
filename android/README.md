@@ -68,6 +68,22 @@ An app signed with another key must be uninstalled once before installing one si
 the stable key; uninstalling offers to keep the app's data (`hasFragileUserData`), which
 holds the notebook library.
 
+### Google Cloud project
+
+The Drive sync needs one Google Cloud project, set up once by whoever publishes the app;
+people using it only sign in. `android/scripts/gcloud.sh` keeps a gcloud of its own,
+apart from the system (the SDK in `~/.local/opt/rnote-gcloud`, its settings and sign-in in
+`~/.config/rnote-android/gcloud`, nothing added to `PATH`):
+
+```sh
+android/scripts/gcloud.sh login   # downloads the SDK the first time, signs in in the browser
+android/scripts/gcloud.sh setup   # creates the project, enables the Drive API
+```
+
+`setup` ends with the steps only the web console has (branding, the `drive.file` scope,
+the Android client with the stable key's SHA-1, the desktop client, publishing), with
+their links. `android/scripts/gcloud.sh uninstall` deletes the SDK and the sign-in.
+
 ## App
 
 ```sh
