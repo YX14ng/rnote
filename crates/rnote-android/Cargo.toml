@@ -23,6 +23,8 @@ anyhow = { workspace = true }
 cairo-rs = { workspace = true }
 chrono = { workspace = true }
 futures = { workspace = true }
+hayro = { workspace = true }
+image = { workspace = true }
 num-traits = { workspace = true }
 parry2d-f64 = { workspace = true }
 serde = { workspace = true }

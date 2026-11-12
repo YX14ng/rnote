@@ -189,6 +189,18 @@ internal object NativeBridge {
         bytes: ByteArray,
     ): String
 
+    /** The `.rnote` bytes of an empty notebook set up as [setupJson] says; throws on errors. */
+    @JvmStatic external fun newNotebook(setupJson: String, fileName: String): ByteArray
+
+    /** Like [newNotebook], with [image] (PNG, JPEG, ...) across the top of the first page. */
+    @JvmStatic external fun imageNotebook(setupJson: String, image: ByteArray, fileName: String): ByteArray
+
+    /** The setup JSON last remembered in [file] for [folder] (null = outside any folder), or the default. */
+    @JvmStatic external fun notebookDefaults(file: String, folder: String?): String
+
+    /** Remembers [setupJson] in [file] for the next notebook of [folder]; throws on errors. */
+    @JvmStatic external fun rememberNotebookDefaults(file: String, folder: String?, setupJson: String)
+
     /** Syncs the library at [root] with Google Drive; returns the JSON outcome. Blocks on the network. */
     @JvmStatic external fun syncRun(root: String, statePath: String, device: String, token: String): String
 

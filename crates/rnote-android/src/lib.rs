@@ -10,6 +10,11 @@ mod document_settings;
 #[cfg(target_os = "android")]
 mod jni_bridge;
 mod library_bridge;
+// Only the JNI entry points, built for Android, call them outside of tests.
+#[cfg_attr(not(target_os = "android"), allow(dead_code))]
+mod notebook_defaults;
+#[cfg_attr(not(target_os = "android"), allow(dead_code))]
+mod notebook_setup;
 mod pen_input;
 mod render;
 mod rnote_document;

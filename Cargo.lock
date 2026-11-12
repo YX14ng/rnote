@@ -4090,6 +4090,8 @@ dependencies = [
  "cairo-rs",
  "chrono",
  "futures",
+ "hayro",
+ "image",
  "jni 0.22.4",
  "num-traits",
  "parry2d-f64",

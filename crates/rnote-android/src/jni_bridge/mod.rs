@@ -11,6 +11,7 @@
 
 mod clipboard;
 mod common;
+mod creation;
 mod document;
 mod editing;
 mod library;
