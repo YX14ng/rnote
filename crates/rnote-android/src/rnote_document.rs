@@ -114,6 +114,13 @@ impl RnoteDocument {
         )
     }
 
+    /// The top-left corner of what the view showed when the document was saved, in document
+    /// coordinates: where it was last worked on.
+    #[must_use]
+    pub fn saved_view_origin(&self) -> Vector2 {
+        self.engine.camera.viewport().mins
+    }
+
     /// The document background color.
     #[must_use]
     pub fn background_color(&self) -> Color {

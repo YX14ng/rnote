@@ -22,6 +22,9 @@ internal object NativeBridge {
     /** Document bounds as `[minX, minY, maxX, maxY]`. */
     @JvmStatic external fun bounds(handle: Long): DoubleArray
 
+    /** The top-left corner of what the view showed when the document was saved, as `[x, y]`. */
+    @JvmStatic external fun savedViewOrigin(handle: Long): DoubleArray
+
     /** The document background as an `android.graphics.Color` int. */
     @JvmStatic external fun backgroundColor(handle: Long): Int
 

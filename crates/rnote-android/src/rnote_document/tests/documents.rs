@@ -81,3 +81,20 @@ fn pattern_size_is_applied_and_clamped() {
     document.set_background(white, PatternStyle::Grid, white, 0.0);
     assert_eq!(document.document_settings().pattern_size, 4.0);
 }
+
+#[test]
+fn saved_document_reopens_where_it_was_viewed() {
+    let mut document = plain_document();
+    let layout = PixelLayout { width: 10, height: 10, stride: 10 * BYTES_PER_PIXEL };
+    let mut out = vec![0_u8; 10 * 10 * BYTES_PER_PIXEL];
+    document
+        .render_rgba(Viewport { x: 40.0, y: 1500.0, zoom: 2.5 }, layout, &mut out)
+        .expect("rendering should succeed");
+
+    let bytes = document.save_to_bytes("viewed.rnote").expect("saving should succeed");
+    let reopened = RnoteDocument::try_open(bytes).expect("the saved file should load");
+
+    let origin = reopened.saved_view_origin();
+    assert!((origin.x - 40.0).abs() < 1e-6, "x was {}", origin.x);
+    assert!((origin.y - 1500.0).abs() < 1e-6, "y was {}", origin.y);
+}

@@ -63,6 +63,26 @@ pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_bounds<'c
         .resolve::<ThrowRuntimeExAndDefault>()
 }
 
+/// `static native double[] savedViewOrigin(long handle)`, as `[x, y]`: the top-left corner of
+/// what the view showed when the document was saved.
+#[unsafe(no_mangle)]
+pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_savedViewOrigin<'caller>(
+    mut unowned_env: EnvUnowned<'caller>,
+    _class: JClass<'caller>,
+    handle: jlong,
+) -> JDoubleArray<'caller> {
+    unowned_env
+        .with_env(|env| -> Result<JDoubleArray<'caller>, BridgeError> {
+            // SAFETY: `handle` comes from `NativeDocument`, which upholds the module invariants.
+            let document = unsafe { document_from_handle(handle) }?;
+            let origin = document.saved_view_origin();
+            let array = env.new_double_array(2)?;
+            array.set_region(env, 0, &[origin.x, origin.y])?;
+            Ok(array)
+        })
+        .resolve::<ThrowRuntimeExAndDefault>()
+}
+
 /// `static native int backgroundColor(long handle)`, as an `android.graphics.Color` int.
 #[unsafe(no_mangle)]
 pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_backgroundColor<'caller>(

@@ -447,7 +447,7 @@ class MainActivity : Activity() {
         guard.changesDiscarded = false
         layout.hideMessage()
         controls.adaptToBackground(info.backgroundColor)
-        canvasView.showDocument(info.bounds, info.settings)
+        canvasView.showDocument(info.bounds, info.settings, info.startAt)
         controls.applyToDocument()
         updateEditState(info.editState)
     }

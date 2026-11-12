@@ -11,6 +11,9 @@ data class DocumentBounds(val left: Double, val top: Double, val right: Double, 
         get() = bottom - top
 }
 
+/** A point in document coordinates. */
+data class DocumentPoint(val x: Double, val y: Double)
+
 /** The region of the document shown on screen: its top-left corner and the zoom. */
 data class Viewport(val x: Double, val y: Double, val zoom: Double)
 
@@ -153,6 +156,13 @@ internal class NativeDocument private constructor(private var handle: Long) : Au
         get() {
             val raw = NativeBridge.bounds(checkOpen())
             return DocumentBounds(raw[0], raw[1], raw[2], raw[3])
+        }
+
+    /** The top-left corner of what the view showed when the document was saved. */
+    val savedViewOrigin: DocumentPoint
+        get() {
+            val raw = NativeBridge.savedViewOrigin(checkOpen())
+            return DocumentPoint(raw[0], raw[1])
         }
 
     val backgroundColor: Int

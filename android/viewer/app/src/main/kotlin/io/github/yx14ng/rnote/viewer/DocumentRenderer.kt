@@ -9,12 +9,13 @@ import java.util.concurrent.Executors
 /** A rendered region of the document, and the last edit it includes. */
 class Frame(val bitmap: Bitmap, val viewport: Viewport, val editSequence: Int)
 
-/** A freshly opened or created document. */
+/** A freshly opened or created document; [startAt] is where its view was when saved. */
 class DocumentInfo(
     val bounds: DocumentBounds,
     val backgroundColor: Int,
     val editState: EditState,
     val settings: DocumentSettings,
+    val startAt: DocumentPoint?,
 )
 
 /** The outcome of an edit; [bounds] is only set when they changed. */
@@ -37,11 +38,11 @@ internal class DocumentRenderer : AutoCloseable {
 
     /** Replaces the current document with the one whose bytes [load] reads. */
     fun open(load: () -> ByteArray, brush: Brush?, onResult: (Result<DocumentInfo>) -> Unit) =
-        replaceDocument({ NativeDocument.open(load()) }, brush, onResult)
+        replaceDocument({ NativeDocument.open(load()) }, { it.savedViewOrigin }, brush, onResult)
 
     /** Replaces the current document with an empty one. */
     fun createEmpty(brush: Brush?, onResult: (Result<DocumentInfo>) -> Unit) =
-        replaceDocument(NativeDocument::createEmpty, brush, onResult)
+        replaceDocument(NativeDocument::createEmpty, { null }, brush, onResult)
 
     /** Runs [operation] on the document and reports the new editing state. */
     fun edit(operation: (NativeDocument) -> EditState, onResult: (Result<EditResult>) -> Unit) =
@@ -104,6 +105,7 @@ internal class DocumentRenderer : AutoCloseable {
 
     private fun replaceDocument(
         create: () -> NativeDocument,
+        startAt: (NativeDocument) -> DocumentPoint?,
         brush: Brush?,
         onResult: (Result<DocumentInfo>) -> Unit,
     ) {
@@ -113,7 +115,13 @@ internal class DocumentRenderer : AutoCloseable {
                 document?.close()
                 document = created
                 brush?.let(created::setBrush)
-                DocumentInfo(created.bounds, created.backgroundColor, created.editState, created.settings)
+                DocumentInfo(
+                    created.bounds,
+                    created.backgroundColor,
+                    created.editState,
+                    created.settings,
+                    startAt(created),
+                )
             }
             mainHandler.post { onResult(result) }
         }

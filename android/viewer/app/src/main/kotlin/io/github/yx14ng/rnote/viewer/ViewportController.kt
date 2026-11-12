@@ -32,15 +32,25 @@ internal class ViewportController(context: Context) {
     /** The zoom that fits a page into the view width. */
     private var fitZoom = 1.0
 
+    /** Where fitting to the width puts the view's top-left corner. */
+    private var start = DocumentPoint(0.0, 0.0)
+
     /**
-     * Shows [newBounds] with a page of [newPageWidth] fitted to the view width, from the origin
-     * page, where documents start. Fitting the bounds instead made infinite documents, whose
-     * bounds keep a margin of pages around the view, grow on every edit.
+     * Shows [newBounds] with a page of [newPageWidth] fitted to the view width, from [startAt]
+     * or else from the origin page, where documents start. Fitting the bounds instead made
+     * infinite documents, whose bounds keep a margin of pages around the view, grow on every
+     * edit.
      */
-    fun showDocument(newBounds: DocumentBounds, newPageWidth: Double, newLayout: DocumentLayout) {
+    fun showDocument(
+        newBounds: DocumentBounds,
+        newPageWidth: Double,
+        newLayout: DocumentLayout,
+        startAt: DocumentPoint?,
+    ) {
         bounds = newBounds
         pageWidth = newPageWidth
         layout = newLayout
+        start = startAt ?: DocumentPoint(0.0, 0.0)
         fitToWidth()
     }
 
@@ -152,7 +162,7 @@ internal class ViewportController(context: Context) {
             return
         }
         fitZoom = pageFitZoom()
-        viewport = clamp(Viewport(0.0, 0.0, fitZoom))
+        viewport = clamp(Viewport(start.x, start.y, fitZoom))
     }
 
     private fun pageFitZoom(): Double = (width / pageWidth).coerceIn(MIN_ZOOM, MAX_ZOOM)

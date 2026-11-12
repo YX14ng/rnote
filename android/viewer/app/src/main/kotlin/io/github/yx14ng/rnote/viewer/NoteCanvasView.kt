@@ -184,14 +184,17 @@ class NoteCanvasView(context: Context) : View(context) {
     private val acceptsInput: Boolean
         get() = bounds != null && !loading
 
-    /** Shows a newly opened document with a page fitted to the view width. */
-    fun showDocument(newBounds: DocumentBounds, settings: DocumentSettings) {
+    /**
+     * Shows a newly opened document with a page fitted to the view width, from [startAt] (where
+     * it was last viewed) or else from the top.
+     */
+    fun showDocument(newBounds: DocumentBounds, settings: DocumentSettings, startAt: DocumentPoint?) {
         loading = false
         pendingEdits.clear()
         frames.reset()
         input.reset()
         clearPreviewAt = NO_PENDING_CLEAR
-        camera.showDocument(newBounds, settings.pageWidth, settings.layout)
+        camera.showDocument(newBounds, settings.pageWidth, settings.layout, startAt)
         pageColor = settings.backgroundColor
         onViewportChanged()
     }
@@ -199,7 +202,7 @@ class NoteCanvasView(context: Context) : View(context) {
     /** Fits a page to the view width again, e.g. after the page size or layout changed. */
     fun refit(settings: DocumentSettings) {
         val currentBounds = bounds ?: return
-        camera.showDocument(currentBounds, settings.pageWidth, settings.layout)
+        camera.showDocument(currentBounds, settings.pageWidth, settings.layout, startAt = null)
         onViewportChanged()
     }
 
