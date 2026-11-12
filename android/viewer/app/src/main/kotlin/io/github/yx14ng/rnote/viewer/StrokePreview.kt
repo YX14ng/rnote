@@ -14,6 +14,7 @@ import android.graphics.Paint
  */
 internal class StrokePreview {
     private var brush = Brush(Color.BLACK, BrushPalette.DEFAULT_WIDTH)
+    private var style = BrushStyle.SOLID
 
     // x, y, pressure triples in document coordinates.
     private var points = DoubleArray(INITIAL_CAPACITY)
@@ -27,8 +28,9 @@ internal class StrokePreview {
     val isEmpty: Boolean
         get() = size == 0
 
-    fun start(brush: Brush) {
+    fun start(brush: Brush, style: BrushStyle) {
         this.brush = brush
+        this.style = style
         size = 0
     }
 
@@ -54,9 +56,8 @@ internal class StrokePreview {
         var index = 0
         while (index + VALUES_PER_POINT < size) {
             val next = index + VALUES_PER_POINT
-            // Roughly what the engine's default pressure curve does.
             val pressure = (points[index + 2] + points[next + 2]) / 2
-            strokePaint.strokeWidth = (brush.width * viewport.zoom * (0.4 + 1.2 * pressure)).toFloat()
+            strokePaint.strokeWidth = (StrokeWidth.at(style, brush.width, pressure) * viewport.zoom).toFloat()
             canvas.drawLine(
                 screenX(points[index], viewport),
                 screenY(points[index + 1], viewport),
@@ -75,5 +76,18 @@ internal class StrokePreview {
     private companion object {
         const val VALUES_PER_POINT = 3
         const val INITIAL_CAPACITY = 3 * 256
+    }
+}
+
+/**
+ * How wide the engine draws a brush stroke where the pen pressed with [pressure] (0 to 1),
+ * in document units: the pressure curves of `rnote-engine`'s brush styles, which the
+ * Android app leaves at their defaults. Marker ignores the pressure; solid and textured
+ * strokes grow with it linearly, up to the brush width at full pressure.
+ */
+internal object StrokeWidth {
+    fun at(style: BrushStyle, width: Double, pressure: Double): Double = when (style) {
+        BrushStyle.MARKER -> width
+        BrushStyle.SOLID, BrushStyle.TEXTURED -> width * pressure.coerceIn(0.0, 1.0)
     }
 }

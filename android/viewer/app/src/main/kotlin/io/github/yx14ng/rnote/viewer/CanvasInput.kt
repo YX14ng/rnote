@@ -35,6 +35,8 @@ internal class CanvasInput(
 ) {
     var tool = Tool.BRUSH
     var brush = Brush(Color.BLACK, BrushPalette.DEFAULT_WIDTH)
+    /** The look of brush strokes, so the preview is as wide as the stroke left on the page. */
+    var brushStyle = BrushStyle.SOLID
     var fingerDrawing = false
     var holdToSnap = false
 
@@ -273,7 +275,7 @@ internal class CanvasInput(
         strokePointerId = pointerId
         penTool = tool
         previewing = true
-        if (tool == Tool.BRUSH) preview.start(brush) else preview.clear()
+        if (tool == Tool.BRUSH) preview.start(brush, brushStyle) else preview.clear()
         send(PenPhase.DOWN, samples)
     }
 

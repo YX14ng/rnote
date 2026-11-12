@@ -241,3 +241,17 @@ fn selection_bounds_follow_the_selected_strokes_and_recolor_them() {
     assert!(state.modified && state.can_undo, "got {state:?}");
     assert_pixel_near(render_pixel(&mut document, 200.0, 200.0), [0, 0, 255, 255]);
 }
+
+/// `StrokeWidth` in the app's `StrokePreview.kt` mirrors these curves to draw the stroke
+/// being written as wide as the engine will.
+#[test]
+fn brush_styles_keep_the_pressure_curves_the_preview_assumes() {
+    use rnote_compose::style::PressureCurve;
+    use rnote_engine::pens::pensconfig::BrushConfig;
+
+    let config = BrushConfig::default();
+
+    assert!(matches!(config.marker_options.pressure_curve, PressureCurve::Const));
+    assert!(matches!(config.solid_options.pressure_curve, PressureCurve::Linear));
+    assert!(matches!(config.textured_options.pressure_curve, PressureCurve::Linear));
+}

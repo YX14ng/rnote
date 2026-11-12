@@ -176,6 +176,7 @@ internal class EditorControls(
         sidebar.showWidth(settings.brush.width)
         canvas.tool = settings.tool
         canvas.brush = settings.brush
+        canvas.brushStyle = settings.brushStyle
         canvas.fingerDrawing = settings.fingerDrawing
         canvas.holdToSnap = settings.shapeRecognition
     }

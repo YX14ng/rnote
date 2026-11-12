@@ -46,6 +46,12 @@ class NoteCanvasView(context: Context) : View(context) {
             input.brush = value
         }
 
+    var brushStyle: BrushStyle
+        get() = input.brushStyle
+        set(value) {
+            input.brushStyle = value
+        }
+
     /** When on, holding the pen still for a moment turns the brush stroke into a shape. */
     var holdToSnap: Boolean
         get() = input.holdToSnap

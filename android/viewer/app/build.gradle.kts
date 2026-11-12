@@ -68,6 +68,9 @@ android {
 dependencies {
     // The Authorization API, for the access token of the Drive sync.
     implementation("com.google.android.gms:play-services-auth:22.0.0")
+
+    // Unit tests of plain logic on the JVM (`./gradlew testDebugUnitTest`).
+    testImplementation("junit:junit:4.13.2")
 }
 
 // A release must be signed with the stable key: an APK signed otherwise couldn't update
