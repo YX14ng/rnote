@@ -2,6 +2,7 @@ package io.github.yx14ng.rnote.viewer
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.pm.ActivityInfo
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
@@ -101,36 +102,49 @@ internal class PdfImporter(
             label.text = activity.getString(R.string.import_pdf_progress_page, (done + 1).coerceAtMost(total), total)
         }
         show(0)
-        background({
-            val handle = NativeBridge.pdfImportBegin(bytes, password, setup.toJson(), choice.firstPage, choice.endPage, choice.vector)
-            try {
-                var done = 0
-                while (!cancelled.get() && NativeBridge.pdfImportNext(handle)) {
-                    done += 1
-                    val shown = done
-                    main.post { show(shown) }
-                }
-                if (cancelled.get()) null else NativeBridge.pdfImportFinish(handle, "${choice.name}.rnote")
-            } finally {
-                NativeBridge.pdfImportClose(handle)
-            }
-        }, failed = { error -> progress.dismiss(); onError(error) }) { notebook ->
-            progress.dismiss()
-            if (notebook != null) {
-                creator.save(choice.folder, choice.name, setup.cover, notebook) { result ->
-                    result.onSuccess(onCreated).onFailure(onError)
+        // Turning the tablet would recreate the screen in the middle of a long import.
+        val orientation = activity.requestedOrientation
+        activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LOCKED
+        Thread({
+            val result = runCatching {
+                val handle = NativeBridge.pdfImportBegin(bytes, password, setup.toJson(), choice.firstPage, choice.endPage, choice.vector)
+                try {
+                    var done = 0
+                    while (!cancelled.get() && NativeBridge.pdfImportNext(handle)) {
+                        done += 1
+                        val shown = done
+                        main.post { show(shown) }
+                    }
+                    if (cancelled.get()) null else NativeBridge.pdfImportFinish(handle, "${choice.name}.rnote")
+                } finally {
+                    NativeBridge.pdfImportClose(handle)
                 }
             }
-        }
+            main.post {
+                val alive = !activity.isDestroyed
+                if (alive) {
+                    progress.dismiss()
+                    activity.requestedOrientation = orientation
+                }
+                val notebook = result.getOrElse { error -> if (alive) onError(error); return@post }
+                // Saved even if the screen was recreated meanwhile: the work is done, and the
+                // notebook shows up in the library; only opening it needs the screen.
+                if (notebook != null && !cancelled.get()) {
+                    creator.save(choice.folder, choice.name, setup.cover, notebook) { saved ->
+                        if (!activity.isDestroyed) saved.onSuccess(onCreated).onFailure(onError)
+                    }
+                }
+            }
+        }, "rnote-pdf-import").start()
     }
 
     /** Runs [work] on a thread of its own and hands its result to [done] on the main thread. */
-    private fun <T> background(work: () -> T, failed: (Throwable) -> Unit = onError, done: (T) -> Unit) {
+    private fun <T> background(work: () -> T, done: (T) -> Unit) {
         Thread({
             val result = runCatching(work)
             main.post {
                 if (activity.isDestroyed) return@post
-                result.onSuccess(done).onFailure(failed)
+                result.onSuccess(done).onFailure(onError)
             }
         }, "rnote-pdf-import").start()
     }
