@@ -2,7 +2,7 @@
 
 Fecha: 2026-11-12. Fork: YX14ng/rnote, rama `android/engine-build`.
 Diseño visual: canvas de Claude Design https://claude.ai/artifact/PFWV4m2m1e2qjVVaq3qwcK
-(artboards "Biblioteca: menú del +" y "Cuaderno nuevo"; privado del usuario).
+(artboards "Biblioteca: menú del +", "Cuaderno nuevo" e "Importar PDF"; privado del usuario).
 
 ## Intención
 
@@ -38,6 +38,8 @@ La portada sirve para **distinguir las materias de un vistazo** en la grilla.
 - Portadas con imagen o diseños; solo color y nombre.
 - Pantalla de creación en el Rnote de escritorio (allí solo se ven las portadas).
 - Importar PPT, DOC, EPUB y demás formatos de StarNote; solo PDF e imágenes.
+- Idioma del documento: llega con la búsqueda manuscrita, que es la que lo usa (decisión
+  del usuario).
 
 ## Anti-objetivos
 
@@ -51,6 +53,8 @@ La portada sirve para **distinguir las materias de un vistazo** en la grilla.
 - Usa todas las opciones de la pantalla de StarNote, salvo las plantillas que no sean
   renglones o cuadrícula.
 - El diseño de menús y pantallas pasa por Claude Design (el canvas de arriba).
+- Importar PDF tiene que servir para todo tamaño: guías de unas 20 páginas y apuntes o
+  libros enteros de cientos.
 
 ## Diseño (lo decidido en el canvas; mis decisiones marcadas)
 
@@ -99,13 +103,31 @@ vertical, Hojas, Oscuro, Cuadrícula de 5 mm, sin portada.
 (`apply_page_size`, `apply_layout`, `apply_background`) antes de ese primer guardado, y
 guardar la portada y las etiquetas en `library.json`.
 
-**Importar PDF**: selector del sistema → cuaderno nuevo con el nombre del PDF en la carpeta
-actual, páginas importadas con `generate_pdf_pages_from_bytes` (hayro, Rust puro) con
-`adjust_document` (mi decisión): la hoja toma el ancho del formato elegido y el alto de la
-proporción del PDF, en `FixedSize`; un PDF que mezcla vertical y horizontal queda con un
-solo tamaño (lo que hace el motor). Las páginas son imágenes debajo de la tinta: la goma no
-las toca (`trash_comp.rs:108` ignora imágenes), el lazo sí puede moverlas; no se bloquean
-(mi decisión, bloquearlas es trabajo nuevo en el motor). **Imagen / foto**: imagen insertada en la
+**Importar PDF**: selector del sistema → paso "Importar PDF" con **Páginas** (todas, o
+desde–hasta), **Tipo** (Vector, por defecto, o Imagen) y contraseña si el PDF la pide → cuaderno
+nuevo con el nombre del PDF en la carpeta actual. Las páginas se importan con
+`generate_pdf_pages_from_bytes` (hayro, Rust puro), con `adjust_document` (mi decisión): la
+hoja toma el ancho del formato elegido y el alto de la proporción del PDF, en `FixedSize`; un
+PDF que mezcla vertical y horizontal queda con un solo tamaño (lo que hace el motor). Las
+páginas son imágenes debajo de la tinta: la goma no las toca (`trash_comp.rs:108` ignora
+imágenes), el lazo sí puede moverlas; no se bloquean (mi decisión, bloquearlas es trabajo
+nuevo en el motor).
+
+Vector por defecto (mi decisión): cada página queda como SVG (`hayro_svg`), que se comprime
+dentro del `.rnote`; como Imagen cada página es un PNG a 1,8×, que no se comprime y hace
+pesado un libro entero. Imagen queda para el PDF que en la tablet se dibuje lento.
+
+Para que un PDF de cientos de páginas ande (consecuencia de "todo tamaño"):
+- La importación corre fuera del hilo de la interfaz, con progreso por página y Cancelar;
+  cancelar no deja un cuaderno a medias.
+- **Subida a Drive de archivos grandes** (mi decisión, requisito de esta etapa): hoy
+  `rnote-sync` sube con `uploadType=multipart` y `media` (`drive.rs:331`, `:338`), que Drive
+  documenta para archivos de hasta 5 MB. Los archivos de más de 5 MB pasan a subida reanudable
+  (`uploadType=resumable`), con el mismo comportamiento ante errores y sin conexión que hoy.
+- La prueba en la tablet incluye un PDF real de varios cientos de páginas: importarlo, abrirlo,
+  desplazarse y escribir sin trabarse, y que suba a Drive.
+
+**Imagen / foto**: imagen insertada en la
 primera hoja ajustada al ancho; la foto usa la cámara del sistema (`ACTION_IMAGE_CAPTURE`
 con un archivo propio vía un `FileProvider` nuevo en el manifiesto, sin pedir el permiso
 de cámara).
@@ -113,16 +135,4 @@ de cámara).
 ## Lo que queda para el que lo construye
 
 - Cómo se dibuja la pantalla en Android (vistas a mano con `Graphite`, como el resto).
-- Si las importaciones pesadas muestran progreso.
 - Nombre del cuaderno vacío: "Sin título" con sufijo libre, como hoy.
-
-## Abierto (para el usuario)
-
-- **PDF: imágenes o vectores.** Por defecto el motor mete cada página como PNG (1,8×) dentro
-  del `.rnote`, que además se sube a Drive: un PDF de 200 páginas pesa mucho. Como vectores
-  pesa menos pero puede dibujarse más lento en la tablet. Depende de qué PDF importa el
-  usuario (guías de 20 páginas o apuntes enteros).
-
-- **Idioma del documento** (StarNote lo tiene): Rnote no lo usa hoy. Serviría para el
-  reconocimiento de escritura de la búsqueda manuscrita (objetivo 4 del spec de
-  biblioteca, sin hacer). ¿Se agrega ahora o cuando llegue la búsqueda?
