@@ -29,6 +29,7 @@ impl RnCanvas {
     where
         P: AsRef<Path>,
     {
+        let sha256 = file_path.is_some().then(|| rnote_sync::sha256_hex(&bytes));
         let engine_snapshot = EngineSnapshot::load_from_rnote_bytes(bytes).await?;
         let mut widget_flags = self.engine_mut().load_snapshot(engine_snapshot);
         widget_flags |= self
@@ -36,6 +37,7 @@ impl RnCanvas {
             .set_scale_factor(self.scale_factor() as f64);
 
         self.set_output_file(file_path.map(gio::File::for_path));
+        self.set_library_sha256(sha256);
         self.dismiss_output_file_modified_toast();
         self.set_unsaved_changes(false);
         self.set_empty(false);
@@ -244,21 +246,34 @@ impl RnCanvas {
         }
 
         self.dismiss_output_file_modified_toast();
+        // Notebooks of the library are saved without replacing a version a sync brought.
+        let library = crate::sync::opened::library_target(self, &filepath);
+        let expected_sha256 = self.library_sha256();
 
         let file_write_operation = async {
             let bytes = rnote_bytes_receiver.await??;
             // The `output_file_expect_write` should theoretically be reset to `false` by the file watcher later.
             self.set_output_file_expect_write(true);
-            crate::utils::atomic_save_to_file_future(&filepath, bytes).await
+            match &library {
+                Some(target) => crate::sync::opened::write(target, expected_sha256, bytes)
+                    .await
+                    .map(Some),
+                None => crate::utils::atomic_save_to_file_future(&filepath, bytes)
+                    .await
+                    .map(|()| None),
+            }
         };
 
-        if let Err(e) = file_write_operation.await {
-            self.set_save_in_progress(false);
-            // If the file operations failed in any way, we make sure to clear the expect_write flag
-            // because we can't know for sure if the output-file watcher will be able to.
-            self.set_output_file_expect_write(false);
-            return Err(e);
-        }
+        let written = match file_write_operation.await {
+            Ok(written) => written,
+            Err(e) => {
+                self.set_save_in_progress(false);
+                // If the file operations failed in any way, we make sure to clear the expect_write flag
+                // because we can't know for sure if the output-file watcher will be able to.
+                self.set_output_file_expect_write(false);
+                return Err(e);
+            }
+        };
 
         debug!("Saving file has finished successfully");
 
@@ -269,14 +284,11 @@ impl RnCanvas {
             // first time or saving as another filename, until the subsequent save at least.
             self.set_output_file_expect_write(false);
         }
+        if let (Some((root, _)), Some(written)) = (&library, &written) {
+            crate::sync::opened::saved(self, root, written);
+        }
         self.set_unsaved_changes(false);
         self.set_save_in_progress(false);
-        // A notebook of the library goes to Drive a few seconds later.
-        if let Some(appwindow) = self.root().and_downcast::<crate::RnAppWindow>()
-            && filepath.starts_with(appwindow.library_view().root())
-        {
-            appwindow.sync().sync_soon();
-        }
 
         Ok(true)
     }

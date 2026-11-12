@@ -3398,3 +3398,9 @@ msgstr "退出登录"
 
 msgid "Signed out here, but Google couldn't be told: {error}"
 msgstr "已在本机退出，但无法通知 Google：{error}"
+
+msgid "It changed on another device meanwhile: saved as “{name}”"
+msgstr "此期间它在另一台设备上被修改：已另存为“{name}”"
+
+msgid "Updated with the changes from another device"
+msgstr "已更新为另一台设备上的更改"

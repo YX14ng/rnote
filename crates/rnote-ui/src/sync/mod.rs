@@ -3,6 +3,7 @@
 
 pub(crate) mod button;
 pub(crate) mod credentials;
+pub(crate) mod opened;
 pub(crate) mod run;
 pub(crate) mod schedule;
 pub(crate) mod status;

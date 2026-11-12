@@ -85,6 +85,9 @@ mod imp {
         pub(crate) output_file_modified_toast_singleton: glib::WeakRef<adw::Toast>,
         pub(crate) locked_tool_toast_singleton: glib::WeakRef<adw::Toast>,
         pub(crate) output_file_expect_write: Cell<bool>,
+        /// The SHA-256 of the file as last read or written, so saving a notebook of the
+        /// library never replaces a version a sync brought meanwhile.
+        pub(crate) library_sha256: RefCell<Option<String>>,
         pub(crate) save_in_progress: Cell<bool>,
         pub(crate) unsaved_changes: Cell<bool>,
         pub(crate) empty: Cell<bool>,
@@ -183,6 +186,7 @@ mod imp {
                 output_file_modified_toast_singleton: glib::WeakRef::new(),
                 locked_tool_toast_singleton: glib::WeakRef::new(),
                 output_file_expect_write: Cell::new(false),
+                library_sha256: RefCell::new(None),
                 save_in_progress: Cell::new(false),
                 unsaved_changes: Cell::new(false),
                 empty: Cell::new(true),
@@ -788,6 +792,14 @@ impl RnCanvas {
     }
 
     #[allow(unused)]
+    pub(crate) fn library_sha256(&self) -> Option<String> {
+        self.imp().library_sha256.borrow().clone()
+    }
+
+    pub(crate) fn set_library_sha256(&self, sha256: Option<String>) {
+        *self.imp().library_sha256.borrow_mut() = sha256;
+    }
+
     pub(crate) fn set_output_file_expect_write(&self, expect_write: bool) {
         self.imp().output_file_expect_write.set(expect_write);
     }
@@ -1068,6 +1080,10 @@ impl RnCanvas {
 
     pub(crate) fn create_output_file_watcher(&self, file: &gio::File, appwindow: &RnAppWindow) {
         let dispatch_toast_reload_modified_file = |appwindow: &RnAppWindow, canvas: &RnCanvas| {
+            // A sync brought another device's version of a library notebook.
+            if crate::sync::opened::reload_if_clean(appwindow, canvas) {
+                return;
+            }
             canvas.set_unsaved_changes(true);
 
             appwindow.overlays().dispatch_toast_w_button_singleton(

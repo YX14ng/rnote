@@ -3417,3 +3417,9 @@ msgstr "Cerrar sesión"
 
 msgid "Signed out here, but Google couldn't be told: {error}"
 msgstr "Se cerró la sesión acá, pero no se le pudo avisar a Google: {error}"
+
+msgid "It changed on another device meanwhile: saved as “{name}”"
+msgstr "Mientras tanto cambió en otro dispositivo: se guardó como “{name}”"
+
+msgid "Updated with the changes from another device"
+msgstr "Actualizado con los cambios de otro dispositivo"
