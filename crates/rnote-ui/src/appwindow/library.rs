@@ -5,6 +5,7 @@ use gtk4::{gio, glib, glib::clone, subclass::prelude::*};
 
 use crate::RnAppWindow;
 use crate::library::RnLibraryView;
+use crate::sync::RnSync;
 
 /// The name of the library page of the window's stack.
 const LIBRARY_PAGE: &str = "library";
@@ -44,11 +45,30 @@ impl RnAppWindow {
         self.imp().library_view.get()
     }
 
-    /// Reads the library again and shows it. The tabs stay open.
+    /// The Google Drive sync of the library.
+    pub(crate) fn sync(&self) -> RnSync {
+        self.imp()
+            .sync
+            .get_or_init(|| {
+                let sync = RnSync::new(crate::config::APP_ID);
+                let window = self.downgrade();
+                sync.set_root(move || window.upgrade().map(|window| window.library_view().root()));
+                sync
+            })
+            .clone()
+    }
+
+    /// Reads the library again and shows it, and syncs it. The tabs stay open.
     pub(crate) fn show_library(&self) {
         self.library_view().refresh();
         self.imp().main_stack.set_visible_child_name(LIBRARY_PAGE);
         self.set_document_actions_enabled(false);
+        self.sync().sync_now();
+    }
+
+    /// Whether the library is on screen, not the editor.
+    pub(crate) fn library_shown(&self) -> bool {
+        self.imp().main_stack.visible_child_name().as_deref() == Some(LIBRARY_PAGE)
     }
 
     /// Shows the editor with the tabs.
@@ -82,6 +102,9 @@ impl RnAppWindow {
     /// whenever a tab is added.
     pub(super) fn setup_library(&self) {
         self.library_view().init(self);
+        crate::sync::button::setup(&self.library_view().sync_button(), self);
+        // Opening the app syncs.
+        self.sync().sync_now();
 
         let show_library = gio::SimpleAction::new("show-library", None);
         show_library.connect_activate(clone!(

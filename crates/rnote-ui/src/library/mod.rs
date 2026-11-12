@@ -3,7 +3,7 @@
 mod actions;
 mod busy;
 mod card;
-mod dialogs;
+pub(crate) mod dialogs;
 mod grid;
 mod location;
 mod manage;
@@ -70,6 +70,8 @@ mod imp {
         pub(crate) error_page: TemplateChild<adw::StatusPage>,
         #[template_child]
         pub(crate) section_menu_button: TemplateChild<gtk4::MenuButton>,
+        #[template_child]
+        pub(crate) sync_button: TemplateChild<gtk4::MenuButton>,
         #[template_child]
         pub(crate) select_button: TemplateChild<gtk4::ToggleButton>,
         #[template_child]
@@ -308,6 +310,11 @@ impl RnLibraryView {
     }
 
     /// The library's folder.
+    /// The Google Drive button of the header bar.
+    pub(crate) fn sync_button(&self) -> gtk4::MenuButton {
+        self.imp().sync_button.get()
+    }
+
     pub(crate) fn root(&self) -> PathBuf {
         location::library_root(
             &self.root_setting(),

@@ -73,6 +73,11 @@
               </object>
             </child>
             <child type="end">
+              <object class="GtkMenuButton" id="sync_button">
+                <property name="icon-name">sync-cloud-off-symbolic</property>
+              </object>
+            </child>
+            <child type="end">
               <object class="GtkToggleButton" id="select_button">
                 <property name="icon-name">selection-mode-symbolic</property>
                 <property name="action-name">library.selection-mode</property>

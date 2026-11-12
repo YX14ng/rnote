@@ -33,6 +33,7 @@ pub(crate) mod sidebar;
 pub(crate) mod strokecontentpaintable;
 pub(crate) mod strokecontentpreview;
 pub(crate) mod strokewidthpicker;
+pub(crate) mod sync;
 pub(crate) mod unitentry;
 pub(crate) mod utils;
 pub(crate) mod workspacebrowser;

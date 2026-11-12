@@ -13,6 +13,7 @@ version.workspace = true
 rnote-compose = { workspace = true }
 rnote-engine = { workspace = true, features = ["ui"] }
 rnote-library = { workspace = true }
+rnote-sync = { workspace = true }
 
 adw = { workspace = true }
 anyhow = { workspace = true }
@@ -30,6 +31,7 @@ hayro = { workspace = true }
 ijson = { workspace = true }
 image = { workspace = true }
 itertools = { workspace = true }
+keyring = { workspace = true }
 kurbo = { workspace = true }
 notify-debouncer-full = { workspace = true }
 num-derive = { workspace = true }

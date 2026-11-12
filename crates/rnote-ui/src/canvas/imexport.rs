@@ -271,6 +271,12 @@ impl RnCanvas {
         }
         self.set_unsaved_changes(false);
         self.set_save_in_progress(false);
+        // A notebook of the library goes to Drive a few seconds later.
+        if let Some(appwindow) = self.root().and_downcast::<crate::RnAppWindow>()
+            && filepath.starts_with(appwindow.library_view().root())
+        {
+            appwindow.sync().sync_soon();
+        }
 
         Ok(true)
     }

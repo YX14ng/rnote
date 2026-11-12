@@ -60,6 +60,7 @@ image = { version = "0.25.10", default-features = false, features = [
 indicatif = "0.18.6"
 ink-stroke-modeler-rs = "0.1.0"
 itertools = "0.15.0"
+keyring = { version = "3.6", features = ["sync-secret-service", "crypto-rust", "windows-native", "apple-native"] }
 kurbo = "0.13.1"
 librsvg = "=2.63"
 notify-debouncer-full = "0.7.0"

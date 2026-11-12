@@ -3332,3 +3332,69 @@ msgstr "选择文件夹…"
 
 msgid "_Quit"
 msgstr "退出 [_Q]"
+
+msgid "This build of Rnote has no Google Drive credentials, so it can't sync"
+msgstr "此版本的 Rnote 没有 Google 云端硬盘凭据，因此无法同步"
+
+msgid "Not signed in to Google Drive"
+msgstr "未登录 Google 云端硬盘"
+
+msgid "Sign in to Google Drive again to keep syncing"
+msgstr "请重新登录 Google 云端硬盘以继续同步"
+
+msgid "Waiting to sync"
+msgstr "等待同步"
+
+msgid "Syncing…"
+msgstr "正在同步…"
+
+msgid "Synced {when}"
+msgstr "已同步（{when}）"
+
+msgid "Offline: it syncs once Google can be reached"
+msgstr "离线：连上 Google 后会自动同步"
+
+msgid "Sync failed: {error}"
+msgstr "同步失败：{error}"
+
+msgid "just now"
+msgstr "刚刚"
+
+msgid "{n} minute ago"
+msgid_plural "{n} minutes ago"
+msgstr[0] "{n} 分钟前"
+
+msgid "{n} hour ago"
+msgid_plural "{n} hours ago"
+msgstr[0] "{n} 小时前"
+
+msgid "on {date}"
+msgstr "于 {date}"
+
+msgid "Changed on two devices: kept both, one as a conflict copy"
+msgid_plural "Changed on two devices: kept both versions of {n} notebooks"
+msgstr[0] "{n} 个笔记本在两台设备上都有更改：两个版本都已保留"
+
+msgid "Sync Now"
+msgstr "立即同步"
+
+msgid "Sign Out of Google Drive"
+msgstr "退出 Google 云端硬盘"
+
+msgid "Sign In with Google"
+msgstr "使用 Google 登录"
+
+msgid "Signing in to Google Drive failed: {error}"
+msgstr "登录 Google 云端硬盘失败：{error}"
+
+msgid "Sign Out of Google Drive?"
+msgstr "要退出 Google 云端硬盘吗？"
+
+msgid "The notebooks stay on this computer and in your Drive. Syncing stops until you sign in again."
+msgstr "笔记本仍保留在这台电脑和你的云端硬盘中。在重新登录之前，同步将停止。"
+
+msgid "Sign Out"
+msgstr "退出登录"
+
+msgid "Signed out here, but Google couldn't be told: {error}"
+msgstr "已在本机退出，但无法通知 Google：{error}"

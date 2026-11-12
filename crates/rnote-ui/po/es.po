@@ -3348,3 +3348,72 @@ msgstr "Elegir carpeta…"
 
 msgid "_Quit"
 msgstr "_Salir"
+
+msgid "This build of Rnote has no Google Drive credentials, so it can't sync"
+msgstr "Esta compilación de Rnote no tiene credenciales de Google Drive, así que no puede sincronizar"
+
+msgid "Not signed in to Google Drive"
+msgstr "No se inició sesión en Google Drive"
+
+msgid "Sign in to Google Drive again to keep syncing"
+msgstr "Hay que volver a iniciar sesión en Google Drive para seguir sincronizando"
+
+msgid "Waiting to sync"
+msgstr "Esperando para sincronizar"
+
+msgid "Syncing…"
+msgstr "Sincronizando…"
+
+msgid "Synced {when}"
+msgstr "Sincronizado {when}"
+
+msgid "Offline: it syncs once Google can be reached"
+msgstr "Sin conexión: se sincroniza cuando vuelva"
+
+msgid "Sync failed: {error}"
+msgstr "Falló la sincronización: {error}"
+
+msgid "just now"
+msgstr "hace un momento"
+
+msgid "{n} minute ago"
+msgid_plural "{n} minutes ago"
+msgstr[0] "hace {n} minuto"
+msgstr[1] "hace {n} minutos"
+
+msgid "{n} hour ago"
+msgid_plural "{n} hours ago"
+msgstr[0] "hace {n} hora"
+msgstr[1] "hace {n} horas"
+
+msgid "on {date}"
+msgstr "el {date}"
+
+msgid "Changed on two devices: kept both, one as a conflict copy"
+msgid_plural "Changed on two devices: kept both versions of {n} notebooks"
+msgstr[0] "Cambió en dos dispositivos: se guardaron las dos versiones, una como copia de conflicto"
+msgstr[1] "Cambiaron en dos dispositivos: se guardaron las dos versiones de {n} cuadernos"
+
+msgid "Sync Now"
+msgstr "Sincronizar ahora"
+
+msgid "Sign Out of Google Drive"
+msgstr "Cerrar sesión de Google Drive"
+
+msgid "Sign In with Google"
+msgstr "Iniciar sesión con Google"
+
+msgid "Signing in to Google Drive failed: {error}"
+msgstr "No se pudo iniciar sesión en Google Drive: {error}"
+
+msgid "Sign Out of Google Drive?"
+msgstr "¿Cerrar sesión de Google Drive?"
+
+msgid "The notebooks stay on this computer and in your Drive. Syncing stops until you sign in again."
+msgstr "Los cuadernos quedan en esta computadora y en Drive. La sincronización se detiene hasta volver a iniciar sesión."
+
+msgid "Sign Out"
+msgstr "Cerrar sesión"
+
+msgid "Signed out here, but Google couldn't be told: {error}"
+msgstr "Se cerró la sesión acá, pero no se le pudo avisar a Google: {error}"

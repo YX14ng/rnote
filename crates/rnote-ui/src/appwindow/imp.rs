@@ -42,6 +42,8 @@ pub(crate) struct RnAppWindow {
     pub(crate) save_in_progress: Cell<bool>,
     pub(crate) save_in_progress_toast: RefCell<Option<adw::Toast>>,
     pub(crate) close_in_progress: Cell<bool>,
+    /// The Google Drive sync of the library; set up with the library.
+    pub(crate) sync: std::cell::OnceCell<crate::sync::RnSync>,
 
     #[template_child]
     pub(crate) overview: TemplateChild<adw::TabOverview>,
@@ -88,6 +90,7 @@ impl Default for RnAppWindow {
             save_in_progress: Cell::new(false),
             save_in_progress_toast: RefCell::new(None),
             close_in_progress: Cell::new(false),
+            sync: std::cell::OnceCell::new(),
 
             overview: TemplateChild::<adw::TabOverview>::default(),
             main_stack: TemplateChild::<adw::ViewStack>::default(),

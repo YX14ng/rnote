@@ -143,6 +143,10 @@
         <file compressed="true">icons/scalable/actions/stylus-button-primary-symbolic.svg</file>
         <file compressed="true">icons/scalable/actions/stylus-button-secondary-symbolic.svg</file>
         <file compressed="true">icons/scalable/actions/stylus-pen-symbolic.svg</file>
+        <file compressed="true">icons/scalable/actions/sync-cloud-alert-symbolic.svg</file>
+        <file compressed="true">icons/scalable/actions/sync-cloud-off-symbolic.svg</file>
+        <file compressed="true">icons/scalable/actions/sync-cloud-symbolic.svg</file>
+        <file compressed="true">icons/scalable/actions/sync-cloud-sync-symbolic.svg</file>
         <file compressed="true">icons/scalable/actions/tab-new-symbolic.svg</file>
         <file compressed="true">icons/scalable/actions/text-align-center-symbolic.svg</file>
         <file compressed="true">icons/scalable/actions/text-align-end-symbolic.svg</file>
