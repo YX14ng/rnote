@@ -4224,8 +4224,10 @@ name = "rnote-sync"
 version = "0.15.0"
 dependencies = [
  "anyhow",
+ "base64 0.23.1",
  "chrono",
  "md-5",
+ "rand 0.10.3",
  "rnote-library",
  "serde",
  "serde_json",

@@ -10,6 +10,7 @@ mod fake;
 mod local;
 mod moves;
 mod notebooks;
+mod oauth;
 mod regressions;
 mod revoke;
 mod stub_http;

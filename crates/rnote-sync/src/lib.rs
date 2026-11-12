@@ -14,6 +14,7 @@ mod lock;
 mod moves;
 mod names;
 mod notebooks;
+pub mod oauth;
 mod remote;
 mod revoke;
 mod run;
