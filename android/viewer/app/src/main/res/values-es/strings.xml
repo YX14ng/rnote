@@ -189,7 +189,19 @@
     <string name="sync_unavailable">Esta compilación no puede sincronizar con Google Drive: no está firmada con la clave registrada en Google.</string>
     <string name="sync_status_done">Sincronizado %s</string>
     <string name="sync_status_waiting">Esperando para sincronizar</string>
-    <string name="sync_status_pending">Pendiente: %s</string>
+    <string name="sync_status_offline">Sin conexión: se sincroniza cuando vuelva</string>
+    <string name="sync_ago_just_now">hace un momento</string>
+    <plurals name="sync_ago_minutes">
+        <item quantity="one">hace %d minuto</item>
+        <item quantity="many">hace %d minutos</item>
+        <item quantity="other">hace %d minutos</item>
+    </plurals>
+    <plurals name="sync_ago_hours">
+        <item quantity="one">hace %d hora</item>
+        <item quantity="many">hace %d horas</item>
+        <item quantity="other">hace %d horas</item>
+    </plurals>
+    <string name="sync_ago_on">el %s</string>
     <string name="sync_status_running">Sincronizando…</string>
     <string name="sync_status_failed">Falló la sincronización: %s</string>
     <string name="sync_now">Sincronizar ahora</string>

@@ -60,7 +60,7 @@ internal class SyncButton(private val activity: Activity) {
             is SyncStatus.Done -> {
                 toastedFailure = null
                 val report = status.report
-                if (report.changedHere.isNotEmpty() || report.conflicts.isNotEmpty()) onLibraryChanged()
+                if (report.didAnything) onLibraryChanged()
                 if (report.conflicts.isNotEmpty()) {
                     val text = activity.resources.getQuantityString(R.plurals.sync_conflicts, report.conflicts.size, report.conflicts.size)
                     Toast.makeText(activity, text, Toast.LENGTH_LONG).show()
@@ -116,18 +116,25 @@ internal class SyncButton(private val activity: Activity) {
     }
 
     private fun statusText(): String = when (val status = SyncManager.status) {
-        is SyncStatus.Done -> activity.getString(
-            R.string.sync_status_done,
-            DateUtils.getRelativeTimeSpanString(status.atMs, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS),
-        )
+        is SyncStatus.Done -> activity.getString(R.string.sync_status_done, ago(status.atMs))
+        // Pending always means Google couldn't be reached; the error itself says nothing more.
         is SyncStatus.Pending ->
-            if (status.message.isEmpty()) {
-                activity.getString(R.string.sync_status_waiting)
-            } else {
-                activity.getString(R.string.sync_status_pending, status.message)
-            }
+            activity.getString(if (status.message.isEmpty()) R.string.sync_status_waiting else R.string.sync_status_offline)
         is SyncStatus.Failed -> activity.getString(R.string.sync_status_failed, status.message)
         else -> activity.getString(R.string.sync_status_running)
+    }
+
+    private fun ago(atMs: Long): String {
+        val res = activity.resources
+        return when (val ago = SyncAgo.of(System.currentTimeMillis() - atMs)) {
+            SyncAgo.JustNow -> res.getString(R.string.sync_ago_just_now)
+            is SyncAgo.Minutes -> res.getQuantityString(R.plurals.sync_ago_minutes, ago.count, ago.count)
+            is SyncAgo.Hours -> res.getQuantityString(R.plurals.sync_ago_hours, ago.count, ago.count)
+            SyncAgo.OnDate -> res.getString(
+                R.string.sync_ago_on,
+                DateUtils.formatDateTime(activity, atMs, DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME),
+            )
+        }
     }
 
     private fun confirmSignOut() {

@@ -20,6 +20,10 @@ internal data class SyncReport(
     val changedHere: List<String>,
     val skipped: List<String>,
 ) {
+    /** Whether the sync changed anything here or in Drive; the library shown may be old then. */
+    val didAnything: Boolean
+        get() = uploaded + downloaded + moved + deleted > 0 || conflicts.isNotEmpty() || changedHere.isNotEmpty()
+
     companion object {
         val EMPTY = SyncReport(0, 0, 0, 0, emptyList(), emptyList(), emptyList())
 

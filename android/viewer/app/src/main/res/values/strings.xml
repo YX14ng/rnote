@@ -188,7 +188,17 @@
     <string name="sync_unavailable">This build can\'t sync with Google Drive: it isn\'t signed with the key registered in Google.</string>
     <string name="sync_status_done">Synced %s</string>
     <string name="sync_status_waiting">Waiting to sync</string>
-    <string name="sync_status_pending">Pending: %s</string>
+    <string name="sync_status_offline">Offline: it syncs once Google can be reached</string>
+    <string name="sync_ago_just_now">just now</string>
+    <plurals name="sync_ago_minutes">
+        <item quantity="one">%d minute ago</item>
+        <item quantity="other">%d minutes ago</item>
+    </plurals>
+    <plurals name="sync_ago_hours">
+        <item quantity="one">%d hour ago</item>
+        <item quantity="other">%d hours ago</item>
+    </plurals>
+    <string name="sync_ago_on">on %s</string>
     <string name="sync_status_running">Syncing…</string>
     <string name="sync_status_failed">Sync failed: %s</string>
     <string name="sync_now">Sync now</string>
