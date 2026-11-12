@@ -242,6 +242,7 @@
     <string name="cover_mustard">Mustard</string>
     <string name="cover_graphite">Graphite</string>
     <string name="library_cover">Cover…</string>
+    <string name="pull_to_add_page">Keep pulling to add a page</string>
     <string name="library_no_cover">No cover</string>
     <!-- Importing a PDF, an image or a photo as a new notebook -->
     <string name="create_import_pdf">Import PDF…</string>

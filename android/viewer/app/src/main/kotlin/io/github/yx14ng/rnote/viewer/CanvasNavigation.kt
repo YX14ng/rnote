@@ -1,6 +1,7 @@
 package io.github.yx14ng.rnote.viewer
 
 import android.content.Context
+import android.os.SystemClock
 import android.view.GestureDetector
 import android.view.InputDevice
 import android.view.KeyEvent
@@ -12,7 +13,8 @@ import android.view.ScaleGestureDetector
  * drag and wheel pan, fling, and double tap to zoom in or back out.
  *
  * [onMoved] runs after every move; [onFlingStarted] asks for animation frames, which
- * advance the fling; [onTap] gets single taps.
+ * advance the fling; [onTap] gets single taps. Pulling past the end of a document of pages
+ * for a moment calls [onAddPage] (see [PagePull]).
  */
 internal class CanvasNavigation(
     context: Context,
@@ -20,7 +22,14 @@ internal class CanvasNavigation(
     private val onMoved: () -> Unit,
     private val onFlingStarted: () -> Unit,
     private val onTap: () -> Boolean,
+    private val onAddPage: () -> Unit,
 ) {
+    private val pull = PagePull()
+
+    /** How far along pulling to add a page is, from 0 to 1, or null when there is none. */
+    val pullProgress: Float?
+        get() = pull.progress
+
     private val scaleDetector = ScaleGestureDetector(
         context,
         object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
@@ -42,6 +51,11 @@ internal class CanvasNavigation(
 
             override fun onScroll(e1: MotionEvent?, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
                 camera.panBy(distanceX, distanceY)
+                if (scaleDetector.isInProgress) {
+                    pull.cancel()
+                } else if (pull.onDrag(distanceX, distanceY, camera.atPageEnd, e2.eventTime)) {
+                    onAddPage()
+                }
                 onMoved()
                 return true
             }
@@ -66,6 +80,21 @@ internal class CanvasNavigation(
     fun onTouch(event: MotionEvent) {
         scaleDetector.onTouchEvent(event)
         gestureDetector.onTouchEvent(event)
+        val action = event.actionMasked
+        if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
+            pull.onLift()
+        }
+    }
+
+    /**
+     * Lets a pull held still go on; call on every frame while [pullProgress] isn't null.
+     * Returns whether the pull is still going.
+     */
+    fun tickPull(): Boolean {
+        if (pull.onTick(camera.atPageEnd, SystemClock.uptimeMillis())) {
+            onAddPage()
+        }
+        return pull.progress != null
     }
 
     /** Pans with the mouse wheel, or zooms with Ctrl held. Returns whether [event] was that. */

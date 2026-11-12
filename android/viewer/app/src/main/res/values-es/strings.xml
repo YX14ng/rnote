@@ -244,6 +244,7 @@
     <string name="cover_mustard">Mostaza</string>
     <string name="cover_graphite">Grafito</string>
     <string name="library_cover">Portada…</string>
+    <string name="pull_to_add_page">Seguí arrastrando para agregar una hoja</string>
     <string name="library_no_cover">Sin portada</string>
     <!-- Importing a PDF, an image or a photo as a new notebook -->
     <string name="create_import_pdf">Importar PDF…</string>

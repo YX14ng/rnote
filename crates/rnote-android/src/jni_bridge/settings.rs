@@ -202,3 +202,13 @@ pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_setShapeR
         Ok(document.set_shape_recognition(enabled, min_size_px))
     })
 }
+
+/// `static native int addPage(long handle)`: a page more at the end of a document of pages.
+#[unsafe(no_mangle)]
+pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_addPage<'caller>(
+    mut unowned_env: EnvUnowned<'caller>,
+    _class: JClass<'caller>,
+    handle: jlong,
+) -> jint {
+    edit(&mut unowned_env, handle, |document| Ok(document.add_page()))
+}

@@ -98,3 +98,32 @@ fn saved_document_reopens_where_it_was_viewed() {
     assert!((origin.x - 40.0).abs() < 1e-6, "x was {}", origin.x);
     assert!((origin.y - 1500.0).abs() < 1e-6, "y was {}", origin.y);
 }
+
+#[test]
+fn adding_a_page_grows_a_fixed_size_document_by_one_page() {
+    let mut document = plain_document();
+    document.set_layout(Layout::FixedSize);
+    document.mark_saved();
+    let before = document.bounds();
+    let page_height = document.engine.document.config.format.height();
+
+    let state = document.add_page();
+
+    let after = document.bounds();
+    assert!(state.modified && state.bounds_changed, "got {state:?}");
+    assert!((after.maxs.y - before.maxs.y - page_height).abs() < 0.01, "{before:?} -> {after:?}");
+    assert!((after.mins.y - before.mins.y).abs() < 0.01, "the top must not move");
+}
+
+#[test]
+fn adding_a_page_leaves_a_growing_document_alone() {
+    let mut document = plain_document();
+    document.set_layout(Layout::Infinite);
+    document.mark_saved();
+    let before = document.bounds();
+
+    let state = document.add_page();
+
+    assert!(!state.modified && !state.bounds_changed, "got {state:?}");
+    assert_eq!(document.bounds(), before);
+}

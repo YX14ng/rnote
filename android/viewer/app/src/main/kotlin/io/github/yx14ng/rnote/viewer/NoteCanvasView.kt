@@ -5,7 +5,9 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.os.Build
 import android.text.InputType
+import android.view.HapticFeedbackConstants
 import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
@@ -19,7 +21,7 @@ import android.view.inputmethod.InputMethodManager
  * Fingers pan (drag, fling) and zoom (pinch, double tap). A stylus, its eraser end or a
  * mouse draw with [tool]; fingers are ignored while the pen is down. With [fingerDrawing],
  * one finger draws too and two fingers navigate. A mouse wheel pans, and zooms with Ctrl
- * held.
+ * held. Pulling past the last page of a document of pages for a moment adds a page.
  *
  * Rendering happens off the UI thread through [renderer]. While a new frame is being
  * rendered, the last one is drawn transformed to the current viewport, and the stroke being
@@ -175,7 +177,9 @@ class NoteCanvasView(context: Context) : View(context) {
         onMoved = ::onViewportChanged,
         onFlingStarted = ::postInvalidateOnAnimation,
         onTap = ::performClick,
+        onAddPage = ::addPage,
     )
+    private val pullHint = PagePullHint(context)
 
     /**
      * Set while another document is being opened: input and edits are dropped until it is
@@ -274,14 +278,14 @@ class NoteCanvasView(context: Context) : View(context) {
         when {
             !acceptsInput -> {}
             input.penDown -> pendingEdits += operation
-            else -> submitEdit(operation)
+            else -> submitEdit(operation = operation)
         }
     }
 
     private fun flushPendingEdits() {
         val edits = pendingEdits.toList()
         pendingEdits.clear()
-        edits.forEach(::submitEdit)
+        edits.forEach { edit -> submitEdit(operation = edit) }
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
@@ -331,6 +335,10 @@ class NoteCanvasView(context: Context) : View(context) {
             onViewportChanged()
             postInvalidateOnAnimation()
         }
+        // A pull held still gets no touch events: frames keep it, and its pill, going.
+        if (navigation.pullProgress != null && navigation.tickPull()) {
+            postInvalidateOnAnimation()
+        }
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -347,9 +355,24 @@ class NoteCanvasView(context: Context) : View(context) {
         }
         frames.draw(canvas, viewport)
         input.preview.draw(canvas, viewport)
+        navigation.pullProgress?.let { progress -> pullHint.draw(canvas, width, height, progress) }
     }
 
     private fun navigate(event: MotionEvent) = navigation.onTouch(event)
+
+    /** Pulled past the last page: one more, shown from its top. Not undoable, like in Rnote. */
+    private fun addPage() {
+        val end = bounds?.bottom ?: return
+        performHapticFeedback(
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                HapticFeedbackConstants.CONFIRM
+            } else {
+                HapticFeedbackConstants.LONG_PRESS
+            },
+        )
+        // Posted, since the pull may end while drawing a frame.
+        post { if (acceptsInput) submitEdit(afterResize = { camera.showFromY(end) }) { it.addPage() } }
+    }
 
     private fun sendPen(phase: PenPhase, tool: Tool, samples: DoubleArray) {
         val currentViewport = viewport
@@ -368,7 +391,8 @@ class NoteCanvasView(context: Context) : View(context) {
         submitEdit { document -> document.snapToShape(currentViewport, viewWidth, viewHeight) }
     }
 
-    private fun submitEdit(operation: (NativeDocument) -> EditState) {
+    /** Runs [operation] on the document; [afterResize] runs once the view follows its new size. */
+    private fun submitEdit(afterResize: (() -> Unit)? = null, operation: (NativeDocument) -> EditState) {
         val currentRenderer = renderer ?: return
         editSequence++
         val requestGeneration = frames.generation
@@ -380,6 +404,7 @@ class NoteCanvasView(context: Context) : View(context) {
                 .onSuccess { edit ->
                     edit.bounds?.let { newBounds ->
                         camera.updateBounds(newBounds)
+                        afterResize?.invoke()
                         // Renders requested before the edit used the old bounds.
                         onViewportChanged()
                     }

@@ -58,6 +58,7 @@ internal object NativeBridge {
     ): Int
 
     @JvmStatic external fun setPageBorders(handle: Long, show: Boolean): Int
+    @JvmStatic external fun addPage(handle: Long): Int
 
     /** The selection's bounds as `[minX, minY, maxX, maxY]`, or empty if nothing is selected. */
     @JvmStatic external fun selectionBounds(handle: Long): DoubleArray

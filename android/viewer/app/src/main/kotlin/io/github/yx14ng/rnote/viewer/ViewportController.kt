@@ -152,6 +152,22 @@ internal class ViewportController(context: Context) {
         viewport = clamp(viewport.copy(x = newX, y = newY))
     }
 
+    /**
+     * Whether the view is as far down as a document of pages lets it go, where pulling on
+     * adds a page; the other layouts grow on their own.
+     */
+    val atPageEnd: Boolean
+        get() {
+            if (layout != DocumentLayout.FIXED_SIZE) return false
+            val range = offsetRange(viewport.zoom) ?: return false
+            return viewport.y >= range.maxY - END_TOLERANCE_PX / viewport.zoom
+        }
+
+    /** Scrolls so the document line [y] shows a little below the top of the view. */
+    fun showFromY(y: Double) {
+        viewport = clamp(viewport.copy(y = y - height * SHOW_FROM_FRACTION / viewport.zoom))
+    }
+
     /** Document coordinates of the view point ([x], [y]). */
     fun toDocumentX(x: Float): Double = viewport.x + x / viewport.zoom
 
@@ -223,5 +239,11 @@ internal class ViewportController(context: Context) {
         const val MAX_ZOOM_FACTOR = 8.0
         const val DOUBLE_TAP_ZOOM = 2.0
         const val DOUBLE_TAP_THRESHOLD = 1.5
+
+        /** How close to the end, in screen pixels, counts as being there. */
+        const val END_TOLERANCE_PX = 1.0
+
+        /** Where [showFromY] puts the line, as a fraction of the view height from the top. */
+        const val SHOW_FROM_FRACTION = 0.15
     }
 }

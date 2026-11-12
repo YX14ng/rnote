@@ -284,6 +284,9 @@ internal class NativeDocument private constructor(private var handle: Long) : Au
 
     fun setPageBorders(show: Boolean): EditState = EditState.fromFlags(NativeBridge.setPageBorders(checkOpen(), show))
 
+    /** A page more at the end, in a document of pages; not undoable. */
+    fun addPage(): EditState = EditState.fromFlags(NativeBridge.addPage(checkOpen()))
+
     fun setShapeRecognition(enabled: Boolean, minSizePx: Double): EditState =
         EditState.fromFlags(NativeBridge.setShapeRecognition(checkOpen(), enabled, minSizePx))
 
