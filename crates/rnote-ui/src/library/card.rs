@@ -13,6 +13,12 @@ const THUMBNAIL_HEIGHT: i32 = THUMBNAIL_WIDTH * 297 / 210;
 /// The thumbnail size in the list view.
 const LIST_THUMBNAIL_WIDTH: i32 = 48;
 const LIST_THUMBNAIL_HEIGHT: i32 = LIST_THUMBNAIL_WIDTH * 297 / 210;
+/// The width of a cover's spine, and where its name label goes, as fractions of the cover.
+const COVER_SPINE: f64 = 0.08;
+const COVER_LABEL_LEFT: f64 = 0.16;
+const COVER_LABEL_RIGHT: f64 = 0.10;
+const COVER_LABEL_TOP: f64 = 0.39;
+const COVER_LABEL_HEIGHT: f64 = 0.23;
 
 /// A card: a button that opens it, with its menu button over it (not inside it).
 #[derive(Debug)]
@@ -153,6 +159,63 @@ fn icon_cover(icon_name: &str, list: bool) -> gtk4::Overlay {
     cover(&icon, list)
 }
 
+/// The color (red, green, blue and alpha, from 0 to 1) of a cover stored as ARGB.
+fn cover_rgba(argb: u32) -> [f64; 4] {
+    let channel = |shift: u32| f64::from((argb >> shift) & 0xFF) / 255.0;
+    [channel(16), channel(8), channel(0), channel(24)]
+}
+
+/// A notebook cover of the color `argb`: a darker spine and, in the grid, `name` on a
+/// light label, as the Android library shows it.
+fn color_cover(argb: u32, name: &str, list: bool) -> gtk4::Overlay {
+    let [red, green, blue, alpha] = cover_rgba(argb);
+    let area = gtk4::DrawingArea::builder()
+        .hexpand(true)
+        .vexpand(true)
+        .build();
+    area.set_draw_func(move |_, cr, width, height| {
+        let (width, height) = (f64::from(width), f64::from(height));
+        cr.set_source_rgba(red, green, blue, alpha);
+        cr.rectangle(0.0, 0.0, width, height);
+        let _ = cr.fill();
+        cr.set_source_rgba(0.0, 0.0, 0.0, 0.18);
+        cr.rectangle(0.0, 0.0, width * COVER_SPINE, height);
+        let _ = cr.fill();
+        if !list {
+            cr.set_source_rgba(1.0, 1.0, 1.0, 0.86);
+            cr.rectangle(
+                width * COVER_LABEL_LEFT,
+                height * COVER_LABEL_TOP,
+                width * (1.0 - COVER_LABEL_LEFT - COVER_LABEL_RIGHT),
+                height * COVER_LABEL_HEIGHT,
+            );
+            let _ = cr.fill();
+        }
+    });
+    let overlay = cover(&area, list);
+    if !list {
+        let width = f64::from(THUMBNAIL_WIDTH);
+        let height = f64::from(THUMBNAIL_HEIGHT);
+        let label = gtk4::Label::builder()
+            .use_markup(true)
+            .label(format!(
+                "<span foreground=\"#1B1C21\" weight=\"bold\">{}</span>",
+                glib::markup_escape_text(name)
+            ))
+            .xalign(0.0)
+            .ellipsize(pango::EllipsizeMode::End)
+            .valign(Align::Start)
+            .halign(Align::Fill)
+            .margin_top((height * COVER_LABEL_TOP) as i32)
+            .height_request((height * COVER_LABEL_HEIGHT) as i32)
+            .margin_start((width * COVER_LABEL_LEFT) as i32 + 8)
+            .margin_end((width * COVER_LABEL_RIGHT) as i32 + 8)
+            .build();
+        overlay.add_overlay(&label);
+    }
+    overlay
+}
+
 /// The "New" card, which creates a notebook.
 pub(crate) fn new_card(list: bool) -> Card {
     let card = layout(
@@ -173,6 +236,9 @@ pub(crate) fn notebook_card(
     list: bool,
 ) -> Card {
     let cover = match notebook.kind {
+        NotebookKind::Rnote if notebook.cover.is_some() => {
+            color_cover(notebook.cover.unwrap_or_default(), &notebook.name, list)
+        }
         NotebookKind::Rnote => {
             let picture = gtk4::Picture::builder()
                 .content_fit(gtk4::ContentFit::Cover)
@@ -208,4 +274,20 @@ pub(crate) fn format_date(ms: i64) -> String {
         .and_then(|date| date.format("%x"))
         .map(|date| date.to_string())
         .unwrap_or_default()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::cover_rgba;
+
+    #[test]
+    fn cover_rgba_uses_the_argb_color() {
+        assert_eq!(
+            cover_rgba(0xFF3D_6FB6),
+            [61.0 / 255.0, 111.0 / 255.0, 182.0 / 255.0, 1.0]
+        );
+        let half = cover_rgba(0x803F_8F6B);
+        assert_eq!(half[..3], [63.0 / 255.0, 143.0 / 255.0, 107.0 / 255.0]);
+        assert!((half[3] - 0.5).abs() < 0.01, "{half:?}");
+    }
 }
