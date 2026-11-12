@@ -103,13 +103,17 @@ pub(crate) fn create_notebook(root: &Path, path: &str, bytes: &[u8]) -> anyhow::
     fs::create_dir_all(dir).with_context(|| format!("Creating {}", dir.display()))?;
     // Hidden, so neither the library nor the sync sees it until it is complete.
     let temporary = dir.join(format!(".{name}.create-tmp"));
+    // Android keeps apps from making hard links, so the target is checked instead: this
+    // process writes the library only under the write guard held here.
+    if fs::symlink_metadata(&target).is_ok() {
+        bail!("{path} exists already");
+    }
     let written = fs::write(&temporary, bytes)
         .with_context(|| format!("Writing {}", temporary.display()))
-        // A hard link fails if the target exists: no notebook is ever replaced.
-        .and_then(|()| {
-            fs::hard_link(&temporary, &target).with_context(|| format!("Creating {path}"))
-        });
-    let _ = fs::remove_file(&temporary);
+        .and_then(|()| fs::rename(&temporary, &target).with_context(|| format!("Creating {path}")));
+    if written.is_err() {
+        let _ = fs::remove_file(&temporary);
+    }
     written
 }
 
