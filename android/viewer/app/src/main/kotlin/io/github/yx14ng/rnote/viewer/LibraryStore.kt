@@ -17,6 +17,8 @@ data class Notebook(
     val modifiedMs: Long,
     val size: Long,
     val tags: List<String>,
+    /** The cover color, or null to show the first page. */
+    val cover: Int? = null,
     /** Changes whenever the thumbnail must be rendered again. */
     val key: String,
 )
@@ -106,6 +108,7 @@ internal class LibraryStore(val root: File) {
                     modifiedMs = item.getLong("modified_ms"),
                     size = item.getLong("size"),
                     tags = item.getJSONArray("tags").strings(),
+                    cover = if (item.isNull("cover")) null else item.getLong("cover").toInt(),
                     key = item.getString("key"),
                 )
             },

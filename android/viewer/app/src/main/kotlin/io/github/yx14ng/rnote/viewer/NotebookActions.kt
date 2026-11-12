@@ -29,12 +29,27 @@ internal class NotebookActions(
             menu.menu.add(R.string.library_rename).setOnMenuItemClickListener { rename(notebook); true }
             menu.menu.add(R.string.library_move).setOnMenuItemClickListener { moveTo(listOf(notebook.path)); true }
             menu.menu.add(R.string.library_tags).setOnMenuItemClickListener { tags.assign(listOf(notebook.path), snapshot()); true }
+            menu.menu.add(R.string.library_cover).setOnMenuItemClickListener { chooseCover(notebook); true }
             menu.menu.add(R.string.library_duplicate).setOnMenuItemClickListener {
                 run(LibraryStore.request("duplicate", "path" to notebook.path)); true
             }
             menu.menu.add(R.string.library_to_trash).setOnMenuItemClickListener { trash(listOf(notebook.path)); true }
         }
         menu.show()
+    }
+
+    /** Chooses the cover color of [notebook], or no cover. */
+    fun chooseCover(notebook: Notebook) {
+        val colors = CoverColor.entries
+        val labels = colors.map { context.getString(it.label) } + context.getString(R.string.library_no_cover)
+        AlertDialog.Builder(context)
+            .setTitle(R.string.library_cover)
+            .setItems(labels.toTypedArray()) { _, which ->
+                val color = colors.getOrNull(which)?.let { NotebookSetup.unsigned(it.argb) }
+                run(LibraryStore.request("set_cover", "path" to notebook.path, "color" to color))
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
     }
 
     fun folderMenu(folder: String, anchor: View) {

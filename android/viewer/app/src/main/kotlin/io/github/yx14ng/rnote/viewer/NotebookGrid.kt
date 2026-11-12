@@ -31,7 +31,8 @@ import java.util.Date
 internal class NotebookGrid(context: Context, private val thumbnails: ThumbnailCache) : GridView(context) {
     /** A card was tapped; the view is the card. */
     var onOpen: ((Notebook, View) -> Unit)? = null
-    var onNew: (() -> Unit)? = null
+    /** The "New" card was tapped; the view is the card, to anchor a menu. */
+    var onNew: ((View) -> Unit)? = null
     var onMenu: ((Notebook, View) -> Unit)? = null
 
     /** Paths of the selected notebooks while selecting several; null when not selecting. */
@@ -113,7 +114,7 @@ internal class NotebookGrid(context: Context, private val thumbnails: ThumbnailC
         foreground = Graphite.pressable(context, null, 12f)
         isClickable = true
         contentDescription = context.getString(R.string.library_new)
-        setOnClickListener { onNew?.invoke() }
+        setOnClickListener { card -> onNew?.invoke(card) }
         addView(ImageView(context).apply {
             setImageResource(R.drawable.ic_add)
             imageTintList = ColorStateList.valueOf(Graphite.ACCENT)
@@ -145,8 +146,10 @@ internal class NotebookGrid(context: Context, private val thumbnails: ThumbnailC
             val pad = dp(4f)
             setPadding(pad, pad, pad, pad)
         }
+        private val colorCover = CoverView(context)
         private val coverFrame = FrameLayout(context).apply {
             addView(cover, FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT))
+            addView(colorCover, FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT))
             addView(check, FrameLayout.LayoutParams(dp(26f), dp(26f), Gravity.TOP or Gravity.END).apply {
                 setMargins(dp(6f), dp(6f), dp(6f), dp(6f))
             })
@@ -209,7 +212,16 @@ internal class NotebookGrid(context: Context, private val thumbnails: ThumbnailC
             check.visibility = if (selected != null && notebook.path in selected) VISIBLE else GONE
             cover.alpha = if (selected != null && notebook.path !in selected) UNSELECTED_ALPHA else 1f
             menu.visibility = if (selected == null) VISIBLE else INVISIBLE
-            thumbnails.load(notebook, cover)
+            val coverColor = notebook.cover
+            colorCover.visibility = if (coverColor != null) VISIBLE else GONE
+            cover.visibility = if (coverColor != null) INVISIBLE else VISIBLE
+            colorCover.alpha = cover.alpha
+            if (coverColor != null) {
+                colorCover.color = coverColor
+                colorCover.name = if (listMode) "" else notebook.name
+            } else {
+                thumbnails.load(notebook, cover)
+            }
         }
     }
 

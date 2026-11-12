@@ -205,4 +205,44 @@
         <item quantity="many">Se guardaron %d copias de conflicto</item>
         <item quantity="other">Se guardaron %d copias de conflicto</item>
     </plurals>
+
+    <!-- New notebook: the + menu and its screen -->
+    <string name="create_new_notebook">Cuaderno nuevo…</string>
+    <string name="create_quick_note">Nota rápida</string>
+    <string name="create_quick_note_hint">como la última</string>
+    <string name="create_infinite_note">Nota infinita</string>
+    <string name="new_notebook_title">Cuaderno nuevo</string>
+    <string name="new_notebook_create">Crear</string>
+    <string name="new_notebook_title_label">Título</string>
+    <string name="new_notebook_name_hint">Por ejemplo: Álgebra II, clase 5</string>
+    <string name="new_notebook_folder">Carpeta</string>
+    <string name="new_notebook_cover">Portada</string>
+    <string name="new_notebook_page">Hoja</string>
+    <string name="new_notebook_no_cover_preview">Sin portada: se ve la primera hoja</string>
+    <string name="new_notebook_format">Formato</string>
+    <string name="new_notebook_size_mm">%1$s × %2$s mm</string>
+    <string name="new_notebook_pages">Páginas</string>
+    <string name="new_notebook_sheets">Hojas</string>
+    <string name="new_notebook_continuous">Continua</string>
+    <string name="new_notebook_infinite">Infinita</string>
+    <string name="new_notebook_paper">Color del papel</string>
+    <string name="new_notebook_spacing">Interlineado</string>
+    <string name="new_notebook_spacing_mm">%s mm</string>
+    <string name="new_notebook_template">Plantilla</string>
+    <string name="template_blank">En blanco</string>
+    <string name="template_lines">Renglones</string>
+    <string name="template_grid">Cuadrícula</string>
+    <string name="template_dots">Puntos</string>
+    <string name="new_notebook_hint">Lo que elijas queda para el próximo cuaderno de esta carpeta. «Nota rápida» lo usa sin abrir esta pantalla.</string>
+    <string name="new_notebook_no_tags">Todavía no hay etiquetas: creálas desde el panel lateral de la biblioteca.</string>
+    <string name="cover_blue">Azul</string>
+    <string name="cover_green">Verde</string>
+    <string name="cover_orange">Naranja</string>
+    <string name="cover_red">Rojo</string>
+    <string name="cover_violet">Violeta</string>
+    <string name="cover_turquoise">Turquesa</string>
+    <string name="cover_mustard">Mostaza</string>
+    <string name="cover_graphite">Grafito</string>
+    <string name="library_cover">Portada…</string>
+    <string name="library_no_cover">Sin portada</string>
 </resources>

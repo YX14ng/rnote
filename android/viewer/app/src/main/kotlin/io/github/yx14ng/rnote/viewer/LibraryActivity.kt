@@ -29,6 +29,7 @@ class LibraryActivity : Activity() {
     private lateinit var barButtons: LinearLayout
     private lateinit var selectionBar: LinearLayout
     private lateinit var syncButton: SyncButton
+    private lateinit var creator: NotebookCreator
     private val preferences by lazy { getSharedPreferences(PREFERENCES, MODE_PRIVATE) }
 
     private var snapshot = LibrarySnapshot(emptyList(), emptyList(), emptyList(), emptyList())
@@ -39,12 +40,13 @@ class LibraryActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         store = LibraryStore.forApp(this)
+        creator = NotebookCreator(this, store)
         actions = NotebookActions(this, store, { snapshot }, onChanged = ::reload, onError = ::showError)
         listMode = preferences.getBoolean(KEY_LIST_MODE, false)
         sortByName = preferences.getBoolean(KEY_SORT_BY_NAME, false)
         grid = NotebookGrid(this, ThumbnailCache(this, store)).apply {
             onOpen = ::onNotebookTapped
-            onNew = ::createNotebook
+            onNew = ::showCreateMenu
             onMenu = { notebook, anchor -> actions.notebookMenu(notebook, anchor, section == LibrarySection.Trash) }
         }
         sidebar = LibrarySidebar(this).apply {
@@ -226,13 +228,40 @@ class LibraryActivity : Activity() {
         }
     }
 
-    private fun createNotebook() {
-        val folder = (section as? LibrarySection.Folder)?.name
-        val request = LibraryStore.request("new_notebook_path", "folder" to folder, "stem" to getString(R.string.untitled))
-        store.call(request) { result ->
-            result.onSuccess { startEditor(it.getString("path"), isNew = true) }.onFailure(::showError)
+    /** The folder new notebooks go to: the one shown, or none. */
+    private val currentFolder: String?
+        get() = (section as? LibrarySection.Folder)?.name
+
+    private fun showCreateMenu(anchor: View) {
+        val opened = { result: Result<String> -> result.onSuccess(::openCreated).onFailure(::showError); Unit }
+        CreateMenu.show(this, anchor, listOf(
+            CreateMenu.Item(R.drawable.ic_notebook, R.string.create_new_notebook) { showNewNotebook() },
+            CreateMenu.Item(R.drawable.ic_quick_note, R.string.create_quick_note, hint = R.string.create_quick_note_hint) {
+                creator.quick(currentFolder, done = opened)
+            },
+            CreateMenu.Item(R.drawable.ic_infinite, R.string.create_infinite_note) {
+                creator.quick(currentFolder, SetupLayout.INFINITE, opened)
+            },
+        ))
+    }
+
+    private fun showNewNotebook() {
+        val folder = currentFolder
+        creator.defaults(folder) { result ->
+            result
+                .onSuccess { setup ->
+                    NewNotebookScreen(this, snapshot, folder, setup) { chosenFolder, title, chosen, tags ->
+                        creator.create(chosenFolder, title, chosen, tags) { created ->
+                            created.onSuccess(::openCreated).onFailure(::showError)
+                        }
+                    }.show()
+                }
+                .onFailure(::showError)
         }
     }
+
+    /** Opens a notebook just made in the library; it exists already, with its contents. */
+    private fun openCreated(path: String) = startEditor(path, isNew = false)
 
     private fun startEditor(path: String, isNew: Boolean) {
         startActivity(

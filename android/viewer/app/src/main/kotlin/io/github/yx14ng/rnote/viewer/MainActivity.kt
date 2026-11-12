@@ -201,15 +201,15 @@ class MainActivity : Activity() {
     }
 
     /**
-     * A new notebook in the library, beside the open one; the open one is saved first, or
-     * its unsaved changes dropped on agreement if it isn't a library notebook.
+     * A quick note in the library, beside the open notebook and set up like the last one of
+     * its folder; the open one is saved first, or its unsaved changes dropped on agreement if
+     * it isn't a library notebook.
      */
     private fun newNotebook() {
         val folder = libraryPath?.let { path -> if ('/' in path) path.substringBefore('/') else null }
         val create = {
-            val request = LibraryStore.request("new_notebook_path", "folder" to folder, "stem" to getString(R.string.untitled))
-            LibraryStore.forApp(this).call(request) { result ->
-                result.onSuccess { openLibraryNotebook(it.getString("path"), isNew = true) }.onFailure(::showError)
+            NotebookCreator(this, LibraryStore.forApp(this)).quick(folder) { result ->
+                result.onSuccess { openLibraryNotebook(it, isNew = false) }.onFailure(::showError)
             }
         }
         when {

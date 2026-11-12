@@ -203,4 +203,44 @@
         <item quantity="one">A conflict copy was saved</item>
         <item quantity="other">%d conflict copies were saved</item>
     </plurals>
+
+    <!-- New notebook: the + menu and its screen -->
+    <string name="create_new_notebook">New notebook…</string>
+    <string name="create_quick_note">Quick note</string>
+    <string name="create_quick_note_hint">like the last one</string>
+    <string name="create_infinite_note">Infinite note</string>
+    <string name="new_notebook_title">New notebook</string>
+    <string name="new_notebook_create">Create</string>
+    <string name="new_notebook_title_label">Title</string>
+    <string name="new_notebook_name_hint">For example: Algebra II, class 5</string>
+    <string name="new_notebook_folder">Folder</string>
+    <string name="new_notebook_cover">Cover</string>
+    <string name="new_notebook_page">Page</string>
+    <string name="new_notebook_no_cover_preview">No cover: the first page shows</string>
+    <string name="new_notebook_format">Format</string>
+    <string name="new_notebook_size_mm">%1$s × %2$s mm</string>
+    <string name="new_notebook_pages">Pages</string>
+    <string name="new_notebook_sheets">Sheets</string>
+    <string name="new_notebook_continuous">Continuous</string>
+    <string name="new_notebook_infinite">Infinite</string>
+    <string name="new_notebook_paper">Paper color</string>
+    <string name="new_notebook_spacing">Line spacing</string>
+    <string name="new_notebook_spacing_mm">%s mm</string>
+    <string name="new_notebook_template">Template</string>
+    <string name="template_blank">Blank</string>
+    <string name="template_lines">Ruled</string>
+    <string name="template_grid">Grid</string>
+    <string name="template_dots">Dots</string>
+    <string name="new_notebook_hint">What you choose stays for the next notebook in this folder. “Quick note” uses it without opening this screen.</string>
+    <string name="new_notebook_no_tags">There are no tags yet: create them from the library’s side panel.</string>
+    <string name="cover_blue">Blue</string>
+    <string name="cover_green">Green</string>
+    <string name="cover_orange">Orange</string>
+    <string name="cover_red">Red</string>
+    <string name="cover_violet">Violet</string>
+    <string name="cover_turquoise">Turquoise</string>
+    <string name="cover_mustard">Mustard</string>
+    <string name="cover_graphite">Graphite</string>
+    <string name="library_cover">Cover…</string>
+    <string name="library_no_cover">No cover</string>
 </resources>
