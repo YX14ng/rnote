@@ -8,7 +8,7 @@ use anyhow::{Context, anyhow};
 use serde::Deserialize;
 use serde_json::json;
 use ureq::Agent;
-use ureq::http::{Method, Request};
+use ureq::http::{HeaderMap, Method, Request};
 
 use crate::local::sha256_hex;
 use crate::remote::{
@@ -21,6 +21,9 @@ const DEFAULT_BASE_URL: &str = "https://www.googleapis.com";
 const FOLDER_MIME_TYPE: &str = "application/vnd.google-apps.folder";
 /// The fields of a file the sync reads.
 const FILE_FIELDS: &str = "id,name,mimeType,parents,md5Checksum,modifiedTime,createdTime";
+/// Files larger than this go up in a resumable session: Drive documents the one-request
+/// uploads for files of up to 5 MB.
+const RESUMABLE_THRESHOLD: usize = 5 * 1024 * 1024;
 /// The waits before each retry of a request Drive asked to slow down.
 const RETRY_WAITS_SECS: [u64; 5] = [1, 2, 4, 8, 16];
 /// The longest a request may take, uploads of big notebooks included.
@@ -131,11 +134,29 @@ impl DriveClient {
         query: &[(&str, &str)],
         body: Body,
     ) -> Result<Vec<u8>, RemoteError> {
+        let url = self.url(path, query)?;
+        Ok(self.send_to(method, &url, &[], body)?.1)
+    }
+
+    /// The URL of `path` with `query`, on Drive's API.
+    fn url(&self, path: &str, query: &[(&str, &str)]) -> Result<url::Url, RemoteError> {
         let mut url = url::Url::parse(&format!("{}{path}", self.base_url))
             .with_context(|| format!("Bad Drive URL for {path}"))?;
         if !query.is_empty() {
             url.query_pairs_mut().extend_pairs(query);
         }
+        Ok(url)
+    }
+
+    /// Sends a request to `url` with the extra `headers`, retrying when Drive asks to slow
+    /// down. Returns the response headers and body.
+    fn send_to(
+        &mut self,
+        method: Method,
+        url: &url::Url,
+        headers: &[(&str, &str)],
+        body: Body,
+    ) -> Result<(HeaderMap, Vec<u8>), RemoteError> {
         let mut waits = RETRY_WAITS_SECS.iter();
         loop {
             let token = (self.token)()?;
@@ -143,6 +164,9 @@ impl DriveClient {
                 .method(method.clone())
                 .uri(url.as_str())
                 .header("Authorization", format!("Bearer {token}"));
+            for (name, value) in headers {
+                request = request.header(*name, *value);
+            }
             let bytes = match &body {
                 Body::Empty => Vec::new(),
                 Body::Json(value) => {
@@ -164,7 +188,7 @@ impl DriveClient {
                 .read_to_vec()
                 .map_err(transport_error)?;
             if (200..300).contains(&status) {
-                return Ok(text);
+                return Ok((response.headers().clone(), text));
             }
             if status == 401 {
                 return Err(RemoteError::Unauthorized);
@@ -203,6 +227,36 @@ impl DriveClient {
         body: Body,
     ) -> Result<RemoteFile, RemoteError> {
         let file: FileJson = self.send_json(method, path, query, body)?;
+        Ok(file.into_remote_file())
+    }
+}
+
+impl DriveClient {
+    /// Uploads `bytes` in a resumable session started with `method` on `path`: the first
+    /// request (with `metadata`, if any) opens the session, a second one sends the bytes.
+    fn upload_resumable(
+        &mut self,
+        method: Method,
+        path: &str,
+        metadata: Option<serde_json::Value>,
+        bytes: &[u8],
+    ) -> Result<RemoteFile, RemoteError> {
+        let query = [("uploadType", "resumable"), ("fields", FILE_FIELDS)];
+        let url = self.url(path, &query)?;
+        let body = metadata.map_or(Body::Empty, Body::Json);
+        let headers = [("X-Upload-Content-Type", "application/octet-stream")];
+        let (headers, _) = self.send_to(method, &url, &headers, body)?;
+        let session = headers
+            .get("location")
+            .and_then(|value| value.to_str().ok())
+            .ok_or_else(|| anyhow!("Drive opened no upload session"))?;
+        let session = url::Url::parse(session).context("Bad Drive upload session URL")?;
+        let body = Body::Bytes {
+            content_type: "application/octet-stream".to_owned(),
+            bytes: bytes.to_vec(),
+        };
+        let (_, answer) = self.send_to(Method::PUT, &session, &[], body)?;
+        let file: FileJson = serde_json::from_slice(&answer).context("Reading Drive's answer")?;
         Ok(file.into_remote_file())
     }
 }
@@ -319,6 +373,15 @@ impl Remote for DriveClient {
         name: &str,
         bytes: &[u8],
     ) -> Result<RemoteFile, RemoteError> {
+        if bytes.len() > RESUMABLE_THRESHOLD {
+            let metadata = json!({"name": name, "parents": [parent]});
+            return self.upload_resumable(
+                Method::POST,
+                "/upload/drive/v3/files",
+                Some(metadata),
+                bytes,
+            );
+        }
         // The content can't hold its own hash, so it can't hold the boundary.
         let boundary = format!("rnote-sync-{}", sha256_hex(bytes));
         let metadata = json!({"name": name, "parents": [parent]});
@@ -335,6 +398,10 @@ impl Remote for DriveClient {
     }
 
     fn update_file(&mut self, id: &str, bytes: &[u8]) -> Result<RemoteFile, RemoteError> {
+        if bytes.len() > RESUMABLE_THRESHOLD {
+            let path = format!("/upload/drive/v3/files/{id}");
+            return self.upload_resumable(Method::PATCH, &path, None, bytes);
+        }
         let query = [("uploadType", "media"), ("fields", FILE_FIELDS)];
         let body = Body::Bytes {
             content_type: "application/octet-stream".to_owned(),

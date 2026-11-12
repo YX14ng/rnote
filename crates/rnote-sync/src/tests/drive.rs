@@ -2,7 +2,7 @@ use std::cell::RefCell;
 use std::rc::Rc;
 use std::time::Duration;
 
-use super::stub_http::Stub;
+use super::stub_http::{Response, Stub};
 use crate::{DriveClient, Remote, RemoteError, RemoteFile};
 
 const JSON: &str = "application/json";
@@ -124,6 +124,94 @@ fn update_file_sends_the_bytes() {
     assert_eq!((request.method.as_str(), request.path()), ("PATCH", "/upload/drive/v3/files/n"));
     assert_eq!(request.query("uploadType").as_deref(), Some("media"));
     assert_eq!(request.body, b"new");
+}
+
+const FIVE_MIB: usize = 5 * 1024 * 1024;
+
+/// The answers of a resumable upload: the session, then the uploaded file.
+fn resumable_answers(file: serde_json::Value) -> Vec<Response> {
+    vec![
+        (200, JSON, vec![("Location", "{url}/upload/session-1?upload_id=u1")], Vec::new()),
+        (200, JSON, Vec::new(), json(file)),
+    ]
+}
+
+#[test]
+fn upload_of_exactly_5_mib_is_multipart() {
+    let stub = Stub::start(vec![(200, JSON, json(file_json("n", "a.rnote", "r")))]);
+    let (mut client, _) = client(&stub);
+
+    client.create_file("r", "a.rnote", &vec![0; FIVE_MIB]).unwrap();
+
+    let requests = stub.requests();
+    assert_eq!(requests.len(), 1);
+    assert_eq!(requests[0].query("uploadType").as_deref(), Some("multipart"));
+}
+
+#[test]
+fn big_create_uses_a_resumable_session() {
+    let stub = Stub::start_with_headers(resumable_answers(file_json("n", "a.rnote", "r")));
+    let (mut client, _) = client(&stub);
+    let bytes = vec![7; FIVE_MIB + 1];
+
+    let file = client.create_file("r", "a.rnote", &bytes).unwrap();
+
+    assert_eq!(file, remote_file("n", "a.rnote", "r"));
+    let requests = stub.requests();
+    assert_eq!(requests.len(), 2);
+    let start = &requests[0];
+    assert_eq!((start.method.as_str(), start.path()), ("POST", "/upload/drive/v3/files"));
+    assert_eq!(start.query("uploadType").as_deref(), Some("resumable"));
+    assert_eq!(start.json(), serde_json::json!({"name": "a.rnote", "parents": ["r"]}));
+    let upload = &requests[1];
+    assert_eq!((upload.method.as_str(), upload.path()), ("PUT", "/upload/session-1"));
+    assert_eq!(upload.query("upload_id").as_deref(), Some("u1"));
+    assert_eq!(upload.header("authorization"), Some("Bearer token-1"));
+    assert!(upload.body == bytes, "the upload carries the file");
+}
+
+#[test]
+fn big_update_uses_a_resumable_session() {
+    let stub = Stub::start_with_headers(resumable_answers(file_json("n", "a.rnote", "r")));
+    let (mut client, _) = client(&stub);
+    let bytes = vec![9; FIVE_MIB + 1];
+
+    client.update_file("n", &bytes).unwrap();
+
+    let requests = stub.requests();
+    let start = &requests[0];
+    assert_eq!((start.method.as_str(), start.path()), ("PATCH", "/upload/drive/v3/files/n"));
+    assert_eq!(start.query("uploadType").as_deref(), Some("resumable"));
+    assert_eq!((requests[1].method.as_str(), requests[1].path()), ("PUT", "/upload/session-1"));
+    assert!(requests[1].body == bytes, "the upload carries the file");
+}
+
+#[test]
+fn resumable_upload_failure_is_an_error() {
+    let mut answers = resumable_answers(file_json("n", "a.rnote", "r"));
+    answers[1] = (400, JSON, Vec::new(), b"{}".to_vec());
+    let stub = Stub::start_with_headers(answers);
+    let (mut client, _) = client(&stub);
+
+    let result = client.create_file("r", "a.rnote", &vec![0; FIVE_MIB + 1]);
+
+    assert!(matches!(result, Err(RemoteError::Failed(_))), "{result:?}");
+    let requests = stub.requests();
+    assert_eq!(requests.len(), 2);
+    assert_eq!(requests[1].method, "PUT");
+}
+
+#[test]
+fn resumable_start_without_location_is_an_error() {
+    let stub = Stub::start(vec![(200, JSON, Vec::new())]);
+    let (mut client, _) = client(&stub);
+
+    let result = client.update_file("n", &vec![0; FIVE_MIB + 1]);
+
+    assert!(matches!(result, Err(RemoteError::Failed(_))), "{result:?}");
+    let requests = stub.requests();
+    assert_eq!(requests.len(), 1);
+    assert_eq!(requests[0].query("uploadType").as_deref(), Some("resumable"));
 }
 
 #[test]

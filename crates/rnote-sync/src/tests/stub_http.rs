@@ -39,6 +39,9 @@ impl Request {
     }
 }
 
+/// A scripted response: status, content type, extra headers and body.
+pub(super) type Response = (u16, &'static str, Vec<(&'static str, &'static str)>, Vec<u8>);
+
 /// The server; it stops after answering every scripted response.
 pub(super) struct Stub {
     url: String,
@@ -49,20 +52,35 @@ pub(super) struct Stub {
 impl Stub {
     /// Starts answering `responses` (status, content type, body), one per connection.
     pub fn start(responses: Vec<(u16, &'static str, Vec<u8>)>) -> Self {
+        let responses = responses
+            .into_iter()
+            .map(|(status, content_type, body)| (status, content_type, Vec::new(), body))
+            .collect();
+        Self::start_with_headers(responses)
+    }
+
+    /// Like [`Stub::start`], each response with extra headers; `{url}` in a header value
+    /// becomes the stub's own URL.
+    pub fn start_with_headers(responses: Vec<Response>) -> Self {
         let listener = TcpListener::bind("127.0.0.1:0").unwrap();
         let url = format!("http://{}", listener.local_addr().unwrap());
         let requests = Arc::new(Mutex::new(Vec::new()));
         let recorded = Arc::clone(&requests);
+        let own_url = url.clone();
         let thread = std::thread::spawn(move || {
-            for (status, content_type, body) in responses {
+            for (status, content_type, extra, body) in responses {
                 let Ok((stream, _)) = listener.accept() else {
                     return;
                 };
                 let mut reader = BufReader::new(stream);
                 recorded.lock().unwrap().push(read_request(&mut reader));
                 let mut stream = reader.into_inner();
+                let extra: String = extra
+                    .iter()
+                    .map(|(key, value)| format!("{key}: {}\r\n", value.replace("{url}", &own_url)))
+                    .collect();
                 let head = format!(
-                    "HTTP/1.1 {status} Stub\r\nContent-Type: {content_type}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n",
+                    "HTTP/1.1 {status} Stub\r\nContent-Type: {content_type}\r\nContent-Length: {}\r\n{extra}Connection: close\r\n\r\n",
                     body.len()
                 );
                 stream.write_all(head.as_bytes()).unwrap();
