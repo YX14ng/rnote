@@ -15,6 +15,7 @@ mod creation;
 mod document;
 mod editing;
 mod library;
+mod pdf;
 mod selection;
 mod settings;
 mod sync;

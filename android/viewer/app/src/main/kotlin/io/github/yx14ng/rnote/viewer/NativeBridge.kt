@@ -201,6 +201,35 @@ internal object NativeBridge {
     /** Remembers [setupJson] in [file] for the next notebook of [folder]; throws on errors. */
     @JvmStatic external fun rememberNotebookDefaults(file: String, folder: String?, setupJson: String)
 
+    /** The number of pages of [pdf], or -1 if it needs a (different) [password]; throws if it can't be read. */
+    @JvmStatic external fun pdfPageCount(pdf: ByteArray, password: String?): Int
+
+    /**
+     * Starts importing pages [firstPage] (0-based) up to [endPage] (excluded) of [pdf] as a
+     * notebook set up as [setupJson] says; returns a handle for the calls below, which
+     * [pdfImportClose] must free exactly once. Throws if the PDF or the pages can't be read.
+     */
+    @JvmStatic external fun pdfImportBegin(
+        pdf: ByteArray,
+        password: String?,
+        setupJson: String,
+        firstPage: Int,
+        endPage: Int,
+        vector: Boolean,
+    ): Long
+
+    /** The number of pages the import at [handle] brings in. */
+    @JvmStatic external fun pdfImportTotal(handle: Long): Int
+
+    /** Imports the next page; false once every page is imported. Blocks while it works. */
+    @JvmStatic external fun pdfImportNext(handle: Long): Boolean
+
+    /** The `.rnote` bytes of the notebook with the imported pages. */
+    @JvmStatic external fun pdfImportFinish(handle: Long, fileName: String): ByteArray
+
+    /** Frees the import at [handle], finished or cancelled. */
+    @JvmStatic external fun pdfImportClose(handle: Long)
+
     /** Syncs the library at [root] with Google Drive; returns the JSON outcome. Blocks on the network. */
     @JvmStatic external fun syncRun(root: String, statePath: String, device: String, token: String): String
 

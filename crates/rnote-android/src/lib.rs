@@ -15,6 +15,8 @@ mod library_bridge;
 mod notebook_defaults;
 #[cfg_attr(not(target_os = "android"), allow(dead_code))]
 mod notebook_setup;
+#[cfg_attr(not(target_os = "android"), allow(dead_code))]
+mod pdf_import;
 mod pen_input;
 mod render;
 mod rnote_document;
