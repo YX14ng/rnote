@@ -13,6 +13,7 @@ mod local;
 mod lock;
 mod moves;
 mod names;
+mod notebooks;
 mod remote;
 mod revoke;
 mod run;
@@ -28,6 +29,7 @@ use chrono::NaiveDateTime;
 
 pub use crate::drive::DriveClient;
 pub use crate::names::conflict_copy_path;
+pub use crate::notebooks::{WrittenNotebook, create_notebook, sha256_hex, write_notebook};
 pub use crate::remote::{
     Listing, ROOT_FOLDER_NAME, Remote, RemoteError, RemoteFile, RemoteFolder, Revision,
 };

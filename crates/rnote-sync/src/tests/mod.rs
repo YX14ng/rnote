@@ -9,6 +9,7 @@ mod drive;
 mod fake;
 mod local;
 mod moves;
+mod notebooks;
 mod regressions;
 mod revoke;
 mod stub_http;

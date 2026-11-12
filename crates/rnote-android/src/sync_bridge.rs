@@ -1,27 +1,12 @@
-//! The Drive sync and the saving of library notebooks, for the app: what can be tested
-//! without Android lives here, and the JNI entry points only translate.
+//! The Drive sync, for the app: what can be tested without Android lives here, and the JNI
+//! entry points only translate. Saving library notebooks lives in `rnote_sync`, which the
+//! desktop shares.
 
-use std::fs;
-use std::io::ErrorKind;
-use std::path::{Component, Path};
+use std::path::Path;
 
-use anyhow::{Context, bail};
 use chrono::NaiveDateTime;
-use rnote_sync::{Remote, SyncContext, SyncError, conflict_copy_path};
+use rnote_sync::{Remote, SyncContext, SyncError};
 use serde_json::json;
-use sha2::{Digest, Sha256};
-
-/// A notebook the editor saved, and where it went.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct WrittenNotebook {
-    /// The path written, relative to the library.
-    pub path: String,
-    /// The SHA-256 of what was written, in lower-case hex.
-    pub sha256: String,
-    /// Whether the notebook had changed since the editor read it, so the bytes went to a
-    /// conflict copy beside it instead.
-    pub conflict: bool,
-}
 
 // Only the JNI entry points, built for Android, call it outside of tests.
 #[cfg_attr(not(target_os = "android"), allow(dead_code))]
@@ -58,119 +43,23 @@ pub(crate) fn run_sync(
     answer.to_string()
 }
 
-// Only the JNI entry points, built for Android, call it outside of tests.
-#[cfg_attr(not(target_os = "android"), allow(dead_code))]
-/// Writes `bytes`, the notebook the editor has open, to `path` in the library at `root`, if
-/// the file there is still the one with hash `expected_sha256` (or missing). If it changed
-/// meanwhile, e.g. a sync brought another device's version, the bytes go to a conflict
-/// copy beside it and the file stays as it is.
-pub(crate) fn write_notebook(
-    root: &Path,
-    path: &str,
-    expected_sha256: Option<&str>,
-    device: &str,
-    now: NaiveDateTime,
-    bytes: &[u8],
-) -> anyhow::Result<WrittenNotebook> {
-    check_notebook_path(path)?;
-    let _guard = rnote_library::write_guard();
-    let current = match fs::read(root.join(path)) {
-        Ok(current) => Some(current),
-        Err(error) if error.kind() == ErrorKind::NotFound => None,
-        Err(error) => return Err(error).with_context(|| format!("Reading {path}")),
-    };
-    let changed = match (current, expected_sha256) {
-        (None, _) => false,
-        (Some(current), Some(expected)) => sha256_hex(&current) != expected,
-        (Some(current), None) => !current.is_empty(),
-    };
-    let target =
-        if changed { conflict_copy_path(root, path, device, now) } else { path.to_owned() };
-    write_atomic(&root.join(&target), bytes)?;
-    Ok(WrittenNotebook { path: target, sha256: sha256_hex(bytes), conflict: changed })
-}
-
-// Only the JNI entry points, built for Android, call it outside of tests.
-#[cfg_attr(not(target_os = "android"), allow(dead_code))]
-/// Creates the notebook `path` in the library at `root` with `bytes`, all at once: it
-/// shows up whole or not at all, never replaces a file, and never while a sync writes.
-pub(crate) fn create_notebook(root: &Path, path: &str, bytes: &[u8]) -> anyhow::Result<()> {
-    check_notebook_path(path)?;
-    let _guard = rnote_library::write_guard();
-    let target = root.join(path);
-    let dir = target.parent().context("A notebook has a folder")?;
-    let name = target.file_name().context("A notebook has a name")?.to_string_lossy();
-    fs::create_dir_all(dir).with_context(|| format!("Creating {}", dir.display()))?;
-    // Hidden, so neither the library nor the sync sees it until it is complete.
-    let temporary = dir.join(format!(".{name}.create-tmp"));
-    // Android keeps apps from making hard links, so the target is checked instead: this
-    // process writes the library only under the write guard held here.
-    if fs::symlink_metadata(&target).is_ok() {
-        bail!("{path} exists already");
-    }
-    let written = fs::write(&temporary, bytes)
-        .with_context(|| format!("Writing {}", temporary.display()))
-        .and_then(|()| fs::rename(&temporary, &target).with_context(|| format!("Creating {path}")));
-    if written.is_err() {
-        let _ = fs::remove_file(&temporary);
-    }
-    written
-}
-
-/// Fails unless `path` names a notebook inside the library: relative, without `..`, and
-/// outside hidden folders such as `.rnote-library`.
-fn check_notebook_path(path: &str) -> anyhow::Result<()> {
-    let inside = Path::new(path).components().all(|component| match component {
-        Component::Normal(name) => !name.to_string_lossy().starts_with('.'),
-        _ => false,
-    });
-    if path.is_empty() || !inside || !path.ends_with(".rnote") {
-        bail!("{path} isn't a notebook of the library");
-    }
-    Ok(())
-}
-
-/// Replaces `target` with `bytes` at once, through a hidden file in the same folder.
-fn write_atomic(target: &Path, bytes: &[u8]) -> anyhow::Result<()> {
-    let dir = target.parent().context("A notebook has a folder")?;
-    let name = target.file_name().context("A notebook has a name")?.to_string_lossy();
-    // A sync may have removed the folder with the notebook's last copy here.
-    fs::create_dir_all(dir).with_context(|| format!("Creating {}", dir.display()))?;
-    let temporary = dir.join(format!(".{name}.write-tmp"));
-    fs::write(&temporary, bytes).with_context(|| format!("Writing {}", temporary.display()))?;
-    fs::rename(&temporary, target).map_err(|error| {
-        let _ = fs::remove_file(&temporary);
-        anyhow::Error::new(error).context(format!("Replacing {}", target.display()))
-    })
-}
-
-/// The SHA-256 of `bytes`, in lower-case hex.
-fn sha256_hex(bytes: &[u8]) -> String {
-    Sha256::digest(bytes).iter().map(|byte| format!("{byte:02x}")).collect()
-}
-
 #[cfg(test)]
 mod tests {
     #![allow(clippy::unwrap_used)]
 
     use std::fs::{self, File, OpenOptions};
-    use std::path::{Path, PathBuf};
+    use std::path::PathBuf;
 
     use chrono::{NaiveDate, NaiveDateTime};
     use rnote_sync::fake::FakeDrive;
     use rnote_sync::{Listing, Remote, RemoteError, RemoteFile, Revision};
     use serde_json::Value;
-    use sha2::{Digest, Sha256};
     use tempfile::TempDir;
 
-    use super::{create_notebook, run_sync, write_notebook};
+    use super::run_sync;
 
     fn now() -> NaiveDateTime {
         NaiveDate::from_ymd_opt(2026, 11, 11).unwrap().and_hms_opt(10, 0, 0).unwrap()
-    }
-
-    fn sha256(bytes: &[u8]) -> String {
-        Sha256::digest(bytes).iter().map(|byte| format!("{byte:02x}")).collect()
     }
 
     /// A library folder and a state path outside it.
@@ -295,127 +184,5 @@ mod tests {
         let answer = device.sync(&mut Refusing);
 
         assert_eq!(answer, serde_json::json!({"status": "unauthorized"}));
-    }
-
-    #[test]
-    fn write_notebook_writes_when_unchanged() {
-        let dir = tempfile::tempdir().unwrap();
-        fs::write(dir.path().join("a.rnote"), b"old").unwrap();
-
-        let written =
-            write_notebook(dir.path(), "a.rnote", Some(&sha256(b"old")), "Tab", now(), b"new")
-                .unwrap();
-
-        assert_eq!(written.path, "a.rnote");
-        assert_eq!(written.sha256, sha256(b"new"));
-        assert!(!written.conflict);
-        assert_eq!(fs::read(dir.path().join("a.rnote")).unwrap(), b"new");
-    }
-
-    #[test]
-    fn write_notebook_keeps_a_changed_file() {
-        let dir = tempfile::tempdir().unwrap();
-        fs::write(dir.path().join("a.rnote"), b"from another device").unwrap();
-
-        let written =
-            write_notebook(dir.path(), "a.rnote", Some(&sha256(b"old")), "Tab", now(), b"mine")
-                .unwrap();
-
-        assert_eq!(written.path, "a (conflicto, Tab, 2026-11-11 10.00).rnote");
-        assert!(written.conflict);
-        assert_eq!(fs::read(dir.path().join("a.rnote")).unwrap(), b"from another device");
-        assert_eq!(fs::read(dir.path().join(&written.path)).unwrap(), b"mine");
-    }
-
-    #[test]
-    fn write_notebook_creates_a_missing_file() {
-        let dir = tempfile::tempdir().unwrap();
-        fs::create_dir(dir.path().join("Orga")).unwrap();
-
-        let written =
-            write_notebook(dir.path(), "Orga/a.rnote", Some(&sha256(b"old")), "Tab", now(), b"x")
-                .unwrap();
-
-        assert_eq!(written.path, "Orga/a.rnote");
-        assert!(!written.conflict);
-        assert_eq!(fs::read(dir.path().join("Orga/a.rnote")).unwrap(), b"x");
-        assert_eq!(fs::read_dir(dir.path().join("Orga")).unwrap().count(), 1);
-    }
-
-    #[test]
-    fn create_notebook_writes_it_whole_and_leaves_no_temporary() {
-        let dir = tempfile::tempdir().unwrap();
-
-        create_notebook(dir.path(), "Orga/a.rnote", b"whole").unwrap();
-
-        assert_eq!(fs::read(dir.path().join("Orga/a.rnote")).unwrap(), b"whole");
-        let names: Vec<_> = fs::read_dir(dir.path().join("Orga"))
-            .unwrap()
-            .map(|entry| entry.unwrap().file_name().into_string().unwrap())
-            .collect();
-        assert_eq!(names, ["a.rnote"]);
-    }
-
-    #[test]
-    fn create_notebook_never_replaces_one() {
-        let dir = tempfile::tempdir().unwrap();
-        fs::write(dir.path().join("a.rnote"), b"mine").unwrap();
-
-        assert!(create_notebook(dir.path(), "a.rnote", b"new").is_err());
-
-        assert_eq!(fs::read(dir.path().join("a.rnote")).unwrap(), b"mine");
-        assert_eq!(fs::read_dir(dir.path()).unwrap().count(), 1);
-    }
-
-    #[test]
-    fn create_notebook_rejects_paths_outside() {
-        let dir = tempfile::tempdir().unwrap();
-
-        for path in ["../x.rnote", ".rnote-library/x.rnote", "x.txt"] {
-            assert!(create_notebook(dir.path(), path, b"x").is_err(), "{path}");
-        }
-    }
-
-    #[test]
-    fn write_notebook_rejects_paths_outside() {
-        let dir = tempfile::tempdir().unwrap();
-        let root = dir.path().join("library");
-        fs::create_dir(&root).unwrap();
-
-        for path in ["../x.rnote", "/x.rnote", ".rnote-library/x.rnote", "Orga/../../x.rnote"] {
-            assert!(write_notebook(&root, path, None, "Tab", now(), b"x").is_err(), "{path}");
-        }
-        assert!(!Path::new(&dir.path().join("x.rnote")).exists());
-    }
-
-    #[test]
-    fn write_notebook_recreates_a_removed_folder() {
-        let dir = tempfile::tempdir().unwrap();
-
-        let written =
-            write_notebook(dir.path(), "Orga/a.rnote", Some(&sha256(b"old")), "Tab", now(), b"x")
-                .unwrap();
-
-        assert_eq!(written.path, "Orga/a.rnote");
-        assert_eq!(fs::read(dir.path().join("Orga/a.rnote")).unwrap(), b"x");
-    }
-
-    #[test]
-    fn write_notebook_waits_for_the_write_guard() {
-        let dir = tempfile::tempdir().unwrap();
-        let root = dir.path().to_owned();
-        fs::write(root.join("a.rnote"), b"old").unwrap();
-        let held = rnote_library::write_guard();
-
-        let writer = std::thread::spawn(move || {
-            write_notebook(&root, "a.rnote", Some(&sha256(b"old")), "Tab", now(), b"new").unwrap();
-        });
-        std::thread::sleep(std::time::Duration::from_millis(300));
-        let while_held = fs::read(dir.path().join("a.rnote")).unwrap();
-        drop(held);
-        writer.join().unwrap();
-
-        assert_eq!(while_held, b"old");
-        assert_eq!(fs::read(dir.path().join("a.rnote")).unwrap(), b"new");
     }
 }

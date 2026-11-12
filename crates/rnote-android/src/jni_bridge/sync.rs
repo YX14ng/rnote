@@ -10,7 +10,9 @@ use rnote_sync::DriveClient;
 use serde_json::json;
 
 use super::common::BridgeError;
-use crate::sync_bridge::{create_notebook, run_sync, write_notebook};
+use rnote_sync::{create_notebook, write_notebook};
+
+use crate::sync_bridge::run_sync;
 
 /// `static native String syncRun(String root, String statePath, String device, String
 /// token)`: syncs the library at `root` with Drive, with the access `token`, and returns
