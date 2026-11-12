@@ -1,4 +1,4 @@
-//! `library.json`: the tags, the tags of each notebook and the trash.
+//! `library.json`: the tags, the tags and cover of each notebook and the trash.
 //!
 //! Every entry carries the time it last changed, and removals stay as tombstones
 //! (`deleted: true`), so copies edited on different devices can be merged entry by entry.
@@ -36,6 +36,15 @@ pub(crate) struct NotebookTagsRecord {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub(crate) struct CoverRecord {
+    /// The color of the cover, as ARGB.
+    pub color: u32,
+    pub updated_at: i64,
+    #[serde(default)]
+    pub deleted: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub(crate) struct TrashRecord {
     pub original_path: String,
     pub deleted_at: i64,
@@ -51,8 +60,15 @@ pub(crate) struct Meta {
     pub tags: BTreeMap<String, TagRecord>,
     #[serde(default)]
     pub notebook_tags: BTreeMap<String, NotebookTagsRecord>,
+    /// Left out while empty, so a library without covers is written as before them.
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub notebook_covers: BTreeMap<String, CoverRecord>,
     #[serde(default)]
     pub trash: BTreeMap<String, TrashRecord>,
+    /// Keys this version doesn't know, written by a newer one: kept as they are, so saving
+    /// never loses them.
+    #[serde(flatten)]
+    pub extra: serde_json::Map<String, serde_json::Value>,
 }
 
 impl Default for Meta {
@@ -61,7 +77,9 @@ impl Default for Meta {
             version: VERSION,
             tags: BTreeMap::new(),
             notebook_tags: BTreeMap::new(),
+            notebook_covers: BTreeMap::new(),
             trash: BTreeMap::new(),
+            extra: serde_json::Map::new(),
         }
     }
 }
@@ -120,23 +138,55 @@ impl Meta {
             .insert(path.to_owned(), NotebookTagsRecord { tags, updated_at: now, deleted: false });
     }
 
-    /// Moves the tags of the notebook at `from` to `to`, leaving a tombstone behind.
-    pub(crate) fn move_tags(&mut self, from: &str, to: &str, now: i64) {
-        let tags = self.tags_of(from);
-        if tags.is_empty() {
-            return;
-        }
-        self.forget_tags(from, now);
-        self.set_tags_of(to, tags, now);
+    /// The live cover color of the notebook at `path`.
+    pub(crate) fn cover_of(&self, path: &str) -> Option<u32> {
+        self.notebook_covers.get(path).filter(|record| !record.deleted).map(|record| record.color)
     }
 
-    /// Removes the tags of the notebook at `path`, as a tombstone.
-    pub(crate) fn forget_tags(&mut self, path: &str, now: i64) {
-        if let Some(record) = self.notebook_tags.get_mut(path) {
+    /// Sets the cover of the notebook at `path`; `None` removes it, as a tombstone.
+    pub(crate) fn set_cover_of(&mut self, path: &str, color: Option<u32>, now: i64) {
+        match color {
+            Some(color) => {
+                self.notebook_covers.insert(
+                    path.to_owned(),
+                    CoverRecord { color, updated_at: now, deleted: false },
+                );
+            }
+            None => {
+                if let Some(record) = self.notebook_covers.get_mut(path).filter(|r| !r.deleted) {
+                    record.updated_at = now;
+                    record.deleted = true;
+                }
+            }
+        }
+    }
+
+    /// Moves what the library keeps of the notebook at `from` (tags and cover) to `to`,
+    /// leaving tombstones behind.
+    pub(crate) fn move_notebook(&mut self, from: &str, to: &str, now: i64) {
+        self.copy_notebook(from, to, now);
+        self.forget_notebook(from, now);
+    }
+
+    /// Gives the notebook at `to` the tags and cover of the one at `from`.
+    pub(crate) fn copy_notebook(&mut self, from: &str, to: &str, now: i64) {
+        let tags = self.tags_of(from);
+        if !tags.is_empty() {
+            self.set_tags_of(to, tags, now);
+        }
+        if let Some(color) = self.cover_of(from) {
+            self.set_cover_of(to, Some(color), now);
+        }
+    }
+
+    /// Removes the tags and cover of the notebook at `path`, as tombstones.
+    pub(crate) fn forget_notebook(&mut self, path: &str, now: i64) {
+        if let Some(record) = self.notebook_tags.get_mut(path).filter(|r| !r.deleted) {
             record.tags.clear();
             record.updated_at = now;
             record.deleted = true;
         }
+        self.set_cover_of(path, None, now);
     }
 }
 
@@ -160,7 +210,7 @@ macro_rules! impl_record {
     )*};
 }
 
-impl_record!(TagRecord, NotebookTagsRecord, TrashRecord);
+impl_record!(TagRecord, NotebookTagsRecord, CoverRecord, TrashRecord);
 
 /// Merges two copies of `library.json` entry by entry: the newer change of each entry
 /// wins, tombstones included. Ties go to the tombstone and then to the larger serialized
@@ -172,12 +222,24 @@ pub fn merge_meta(local: &[u8], remote: &[u8]) -> anyhow::Result<Vec<u8>> {
             version: VERSION,
             tags: merge_map(&local.tags, &remote.tags),
             notebook_tags: merge_map(&local.notebook_tags, &remote.notebook_tags),
+            notebook_covers: merge_map(&local.notebook_covers, &remote.notebook_covers),
             trash: merge_map(&local.trash, &remote.trash),
+            extra: merge_extra(local.extra, remote.extra),
         },
         (Some(meta), None) | (None, Some(meta)) => meta,
         (None, None) => bail!("Neither copy of {META_FILE} can be read"),
     };
     Ok(serde_json::to_vec_pretty(&merged)?)
+}
+
+/// Unknown keys of both copies; the local one wins a key both have.
+fn merge_extra(
+    local: serde_json::Map<String, serde_json::Value>,
+    remote: serde_json::Map<String, serde_json::Value>,
+) -> serde_json::Map<String, serde_json::Value> {
+    let mut merged = remote;
+    merged.extend(local);
+    merged
 }
 
 fn parse(bytes: &[u8]) -> Option<Meta> {

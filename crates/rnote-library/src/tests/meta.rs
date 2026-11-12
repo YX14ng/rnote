@@ -225,3 +225,54 @@ fn saving_the_metadata_waits_for_the_write_guard() {
     assert!(!written_while_held);
     assert!(meta.exists());
 }
+
+fn cover(color: u32, updated_at: i64, deleted: bool) -> Value {
+    serde_json::json!({"color": color, "updated_at": updated_at, "deleted": deleted})
+}
+
+#[test]
+fn merge_keeps_covers_from_a_copy_without_them() {
+    // As the version before covers wrote it.
+    let old = br#"{"version":1,"tags":{},"notebook_tags":{},"trash":{}}"#;
+    let new = serde_json::to_vec(&serde_json::json!({
+        "version": 1,
+        "notebook_covers": {"a.rnote": cover(7, 5, false)},
+    }))
+    .unwrap();
+
+    for merged in [merged(old, &new), merged(&new, old)] {
+        assert_eq!(merged["notebook_covers"]["a.rnote"]["color"], 7, "{merged}");
+    }
+}
+
+#[test]
+fn merge_picks_the_newer_cover() {
+    let side = |record: Value| {
+        serde_json::to_vec(&serde_json::json!({"version": 1, "notebook_covers": {"a": record}}))
+            .unwrap()
+    };
+
+    let newer = merged(&side(cover(1, 1, false)), &side(cover(2, 2, false)));
+    assert_eq!(newer["notebook_covers"]["a"]["color"], 2);
+    let removed = merged(&side(cover(1, 3, true)), &side(cover(2, 2, false)));
+    assert_eq!(removed["notebook_covers"]["a"]["deleted"], true);
+}
+
+#[test]
+fn unknown_keys_survive_load_and_save() {
+    let dir = tempfile::tempdir().unwrap();
+    write(dir.path(), ".rnote-library/library.json", br#"{"version":1,"futuro":{"a":1}}"#);
+    write(dir.path(), "a.rnote", b"a");
+    let mut library = library_at(dir.path());
+
+    library.create_tag("t", 1).unwrap();
+
+    assert_eq!(library_json(dir.path())["futuro"], serde_json::json!({"a": 1}));
+}
+
+#[test]
+fn merge_keeps_unknown_keys_of_both_sides() {
+    let merged = merged(br#"{"version":1,"x":1}"#, br#"{"version":1,"x":2,"y":3}"#);
+
+    assert_eq!((merged["x"].clone(), merged["y"].clone()), (1.into(), 3.into()));
+}

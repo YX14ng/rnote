@@ -13,6 +13,7 @@ fn notebook(path: &str, modified_ms: i64, tags: &[&str]) -> Notebook {
         modified_ms,
         size: 1,
         tags: tags.iter().map(|tag| (*tag).to_owned()).collect(),
+        cover: None,
     }
 }
 

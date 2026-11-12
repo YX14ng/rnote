@@ -27,6 +27,7 @@ enum LibraryRequest {
     UpdateTag { id: String, name: String, color: u32 },
     DeleteTag { id: String },
     SetTags { path: String, tags: Vec<String> },
+    SetCover { path: String, color: Option<u32> },
     ImportXopp { path: String },
     UniqueName { folder: Option<String>, file_name: String },
 }
@@ -84,6 +85,10 @@ pub(crate) fn handle_request(root: &Path, request: &str) -> anyhow::Result<Strin
         }
         LibraryRequest::SetTags { path, tags } => {
             library.set_tags(&path, &tags)?;
+            json!({})
+        }
+        LibraryRequest::SetCover { path, color } => {
+            library.set_cover(&path, color)?;
             json!({})
         }
         LibraryRequest::ImportXopp { path: from } => path(library.import_xopp(&from)?),
@@ -172,6 +177,21 @@ mod tests {
             call(dir.path(), r#"{"op": "unique_name", "folder": null, "file_name": "a.rnote"}"#);
 
         assert_eq!(answer["path"], "a (2).rnote");
+    }
+
+    #[test]
+    fn set_cover_request_sets_the_cover() {
+        let dir = tempfile::tempdir().unwrap();
+        fs::write(dir.path().join("a.rnote"), b"a").unwrap();
+
+        call(dir.path(), r#"{"op": "set_cover", "path": "a.rnote", "color": 4282216374}"#);
+        assert_eq!(
+            call(dir.path(), r#"{"op": "list"}"#)["notebooks"][0]["cover"],
+            4_282_216_374_u32
+        );
+
+        call(dir.path(), r#"{"op": "set_cover", "path": "a.rnote", "color": null}"#);
+        assert_eq!(call(dir.path(), r#"{"op": "list"}"#)["notebooks"][0]["cover"], Value::Null);
     }
 
     #[test]

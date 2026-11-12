@@ -14,7 +14,7 @@ use crate::{Library, relative_path, split_extension};
 
 impl Library {
     /// Converts the `.xopp` notebook at `path` to an `.rnote` beside it, with a suffix if
-    /// the name is taken, with the tags of the `.xopp`. The `.xopp` stays. Returns the path
+    /// the name is taken, with the tags and cover of the `.xopp`. The `.xopp` stays. Returns the path
     /// of the new notebook.
     pub fn import_xopp(&mut self, path: &str) -> anyhow::Result<String> {
         let file = self.existing_notebook(path)?;
@@ -32,11 +32,8 @@ impl Library {
         let new_path = relative_path(folder, &unique_file_name(&dir, stem, "rnote"));
         fs::write(self.root.join(&new_path), rnote_bytes)
             .with_context(|| format!("Writing {new_path}"))?;
-        let tags = self.meta.tags_of(path);
-        if !tags.is_empty() {
-            self.meta.set_tags_of(&new_path, tags, self.now());
-            self.save_meta()?;
-        }
+        self.meta.copy_notebook(path, &new_path, self.now());
+        self.save_meta()?;
         Ok(new_path)
     }
 

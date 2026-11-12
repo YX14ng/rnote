@@ -21,6 +21,7 @@ fn notebook(modified_ms: i64) -> Notebook {
         modified_ms,
         size: 10,
         tags: Vec::new(),
+        cover: None,
     }
 }
 

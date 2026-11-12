@@ -69,7 +69,7 @@ impl Library {
         fs::rename(&from, self.root.join(&restored))
             .with_context(|| format!("Restoring {}", from.display()))?;
         let now = self.now();
-        self.meta.move_tags(&trash_key(id), &restored, now);
+        self.meta.move_notebook(&trash_key(id), &restored, now);
         self.bury_trash_record(id, now);
         self.save_meta()?;
         Ok(restored)
@@ -108,7 +108,7 @@ impl Library {
         fs::rename(&from, self.trash_dir().join(&id))
             .with_context(|| format!("Moving {} to the trash", from.display()))?;
         // Its tags wait in the trash with it, so a new notebook at its path starts untagged.
-        self.meta.move_tags(path, &trash_key(&id), now);
+        self.meta.move_notebook(path, &trash_key(&id), now);
         self.meta.trash.insert(
             id,
             TrashRecord {
@@ -131,7 +131,7 @@ impl Library {
             }
         }
         let now = self.now();
-        self.meta.forget_tags(&trash_key(id), now);
+        self.meta.forget_notebook(&trash_key(id), now);
         self.bury_trash_record(id, now);
         Ok(())
     }

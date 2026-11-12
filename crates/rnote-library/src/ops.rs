@@ -36,7 +36,11 @@ impl Library {
         let now = self.now();
         for notebook in notebooks {
             let file_name = notebook.path.rsplit('/').next().unwrap_or(&notebook.path);
-            self.meta.move_tags(&notebook.path, &relative_path(Some(&new_name), file_name), now);
+            self.meta.move_notebook(
+                &notebook.path,
+                &relative_path(Some(&new_name), file_name),
+                now,
+            );
         }
         self.save_meta()?;
         Ok(new_name)
@@ -93,7 +97,7 @@ impl Library {
         } else {
             fs::rename(&from, &to).with_context(|| format!("Renaming {}", from.display()))?;
         }
-        self.meta.move_tags(path, &new_path, self.now());
+        self.meta.move_notebook(path, &new_path, self.now());
         self.save_meta()?;
         Ok(new_path)
     }
@@ -114,12 +118,12 @@ impl Library {
         let new_path = relative_path(folder, &unique_file_name(&dir, stem, extension));
         fs::rename(&from, self.root.join(&new_path))
             .with_context(|| format!("Moving {}", from.display()))?;
-        self.meta.move_tags(path, &new_path, self.now());
+        self.meta.move_notebook(path, &new_path, self.now());
         self.save_meta()?;
         Ok(new_path)
     }
 
-    /// Copies the notebook at `path` beside it, with its tags. Returns the copy's path.
+    /// Copies the notebook at `path` beside it, with its tags and cover. Returns the copy's path.
     pub fn duplicate(&mut self, path: &str) -> anyhow::Result<String> {
         let from = self.existing_notebook(path)?;
         let (folder, file_name) = split_path(path);
@@ -128,11 +132,8 @@ impl Library {
         let copy = relative_path(folder, &unique_file_name(&dir, stem, extension));
         fs::copy(&from, self.root.join(&copy))
             .with_context(|| format!("Copying {}", from.display()))?;
-        let tags = self.meta.tags_of(path);
-        if !tags.is_empty() {
-            self.meta.set_tags_of(&copy, tags, self.now());
-            self.save_meta()?;
-        }
+        self.meta.copy_notebook(path, &copy, self.now());
+        self.save_meta()?;
         Ok(copy)
     }
 

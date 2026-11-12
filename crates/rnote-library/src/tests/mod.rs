@@ -2,6 +2,7 @@
 
 #![allow(clippy::unwrap_used)]
 
+mod covers;
 mod meta;
 mod ops;
 mod scan;

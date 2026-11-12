@@ -3,6 +3,7 @@
 //!
 //! The library is plain files, so other programs (and the sync) can work on it too.
 
+mod covers;
 mod import;
 mod meta;
 pub mod names;
@@ -75,6 +76,8 @@ pub struct Notebook {
     pub size: u64,
     /// Ids of its tags.
     pub tags: Vec<String>,
+    /// The color of its cover, as ARGB, or `None` to show its first page.
+    pub cover: Option<u32>,
 }
 
 /// A library rooted at a folder.
@@ -111,6 +114,7 @@ impl Library {
         let mut notebooks = scan::notebooks(&self.root)?;
         for notebook in &mut notebooks {
             notebook.tags = self.meta.tags_of(&notebook.path);
+            notebook.cover = self.meta.cover_of(&notebook.path);
         }
         Ok(notebooks)
     }

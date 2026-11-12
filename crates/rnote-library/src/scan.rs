@@ -68,6 +68,7 @@ fn in_folder(dir: &Path, folder: Option<&str>) -> anyhow::Result<Vec<Notebook>> 
             modified_ms,
             size: metadata.len(),
             tags: Vec::new(),
+            cover: None,
         });
     }
     Ok(notebooks)
