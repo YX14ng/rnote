@@ -4,7 +4,6 @@ import android.content.Context
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
-import java.io.IOException
 
 /**
  * Makes new notebooks in the library: the file is written once, with its whole contents, so
@@ -66,12 +65,10 @@ internal class NotebookCreator(private val context: Context, private val store: 
         val request = LibraryStore.request("new_notebook_path", "folder" to folder, "stem" to stem)
         store.root.mkdirs()
         val path = JSONObject(NativeBridge.libraryCall(store.root.path, request.toString())).getString("path")
-        val file = store.file(path)
-        val bytes = make(file.name)
-        file.parentFile?.mkdirs()
-        // Never replaces a notebook, even one that appeared since the path was chosen.
-        if (!file.createNewFile()) throw IOException(context.getString(R.string.library_bad_path, path))
-        file.writeBytes(bytes)
+        val bytes = make(store.file(path).name)
+        // Whole or not at all, so a sync never sees half of it; never replaces a notebook,
+        // even one that appeared since the path was chosen.
+        NativeBridge.libraryCreateNotebook(store.root.path, path, bytes)
         return path
     }
 

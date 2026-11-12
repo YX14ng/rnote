@@ -230,6 +230,12 @@ internal object NativeBridge {
     /** Frees the import at [handle], finished or cancelled. */
     @JvmStatic external fun pdfImportClose(handle: Long)
 
+    /**
+     * Creates the notebook [path] in the library at [root] with [bytes], whole or not at
+     * all and never replacing a file, while no sync writes; throws on errors.
+     */
+    @JvmStatic external fun libraryCreateNotebook(root: String, path: String, bytes: ByteArray)
+
     /** Syncs the library at [root] with Google Drive; returns the JSON outcome. Blocks on the network. */
     @JvmStatic external fun syncRun(root: String, statePath: String, device: String, token: String): String
 

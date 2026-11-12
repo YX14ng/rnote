@@ -90,6 +90,29 @@ pub(crate) fn write_notebook(
     Ok(WrittenNotebook { path: target, sha256: sha256_hex(bytes), conflict: changed })
 }
 
+// Only the JNI entry points, built for Android, call it outside of tests.
+#[cfg_attr(not(target_os = "android"), allow(dead_code))]
+/// Creates the notebook `path` in the library at `root` with `bytes`, all at once: it
+/// shows up whole or not at all, never replaces a file, and never while a sync writes.
+pub(crate) fn create_notebook(root: &Path, path: &str, bytes: &[u8]) -> anyhow::Result<()> {
+    check_notebook_path(path)?;
+    let _guard = rnote_library::write_guard();
+    let target = root.join(path);
+    let dir = target.parent().context("A notebook has a folder")?;
+    let name = target.file_name().context("A notebook has a name")?.to_string_lossy();
+    fs::create_dir_all(dir).with_context(|| format!("Creating {}", dir.display()))?;
+    // Hidden, so neither the library nor the sync sees it until it is complete.
+    let temporary = dir.join(format!(".{name}.create-tmp"));
+    let written = fs::write(&temporary, bytes)
+        .with_context(|| format!("Writing {}", temporary.display()))
+        // A hard link fails if the target exists: no notebook is ever replaced.
+        .and_then(|()| {
+            fs::hard_link(&temporary, &target).with_context(|| format!("Creating {path}"))
+        });
+    let _ = fs::remove_file(&temporary);
+    written
+}
+
 /// Fails unless `path` names a notebook inside the library: relative, without `..`, and
 /// outside hidden folders such as `.rnote-library`.
 fn check_notebook_path(path: &str) -> anyhow::Result<()> {
@@ -136,7 +159,7 @@ mod tests {
     use sha2::{Digest, Sha256};
     use tempfile::TempDir;
 
-    use super::{run_sync, write_notebook};
+    use super::{create_notebook, run_sync, write_notebook};
 
     fn now() -> NaiveDateTime {
         NaiveDate::from_ymd_opt(2026, 11, 11).unwrap().and_hms_opt(10, 0, 0).unwrap()
@@ -313,6 +336,40 @@ mod tests {
         assert!(!written.conflict);
         assert_eq!(fs::read(dir.path().join("Orga/a.rnote")).unwrap(), b"x");
         assert_eq!(fs::read_dir(dir.path().join("Orga")).unwrap().count(), 1);
+    }
+
+    #[test]
+    fn create_notebook_writes_it_whole_and_leaves_no_temporary() {
+        let dir = tempfile::tempdir().unwrap();
+
+        create_notebook(dir.path(), "Orga/a.rnote", b"whole").unwrap();
+
+        assert_eq!(fs::read(dir.path().join("Orga/a.rnote")).unwrap(), b"whole");
+        let names: Vec<_> = fs::read_dir(dir.path().join("Orga"))
+            .unwrap()
+            .map(|entry| entry.unwrap().file_name().into_string().unwrap())
+            .collect();
+        assert_eq!(names, ["a.rnote"]);
+    }
+
+    #[test]
+    fn create_notebook_never_replaces_one() {
+        let dir = tempfile::tempdir().unwrap();
+        fs::write(dir.path().join("a.rnote"), b"mine").unwrap();
+
+        assert!(create_notebook(dir.path(), "a.rnote", b"new").is_err());
+
+        assert_eq!(fs::read(dir.path().join("a.rnote")).unwrap(), b"mine");
+        assert_eq!(fs::read_dir(dir.path()).unwrap().count(), 1);
+    }
+
+    #[test]
+    fn create_notebook_rejects_paths_outside() {
+        let dir = tempfile::tempdir().unwrap();
+
+        for path in ["../x.rnote", ".rnote-library/x.rnote", "x.txt"] {
+            assert!(create_notebook(dir.path(), path, b"x").is_err(), "{path}");
+        }
     }
 
     #[test]

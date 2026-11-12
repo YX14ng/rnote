@@ -10,7 +10,7 @@ use rnote_sync::DriveClient;
 use serde_json::json;
 
 use super::common::BridgeError;
-use crate::sync_bridge::{run_sync, write_notebook};
+use crate::sync_bridge::{create_notebook, run_sync, write_notebook};
 
 /// `static native String syncRun(String root, String statePath, String device, String
 /// token)`: syncs the library at `root` with Drive, with the access `token`, and returns
@@ -92,6 +92,30 @@ pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_libraryWr
                 "conflict": written.conflict,
             });
             Ok(env.new_string(answer.to_string())?.into())
+        })
+        .resolve::<ThrowRuntimeExAndDefault>()
+}
+
+/// `static native void libraryCreateNotebook(String root, String path, byte[] bytes)`:
+/// creates the notebook `path` in the library at `root` with `bytes`, whole or not at all,
+/// never replacing a file; throws on errors.
+#[unsafe(no_mangle)]
+pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_libraryCreateNotebook<
+    'caller,
+>(
+    mut unowned_env: EnvUnowned<'caller>,
+    _class: JClass<'caller>,
+    root: JString<'caller>,
+    path: JString<'caller>,
+    bytes: JByteArray<'caller>,
+) {
+    unowned_env
+        .with_env(|env| -> Result<(), BridgeError> {
+            let root = root.try_to_string(env)?;
+            let path = path.try_to_string(env)?;
+            let bytes = env.convert_byte_array(&bytes)?;
+            create_notebook(Path::new(&root), &path, &bytes)?;
+            Ok(())
         })
         .resolve::<ThrowRuntimeExAndDefault>()
 }
