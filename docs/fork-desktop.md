@@ -52,6 +52,39 @@ Run the same commands to update after pulling.
   the editor, as before. The house button in the editor goes back to the library; the
   tabs stay open.
 
+## Google Drive sync
+
+The library syncs with a folder named `Rnote` in the Google Drive of whoever signs in, the
+same folder the Android app syncs, so the notebooks are the same on every device. The app
+only gets access to the files it creates (`drive.file`), nothing else of the Drive. See
+[privacy.md](privacy.md).
+
+- The cloud button in the library's header bar signs in: Google's page opens in the
+  browser, and once you agree the button turns into a menu with the last sync, "Sync Now"
+  and "Sign Out of Google Drive". Signing out tells Google to forget the app's access and
+  removes the token from this computer.
+- It syncs when the app opens, when you go back to the library, a few seconds after saving
+  a notebook of the library, and with "Sync Now". Without a connection it waits for the next
+  of those.
+- A notebook changed on two devices is never overwritten: both versions stay, one named
+  `Name (conflicto, <device>, <date>).rnote`. A notebook open in a tab that a sync updates
+  reloads by itself if it has no unsaved changes; with unsaved changes, saving puts them in
+  a conflict copy and the tab switches to it.
+- The refresh token is kept in the desktop keyring (Secret Service: GNOME Keyring, KWallet),
+  which is why the Flatpak may talk to `org.freedesktop.secrets`.
+
+### Building with the sync
+
+The sync needs the "Desktop app" OAuth client of the Google Cloud project at build time.
+`install-fork-flatpak.sh` reads it from `RNOTE_GDRIVE_CLIENT_ID` and
+`RNOTE_GDRIVE_CLIENT_SECRET`, or else from the client JSON Google downloads, at
+`RNOTE_GDRIVE_CLIENT_JSON` (default `~/.config/rnote-android/desktop-client.json`). It puts
+them in a copy of the manifest in a private temporary folder; they never go into a tracked
+file. A build without them (a fork, a development build) shows the button disabled, with a
+tooltip that says why.
+
+For a `meson` development build, export the two variables before `meson compile`.
+
 ## Developing
 
 `build-aux/dev-setup.sh` configures `_mesonbuild` with the development id
