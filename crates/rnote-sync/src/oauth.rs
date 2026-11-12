@@ -24,6 +24,8 @@ pub const SCOPE: &str = "https://www.googleapis.com/auth/drive.file";
 const AUTHORIZATION_URL: &str = "https://accounts.google.com/o/oauth2/v2/auth";
 /// Google's token endpoint, unless a test points elsewhere.
 const DEFAULT_BASE_URL: &str = "https://oauth2.googleapis.com";
+/// How long a token request may take before Google counts as unreachable.
+const TOKEN_TIMEOUT: Duration = Duration::from_secs(30);
 /// How long before it expires an access token is renewed.
 const RENEW_MARGIN: Duration = Duration::from_secs(60);
 /// How often [`wait_for_redirect`] looks for the browser.
@@ -255,6 +257,7 @@ pub fn exchange_code_at(
 ) -> Result<Tokens, OAuthError> {
     post_token(
         base_url,
+        TOKEN_TIMEOUT,
         &[
             ("code", code),
             ("client_id", &client.id),
@@ -277,8 +280,19 @@ pub fn refresh_at(
     client: &OAuthClient,
     refresh_token: &str,
 ) -> Result<Tokens, OAuthError> {
+    refresh_with_timeout(base_url, client, refresh_token, TOKEN_TIMEOUT)
+}
+
+/// Like [`refresh_at`], giving up after `timeout`.
+pub(crate) fn refresh_with_timeout(
+    base_url: &str,
+    client: &OAuthClient,
+    refresh_token: &str,
+    timeout: Duration,
+) -> Result<Tokens, OAuthError> {
     post_token(
         base_url,
+        timeout,
         &[
             ("client_id", &client.id),
             ("client_secret", &client.secret),
@@ -288,8 +302,16 @@ pub fn refresh_at(
     )
 }
 
-fn post_token(base_url: &str, form: &[(&str, &str)]) -> Result<Tokens, OAuthError> {
-    let agent: Agent = Agent::config_builder().http_status_as_error(false).build().into();
+fn post_token(
+    base_url: &str,
+    timeout: Duration,
+    form: &[(&str, &str)],
+) -> Result<Tokens, OAuthError> {
+    let agent: Agent = Agent::config_builder()
+        .http_status_as_error(false)
+        .timeout_global(Some(timeout))
+        .build()
+        .into();
     let body = url::form_urlencoded::Serializer::new(String::new()).extend_pairs(form).finish();
     let url = format!("{}/token", base_url.trim_end_matches('/'));
     let mut response = agent

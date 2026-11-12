@@ -3404,3 +3404,9 @@ msgstr "此期间它在另一台设备上被修改：已另存为“{name}”"
 
 msgid "Updated with the changes from another device"
 msgstr "已更新为另一台设备上的更改"
+
+msgid "Checking the Google Drive sign-in…"
+msgstr "正在检查 Google 云端硬盘登录状态…"
+
+msgid "It changed on another device: saving keeps both versions"
+msgstr "它在另一台设备上被修改：保存时会保留两个版本"

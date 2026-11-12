@@ -309,12 +309,12 @@ impl RnLibraryView {
             .unwrap_or_default()
     }
 
-    /// The library's folder.
     /// The Google Drive button of the header bar.
     pub(crate) fn sync_button(&self) -> gtk4::MenuButton {
         self.imp().sync_button.get()
     }
 
+    /// The library's folder.
     pub(crate) fn root(&self) -> PathBuf {
         location::library_root(
             &self.root_setting(),

@@ -10,6 +10,8 @@ use rnote_sync::SyncReport;
 pub(crate) enum SyncStatus {
     /// This build has no OAuth client, so it can't sign in.
     Unavailable,
+    /// Reading the keyring at startup, which may wait for the user to unlock it.
+    Checking,
     /// Not signed in.
     SignedOut,
     /// Signed in before, but Google needs the user again (e.g. access removed).
@@ -36,8 +38,20 @@ impl SyncStatus {
     pub(crate) fn signed_in(&self) -> bool {
         !matches!(
             self,
-            Self::Unavailable | Self::SignedOut | Self::SignInNeeded
+            Self::Unavailable | Self::Checking | Self::SignedOut | Self::SignInNeeded
         )
+    }
+}
+
+/// The status once the keyring answered whether there is a refresh token.
+pub(crate) fn status_after_load(token: anyhow::Result<Option<String>>) -> SyncStatus {
+    match token {
+        Ok(Some(_)) => SyncStatus::Waiting,
+        Ok(None) => SyncStatus::SignedOut,
+        Err(error) => {
+            tracing::warn!("Reading the Google Drive token from the keyring failed: {error:?}");
+            SyncStatus::SignedOut
+        }
     }
 }
 
@@ -69,6 +83,7 @@ pub(crate) fn status_text(status: &SyncStatus, now: SystemTime) -> String {
         SyncStatus::Unavailable => {
             gettext("This build of Rnote has no Google Drive credentials, so it can't sync")
         }
+        SyncStatus::Checking => gettext("Checking the Google Drive sign-in…"),
         SyncStatus::SignedOut => gettext("Not signed in to Google Drive"),
         SyncStatus::SignInNeeded => gettext("Sign in to Google Drive again to keep syncing"),
         SyncStatus::Waiting => gettext("Waiting to sync"),
@@ -111,7 +126,7 @@ fn ago_text(ago: Ago, at: SystemTime) -> String {
 mod tests {
     use std::time::{Duration, SystemTime};
 
-    use super::{Ago, SyncStatus, status_text};
+    use super::{Ago, SyncStatus, status_after_load, status_text};
 
     #[test]
     fn ago_steps() {
@@ -124,6 +139,20 @@ mod tests {
         assert_eq!(ago(3600), Ago::Hours(1));
         assert_eq!(ago(86_399), Ago::Hours(23));
         assert_eq!(ago(86_400), Ago::OnDate);
+    }
+
+    #[test]
+    fn keyring_answer_decides_the_first_status() {
+        assert_eq!(
+            status_after_load(Ok(Some("r".to_owned()))),
+            SyncStatus::Waiting
+        );
+        assert_eq!(status_after_load(Ok(None)), SyncStatus::SignedOut);
+        assert_eq!(
+            status_after_load(Err(anyhow::anyhow!("locked"))),
+            SyncStatus::SignedOut
+        );
+        assert!(!SyncStatus::Checking.signed_in());
     }
 
     #[test]

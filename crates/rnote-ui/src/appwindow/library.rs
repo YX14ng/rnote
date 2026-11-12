@@ -103,8 +103,8 @@ impl RnAppWindow {
     pub(super) fn setup_library(&self) {
         self.library_view().init(self);
         crate::sync::button::setup(&self.library_view().sync_button(), self);
-        // Opening the app syncs.
-        self.sync().sync_now();
+        // Opening the app syncs, once the keyring says it is signed in.
+        self.sync().start_up();
 
         let show_library = gio::SimpleAction::new("show-library", None);
         show_library.connect_activate(clone!(

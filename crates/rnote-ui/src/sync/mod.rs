@@ -19,7 +19,7 @@ use anyhow::anyhow;
 use gtk4::{UriLauncher, Window, gio, glib};
 use rnote_sync::oauth::{self, AccessTokens, OAuthClient, OAuthError};
 use rnote_sync::{DriveClient, RemoteError, SyncContext};
-use tracing::{error, warn};
+use tracing::error;
 
 use credentials::{KeyringStore, RefreshTokenStore};
 use schedule::Scheduler;
@@ -65,14 +65,11 @@ impl RnSync {
     pub(crate) fn new(app_id: &str) -> Self {
         let client = credentials::build_client();
         let store: Arc<dyn RefreshTokenStore> = Arc::new(KeyringStore::new(app_id));
-        let status = match (&client, store.load()) {
-            (None, _) => SyncStatus::Unavailable,
-            (Some(_), Ok(Some(_))) => SyncStatus::Waiting,
-            (Some(_), Ok(None)) => SyncStatus::SignedOut,
-            (Some(_), Err(error)) => {
-                warn!("Reading the Google Drive token from the keyring failed: {error:?}");
-                SyncStatus::SignedOut
-            }
+        // The keyring is read off the main thread: it may wait for the user to unlock it.
+        let status = if client.is_some() {
+            SyncStatus::Checking
+        } else {
+            SyncStatus::Unavailable
         };
         let tokens = Arc::new(Mutex::new(access_tokens(
             client.clone(),
@@ -90,6 +87,25 @@ impl RnSync {
                 root: RefCell::new(None),
             }),
         }
+    }
+
+    /// Reads the keyring and, when signed in, syncs: what opening the app does.
+    pub(crate) fn start_up(&self) {
+        if self.status() != SyncStatus::Checking {
+            return;
+        }
+        let store = Arc::clone(&self.inner.store);
+        let this = self.clone();
+        glib::spawn_future_local(async move {
+            let token = gio::spawn_blocking(move || store.load())
+                .await
+                .unwrap_or_else(|_| Err(anyhow!("Reading the keyring stopped unexpectedly")));
+            // Signing in meanwhile wins.
+            if this.status() == SyncStatus::Checking {
+                this.set_status(status::status_after_load(token));
+                this.sync_now();
+            }
+        });
     }
 
     /// Where the library to sync is, asked at the start of every sync.
@@ -220,6 +236,7 @@ impl RnSync {
             }
         });
         let store = Arc::clone(&self.inner.store);
+        let access = Arc::clone(&self.inner.tokens);
         let this = self.clone();
         glib::spawn_future_local(async move {
             let signed_in = gio::spawn_blocking(move || -> Result<(), OAuthError> {
@@ -229,6 +246,9 @@ impl RnSync {
                     .refresh_token
                     .ok_or_else(|| anyhow!("Google sent no refresh token"))?;
                 store.save(&refresh_token).map_err(OAuthError::Failed)?;
+                // Here and not on the main thread: a sync may hold the lock while it
+                // renews the token.
+                forget_access_token(&access);
                 Ok(())
             })
             .await
@@ -239,9 +259,6 @@ impl RnSync {
             });
             match signed_in {
                 Ok(()) => {
-                    if let Ok(mut tokens) = this.inner.tokens.lock() {
-                        tokens.forget();
-                    }
                     this.set_status(SyncStatus::Waiting);
                     this.sync_now();
                     done(Ok(()));
@@ -255,9 +272,11 @@ impl RnSync {
     /// here even when Google can't be told; `done` gets that error then.
     pub(crate) fn sign_out(&self, done: impl FnOnce(Result<(), String>) + 'static) {
         let store = Arc::clone(&self.inner.store);
+        let access = Arc::clone(&self.inner.tokens);
         let this = self.clone();
         glib::spawn_future_local(async move {
             let revoked = gio::spawn_blocking(move || -> Result<(), String> {
+                forget_access_token(&access);
                 let token = store.load().map_err(|error| error.to_string())?;
                 let revoked = match token {
                     Some(token) => rnote_sync::revoke(&token).map_err(|error| error.to_string()),
@@ -268,9 +287,6 @@ impl RnSync {
             })
             .await
             .unwrap_or_else(|_| Err("Signing out stopped unexpectedly".to_owned()));
-            if let Ok(mut tokens) = this.inner.tokens.lock() {
-                tokens.forget();
-            }
             if let Some(source) = this.inner.soon.borrow_mut().take() {
                 source.remove();
             }
@@ -292,6 +308,13 @@ fn access_tokens(client: Option<OAuthClient>, store: Arc<dyn RefreshTokenStore>)
             .ok_or(OAuthError::Revoked)?;
         oauth::refresh(client, &token)
     })
+}
+
+/// Drops the access token, waiting for a sync that is renewing it: off the main thread only.
+fn forget_access_token(tokens: &Mutex<AccessTokens>) {
+    if let Ok(mut tokens) = tokens.lock() {
+        tokens.forget();
+    }
 }
 
 /// The access token Drive gets, in Drive's terms.

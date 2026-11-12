@@ -791,7 +791,6 @@ impl RnCanvas {
         self.imp().output_file_expect_write.get()
     }
 
-    #[allow(unused)]
     pub(crate) fn library_sha256(&self) -> Option<String> {
         self.imp().library_sha256.borrow().clone()
     }
@@ -800,6 +799,7 @@ impl RnCanvas {
         *self.imp().library_sha256.borrow_mut() = sha256;
     }
 
+    #[allow(unused)]
     pub(crate) fn set_output_file_expect_write(&self, expect_write: bool) {
         self.imp().output_file_expect_write.set(expect_write);
     }

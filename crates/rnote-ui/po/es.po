@@ -3423,3 +3423,9 @@ msgstr "Mientras tanto cambió en otro dispositivo: se guardó como “{name}”
 
 msgid "Updated with the changes from another device"
 msgstr "Actualizado con los cambios de otro dispositivo"
+
+msgid "Checking the Google Drive sign-in…"
+msgstr "Comprobando la sesión de Google Drive…"
+
+msgid "It changed on another device: saving keeps both versions"
+msgstr "Cambió en otro dispositivo: al guardar se conservan las dos versiones"

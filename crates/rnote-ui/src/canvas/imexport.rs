@@ -31,6 +31,20 @@ impl RnCanvas {
     {
         let sha256 = file_path.is_some().then(|| rnote_sync::sha256_hex(&bytes));
         let engine_snapshot = EngineSnapshot::load_from_rnote_bytes(bytes).await?;
+        Ok(self.apply_rnote_snapshot(engine_snapshot, sha256, file_path))
+    }
+
+    /// Shows `engine_snapshot`, read from the file at `file_path` with hash `sha256`, as
+    /// [`Self::load_in_rnote_bytes`] does once the bytes are read.
+    pub(crate) fn apply_rnote_snapshot<P>(
+        &self,
+        engine_snapshot: EngineSnapshot,
+        sha256: Option<String>,
+        file_path: Option<P>,
+    ) -> WidgetFlags
+    where
+        P: AsRef<Path>,
+    {
         let mut widget_flags = self.engine_mut().load_snapshot(engine_snapshot);
         widget_flags |= self
             .engine_mut()
@@ -42,7 +56,7 @@ impl RnCanvas {
         self.set_unsaved_changes(false);
         self.set_empty(false);
 
-        Ok(widget_flags)
+        widget_flags
     }
 
     /// Reload the engine from the file that is set as origin file.
@@ -248,14 +262,15 @@ impl RnCanvas {
         self.dismiss_output_file_modified_toast();
         // Notebooks of the library are saved without replacing a version a sync brought.
         let library = crate::sync::opened::library_target(self, &filepath);
-        let expected_sha256 = self.library_sha256();
+        let expected =
+            crate::sync::opened::Expected::for_save(skip_set_output_file, self.library_sha256());
 
         let file_write_operation = async {
             let bytes = rnote_bytes_receiver.await??;
             // The `output_file_expect_write` should theoretically be reset to `false` by the file watcher later.
             self.set_output_file_expect_write(true);
             match &library {
-                Some(target) => crate::sync::opened::write(target, expected_sha256, bytes)
+                Some(target) => crate::sync::opened::write(target, expected, bytes)
                     .await
                     .map(Some),
                 None => crate::utils::atomic_save_to_file_future(&filepath, bytes)

@@ -1,11 +1,15 @@
 //! Signing out: Google forgets the app's access to the account.
 
+use std::time::Duration;
+
 use anyhow::anyhow;
 use ureq::Agent;
 
 use crate::drive::transport_error;
 use crate::remote::RemoteError;
 
+/// How long signing out may take before Google counts as unreachable.
+const REVOKE_TIMEOUT: Duration = Duration::from_secs(30);
 /// Google's OAuth endpoint, unless a test points elsewhere.
 const DEFAULT_BASE_URL: &str = "https://oauth2.googleapis.com";
 
@@ -16,7 +20,20 @@ pub fn revoke(token: &str) -> Result<(), RemoteError> {
 
 /// Like [`revoke`], against `base_url` instead of Google (for tests).
 pub fn revoke_at(base_url: &str, token: &str) -> Result<(), RemoteError> {
-    let agent: Agent = Agent::config_builder().http_status_as_error(false).build().into();
+    revoke_with_timeout(base_url, token, REVOKE_TIMEOUT)
+}
+
+/// Like [`revoke_at`], giving up after `timeout`.
+pub(crate) fn revoke_with_timeout(
+    base_url: &str,
+    token: &str,
+    timeout: Duration,
+) -> Result<(), RemoteError> {
+    let agent: Agent = Agent::config_builder()
+        .http_status_as_error(false)
+        .timeout_global(Some(timeout))
+        .build()
+        .into();
     let body: String =
         url::form_urlencoded::Serializer::new(String::new()).append_pair("token", token).finish();
     let url = format!("{}/revoke", base_url.trim_end_matches('/'));

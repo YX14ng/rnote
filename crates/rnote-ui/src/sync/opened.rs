@@ -21,21 +21,59 @@ pub(crate) fn library_target(canvas: &RnCanvas, file: &Path) -> Option<LibraryTa
     Some((root, path))
 }
 
-/// Writes `bytes` to the library notebook `target`, unless it changed since the editor
-/// read the version with hash `expected`: then they go to a conflict copy beside it.
+/// Which version of a notebook a save may replace.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum Expected {
+    /// The editor's own file: only the version it read or last wrote, with this hash (none
+    /// for a file it never read). Another version goes to a conflict copy.
+    Read(Option<String>),
+    /// Another file the user chose to replace (e.g. "Save As"): whatever is there now.
+    WhateverIsThere,
+}
+
+impl Expected {
+    /// For saving to the editor's own file or not, with the hash of what it read.
+    pub(crate) fn for_save(own_file: bool, read: Option<String>) -> Self {
+        if own_file {
+            Self::Read(read)
+        } else {
+            Self::WhateverIsThere
+        }
+    }
+}
+
+/// Writes `bytes` to the library notebook `target`, unless it isn't the version `expected`
+/// anymore: then they go to a conflict copy beside it.
 pub(crate) async fn write(
     target: &LibraryTarget,
-    expected: Option<String>,
+    expected: Expected,
     bytes: Vec<u8>,
 ) -> anyhow::Result<WrittenNotebook> {
     let (root, path) = target.clone();
     let device = glib::host_name().to_string();
     gio::spawn_blocking(move || {
         let now = chrono::Local::now().naive_local();
-        rnote_sync::write_notebook(&root, &path, expected.as_deref(), &device, now, &bytes)
+        write_blocking(&root, &path, expected, &device, now, &bytes)
     })
     .await
     .unwrap_or_else(|_| Err(anyhow::anyhow!("Saving stopped unexpectedly")))
+}
+
+fn write_blocking(
+    root: &Path,
+    path: &str,
+    expected: Expected,
+    device: &str,
+    now: chrono::NaiveDateTime,
+    bytes: &[u8],
+) -> anyhow::Result<WrittenNotebook> {
+    let expected = match expected {
+        Expected::Read(sha256) => sha256,
+        Expected::WhateverIsThere => std::fs::read(root.join(path))
+            .ok()
+            .map(|current| rnote_sync::sha256_hex(&current)),
+    };
+    rnote_sync::write_notebook(root, path, expected.as_deref(), device, now, bytes)
 }
 
 /// After `canvas` saved `written` in the library at `root`: follows a conflict copy, tells
@@ -59,6 +97,27 @@ pub(crate) fn saved(canvas: &RnCanvas, root: &Path, written: &WrittenNotebook) {
     appwindow.sync().sync_soon();
 }
 
+/// Reads the file `canvas` shows, without showing it yet: its snapshot, hash and path.
+async fn read_snapshot(
+    canvas: &RnCanvas,
+) -> anyhow::Result<(
+    rnote_engine::engine::EngineSnapshot,
+    Option<String>,
+    PathBuf,
+)> {
+    let file = canvas
+        .output_file()
+        .ok_or_else(|| anyhow::anyhow!("No file to reload"))?;
+    let path = file
+        .path()
+        .ok_or_else(|| anyhow::anyhow!("The file has no path"))?;
+    let (bytes, _) = file.load_bytes_future().await?;
+    let sha256 = Some(rnote_sync::sha256_hex(&bytes));
+    let snapshot =
+        rnote_engine::engine::EngineSnapshot::load_from_rnote_bytes(bytes.to_vec()).await?;
+    Ok((snapshot, sha256, path))
+}
+
 /// Reloads `canvas` when its library notebook changed on disk and it has nothing unsaved;
 /// returns whether it did, else the caller offers to reload as before.
 pub(crate) fn reload_if_clean(appwindow: &RnAppWindow, canvas: &RnCanvas) -> bool {
@@ -75,17 +134,30 @@ pub(crate) fn reload_if_clean(appwindow: &RnAppWindow, canvas: &RnCanvas) -> boo
         #[weak]
         canvas,
         async move {
-            if let Err(e) = canvas.reload_from_disk().await {
-                error!("Reloading a notebook changed on another device failed: {e:?}");
-                appwindow
-                    .overlays()
-                    .dispatch_toast_error(&gettext("Reloading .rnote file from disk failed"));
-            } else {
-                canvas.emit_invalidate_thumbnail();
-                appwindow.overlays().dispatch_toast_text(
-                    &gettext("Updated with the changes from another device"),
-                    None,
-                );
+            match read_snapshot(&canvas).await {
+                Err(e) => {
+                    error!("Reloading a notebook changed on another device failed: {e:?}");
+                    appwindow
+                        .overlays()
+                        .dispatch_toast_error(&gettext("Reloading .rnote file from disk failed"));
+                }
+                // Written on meanwhile: nothing is replaced. Saving keeps both versions, since
+                // the file isn't the one the editor read anymore.
+                Ok(_) if canvas.unsaved_changes() => {
+                    appwindow.overlays().dispatch_toast_text(
+                        &gettext("It changed on another device: saving keeps both versions"),
+                        None,
+                    );
+                }
+                Ok((snapshot, sha256, path)) => {
+                    let widget_flags = canvas.apply_rnote_snapshot(snapshot, sha256, Some(path));
+                    canvas.emit_handle_widget_flags(widget_flags);
+                    canvas.emit_invalidate_thumbnail();
+                    appwindow.overlays().dispatch_toast_text(
+                        &gettext("Updated with the changes from another device"),
+                        None,
+                    );
+                }
             }
         }
     ));
@@ -134,7 +206,7 @@ pub(crate) fn on_changed_on_disk(unsaved: bool, in_library: bool) -> Reaction {
 mod tests {
     use std::path::Path;
 
-    use super::{Reaction, library_path, on_changed_on_disk};
+    use super::{Expected, Reaction, library_path, on_changed_on_disk, write_blocking};
 
     #[test]
     fn library_path_inside() {
@@ -163,6 +235,47 @@ mod tests {
         ] {
             assert_eq!(library_path(root, Path::new(path)), None, "{path}");
         }
+    }
+
+    fn at() -> chrono::NaiveDateTime {
+        chrono::NaiveDate::from_ymd_opt(2026, 11, 12)
+            .unwrap()
+            .and_hms_opt(10, 0, 0)
+            .unwrap()
+    }
+
+    #[test]
+    fn save_as_over_an_existing_notebook_replaces_it() {
+        let dir = tempfile::tempdir().unwrap();
+        std::fs::write(dir.path().join("a.rnote"), b"theirs").unwrap();
+
+        let written = write_blocking(
+            dir.path(),
+            "a.rnote",
+            Expected::WhateverIsThere,
+            "PC",
+            at(),
+            b"mine",
+        )
+        .unwrap();
+
+        assert!(!written.conflict);
+        assert_eq!(std::fs::read(dir.path().join("a.rnote")).unwrap(), b"mine");
+    }
+
+    #[test]
+    fn own_notebook_changed_on_disk_goes_to_a_conflict_copy() {
+        let dir = tempfile::tempdir().unwrap();
+        std::fs::write(dir.path().join("a.rnote"), b"theirs").unwrap();
+        let read = Expected::Read(Some(rnote_sync::sha256_hex(b"what I opened")));
+
+        let written = write_blocking(dir.path(), "a.rnote", read, "PC", at(), b"mine").unwrap();
+
+        assert!(written.conflict);
+        assert_eq!(
+            std::fs::read(dir.path().join("a.rnote")).unwrap(),
+            b"theirs"
+        );
     }
 
     #[test]

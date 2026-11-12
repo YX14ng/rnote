@@ -229,3 +229,33 @@ fn forgotten_access_token_is_renewed() {
 
     assert_eq!(tokens.get(start).unwrap(), "token-2");
 }
+
+/// A server that takes the connection and never answers.
+fn silent_server() -> (TcpListener, String) {
+    let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+    let url = format!("http://{}", listener.local_addr().unwrap());
+    (listener, url)
+}
+
+#[test]
+fn a_stalled_token_request_gives_up() {
+    let (_listener, url) = silent_server();
+    let started = Instant::now();
+
+    let tokens =
+        crate::oauth::refresh_with_timeout(&url, &client(), "r", Duration::from_millis(300));
+
+    assert!(matches!(tokens, Err(OAuthError::Offline(_))), "{tokens:?}");
+    assert!(started.elapsed() < Duration::from_secs(5));
+}
+
+#[test]
+fn a_stalled_revoke_gives_up() {
+    let (_listener, url) = silent_server();
+    let started = Instant::now();
+
+    let revoked = crate::revoke::revoke_with_timeout(&url, "t", Duration::from_millis(300));
+
+    assert!(matches!(revoked, Err(crate::RemoteError::Offline(_))), "{revoked:?}");
+    assert!(started.elapsed() < Duration::from_secs(5));
+}

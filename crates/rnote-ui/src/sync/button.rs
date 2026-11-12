@@ -20,7 +20,9 @@ pub(crate) fn icon_name(status: &SyncStatus) -> &'static str {
             "sync-cloud-off-symbolic"
         }
         SyncStatus::Running => "sync-cloud-sync-symbolic",
-        SyncStatus::Waiting | SyncStatus::Done { .. } => "sync-cloud-symbolic",
+        SyncStatus::Checking | SyncStatus::Waiting | SyncStatus::Done { .. } => {
+            "sync-cloud-symbolic"
+        }
         SyncStatus::Pending | SyncStatus::Failed(_) => "sync-cloud-alert-symbolic",
     }
 }
@@ -230,6 +232,7 @@ mod tests {
             "sync-cloud-off-symbolic"
         );
         assert_eq!(icon_name(&SyncStatus::Waiting), "sync-cloud-symbolic");
+        assert_eq!(icon_name(&SyncStatus::Checking), "sync-cloud-symbolic");
         assert_eq!(icon_name(&SyncStatus::Running), "sync-cloud-sync-symbolic");
         assert_eq!(icon_name(&done), "sync-cloud-symbolic");
         assert_eq!(icon_name(&SyncStatus::Pending), "sync-cloud-alert-symbolic");
