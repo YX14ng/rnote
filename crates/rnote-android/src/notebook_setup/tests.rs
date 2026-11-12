@@ -157,7 +157,7 @@ fn big_photo_is_scaled_down() {
     let (_, images) = reopen(image_notebook_bytes(&NotebookSetup::default(), &jpeg, "x").unwrap());
 
     let image = &images[0].image;
-    assert_eq!((image.pixel_width, image.pixel_height), (2400, 1800));
+    assert_eq!((image.pixel_width, image.pixel_height), (1600, 1200));
 }
 
 #[test]

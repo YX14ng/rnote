@@ -18,9 +18,10 @@ use crate::android_color::color_from_argb;
 use crate::document_settings::{apply_background, apply_layout, apply_page_size};
 
 const MM_PER_INCH: f64 = 25.4;
-/// The longest side an inserted image keeps, in pixels: sharp across the page, without
-/// carrying a 12 MP photo inside the notebook.
-const MAX_IMAGE_SIDE: u32 = 2400;
+/// The longest side an inserted image keeps, in pixels. The engine keeps images as raw
+/// pixels (4 bytes each) inside the notebook, so this bounds what a photo weighs there and
+/// in Drive: about 7.7 MB before compression, instead of 48 MB for a 12 MP photo.
+const MAX_IMAGE_SIDE: u32 = 1600;
 
 /// How the pages of a new notebook grow.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
