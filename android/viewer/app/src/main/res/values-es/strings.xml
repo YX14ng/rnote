@@ -245,4 +245,37 @@
     <string name="cover_graphite">Grafito</string>
     <string name="library_cover">Portada…</string>
     <string name="library_no_cover">Sin portada</string>
+    <!-- Importing a PDF, an image or a photo as a new notebook -->
+    <string name="create_import_pdf">Importar PDF…</string>
+    <string name="create_import_pdf_detail">Cada página queda de fondo para escribir encima</string>
+    <string name="create_import_image">Importar imagen</string>
+    <string name="create_take_photo">Sacar foto</string>
+    <string name="create_photo_name">Foto %s</string>
+    <string name="create_no_camera">No hay una app de cámara para sacar la foto.</string>
+    <string name="import_pdf_title">Importar PDF</string>
+    <string name="import_pdf_import">Importar</string>
+    <string name="import_pdf_file">Archivo</string>
+    <string name="import_pdf_width">Ancho de la hoja</string>
+    <string name="import_pdf_height_hint">El alto de cada hoja sigue la proporción del PDF.</string>
+    <string name="import_pdf_all">Todas</string>
+    <string name="import_pdf_range">Desde – hasta</string>
+    <string name="import_pdf_to">a</string>
+    <string name="import_pdf_kind">Cómo se guardan las páginas</string>
+    <string name="import_pdf_vector">Vector</string>
+    <string name="import_pdf_recommended">Recomendado</string>
+    <string name="import_pdf_vector_detail">Más liviano en la tablet y en Drive. El texto se ve nítido con cualquier zoom.</string>
+    <string name="import_pdf_bitmap">Imagen</string>
+    <string name="import_pdf_bitmap_detail">Cada página como foto. Pesa más; sirve si un PDF se dibuja lento como vector.</string>
+    <string name="import_pdf_eraser_hint">La goma no borra el PDF: borra solo lo que escribas encima.</string>
+    <string name="import_pdf_password">Contraseña</string>
+    <string name="import_pdf_password_message">Este PDF está protegido con contraseña.</string>
+    <string name="import_pdf_wrong_password">Contraseña incorrecta. Probá de nuevo.</string>
+    <string name="import_pdf_progress">Importando el PDF</string>
+    <string name="import_pdf_progress_page">Página %1$d de %2$d</string>
+    <string name="import_pdf_cancel_hint">Si cancelás no queda ningún cuaderno a medias.</string>
+    <plurals name="import_pdf_pages_size">
+        <item quantity="one">%1$d página · %2$s MB</item>
+        <item quantity="many">%1$d páginas · %2$s MB</item>
+        <item quantity="other">%1$d páginas · %2$s MB</item>
+    </plurals>
 </resources>

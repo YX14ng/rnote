@@ -14,6 +14,9 @@ import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 /**
  * The start screen: the library's sections on the left, their notebooks on the right, to
@@ -87,7 +90,22 @@ class LibraryActivity : Activity() {
         if (syncButton.onActivityResult(requestCode, resultCode, data)) {
             return
         }
+        if (requestCode == REQUEST_PHOTO) {
+            onPhotoTaken(resultCode == RESULT_OK)
+            return
+        }
         val uri = data?.data
+        if (resultCode == RESULT_OK && uri != null) {
+            when (requestCode) {
+                REQUEST_PDF -> PdfImporter(this, creator, ::openCreated, ::showError).start(uri, snapshot.folders, currentFolder)
+                REQUEST_IMAGE -> {
+                    val name = DocumentFiles.displayName(contentResolver, uri)?.substringBeforeLast('.').orEmpty()
+                    creator.fromImage(currentFolder, name, { DocumentFiles.read(contentResolver, uri) }) { result ->
+                        result.onSuccess(::openCreated).onFailure(::showError)
+                    }
+                }
+            }
+        }
         if (requestCode == REQUEST_IMPORT && resultCode == RESULT_OK && uri != null) {
             LibraryImport(this, store, folder = (section as? LibrarySection.Folder)?.name).import(uri) { result ->
                 result.onSuccess { reload() }.onFailure(::showError)
@@ -242,7 +260,37 @@ class LibraryActivity : Activity() {
             CreateMenu.Item(R.drawable.ic_infinite, R.string.create_infinite_note) {
                 creator.quick(currentFolder, SetupLayout.INFINITE, opened)
             },
+            CreateMenu.Item(R.drawable.ic_import_pdf, R.string.create_import_pdf, detail = R.string.create_import_pdf_detail, startsGroup = true) {
+                pick("application/pdf", REQUEST_PDF)
+            },
+            CreateMenu.Item(R.drawable.ic_image, R.string.create_import_image) { pick("image/*", REQUEST_IMAGE) },
+            CreateMenu.Item(R.drawable.ic_camera, R.string.create_take_photo) {
+                // Kept across the app being stopped while the camera is open.
+                preferences.edit().putString(KEY_PHOTO_FOLDER, currentFolder).apply()
+                PhotoCapture.start(this, REQUEST_PHOTO)
+            },
         ))
+    }
+
+    /** Picks a file of [mimeType] with the system picker; it comes back with [requestCode]. */
+    private fun pick(mimeType: String, requestCode: Int) {
+        @Suppress("DEPRECATION")
+        startActivityForResult(DocumentFiles.openIntent(null).setType(mimeType), requestCode)
+    }
+
+    /** Back from the camera: the photo becomes a notebook in the folder shown when it was taken. */
+    private fun onPhotoTaken(ok: Boolean) {
+        val photo = if (ok) PhotoCapture.takenPhoto(this) else null
+        if (photo == null) {
+            PhotoCapture.clear(this)
+            return
+        }
+        val name = getString(R.string.create_photo_name, SimpleDateFormat(PHOTO_DATE, Locale.ROOT).format(Date()))
+        val folder = preferences.getString(KEY_PHOTO_FOLDER, null)
+        creator.fromImage(folder, name, { photo }) { result ->
+            PhotoCapture.clear(this)
+            result.onSuccess(::openCreated).onFailure(::showError)
+        }
     }
 
     private fun showNewNotebook() {
@@ -355,7 +403,13 @@ class LibraryActivity : Activity() {
         const val PREFERENCES = "library"
         const val KEY_LIST_MODE = "list_mode"
         const val KEY_SORT_BY_NAME = "sort_by_name"
+        const val KEY_PHOTO_FOLDER = "photo_folder"
         const val REQUEST_IMPORT = 1
+        const val REQUEST_PDF = 2
+        const val REQUEST_IMAGE = 3
+        const val REQUEST_PHOTO = 4
+        /** Photos are named after when they were taken, e.g. "Photo 2026-11-12 10.30". */
+        const val PHOTO_DATE = "yyyy-MM-dd HH.mm"
         const val SIDEBAR_WIDTH_DP = 280f
         /** From this width on, the sections show beside the notebooks from the start. */
         const val WIDE_SCREEN_DP = 840

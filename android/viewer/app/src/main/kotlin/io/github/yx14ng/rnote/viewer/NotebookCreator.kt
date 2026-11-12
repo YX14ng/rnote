@@ -49,6 +49,14 @@ internal class NotebookCreator(private val context: Context, private val store: 
             path
         }, done)
 
+    /** A notebook named [name] in [folder] with the `.rnote` [bytes] made elsewhere, and [cover]. */
+    fun save(folder: String?, name: String, cover: Int?, bytes: ByteArray, done: (Result<String>) -> Unit) =
+        store.run({
+            val path = write(folder, name) { bytes }
+            describe(path, cover, emptyList())
+            path
+        }, done)
+
     /**
      * Writes a notebook named [title] (or "Untitled") in [folder] with the bytes [make]
      * gives for its file name; returns its path. Runs on the library's thread.

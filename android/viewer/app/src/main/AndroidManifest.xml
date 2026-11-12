@@ -41,5 +41,12 @@
                 <data android:mimeType="application/x-rnote" />
             </intent-filter>
         </activity>
+
+        <!-- Lends the system camera the file a photo goes to; nothing else is shared. -->
+        <provider
+            android:name=".CameraFileProvider"
+            android:authorities="${applicationId}.camera"
+            android:exported="false"
+            android:grantUriPermissions="true" />
     </application>
 </manifest>

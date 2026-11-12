@@ -243,4 +243,37 @@
     <string name="cover_graphite">Graphite</string>
     <string name="library_cover">Cover…</string>
     <string name="library_no_cover">No cover</string>
+    <!-- Importing a PDF, an image or a photo as a new notebook -->
+    <string name="create_import_pdf">Import PDF…</string>
+    <string name="create_import_pdf_detail">Each page stays underneath to write on</string>
+    <string name="create_import_image">Import image</string>
+    <string name="create_take_photo">Take photo</string>
+    <string name="create_photo_name">Photo %s</string>
+    <string name="create_no_camera">There is no camera app to take the photo.</string>
+    <string name="import_pdf_title">Import PDF</string>
+    <string name="import_pdf_import">Import</string>
+    <string name="import_pdf_file">File</string>
+    <string name="import_pdf_width">Sheet width</string>
+    <string name="import_pdf_height_hint">The height of each sheet follows the PDF’s proportions.</string>
+    <string name="import_pdf_all">All</string>
+    <string name="import_pdf_range">From – to</string>
+    <string name="import_pdf_to">to</string>
+    <string name="import_pdf_kind">How the pages are kept</string>
+    <string name="import_pdf_vector">Vector</string>
+    <string name="import_pdf_recommended">Recommended</string>
+    <string name="import_pdf_vector_detail">Lighter on the tablet and in Drive. Text stays sharp at any zoom.</string>
+    <string name="import_pdf_bitmap">Image</string>
+    <string name="import_pdf_bitmap_detail">Each page as a picture. Heavier; useful if a PDF draws slowly as vector.</string>
+    <string name="import_pdf_eraser_hint">The eraser doesn’t erase the PDF: only what you write on top.</string>
+    <string name="import_pdf_password">Password</string>
+    <string name="import_pdf_password_message">This PDF is protected with a password.</string>
+    <string name="import_pdf_wrong_password">Wrong password. Try again.</string>
+    <string name="import_pdf_progress">Importing the PDF</string>
+    <string name="import_pdf_progress_page">Page %1$d of %2$d</string>
+    <string name="import_pdf_cancel_hint">If you cancel, no half notebook is left.</string>
+    <plurals name="import_pdf_pages_size">
+        <item quantity="one">%1$d page · %2$s MB</item>
+        <item quantity="many">%1$d pages · %2$s MB</item>
+        <item quantity="other">%1$d pages · %2$s MB</item>
+    </plurals>
 </resources>
