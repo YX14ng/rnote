@@ -18,6 +18,7 @@
     "--filesystem=xdg-pictures",
     "--filesystem=xdg-desktop",
     "--talk-name=org.gtk.vfs.*",
+    "--talk-name=org.freedesktop.secrets",
     "--filesystem=xdg-run/gvfsd",
     "--env=RUST_LOG=rnote=warn,rnote-cli=warn,rnote-engine=warn,rnote-compose=warn",
     "--env=GTK_PATH=/app/lib/gtk-4.0"
