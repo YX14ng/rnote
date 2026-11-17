@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rnote\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-01 17:10+0200\n"
+"POT-Creation-Date: 2026-11-17 11:57-0300\n"
 "PO-Revision-Date: 2026-06-30 16:29+0000\n"
 "Last-Translator: openCC converted withginkgo <tabicallet@outlook.com>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/"
@@ -18,6 +18,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: Weblate 2026.7.dev0\n"
+
+#. Translators: This is the App name, don't translate this.
+#: crates/rnote-ui/data/app.desktop.in.in:3
+msgid "@DESKTOP_FILE_NAME_ENTRY@"
+msgstr "@DESKTOP_FILE_NAME_ENTRY@"
 
 #: crates/rnote-ui/data/app.desktop.in.in:4
 #: crates/rnote-ui/data/app.metainfo.xml.in.in:9
@@ -78,8 +83,1767 @@ msgstr "調整文件設定"
 msgid "Configure action shortcuts"
 msgstr "配置動作快捷鍵"
 
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:93
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:105
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:117
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:139
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:148
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:165
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:191
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:217
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:231
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:240
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:266
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:278
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:293
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:306
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:323
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:342
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:352
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:374
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:384
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:410
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:433
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:441
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:451
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:459
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:474
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:493
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:517
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:528
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:545
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:561
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:576
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:590
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:612
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:624
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:643
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:651
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:661
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:671
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:689
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:701
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:709
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:717
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:725
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:734
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:743
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:756
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:766
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:777
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:786
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:795
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:804
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:821
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:834
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:847
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:861
+msgid "this release changes:"
+msgstr "此版本的變更："
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:95
+msgid "fix: transparent stroke rendering (@Kneemund)"
+msgstr "修正：透明筆畫的繪製（@Kneemund）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:96
+msgid "fix: document not staying centered after zooming (@Kneemund)"
+msgstr "修正：縮放後文件未保持置中（@Kneemund）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:97
+msgid "fix: pinch zooming on touchscreen (@Kneemund)"
+msgstr "修正：觸控螢幕上的雙指縮放（@Kneemund）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:98
+msgid "fix: jumping view while zooming in (@Kneemund)"
+msgstr "修正：放大時畫面跳動（@Kneemund）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:99
+msgid "fix: zooming with \"alt+shift+drag\" (@Kneemund)"
+msgstr "修正：使用「alt+shift+拖曳」縮放（@Kneemund）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:107
+msgid ""
+"fix: fixed icon appearance and update to new, more consistent style (@flxzt)"
+msgstr "修正：修正圖示外觀，並更新為更一致的新風格（@flxzt）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:108
+msgid "fix: file erroneously detected as removed after saving (@turicfr)"
+msgstr "修正：儲存後檔案被誤判為已移除（@turicfr）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:109
+msgid ""
+"fix: pinch-to-zoom causing scroll by applying workaround for GTK issue "
+"(@RayJW)"
+msgstr "修正：套用 GTK 問題的因應措施，修正雙指縮放造成畫面捲動（@RayJW）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:110
+msgid "fix: zooming with Ctrl+Scroll while Capslock is turned on (@Kneemund)"
+msgstr "修正：開啟 Caps Lock 時以 Ctrl+捲動縮放（@Kneemund）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:111
+msgid "fix: grid snapping for all pattern styles (@Kneemund)"
+msgstr "修正：所有紋理樣式的網格吸附（@Kneemund）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:119
+msgid "feat: apply workspace entry dialog by pressing Enter (@ternison)"
+msgstr "新功能：在工作區項目對話框中按 Enter 即可套用（@ternison）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:120
+msgid "feat: add text formatting keyboard shortcuts (@ Keschler)"
+msgstr "新功能：新增文字格式快捷鍵（@ Keschler）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:121
+msgid "feat: Xournal++ text import (@Doublonmousse)"
+msgstr "新功能：匯入 Xournal++ 文字（@Doublonmousse）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:122
+msgid ""
+"fix: PDF rendering issues by replace underlying library (from poppler to "
+"hayro) (@flxzt)"
+msgstr ""
+"修正：更換底層程式庫（從 poppler 改為 hayro），修正 PDF 繪製問題（@flxzt）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:123
+msgid "feat: CLI create command (@DarshPareek)"
+msgstr "新功能：CLI 的 create 指令（@DarshPareek）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:124
+msgid "feat: CLI thumbnail generation timeout (@flxzt)"
+msgstr "新功能：CLI 產生縮圖的逾時設定（@flxzt）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:125
+msgid "feat: bundle CLI in flatpak (@flxzt)"
+msgstr "新功能：Flatpak 內附 CLI（@flxzt）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:126
+msgid "feat: atomic file saving (@anesthetice)"
+msgstr "新功能：原子式檔案儲存（@anesthetice）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:127
+msgid "improv: pen eraser default (@DorianRudolph)"
+msgstr "改進：手寫筆橡皮端的預設行為（@DorianRudolph）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:128
+msgid ""
+"improv: improve initial focus for import/export dialogs (@Doublonmousse)"
+msgstr "改進：匯入／匯出對話框的初始焦點（@Doublonmousse）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:129
+msgid ""
+"fix: file picker stealing focus from all opened windows (@Doublonmousse)"
+msgstr "修正：檔案選擇器搶走所有已開啟視窗的焦點（@Doublonmousse）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:130
+msgid "fix: pen sounds on Windows (@Doublonmousse)"
+msgstr "修正：Windows 上的筆觸音效（@Doublonmousse）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:131
+msgid ""
+"fix: prevent crash when sorting files with non UTF-8 names (@Doublonmousse)"
+msgstr "修正：排序名稱非 UTF-8 的檔案時當機（@Doublonmousse）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:132
+msgid "fix: rnote thumbnailer execution (@flxzt)"
+msgstr "修正：rnote 縮圖產生器的執行（@flxzt）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:133
+msgid "fix: workspace directory default (@flxzt)"
+msgstr "修正：工作區目錄的預設值（@flxzt）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:141
+msgid "fix: occasional PDF import failure (thanks to @Doublonmousse)"
+msgstr "修正：偶發的 PDF 匯入失敗（感謝 @Doublonmousse）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:142
+msgid ""
+"fix: add back accidentally removed 'Pen Style' keyboard shortcuts (thanks to "
+"@Doublonmousse)"
+msgstr "修正：加回誤刪的「筆樣式」快捷鍵（感謝 @Doublonmousse）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:150
+msgid "feat: save/restore engine configuration with preset"
+msgstr "新功能：以預設儲存／還原引擎設定"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:151
+msgid "feat: respect snap-positions option when building shapes"
+msgstr "新功能：建立形狀時遵循位置吸附選項"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:152
+msgid ""
+"feat: shape styling options and shape highlight-mode (thanks to @anesthetice)"
+msgstr "新功能：形狀樣式選項與形狀的高亮模式（感謝 @anesthetice）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:153
+msgid ""
+"improv: application window always focused when opening a file (thanks to "
+"@Nugfle)"
+msgstr "改進：開啟檔案時應用程式視窗一律會取得焦點（感謝 @Nugfle）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:154
+msgid ""
+"fix: selected part when renaming files in the application file browser "
+"(thanks to @Kneemund)"
+msgstr ""
+"修正：在應用程式的檔案瀏覽器中重新命名檔案時選取的部分（感謝 @Kneemund）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:155
+msgid ""
+"fix: cancelling import dialogs not stopping progress bar (thanks to "
+"@Doublonmousse)"
+msgstr "修正：取消匯入對話框後進度列不會停止（感謝 @Doublonmousse）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:156
+msgid "fix: missing translation for a string (thanks to @Doublonmousse)"
+msgstr "修正：某個字串缺少翻譯（感謝 @Doublonmousse）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:157
+msgid ""
+"fix: save file logic when encountering corner cases (thanks to "
+"@Doublonmousse)"
+msgstr "修正：遇到特殊情況時的檔案儲存邏輯（感謝 @Doublonmousse）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:158
+msgid "fix: filename sorting in integrated files list"
+msgstr "修正：內建檔案清單的檔名排序"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:159
+msgid "fix: prevent occasional xopp import failure"
+msgstr "修正：避免偶發的 xopp 匯入失敗"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:167
+msgid "feat: laser tool with animations (thanks to @Kneemund)"
+msgstr "新功能：附帶動畫的雷射工具（感謝 @Kneemund）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:168
+msgid "feat: tab overviews (thanks to @zefr0x)"
+msgstr "新功能：標籤頁總覽（感謝 @zefr0x）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:169
+msgid "feat: thumbnailer for .rnote files (thanks to @tiziodcaio)"
+msgstr "新功能：.rnote 檔案的縮圖產生器（感謝 @tiziodcaio）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:170
+msgid ""
+"feat: keyboard clipboard paste at pointer location (thanks to @Kneemund)"
+msgstr "新功能：以鍵盤從剪貼簿貼上至指標位置（感謝 @Kneemund）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:171
+msgid "feat: multi-click selections (thanks to @Kneemund)"
+msgstr "新功能：多次點擊選取（感謝 @Kneemund）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:172
+msgid ""
+"feat: new limit movements options for vertical-space tool (thanks to "
+"@Doublonmousse)"
+msgstr "新功能：縱向空白工具新增限制移動的選項（感謝 @Doublonmousse）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:173
+msgid ""
+"feat: confirmation prompt for file/folder trash action (thanks to @RayJW)"
+msgstr "新功能：將檔案／資料夾移至回收站前會要求確認（感謝 @RayJW）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:174
+msgid "feat: open workspace folder option (thanks to @Doublonmousse)"
+msgstr "新功能：開啟工作區資料夾的選項（感謝 @Doublonmousse）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:175
+msgid "feat: import of encrypted PDFs (thanks to @kq98)"
+msgstr "新功能：匯入加密的 PDF（感謝 @kq98）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:176
+msgid ""
+"improv: support keyboard and uncommon key shortcuts (thanks to @Kneemund)"
+msgstr "改進：支援鍵盤與不常見按鍵的快捷鍵（感謝 @Kneemund）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:177
+msgid ""
+"improv: clipboard pasting on certain platforms like macOS (thanks to "
+"@Doublonmousse)"
+msgstr "改進：在 macOS 等特定平台上從剪貼簿貼上（感謝 @Doublonmousse）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:178
+msgid "fix: selection handle sensitivity in \"single-selection\" mode"
+msgstr "修正：「單一選取」模式下選取控點的靈敏度"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:179
+msgid ""
+"fix: unwanted activation of long-press gesture after zooming (thanks to "
+"@Kneemund)"
+msgstr "修正：縮放後誤觸發長按手勢（感謝 @Kneemund）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:180
+msgid "fix: allow view movement while having a selection"
+msgstr "修正：有選取內容時也能移動畫面"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:181
+msgid ""
+"fix: cli file collision resolution in non-interactive settings (thanks to "
+"@LeSnake04)"
+msgstr "修正：CLI 在非互動模式下的檔案衝突處理（感謝 @LeSnake04）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:182
+msgid "fix: missing tooltips (thanks to @Doublonmousse)"
+msgstr "修正：缺少的工具提示（感謝 @Doublonmousse）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:183
+msgid "fix: window shadows on Windows (thanks to @Doublonmousse)"
+msgstr "修正：Windows 上的視窗陰影（感謝 @Doublonmousse）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:184
+msgid "fix: .rnote file icons in file managers"
+msgstr "修正：檔案管理員中 .rnote 檔案的圖示"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:185
+msgid ""
+"fix: selecting colors not working properly in certain cases (thanks to "
+"@Kneemund)"
+msgstr "修正：某些情況下無法正常選擇顏色（感謝 @Kneemund）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:193
+msgid "feat: add disable option for pen shortcuts (thanks to @Doublonmousse)"
+msgstr "新功能：新增停用筆快捷鍵的選項（感謝 @Doublonmousse）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:194
+msgid ""
+"feat: add respect-borders option, improving size logic when pasting content "
+"(thanks to @Doublonmousse)"
+msgstr ""
+"新功能：新增「遵守邊界」選項，改善貼上內容時的尺寸邏輯（感謝 @Doublonmousse）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:195
+msgid ""
+"feat: add improve-for-E-Paper option, showing current selected color as a "
+"string"
+msgstr "新功能：新增「為電子紙最佳化」選項，以文字顯示目前選擇的顏色"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:196
+msgid "improv: migrate to libadwaita based dialogs (thanks to @zefr0x)"
+msgstr "改進：改用 libadwaita 對話框（感謝 @zefr0x）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:197
+msgid ""
+"improv: stroke modeler entirely rewritten in Rust! (thanks to @Doublonmousse)"
+msgstr "改進：筆畫模型器完全以 Rust 重寫！（感謝 @Doublonmousse）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:198
+msgid "improv: zoom tool following the pointer (thanks to @JonathanGodar)"
+msgstr "改進：縮放工具會跟隨指標（感謝 @JonathanGodar）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:199
+msgid "improv: developers list in about window (thanks to @zefr0x)"
+msgstr "改進：「關於」視窗中的開發者清單（感謝 @zefr0x）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:200
+msgid ""
+"improv: native file dialogs on Windows, macOS (thanks to @Doublonmousse)"
+msgstr "改進：Windows 與 macOS 上使用原生檔案對話框（感謝 @Doublonmousse）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:201
+msgid ""
+"improv: gzip (de)compression optimizations, reducing file save/load times "
+"(thanks to @anesthetice)"
+msgstr ""
+"改進：最佳化 gzip 壓縮與解壓縮，縮短檔案儲存與載入時間（感謝 @anesthetice）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:202
+msgid ""
+"improv: prevent accidental resizes/moves when interacting with buttons in "
+"the titlebar"
+msgstr "改進：避免在與標題列按鈕互動時意外調整視窗大小或移動視窗"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:203
+msgid "improv: inhibit app close while saves are in progress"
+msgstr "改進：儲存進行中時阻止關閉應用程式"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:204
+msgid ""
+"improv: ability to change text selection colors inside a single text box"
+msgstr "改進：可在單一文字方塊內變更所選文字的顏色"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:205
+msgid "fix: pen state becoming incorrect on windows (thanks to @Doublonmousse)"
+msgstr "修正：Windows 上筆的狀態出錯（感謝 @Doublonmousse）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:206
+msgid "fix: file extension filters in dialogs (thanks to @Doublonmousse)"
+msgstr "修正：對話框中的副檔名篩選（感謝 @Doublonmousse）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:207
+msgid ""
+"fix: force the gtk renderer to gl for now, fixing recurring crashes for some "
+"users (thanks to @Doublonmousse)"
+msgstr ""
+"修正：暫時強制 GTK 繪製器使用 GL，修正部分使用者反覆當機的問題（感謝 "
+"@Doublonmousse）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:208
+msgid "fix: two-finger long-press gesture causing crashes for some users"
+msgstr "修正：雙指長按手勢導致部分使用者當機"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:209
+msgid "fix: single element stroke not generating hitboxes"
+msgstr "修正：單一元素的筆畫不會產生碰撞框"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:210
+msgid ""
+"fix: scrolls being captured by unit-entries in settings, causing accidental "
+"value changes"
+msgstr "修正：設定中的單位輸入框會攔截捲動，導致數值被意外變更"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:211
+msgid "fix: hover state for typewriter move/resize nodes"
+msgstr "修正：文字工具移動／調整大小控點的懸停狀態"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:219
+msgid ""
+"improv: put handles outside of selection borders, enable resizing to smaller "
+"sizes (thanks to @Doublonmousse)"
+msgstr "改進：控點移到選取框外側，並可縮放到更小的尺寸（感謝 @Doublonmousse）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:220
+msgid ""
+"improv: error notification when file operations fail in workspace browser"
+msgstr "改進：工作區瀏覽器中的檔案操作失敗時會顯示錯誤通知"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:221
+msgid "metainfo: add brand colors (thanks to @bertob)"
+msgstr "metainfo：新增品牌色（感謝 @bertob）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:222
+msgid "fix: origin indicator cross size on hi-dpi screens"
+msgstr "修正：高 DPI 螢幕上原點指示十字的大小"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:223
+msgid "fix: rendering got out of sync when resizing long-to-render content"
+msgstr "修正：調整需要長時間繪製的內容大小時，繪製結果不同步"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:224
+msgid "fix: selection stroke widths got larger when resizing non-uniformly"
+msgstr "修正：非等比例縮放時，選取內容的筆畫寬度變大"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:225
+msgid ""
+"fix: regression which caused excessive rerendering of selection during "
+"resizing"
+msgstr "修正：調整大小時選取內容過度重新繪製的回歸問題"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:233
+msgid ""
+"fix: importing images changed document dimensions when `adjust-document` pdf "
+"import setting is set"
+msgstr "修正：設定「adjust-document」PDF 匯入選項時，匯入圖片會改變文件尺寸"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:234
+msgid ""
+"fix: windows installer now includes EGL/GLES libraries, fixing launch error "
+"when they are present elsewhere but in PATH"
+msgstr ""
+"修正：Windows 安裝程式現在包含 EGL/GLES 程式庫，修正 PATH 中其他位置也有這些"
+"程式庫時的啟動錯誤"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:242
+msgid "feat: touch-hold context-menu with basic actions (thanks to @silvasch)"
+msgstr "新功能：觸控長按的內容選單，提供基本動作（感謝 @silvasch）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:243
+msgid "feat: added polygon shape and builder"
+msgstr "新功能：新增多邊形形狀及其建構工具"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:244
+msgid ""
+"feat: added adjust-document Pdf import option that configures the document "
+"for improved annotation use-case"
+msgstr "新功能：新增「adjust-document」PDF 匯入選項，調整文件設定以便於註解"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:245
+msgid "improv: additional color button (default: white) (thanks to @silvasch)"
+msgstr "改進：額外的顏色按鈕（預設為白色）（感謝 @silvasch）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:246
+msgid ""
+"improv: new keyboard shortcuts for managing windows and tabs (thanks to "
+"@silvasch)"
+msgstr "改進：用於管理視窗與標籤頁的新快捷鍵（感謝 @silvasch）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:247
+msgid ""
+"improv: autosave all tabs, but only ones that are flagged modified (thanks "
+"to @Doublonmousse)"
+msgstr ""
+"改進：自動儲存所有標籤頁，但只儲存標記為已修改的（感謝 @Doublonmousse）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:248
+msgid ""
+"improv: don't export empty layers when exporting to xopp (thanks to "
+"@Doublonmousse)"
+msgstr "改進：匯出為 xopp 時不匯出空白圖層（感謝 @Doublonmousse）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:249
+msgid ""
+"improv: workspace browser is now separated into three sections: folders - "
+"rnote notes - other importable files"
+msgstr ""
+"改進：工作區瀏覽器現在分為三個區段：資料夾、rnote 筆記、其他可匯入的檔案"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:250
+msgid "improv: use start aspect ratio when resizing and locking aspect-ratio"
+msgstr "改進：調整大小並鎖定長寬比時，使用開始時的長寬比"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:251
+msgid ""
+"improv: renaming file in workspace browser selects only file stem initially"
+msgstr "改進：在工作區瀏覽器中重新命名檔案時，一開始只選取主檔名"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:252
+msgid "improv: move document-layout option from canvas-menu to settings"
+msgstr "改進：將文件佈局選項從畫布選單移至設定"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:253
+msgid ""
+"improv: reduce repaints - when stroke is finished, cache origin-indicator "
+"rendering"
+msgstr "改進：減少重繪——筆畫完成後快取原點指示器的繪製結果"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:254
+msgid "improv: added new-window menu entry"
+msgstr "改進：新增「新視窗」選單項目"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:255
+msgid ""
+"improv: file watcher implementation and rnote file writing, possibly fixing "
+"\"reload document\" toasts when file is saved on windows"
+msgstr ""
+"改進：檔案監看的實作與 rnote 檔案寫入，可能修正在 Windows 上儲存檔案時出現"
+"「重新載入文件」通知的問題"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:256
+msgid ""
+"fix: failing export/clipboard-copy with large images (thanks to "
+"@Doublonmousse)"
+msgstr "修正：大型圖片匯出或複製到剪貼簿失敗（感謝 @Doublonmousse）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:257
+msgid ""
+"fix: menus positions when opened through keyboard shortcut (thanks to "
+"@detiam)"
+msgstr "修正：透過快捷鍵開啟選單時的位置（感謝 @detiam）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:258
+msgid "fix: zoom label not being updated after switching tab"
+msgstr "修正：切換標籤頁後縮放比例未更新"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:259
+msgid "fix: regression where margin is not applied when exporting selection"
+msgstr "修正：匯出選取內容時未套用邊距的回歸問題"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:260
+msgid "fix: undo/redo triggering document-modified flag"
+msgstr "修正：復原／重做會觸發「文件已修改」標記"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:268
+msgid ""
+"ux: increase window threshold width at where the sidebar becomes an overlay"
+msgstr "使用體驗：加大側邊欄變為浮層時的視窗寬度門檻"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:269
+msgid ""
+"fix: indicate unsaved when changing document settings (format, colors, "
+"pattern, ..)"
+msgstr "修正：變更文件設定（格式、顏色、紋理等）時標示為未儲存"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:270
+msgid "fix: missing progress pulse when saving existing doc"
+msgstr "修正：儲存現有文件時缺少進度指示"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:271
+msgid "fix: ui not being refreshed after loading document from file"
+msgstr "修正：從檔案載入文件後介面未重新整理"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:272
+msgid "fix: jumping view when zoomed out and reaching edges"
+msgstr "修正：縮小並到達邊緣時畫面跳動"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:280
+msgid ""
+"improvement: add button to export notification to open file location in file-"
+"manager after exporting (thanks to @silvasch)"
+msgstr ""
+"改進：匯出通知新增按鈕，匯出後可在檔案管理員中開啟檔案位置（感謝 @silvasch）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:281
+msgid ""
+"improvement: initial export file picker folder got improved, now "
+"prioritising the rnote file location and are now remembered between exports "
+"(thanks to @pobrn )"
+msgstr ""
+"改進：改善匯出檔案選擇器的初始資料夾，現在優先使用 rnote 檔案的位置，並會在多"
+"次匯出之間記住（感謝 @pobrn）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:282
+msgid "improvement: more readable file row names"
+msgstr "改進：檔案列的名稱更易讀"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:283
+msgid "improvement: add keyboard shortcut for snap-positions action"
+msgstr "改進：為位置吸附動作新增快捷鍵"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:284
+msgid "improvement: pdf import option to toggle page borders"
+msgstr "改進：PDF 匯入選項可切換頁面邊框"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:285
+msgid ""
+"fix: don't export empty pages that are adjacent to content that is snapped "
+"to the document grid"
+msgstr "修正：不匯出與吸附到文件網格的內容相鄰的空白頁"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:286
+msgid ""
+"fix: progress pulses getting out of sync when executing multiple operations "
+"in parallel"
+msgstr "修正：同時執行多個操作時進度指示不同步"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:287
+msgid ""
+"fix: typewriter width adjustment button disappearing after setting it to "
+"minimal width"
+msgstr "修正：文字工具的寬度調整按鈕在設為最小寬度後消失"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:295
+msgid ""
+"feature: option to snap positions in different tools to pattern and document "
+"grid"
+msgstr "新功能：可讓不同工具的位置吸附到紋理與文件網格"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:296
+msgid ""
+"feature: option to open files with default app from workspace browser list "
+"(thanks to @silvasch)"
+msgstr "新功能：可從工作區瀏覽器清單以預設應用程式開啟檔案（感謝 @silvasch）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:297
+msgid ""
+"improvement: sort workspace files and folders in a more intuitive way "
+"(thanks to @doublonmousse)"
+msgstr "改進：以更直覺的方式排序工作區的檔案與資料夾（感謝 @doublonmousse）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:298
+msgid ""
+"fix: initial documents opened with rnote have blurry rendering when system "
+"scale-factor is larger than 1.0"
+msgstr "修正：系統縮放比例大於 1.0 時，以 rnote 開啟的初始文件繪製模糊"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:299
+msgid ""
+"fix: selection after nudging view only included strokes in current viewport"
+msgstr "修正：輕推畫面後的選取只包含目前可視區域內的筆畫"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:300
+msgid "fix: text files not appearing in workspacebrowser"
+msgstr "修正：文字檔未顯示在工作區瀏覽器中"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:308
+msgid ""
+"feature: ability to toggle the visibility of the origin indicator cross "
+"(thanks to @silvasch)"
+msgstr "新功能：可切換原點指示十字的顯示（感謝 @silvasch）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:309
+msgid ""
+"improvement: port rows widgets to libadwaita spezialized variants (thanks to "
+"@oscfdezdz)"
+msgstr "改進：將列元件移植為 libadwaita 的專用變體（感謝 @oscfdezdz）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:310
+msgid ""
+"improvement: text formatting buttons now toggle text attributes (thanks to "
+"@xweskingx)"
+msgstr "改進：文字格式按鈕現在可切換文字屬性（感謝 @xweskingx）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:311
+msgid ""
+"improvement: load documents into the current tab if it is a draft and empty "
+"(thanks to @silvasch)"
+msgstr ""
+"改進：若目前的標籤頁是空白草稿，就把文件載入到該標籤頁（感謝 @silvasch）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:312
+msgid "UI: tweak sidebar width"
+msgstr "介面：調整側邊欄寬度"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:313
+msgid ""
+"fix: don't display reload-file dialog after saving to directories synced "
+"with cloud storage"
+msgstr "修正：儲存到與雲端儲存空間同步的目錄後，不再顯示重新載入檔案的對話框"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:314
+msgid "fix: chinese translations (thanks to @detiam)"
+msgstr "修正：中文翻譯（感謝 @detiam）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:315
+msgid "fix: single position strokes not being rendered"
+msgstr "修正：單一位置的筆畫未被繪製"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:316
+msgid ""
+"fix: don't restore maximized window state on macos, fixing inability to "
+"resize the window after launch"
+msgstr ""
+"修正：在 macOS 上不還原最大化的視窗狀態，修正啟動後無法調整視窗大小的問題"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:317
+msgid ""
+"fix: windows installer not including certain dll's, possibly causing crashes "
+"when the missing ones are located elsewhere and present in PATH (thanks to "
+"@mdonoughe)"
+msgstr ""
+"修正：Windows 安裝程式未包含部分 DLL，當缺少的 DLL 位於其他位置且在 PATH 中時"
+"可能導致當機（感謝 @mdonoughe）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:325
+msgid "feature: added ctrl plus space as configurable shortcut"
+msgstr "新功能：新增可自訂的 Ctrl + 空白鍵快捷鍵"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:326
+msgid "feature: added plaintext file import"
+msgstr "新功能：新增純文字檔案匯入"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:327
+msgid "feature: ability to nudge view while performing certain pen actions"
+msgstr "新功能：執行特定筆動作時可輕推畫面"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:328
+msgid ""
+"improvement: port the UI to libadwaita 1.4 with an improved sidebar and "
+"adaptivity"
+msgstr "改進：介面移植到 libadwaita 1.4，改善側邊欄與自適應版面"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:329
+msgid ""
+"improvement: scale widths of brush-strokes and shapes when resizing selection"
+msgstr "改進：調整選取內容大小時，一併縮放筆刷筆畫與形狀的寬度"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:330
+msgid ""
+"improvement: added keyboard shortcuts to add/remove pages when in fixed-size "
+"layout"
+msgstr "改進：新增在固定大小佈局中新增／移除頁面的快捷鍵"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:331
+msgid ""
+"improvement: the current document view is saved and restored to/from rnote "
+"files"
+msgstr "改進：目前的文件檢視會儲存到 rnote 檔案，並從中還原"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:332
+msgid ""
+"improvement: orientation toggle usable when using custom document dimensions"
+msgstr "改進：使用自訂文件尺寸時也能切換方向"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:333
+msgid ""
+"improvement: shape builder picker sidebar location (thanks to @PhilDevProg)"
+msgstr "改進：形狀建構工具選擇器在側邊欄中的位置（感謝 @PhilDevProg）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:334
+msgid ""
+"fix: when using the vertical-space tool strokes that came into view were not "
+"initially rendered"
+msgstr "修正：使用縱向空白工具時，進入畫面的筆畫一開始未被繪製"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:335
+msgid "fix: color picker dialog could be opened multiple times"
+msgstr "修正：顏色選擇器對話框可被重複開啟"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:336
+msgid "fix: default view offset when opening a new tab"
+msgstr "修正：開啟新標籤頁時的預設檢視偏移"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:344
+msgid "fix: button presses not handled as pen events"
+msgstr "修正：按鈕按壓未被當作筆事件處理"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:345
+msgid "fix: windows build"
+msgstr "修正：Windows 版建置"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:346
+msgid "fix: bundled fonts not appearing in flatpak"
+msgstr "修正：內附字型未出現在 Flatpak 中"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:354
+msgid "feature: export previews"
+msgstr "新功能：匯出預覽"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:355
+msgid "feature: invert selection color brightness (thanks to @Kneemund)"
+msgstr "新功能：反轉選取內容的顏色亮度（感謝 @Kneemund）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:356
+msgid "feature: optimize for printing export option (thanks to @Kneemund)"
+msgstr "新功能：「為列印最佳化」匯出選項（感謝 @Kneemund）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:357
+msgid ""
+"feature: a few handwrite-y,typewriter and dyslexia fonts are now bundled "
+"with the application (check the README for a list of them)"
+msgstr ""
+"新功能：應用程式現在內附一些手寫風、打字機風與適合閱讀障礙者的字型（清單請見 "
+"README）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:358
+msgid "feature: polyline shape and builder"
+msgstr "新功能：多段線形狀及其建構工具"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:359
+msgid "improvement: cli export enhancements (thanks to @LeSnake04)"
+msgstr "改進：CLI 匯出功能強化（感謝 @LeSnake04）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:360
+msgid "improvement: update outdated symbolic icons (thanks to @oscfdezdz)"
+msgstr "改進：更新過時的符號圖示（感謝 @oscfdezdz）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:361
+msgid "improvement: behaviour when opening files in new tab"
+msgstr "改進：在新標籤頁中開啟檔案時的行為"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:362
+msgid ""
+"improvement: added close buttons to configuration popovers as a workaround "
+"for the Gtk4 stuck-popover bug"
+msgstr ""
+"改進：在設定彈出視窗中加入關閉按鈕，作為 GTK4 彈出視窗卡住問題的因應措施"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:363
+msgid "improvement: default view offset when opening documents"
+msgstr "改進：開啟文件時的預設檢視偏移"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:364
+msgid "enhancement: move view using arrow keys"
+msgstr "增強：可用方向鍵移動畫面"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:365
+msgid "fix: orientation of some popovers when sidebar is on the left"
+msgstr "修正：側邊欄位於左側時部分彈出視窗的方向"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:366
+msgid "fix: restore vectorized images (Pdf pages, Svg) export"
+msgstr "修正：恢復向量圖片（PDF 頁面、SVG）的匯出"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:367
+msgid "fix: .rnote file imports that were created pre v0.5.9"
+msgstr "修正：匯入 v0.5.9 之前建立的 .rnote 檔案"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:368
+msgid "fix: rendering of closed shapes from imported xopp file"
+msgstr "修正：繪製從 xopp 檔案匯入的封閉形狀"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:376
+msgid "improvement: more consistent duplicate file naming"
+msgstr "改進：重複檔案的命名更一致"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:377
+msgid "UI: more compact sidebar, shape-picker, workspacebrowser"
+msgstr "介面：更精簡的側邊欄、形狀選擇器與工作區瀏覽器"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:378
+msgid ""
+"fix: import dialogs were not shown when importing files or drag-and-drop "
+"from file-managers (thanks to @Kneemund)"
+msgstr "修正：匯入檔案或從檔案管理員拖放時未顯示匯入對話框（感謝 @Kneemund）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:386
+msgid ""
+"installation: windows users - the installer now uses 64-bit mode, and now "
+"(correctly) installs into \"Program Files\" by default. If you are upgrading "
+"from a previous version, you need to uninstall the old version in \"Program "
+"Files (x86)\" manually."
+msgstr ""
+"安裝：Windows 使用者請注意——安裝程式現在使用 64 位元模式，並（正確地）預設安"
+"裝到「Program Files」。若從舊版升級，需要手動解除安裝位於「Program Files "
+"(x86)」的舊版本。"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:388
+msgid "feature: remove page from fixed size document (thanks to @PhilDevProg)"
+msgstr "新功能：從固定大小的文件中移除頁面（感謝 @PhilDevProg）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:389
+msgid ""
+"feature: specify page order when exporting documents with layouts that "
+"expand in horizontal and vertical directions (thanks to @Kneemund)"
+msgstr ""
+"新功能：匯出佈局會向水平與垂直方向延伸的文件時，可指定頁面順序（感謝 "
+"@Kneemund）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:390
+msgid "feature: inertial touch scrolling (thanks to @Kneemund)"
+msgstr "新功能：觸控慣性捲動（感謝 @Kneemund）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:391
+msgid "feature: ability to toggle drawing cursor visibility"
+msgstr "新功能：可切換畫筆游標的顯示"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:392
+msgid ""
+"feature: \"focus mode\" that hides the toolbars, improving the experience on "
+"low-resolution tablets"
+msgstr "新功能：隱藏工具列的「專注模式」，改善在低解析度平板上的體驗"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:393
+msgid ""
+"feature: dedicated zoom tool, making navigating while touch-drawing is "
+"enabled easier"
+msgstr "新功能：專用的縮放工具，啟用觸控繪圖時更容易瀏覽"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:394
+msgid "improvement: selection highlights for brush-strokes"
+msgstr "改進：筆刷筆畫的選取高亮"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:395
+msgid "improvement: ctrl + scroll following the pointer"
+msgstr "改進：Ctrl + 捲動時會跟隨指標"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:396
+msgid ""
+"improvement: scale-ratio when resizing the selection with locked aspect-ratio"
+msgstr "改進：鎖定長寬比時調整選取內容大小的縮放比例"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:397
+msgid ""
+"improvement: provide selection content as Svg and Png when copying/cutting "
+"to the clipboard"
+msgstr "改進：複製／剪下到剪貼簿時，以 SVG 與 PNG 提供選取內容"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:398
+msgid "improvement: save file logic in close tab/window dialogs"
+msgstr "改進：關閉標籤頁／視窗對話框中的檔案儲存邏輯"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:399
+msgid "improvement: memory consumption when loading rnote files"
+msgstr "改進：載入 rnote 檔案時的記憶體用量"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:400
+msgid ""
+"UI: page controls for the fixed-size layout were moved into the canvas menu "
+"dropdown"
+msgstr "介面：固定大小佈局的頁面控制項已移至畫布選單的下拉清單"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:401
+msgid "UI: undo/redo buttons were moved to the pen switcher toolbar"
+msgstr "介面：復原／重做按鈕已移至筆切換工具列"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:402
+msgid "fix: apply pressure curves when exporting to xopp"
+msgstr "修正：匯出為 xopp 時套用壓力曲線"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:403
+msgid "fix: single element/position strokes were not rendered"
+msgstr "修正：單一元素／位置的筆畫未被繪製"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:404
+msgid "fix: stop document autoexpanding when scrolling with scrollbars"
+msgstr "修正：使用捲軸捲動時，文件不再自動擴展"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:412
+msgid ""
+"orga: Rnote now follows a new versioning scheme - feature updates will "
+"increment x, while patches will increment y in versions 0.x.y . Breakages in "
+"the file format will be explicitly announced (but we'll work as hard as "
+"possible to avoid them!) and are not reflected in the version anymore."
+msgstr ""
+"組織：Rnote 現在採用新的版本編號方式——功能更新會遞增 0.x.y 版本中的 x，修補程"
+"式則遞增 y。檔案格式的不相容變更將會明確公告（但我們會盡全力避免！），且不再"
+"反映在版本號中。"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:414
+msgid ""
+"orga: the app is now available for Windows and MacOS! Check the installation "
+"section on the website / README, you'll find links to the installer and app "
+"bundle there."
+msgstr ""
+"組織：本應用程式現已推出 Windows 與 macOS 版本！請查看網站或 README 的安裝章"
+"節，那裡有安裝程式與應用程式套件的連結。"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:415
+msgid "feature: arrow shapes (thanks to @TornaxO7 )"
+msgstr "新功能：箭頭形狀（感謝 @TornaxO7）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:416
+msgid "feature: ability to recolor selected strokes (thanks to @Kneemund )"
+msgstr "新功能：可為選取的筆畫重新上色（感謝 @Kneemund）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:417
+msgid "feature: isometric background patterns (thanks to @Kneemund )"
+msgstr "新功能：等距背景紋理（感謝 @Kneemund）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:418
+msgid "feature: add option to block pinch zoom (thanks to @LeSnake04 )"
+msgstr "新功能：新增停用雙指縮放的選項（感謝 @LeSnake04）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:419
+msgid "improvement: typewriter keyboard navigation (thanks to @Kneemund )"
+msgstr "改進：文字工具的鍵盤導覽（感謝 @Kneemund）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:420
+msgid "improvement: exiting / closing dialogs and logic (thanks to @adih-20 )"
+msgstr "改進：結束／關閉對話框及其邏輯（感謝 @adih-20）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:421
+msgid "improvement: more icons for workspace list entries"
+msgstr "改進：工作區清單項目有更多圖示"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:422
+msgid "improvement: associated symbolic icon for .rnote files"
+msgstr "改進：.rnote 檔案的對應符號圖示"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:423
+msgid ""
+"improvement: added labels for name and directory of the active workspace"
+msgstr "改進：新增目前工作區名稱與目錄的標籤"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:424
+msgid "fix: occasional crashes when doing three-finger swipes"
+msgstr "修正：三指滑動時偶發的當機"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:425
+msgid ""
+"fix: size limits for grid builder, preventing slowdowns and crashes (thanks "
+"to @Kneemund)"
+msgstr "修正：網格建構工具的尺寸上限，避免變慢與當機（感謝 @Kneemund）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:426
+msgid ""
+"fix: strokes not generating hitboxes when pen is being changed mid-stroke"
+msgstr "修正：筆畫進行中切換筆時，筆畫不會產生碰撞框"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:427
+msgid "fix: limit chars for dirs in edit-workspace dialog"
+msgstr "修正：限制編輯工作區對話框中目錄的字元數"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:435
+msgid ""
+"fix: panic on app start when color scheme setting is set to \"Use Light "
+"Colors\" / \"Use Dark Colors\""
+msgstr "修正：配色設定為「使用淺色」／「使用深色」時，應用程式一啟動就崩潰"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:443
+msgid "fix: some users experienced zip-zapping while using stylus"
+msgstr "修正：部分使用者使用手寫筆時筆跡來回跳動"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:444
+msgid "fix: sporadic jumps when view is near document edge"
+msgstr "修正：畫面靠近文件邊緣時偶發的跳動"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:445
+msgid "fix: regression where redo button stays insensitive"
+msgstr "修正：重做按鈕一直無法使用的回歸問題"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:453
+msgid "fix: vector export when bounds are not origin aligned"
+msgstr "修正：邊界未對齊原點時的向量匯出"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:461
+msgid "feature: configurable shortcuts for drawing pad buttons"
+msgstr "新功能：可自訂畫板按鈕的快捷鍵"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:462
+msgid ""
+"improvement: input events for rate-limited devices (E-Paper/ low-frequency "
+"displays)"
+msgstr "改進：受限更新率裝置（電子紙／低更新率螢幕）的輸入事件"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:463
+msgid "improvement: reduced Svg export size"
+msgstr "改進：縮小 SVG 匯出大小"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:464
+msgid "fix: artifacts when printing"
+msgstr "修正：列印時的瑕疵"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:465
+msgid "fix: Jpeg images embedded in Pdfs were not rendered"
+msgstr "修正：PDF 中內嵌的 JPEG 圖片未被繪製"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:466
+msgid "fix: select-all with \"ctrl+a\" included trashed strokes"
+msgstr "修正：以「ctrl+a」全選時包含已刪除的筆畫"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:467
+msgid "fix: units in settings kept resetting to \"Px\""
+msgstr "修正：設定中的單位一直被重設為「Px」"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:468
+msgid "fix: flicker when duplicating large selections"
+msgstr "修正：複製大量選取內容時閃爍"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:476
+msgid "feature: toggle mode for shortcuts"
+msgstr "新功能：快捷鍵的切換模式"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:477
+msgid "feature: eraser size picker"
+msgstr "新功能：橡皮大小選擇器"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:478
+msgid "improvement: reduce toolbar overlays margins when scrollbar is disabled"
+msgstr "改進：停用捲軸時縮小工具列浮層的邊距"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:479
+msgid "improvement: indicate hover over nodes in the selector and typewriter"
+msgstr "改進：在選擇工具與文字工具中，懸停於控點時會有提示"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:480
+msgid "improvement: reduced save and xopp export file sizes"
+msgstr "改進：縮小儲存檔案與 xopp 匯出檔案的大小"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:481
+msgid ""
+"UI: follow Gnome HIG writing style more closely and fixed string "
+"inconsistencies"
+msgstr "介面：更貼近 GNOME HIG 的寫作風格，並修正字串不一致"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:482
+msgid "fix: Pdf import with different size pages"
+msgstr "修正：匯入頁面大小不一的 PDF"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:483
+msgid ""
+"fix: image and Pdf import offsets now take the document bounds into account"
+msgstr "修正：圖片與 PDF 匯入的偏移現在會考量文件邊界"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:484
+msgid "fix: broken resizing in fixed-size document layout"
+msgstr "修正：固定大小文件佈局中無法正常調整大小"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:485
+msgid "fix: crash when navigating up/down into non-ASCII text"
+msgstr "修正：上下移動至非 ASCII 文字時當機"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:486
+msgid "fix: crash on launch when using a custom stylesheet"
+msgstr "修正：使用自訂樣式表時一啟動就當機"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:487
+msgid "fix: rough style fill calculations"
+msgstr "修正：粗糙樣式的填充計算"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:495
+msgid "feature: tabs!"
+msgstr "新功能：標籤頁！"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:496
+msgid "feature: a global colorpicker"
+msgstr "新功能：全域顏色選擇器"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:497
+msgid "feature: stroke width preset palette"
+msgstr "新功能：筆畫寬度預設調色盤"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:498
+msgid "feature: added \"semi-infinite\" canvas layout ( thanks @D0V4HKIIN !)"
+msgstr "新功能：新增「半無限」畫布佈局（感謝 @D0V4HKIIN！）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:499
+msgid ""
+"feature: added two-finger long-press touch gesture that switches the active "
+"pen (like stylus buttons)"
+msgstr "新功能：新增雙指長按觸控手勢，可切換目前的筆（類似手寫筆按鈕）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:500
+msgid "feature: added pdf import bitmap scaling preference"
+msgstr "新功能：新增 PDF 匯入點陣圖縮放偏好設定"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:501
+msgid "UI: floating toolbars"
+msgstr "介面：浮動工具列"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:502
+msgid ""
+"UI: shape builder picker is now a categorized grid (thanks a lot @Kneemund !)"
+msgstr "介面：形狀建構工具選擇器現在是分類網格（非常感謝 @Kneemund！）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:503
+msgid "improvement: copy, cut and paste selections between tabs and windows"
+msgstr "改進：在標籤頁與視窗之間複製、剪下及貼上選取內容"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:504
+msgid "improvement: flap revealed state is now remembered across app launches"
+msgstr "改進：側邊欄的展開狀態現在會在下次啟動時保留"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:505
+msgid "fix: svg clipboard paste"
+msgstr "修正：從剪貼簿貼上 SVG"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:506
+msgid "fix: lag when panning in \"continuous-vertical\" layout"
+msgstr "修正：在「縱向連續」佈局中平移時延遲"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:507
+msgid "fix: layers when erasing marker strokes in \"split-stroke\" mode"
+msgstr "修正：在「分割筆畫」模式下擦除記號筆筆畫時的圖層"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:508
+msgid "fix: \"split-stroke\" mode only eraser one segment at a time"
+msgstr "修正：「分割筆畫」模式一次只擦除一段"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:509
+msgid "fix: freeze when saving multiple times in succession"
+msgstr "修正：連續多次儲存時凍結"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:510
+msgid "fix: blurry vector images after zooming in"
+msgstr "修正：放大後向量圖片模糊"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:511
+msgid "fix: some blurry icons"
+msgstr "修正：部分圖示模糊"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:519
+msgid "UI: minor sidebar tweaks"
+msgstr "介面：側邊欄小幅調整"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:520
+msgid "i18n: updated strings and translations"
+msgstr "國際化：更新字串與翻譯"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:521
+msgid "fix: remove selection bounds margins"
+msgstr "修正：移除選取範圍邊界的邊距"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:522
+msgid ""
+"fix: don't overwrite active palette color when start modifying existing text"
+msgstr "修正：開始編輯既有文字時，不覆寫調色盤中目前使用的顏色"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:530
+msgid "feature: added a grid builder"
+msgstr "新功能：新增網格建構工具"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:531
+msgid ""
+"feature: ctrl + pointer drag for panning the canvas, ctrl+shift + pointer "
+"drag for zooming"
+msgstr "新功能：Ctrl + 指標拖曳以平移畫布，Ctrl+Shift + 指標拖曳以縮放"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:533
+msgid "improvement: added the ability to reorder workspaces"
+msgstr "改進：可重新排列工作區"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:534
+msgid "improvement: rough style now supports transparent colors"
+msgstr "改進：粗糙樣式現在支援透明色"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:535
+msgid "improvement: full asynchronicity for all import and exports"
+msgstr "改進：所有匯入與匯出完全非同步"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:536
+msgid "fix: rough style bezier curves drawing"
+msgstr "修正：粗糙樣式的貝茲曲線繪製"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:537
+msgid "fix: added missing association for `.xopp` files"
+msgstr "修正：新增缺少的 `.xopp` 檔案關聯"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:538
+msgid "fix: ability to select folders in export-doc-pages filechooser"
+msgstr "修正：可在匯出文件頁面的檔案選擇器中選擇資料夾"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:539
+msgid "fix: text input with IME's ( thanks @Mr-Spade !)"
+msgstr "修正：使用輸入法輸入文字（感謝 @Mr-Spade！）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:547
+msgid "feature: hatched fills for the rough shape style"
+msgstr "新功能：粗糙形狀樣式的陰影線填充"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:548
+msgid ""
+"improvements to the monitoring and handling of file changes to the currently "
+"opened file (thanks @Kneemund !)"
+msgstr "改進目前開啟檔案的變更監看與處理（感謝 @Kneemund！）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:550
+msgid "simplified textured brush style options"
+msgstr "簡化材質筆樣式的選項"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:551
+msgid "faster start up times"
+msgstr "啟動更快"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:552
+msgid "switch to the typewriter when dropping text"
+msgstr "拖放文字時切換至文字工具"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:553
+msgid "more icon improvements (thanks @bertob !)"
+msgstr "更多圖示改進（感謝 @bertob！）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:554
+msgid "fix: view \"jumps\" when quickly zooming multiple times"
+msgstr "修正：快速連續縮放時畫面「跳動」"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:555
+msgid "fix: typewriter now handles cut (Ctrl + x) properly"
+msgstr "修正：文字工具現在能正確處理剪下（Ctrl + x）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:563
+msgid ""
+"feature: added keyboard shortcuts \"Ctrl+1..6\" to switch between the "
+"different pens"
+msgstr "新功能：新增快捷鍵「Ctrl+1..6」，可在不同的筆之間切換"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:564
+msgid "feature: added coordinate system builders (thanks to @Kneemund )"
+msgstr "新功能：新增座標系建構工具（感謝 @Kneemund）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:565
+msgid "feature: drop text on the canvas"
+msgstr "新功能：可將文字拖放到畫布上"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:566
+msgid "improvement: export preferences, new export dialogs and options"
+msgstr "改進：匯出偏好設定，以及新的匯出對話框與選項"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:567
+msgid ""
+"improvement: UI following Gnome HIG more closely ( with @bertob's help )"
+msgstr "改進：介面更貼近 GNOME HIG（感謝 @bertob 的協助）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:568
+msgid ""
+"fix: update current document state when the file was modified from the "
+"workspace browser. (thanks @Kneemund )"
+msgstr "修正：從工作區瀏覽器修改檔案時，更新目前文件的狀態（感謝 @Kneemund）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:570
+msgid "fix: clearing text attributes for new text fields"
+msgstr "修正：清除新文字欄位的文字屬性"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:578
+msgid "improvement: Add zoom buttons to the quick-actions overlay"
+msgstr "改進：在快速操作浮層中加入縮放按鈕"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:579
+msgid ""
+"improvement: By default use the workspace directory for import and export "
+"dialogs, and document file for save dialogs"
+msgstr ""
+"改進：匯入與匯出對話框預設使用工作區目錄，儲存對話框則預設使用文件檔案所在位"
+"置"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:581
+msgid "fix: Pdf export and print sometimes produced empty pages"
+msgstr "修正：PDF 匯出與列印有時會產生空白頁面"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:582
+msgid ""
+"fix: workspace files list not refreshing after modifying the workspace path"
+msgstr "修正：修改工作區路徑後，工作區檔案清單未重新整理"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:583
+msgid ""
+"fix: Selector being canceled when attempting to interact with the selection "
+"when \"touch-drawing\" was enabled"
+msgstr "修正：啟用「觸控繪圖」時，嘗試與選取內容互動會取消選擇工具"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:592
+msgid ""
+"feature: a new brush option to select between different path modelers. Added "
+"a physics-based modelling type (as default) which decreases jitter and "
+"improves handwriting smoothness. It also includes a predictor to minimize "
+"input lag."
+msgstr ""
+"新功能：新的筆刷選項，可選擇不同的路徑模型器。新增以物理為基礎的模型類型（預"
+"設），可減少抖動並讓手寫更平滑，也包含預測器，將輸入延遲降到最低。"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:595
+msgid ""
+"feature: switch between different cursors while hovering and drawing, with "
+"new \"teardrop\", \"crosshair\" and \"beam\" cursors in different variations "
+"and sizes."
+msgstr ""
+"新功能：懸停與繪圖時可切換不同游標，新增多種樣式與大小的「水滴」、「十字準"
+"線」與「光束」游標。"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:597
+msgid ""
+"feature: a new `duplicate` file action and a new `create directory` "
+"workspace action (thanks @TornaxO7 !)"
+msgstr ""
+"新功能：新的「建立副本」檔案動作與「建立目錄」工作區動作（感謝 @TornaxO7！）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:599
+msgid "improved: better palm rejection while drawing with a stylus"
+msgstr "改進：使用手寫筆繪圖時更好的防誤觸"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:600
+msgid "improved: better export filenames"
+msgstr "改進：更好的匯出檔名"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:601
+msgid ""
+"improved: typewriter input now accepts letter accents, improved unicode "
+"support"
+msgstr "改進：文字工具現在支援輸入帶重音的字母，改善 Unicode 支援"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:602
+msgid "fix: background pattern tile rendering size"
+msgstr "修正：背景紋理圖塊的繪製大小"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:603
+msgid ""
+"fix: scrolling with touchpad was not possible when the \"permanent hidden "
+"scrollbars\" option was enabled"
+msgstr "修正：啟用「永久隱藏捲軸」選項時無法用觸控板捲動"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:605
+msgid "fix: broken Svg export"
+msgstr "修正：SVG 匯出失效"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:606
+msgid "fix: image layers when exporting to .xopp"
+msgstr "修正：匯出為 .xopp 時的圖片圖層"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:614
+msgid "Port to libadwaita 1.2 with an updated about window, improved dialogs"
+msgstr "移植到 libadwaita 1.2，更新「關於」視窗並改善對話框"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:615
+msgid "new feature: \"permanently hide scrollbars\" toggle in the settings"
+msgstr "新功能：設定中的「永久隱藏捲軸」開關"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:616
+msgid "new feature: \"paste from clipboard\" button in the selector page"
+msgstr "新功能：選擇工具頁面中的「從剪貼簿貼上」按鈕"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:617
+msgid "improved window title, now shows the current document name"
+msgstr "改進視窗標題，現在會顯示目前文件的名稱"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:618
+msgid "tweaked app icon"
+msgstr "微調應用程式圖示"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:626
+msgid ""
+"A new app icon and symbolic! (based on @bertob's design and with his help. "
+"Thanks a ton!)"
+msgstr ""
+"全新的應用程式圖示與符號圖示！（以 @bertob 的設計為基礎，並在他的協助下完成。"
+"萬分感謝！）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:628
+msgid "long awaited: write and edit text with the typewriter"
+msgstr "期待已久：使用文字工具輸入與編輯文字"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:629
+msgid ""
+"pdf import dialog with the added option to import aligned with the document "
+"pages ( one pdf page per document page )"
+msgstr "PDF 匯入對話框，新增與文件頁面對齊匯入的選項（每頁 PDF 對應一頁文件）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:631
+msgid ""
+"import bitmap images (e.g. screenshots) from the clipboard (thanks "
+"@RickStanley!)"
+msgstr "從剪貼簿匯入點陣圖片（例如螢幕截圖）（感謝 @RickStanley！）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:632
+msgid "proportial shapes / input constraints (thanks @sei0o!)"
+msgstr "等比例形狀／輸入限制（感謝 @sei0o！）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:633
+msgid "additional selector modes: single, intersecting path"
+msgstr "更多選擇模式：單一、路徑相交"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:634
+msgid ""
+"improved workspace browser, added sidebar to select between different "
+"workspaces (inspired by the `Paper` app)"
+msgstr ""
+"改進工作區瀏覽器，新增可在不同工作區之間切換的側邊欄（靈感來自 `Paper` 應用程"
+"式）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:636
+msgid "mark underneath other strokes with the 'Marker' brush style"
+msgstr "使用「記號筆」筆刷樣式在其他筆畫下方標記"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:637
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:645
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:655
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:665
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:682
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:695
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:728
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:737
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:750
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:760
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:771
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:780
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:789
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:798
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:815
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:828
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:841
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:855
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:867
+msgid "bug fixes"
+msgstr "錯誤修正"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:653
+msgid "feature: paste clipboard files ( nautilus support )"
+msgstr "新功能：貼上剪貼簿中的檔案（支援 Nautilus）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:654
+msgid "stylus eraser mode improvements"
+msgstr "改進手寫筆的橡皮模式"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:663
+msgid "feature: setting to change the format border color"
+msgstr "新功能：可變更格式邊框顏色的設定"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:664
+msgid "UI text improvements"
+msgstr "介面文字改進"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:673
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:691
+msgid "disclaimer: breaking file format compatibility"
+msgstr "注意：檔案格式不相容"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:674
+msgid "more shape types (curves, ellipse with foci)"
+msgstr "更多形狀類型（曲線、焦點橢圓）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:675
+msgid "feature: new eraser type: split strokes"
+msgstr "新功能：新的橡皮類型：分割筆畫"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:676
+msgid "feature: autosave"
+msgstr "新功能：自動儲存"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:677
+msgid "reduced handwriting latency"
+msgstr "降低手寫延遲"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:678
+msgid "improved selector"
+msgstr "改進選擇工具"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:679
+msgid "improved undo / redo system"
+msgstr "改進復原／重做系統"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:680
+msgid "Xournal++ file import: drawn shapes are now imported correctly"
+msgstr "Xournal++ 檔案匯入：繪製的形狀現在能正確匯入"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:681
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:827
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:840
+msgid "UI tweaks"
+msgstr "介面微調"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:683
+msgid "a lot of code refactoring"
+msgstr "大量程式碼重構"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:692
+msgid "feature: configurable button shortcuts (stylus, mouse)"
+msgstr "新功能：可自訂的按鈕快捷鍵（手寫筆、滑鼠）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:693
+msgid "change: moved the marker into the brush pen as a style"
+msgstr "變更：記號筆改為刷子中的一種樣式"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:694
+msgid "improvement: faster Pdf export & fix export with large sheet dimensions"
+msgstr "改進：PDF 匯出更快，並修正大尺寸頁面的匯出"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:703
+msgid "A new feature: infinite mode for expandable sheets in every direction"
+msgstr "新功能：無限模式，頁面可向各方向延伸"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:711
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:749
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:759
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:813
+msgid "UI improvements"
+msgstr "介面改進"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:719
+msgid "UX: Adaptive pen buttons (support smaller screens)"
+msgstr "使用體驗：自適應的筆按鈕（支援較小的螢幕）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:727
+msgid "new feature: Export as Pdf"
+msgstr "新功能：匯出為 PDF"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:736
+msgid "`Select all` and `Deselect all` selector buttons"
+msgstr "選擇工具的「全選」與「取消全選」按鈕"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:745
+msgid "file format changes. Breaking to older versions!"
+msgstr "檔案格式變更，與舊版本不相容！"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:746
+msgid "Stroke and image rotation"
+msgstr "筆畫與圖片旋轉"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:747
+msgid "rudimentary import and export to Xournal++ files"
+msgstr "初步支援 Xournal++ 檔案的匯入與匯出"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:748
+msgid "more persistent UI state"
+msgstr "保存更多介面狀態"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:758
+msgid "Textured brush with tweakable parameters"
+msgstr "可調整參數的材質筆"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:768
+msgid "using libadwaita 1.0!"
+msgstr "使用 libadwaita 1.0！"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:769
+msgid ""
+"Tools as new pen type. Expand the sheet vertically, modify stroke elements "
+"by dragging"
+msgstr "工具成為新的筆類型。可縱向延伸頁面，拖曳以修改筆畫元素"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:770
+msgid "asynchronous import, export"
+msgstr "非同步匯入與匯出"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:779
+msgid "Pdf import as vector images"
+msgstr "以向量圖匯入 PDF"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:788
+msgid "selecting with a rectangle"
+msgstr "以矩形選取"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:797
+msgid "significant rendering speed improvements"
+msgstr "大幅提升繪製速度"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:806
+msgid "an updated icon!"
+msgstr "更新的圖示！"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:807
+msgid ""
+"an updated file format. !!! Breaks compatibility to older versions. Please "
+"export existing files before upgrading / downgrade temporarily (explained "
+"how to downgrade at github.com/flxzt/rnote)"
+msgstr ""
+"更新的檔案格式。！！！與舊版本不相容。升級前請先匯出現有檔案，或暫時降級（降"
+"級方法請見 github.com/flxzt/rnote）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:810
+msgid "new features: Pdf import, clipboard and drag&drop support"
+msgstr "新功能：PDF 匯入、剪貼簿與拖放支援"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:811
+msgid ""
+"performance improvements in stroke rendering, selecting, erasing by "
+"parallelizing these operations"
+msgstr "透過平行處理，提升筆畫繪製、選取與擦除的效能"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:814
+msgid "internal: code refactoring into ECS pattern"
+msgstr "內部：將程式碼重構為 ECS 模式"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:823
+msgid "introducing dots as background pattern"
+msgstr "新增點狀背景紋理"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:824
+msgid "added undo, redo, close app and close active window shortcuts"
+msgstr "新增復原、重做、關閉應用程式與關閉目前視窗的快捷鍵"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:825
+msgid "added current file as title, with unsaved changes indicator"
+msgstr "以目前檔案作為標題，並顯示未儲存變更的指示"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:826
+msgid "improved background rendering"
+msgstr "改進背景繪製"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:836
+msgid "introducing background patterns"
+msgstr "新增背景紋理"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:837
+msgid "improved zooming"
+msgstr "改進縮放"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:838
+msgid "improved performance"
+msgstr "改進效能"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:839
+msgid "saving and loading more settings"
+msgstr "儲存與載入更多設定"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:849
+msgid "UI improvements: sidebar and settings"
+msgstr "介面改進：側邊欄與設定"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:850
+msgid "set a background color"
+msgstr "設定背景顏色"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:851
+msgid "added ellipse as a rough shape"
+msgstr "新增橢圓作為粗糙形狀"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:852
+msgid ""
+"new and improved gestures and shortcuts (zoom with \"ctrl+scroll\", drag the "
+"canvas with the middle mouse button)"
+msgstr "新增並改進手勢與快捷鍵（以「ctrl+捲動」縮放，以滑鼠中鍵拖曳畫布）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:854
+msgid "improved strokes algorithms"
+msgstr "改進筆畫演算法"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:863
+msgid "Introducing rough shapes for a sketched look"
+msgstr "推出粗糙形狀，呈現手繪效果"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:864
+msgid "fill shapes with a color"
+msgstr "以顏色填充形狀"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:865
+msgid ""
+"improved shape drawing (broke .rnote file backward compatibility, sorry!)"
+msgstr "改進形狀繪製（.rnote 檔案不再相容舊版本，抱歉！）"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:866
+msgid "alpha checkerboard background in the colorpicker"
+msgstr "顏色選擇器中的透明棋盤格背景"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:873
+msgid "improved zooming, UI tweaks and bug fixes"
+msgstr "改進縮放、介面微調與錯誤修正"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:878
+msgid "using native filechooser dialogs"
+msgstr "使用原生檔案選擇對話框"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:883
+msgid "The initial release"
+msgstr "首次發行"
+
 #: crates/rnote-ui/data/ui/dialogs/dialogs.ui:5
-#: crates/rnote-ui/data/ui/shortcuts.ui:191
+#: crates/rnote-ui/data/ui/shortcuts.ui:203
 msgid "Clear Document"
 msgstr "清空文件"
 
@@ -91,13 +1855,15 @@ msgstr "這將清空整個文件。請確認。"
 #: crates/rnote-ui/data/ui/dialogs/dialogs.ui:22
 #: crates/rnote-ui/data/ui/dialogs/dialogs.ui:40
 #: crates/rnote-ui/data/ui/dialogs/dialogs.ui:58
-#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:74
-#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:213
-#: crates/rnote-ui/data/ui/dialogs/export.ui:14
-#: crates/rnote-ui/data/ui/dialogs/export.ui:183
-#: crates/rnote-ui/data/ui/dialogs/export.ui:423
-#: crates/rnote-ui/data/ui/dialogs/import.ui:14
-#: crates/rnote-ui/data/ui/dialogs/import.ui:207
+#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:75
+#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:215
+#: crates/rnote-ui/data/ui/dialogs/export.ui:15
+#: crates/rnote-ui/data/ui/dialogs/export.ui:186
+#: crates/rnote-ui/data/ui/dialogs/export.ui:428
+#: crates/rnote-ui/data/ui/dialogs/import.ui:15
+#: crates/rnote-ui/data/ui/dialogs/import.ui:210
+#: crates/rnote-ui/src/library/dialogs.rs:25
+#: crates/rnote-ui/src/library/open.rs:110
 #: crates/rnote-ui/src/workspacebrowser/widgethelper.rs:31
 msgid "Cancel"
 msgstr "取消"
@@ -108,7 +1874,7 @@ msgstr "清空"
 
 #: crates/rnote-ui/data/ui/dialogs/dialogs.ui:16
 #: crates/rnote-ui/data/ui/mainheader.ui:22
-#: crates/rnote-ui/src/canvas/mod.rs:730
+#: crates/rnote-ui/src/canvas/mod.rs:744
 msgid "New Document"
 msgstr "新建文件"
 
@@ -129,6 +1895,7 @@ msgstr "不儲存"
 #: crates/rnote-ui/data/ui/dialogs/dialogs.ui:42
 #: crates/rnote-ui/data/ui/dialogs/dialogs.ui:60
 #: crates/rnote-ui/src/dialogs/export.rs:43
+#: crates/rnote-ui/src/library/manage.rs:156
 msgid "Save"
 msgstr "儲存"
 
@@ -168,43 +1935,45 @@ msgstr "全部不儲存"
 msgid "Edit Workspace"
 msgstr "編輯工作區"
 
-#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:79
+#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:81
 #: crates/rnote-ui/data/ui/settingspanel.ui:264
+#: crates/rnote-ui/src/library/dialogs.rs:120
 #: crates/rnote-ui/src/workspacebrowser/widgethelper.rs:36
 msgid "Apply"
 msgstr "應用"
 
-#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:119
+#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:121
 msgid "Workspace Name"
 msgstr "工作區名稱"
 
-#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:124
+#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:126
 msgid "Icon"
 msgstr "圖示"
 
-#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:125
+#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:127
 msgid "Change the workspace icon"
 msgstr "更改工作區圖示"
 
-#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:145
+#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:147
 #: crates/rnote-ui/data/ui/settingspanel.ui:345
+#: crates/rnote-ui/src/library/dialogs.rs:94
 msgid "Color"
 msgstr "顏色"
 
-#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:146
+#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:148
 msgid "Change the workspace color"
 msgstr "更改工作區顏色"
 
-#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:160
+#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:162
 msgid "Directory"
 msgstr "目錄"
 
-#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:161
+#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:163
 msgid "Change the workspace directory"
 msgstr "更改工作區目錄"
 
-#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:170
-#: crates/rnote-ui/data/ui/dialogs/export.ui:290
+#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:172
+#: crates/rnote-ui/data/ui/dialogs/export.ui:294
 #: crates/rnote-ui/src/dialogs/export.rs:485
 #: crates/rnote-ui/src/dialogs/export.rs:522
 #: crates/rnote-ui/src/dialogs/export.rs:530
@@ -212,19 +1981,21 @@ msgstr "更改工作區目錄"
 msgid "- no directory selected -"
 msgstr "—— 沒有選擇目錄 ——"
 
-#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:185
+#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:187
 msgid "Change the directory"
 msgstr "更改目錄"
 
-#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:208
+#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:210
 msgid "Trash File"
 msgstr "將檔案移至回收站"
 
-#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:209
+#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:211
 msgid "Are you sure you want to move this file to the trash?"
 msgstr "您確定移動這個檔案至回收站嗎？"
 
-#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:214
+#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:216
+#: crates/rnote-ui/src/library/sidebar.rs:18
+#: crates/rnote-ui/src/library/sidebar.rs:80
 msgid "Trash"
 msgstr "回收站"
 
@@ -233,27 +2004,27 @@ msgstr "回收站"
 msgid "Export Document"
 msgstr "匯出文件"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:19
-#: crates/rnote-ui/data/ui/dialogs/export.ui:188
-#: crates/rnote-ui/data/ui/dialogs/export.ui:428
+#: crates/rnote-ui/data/ui/dialogs/export.ui:21
+#: crates/rnote-ui/data/ui/dialogs/export.ui:192
+#: crates/rnote-ui/data/ui/dialogs/export.ui:434
 #: crates/rnote-ui/src/dialogs/export.rs:1257
 #: crates/rnote-ui/src/dialogs/export.rs:1318
 msgid "Export"
 msgstr "匯出"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:74
-#: crates/rnote-ui/data/ui/dialogs/export.ui:483
+#: crates/rnote-ui/data/ui/dialogs/export.ui:76
+#: crates/rnote-ui/data/ui/dialogs/export.ui:489
 msgid "Export File"
 msgstr "匯出檔案"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:75
-#: crates/rnote-ui/data/ui/dialogs/export.ui:484
+#: crates/rnote-ui/data/ui/dialogs/export.ui:77
+#: crates/rnote-ui/data/ui/dialogs/export.ui:490
 msgid "Select the export file"
 msgstr "選擇匯出檔案"
 
 #. force the user to pick another file
-#: crates/rnote-ui/data/ui/dialogs/export.ui:84
-#: crates/rnote-ui/data/ui/dialogs/export.ui:493
+#: crates/rnote-ui/data/ui/dialogs/export.ui:86
+#: crates/rnote-ui/data/ui/dialogs/export.ui:499
 #: crates/rnote-ui/src/dialogs/export.rs:136
 #: crates/rnote-ui/src/dialogs/export.rs:158
 #: crates/rnote-ui/src/dialogs/export.rs:165
@@ -265,85 +2036,85 @@ msgstr "選擇匯出檔案"
 msgid "- no file selected -"
 msgstr "— 沒有檔案被選中 —"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:108
-#: crates/rnote-ui/data/ui/dialogs/export.ui:319
-#: crates/rnote-ui/data/ui/dialogs/export.ui:517
+#: crates/rnote-ui/data/ui/dialogs/export.ui:110
+#: crates/rnote-ui/data/ui/dialogs/export.ui:323
+#: crates/rnote-ui/data/ui/dialogs/export.ui:523
 msgid "Export Preferences"
 msgstr "匯出設定"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:112
-#: crates/rnote-ui/data/ui/dialogs/export.ui:323
-#: crates/rnote-ui/data/ui/dialogs/export.ui:521
+#: crates/rnote-ui/data/ui/dialogs/export.ui:114
+#: crates/rnote-ui/data/ui/dialogs/export.ui:327
+#: crates/rnote-ui/data/ui/dialogs/export.ui:527
 msgid "With Background"
 msgstr "包含背景"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:113
-#: crates/rnote-ui/data/ui/dialogs/export.ui:324
-#: crates/rnote-ui/data/ui/dialogs/export.ui:522
+#: crates/rnote-ui/data/ui/dialogs/export.ui:115
+#: crates/rnote-ui/data/ui/dialogs/export.ui:328
+#: crates/rnote-ui/data/ui/dialogs/export.ui:528
 msgid "Set whether the background should be exported"
 msgstr "設定匯出時的背景顏色"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:118
-#: crates/rnote-ui/data/ui/dialogs/export.ui:329
-#: crates/rnote-ui/data/ui/dialogs/export.ui:527
+#: crates/rnote-ui/data/ui/dialogs/export.ui:120
+#: crates/rnote-ui/data/ui/dialogs/export.ui:333
+#: crates/rnote-ui/data/ui/dialogs/export.ui:533
 msgid "With Pattern"
 msgstr "包含紋理"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:119
-#: crates/rnote-ui/data/ui/dialogs/export.ui:330
-#: crates/rnote-ui/data/ui/dialogs/export.ui:528
+#: crates/rnote-ui/data/ui/dialogs/export.ui:121
+#: crates/rnote-ui/data/ui/dialogs/export.ui:334
+#: crates/rnote-ui/data/ui/dialogs/export.ui:534
 msgid "Set whether the background pattern should be exported"
 msgstr "設定匯出時包含的背景圖案"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:124
-#: crates/rnote-ui/data/ui/dialogs/export.ui:335
-#: crates/rnote-ui/data/ui/dialogs/export.ui:533
+#: crates/rnote-ui/data/ui/dialogs/export.ui:126
+#: crates/rnote-ui/data/ui/dialogs/export.ui:339
+#: crates/rnote-ui/data/ui/dialogs/export.ui:539
 msgid "Optimize for Printing"
 msgstr "針對列印最佳化"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:125
-#: crates/rnote-ui/data/ui/dialogs/export.ui:336
-#: crates/rnote-ui/data/ui/dialogs/export.ui:534
+#: crates/rnote-ui/data/ui/dialogs/export.ui:127
+#: crates/rnote-ui/data/ui/dialogs/export.ui:340
+#: crates/rnote-ui/data/ui/dialogs/export.ui:540
 msgid "Set whether the content should be optimized for printing"
 msgstr "設定匯出時是否需要為列印最佳化"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:130
-#: crates/rnote-ui/data/ui/dialogs/export.ui:341
-#: crates/rnote-ui/data/ui/dialogs/export.ui:539
+#: crates/rnote-ui/data/ui/dialogs/export.ui:132
+#: crates/rnote-ui/data/ui/dialogs/export.ui:345
+#: crates/rnote-ui/data/ui/dialogs/export.ui:545
 msgid "Export Format"
 msgstr "匯出格式"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:131
-#: crates/rnote-ui/data/ui/dialogs/export.ui:342
+#: crates/rnote-ui/data/ui/dialogs/export.ui:133
+#: crates/rnote-ui/data/ui/dialogs/export.ui:346
 msgid "The export format"
 msgstr "匯出的格式"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:135
-#: crates/rnote-ui/data/ui/dialogs/export.ui:346
-#: crates/rnote-ui/data/ui/dialogs/export.ui:544
+#: crates/rnote-ui/data/ui/dialogs/export.ui:137
+#: crates/rnote-ui/data/ui/dialogs/export.ui:350
+#: crates/rnote-ui/data/ui/dialogs/export.ui:550
 #: crates/rnote-ui/src/dialogs/export.rs:368
 #: crates/rnote-ui/src/dialogs/export.rs:793
 #: crates/rnote-ui/src/dialogs/export.rs:1186
 msgid "Svg"
 msgstr "svg"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:136
+#: crates/rnote-ui/data/ui/dialogs/export.ui:138
 #: crates/rnote-ui/src/dialogs/export.rs:379
 msgid "Pdf"
 msgstr "pdf"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:137
+#: crates/rnote-ui/data/ui/dialogs/export.ui:139
 #: crates/rnote-ui/src/dialogs/export.rs:390
 msgid "Xopp"
 msgstr "Xournal++ 筆記本（Xopp）"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:145
-#: crates/rnote-ui/data/ui/dialogs/export.ui:356
+#: crates/rnote-ui/data/ui/dialogs/export.ui:147
+#: crates/rnote-ui/data/ui/dialogs/export.ui:360
 msgid "Page Order"
 msgstr "頁面循序"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:146
-#: crates/rnote-ui/data/ui/dialogs/export.ui:357
+#: crates/rnote-ui/data/ui/dialogs/export.ui:148
+#: crates/rnote-ui/data/ui/dialogs/export.ui:361
 msgid ""
 "The page order when documents with layouts\n"
 "that expand in horizontal and vertical directions\n"
@@ -353,62 +2124,62 @@ msgstr ""
 "橫向與縱向擴充套件時，\n"
 "被切割為頁面的順序"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:152
-#: crates/rnote-ui/data/ui/dialogs/export.ui:363
+#: crates/rnote-ui/data/ui/dialogs/export.ui:154
+#: crates/rnote-ui/data/ui/dialogs/export.ui:367
 msgid "Horizontal First"
 msgstr "橫向優先"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:153
-#: crates/rnote-ui/data/ui/dialogs/export.ui:364
+#: crates/rnote-ui/data/ui/dialogs/export.ui:155
+#: crates/rnote-ui/data/ui/dialogs/export.ui:368
 msgid "Vertical First"
 msgstr "縱向優先"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:174
+#: crates/rnote-ui/data/ui/dialogs/export.ui:176
 #: crates/rnote-ui/src/dialogs/export.rs:773
 msgid "Export Document Pages"
 msgstr "分頁匯出"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:260
+#: crates/rnote-ui/data/ui/dialogs/export.ui:264
 msgid "Page Files Naming:"
 msgstr "頁面檔案命名："
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:280
+#: crates/rnote-ui/data/ui/dialogs/export.ui:284
 msgid "Export Directory"
 msgstr "匯出目錄"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:281
+#: crates/rnote-ui/data/ui/dialogs/export.ui:285
 msgid "Select the export directory"
 msgstr "選擇匯出檔案所在目錄"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:312
+#: crates/rnote-ui/data/ui/dialogs/export.ui:316
 msgctxt ""
 "When pages are exported this is the base name, followed by: - Page 0,1,.."
 msgid "Export Files Stem Name"
 msgstr "匯出檔案標題名"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:347
-#: crates/rnote-ui/data/ui/dialogs/export.ui:545
+#: crates/rnote-ui/data/ui/dialogs/export.ui:351
+#: crates/rnote-ui/data/ui/dialogs/export.ui:551
 #: crates/rnote-ui/src/dialogs/export.rs:804
 #: crates/rnote-ui/src/dialogs/export.rs:1197
 msgid "Png"
 msgstr "png"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:348
-#: crates/rnote-ui/data/ui/dialogs/export.ui:546
+#: crates/rnote-ui/data/ui/dialogs/export.ui:352
+#: crates/rnote-ui/data/ui/dialogs/export.ui:552
 #: crates/rnote-ui/src/dialogs/export.rs:817
 #: crates/rnote-ui/src/dialogs/export.rs:1210
 msgid "Jpeg"
 msgstr "jpeg"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:372
-#: crates/rnote-ui/data/ui/dialogs/export.ui:554
-#: crates/rnote-ui/data/ui/dialogs/import.ui:160
+#: crates/rnote-ui/data/ui/dialogs/export.ui:376
+#: crates/rnote-ui/data/ui/dialogs/export.ui:560
+#: crates/rnote-ui/data/ui/dialogs/import.ui:162
 msgid "Bitmap Scale-Factor"
 msgstr "點陣圖縮放係數"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:373
-#: crates/rnote-ui/data/ui/dialogs/export.ui:555
-#: crates/rnote-ui/data/ui/dialogs/import.ui:161
+#: crates/rnote-ui/data/ui/dialogs/export.ui:377
+#: crates/rnote-ui/data/ui/dialogs/export.ui:561
+#: crates/rnote-ui/data/ui/dialogs/import.ui:163
 msgid ""
 "Set the bitmap scale factor in relation\n"
 "to the actual size on the document"
@@ -416,30 +2187,30 @@ msgstr ""
 "根據文件的實際大小\n"
 "設定點陣圖縮放倍數"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:381
-#: crates/rnote-ui/data/ui/dialogs/export.ui:563
+#: crates/rnote-ui/data/ui/dialogs/export.ui:385
+#: crates/rnote-ui/data/ui/dialogs/export.ui:569
 msgid "Jpeg Quality"
 msgstr "jpeg影像質量"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:382
-#: crates/rnote-ui/data/ui/dialogs/export.ui:564
+#: crates/rnote-ui/data/ui/dialogs/export.ui:386
+#: crates/rnote-ui/data/ui/dialogs/export.ui:570
 msgid "Set the quality of the Jpeg image (1 - 100)"
 msgstr "設定 jpeg 影像的質量（1-100）"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:414
+#: crates/rnote-ui/data/ui/dialogs/export.ui:418
 #: crates/rnote-ui/src/dialogs/export.rs:1165
 msgid "Export Selection"
 msgstr "匯出所選"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:540
+#: crates/rnote-ui/data/ui/dialogs/export.ui:546
 msgid "The export image format"
 msgstr "影像匯出的格式"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:571
+#: crates/rnote-ui/data/ui/dialogs/export.ui:577
 msgid "Margin"
 msgstr "邊距"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:572
+#: crates/rnote-ui/data/ui/dialogs/export.ui:578
 msgid "Set the margin around the selected area"
 msgstr "設定選區周圍的邊距"
 
@@ -447,176 +2218,156 @@ msgstr "設定選區周圍的邊距"
 msgid "Import Pdf"
 msgstr "匯入 pdf"
 
-#: crates/rnote-ui/data/ui/dialogs/import.ui:19
-#: crates/rnote-ui/data/ui/dialogs/import.ui:212
+#: crates/rnote-ui/data/ui/dialogs/import.ui:21
+#: crates/rnote-ui/data/ui/dialogs/import.ui:216
 #: crates/rnote-ui/src/dialogs/import.rs:95
 msgid "Import"
 msgstr "匯入"
 
-#: crates/rnote-ui/data/ui/dialogs/import.ui:63
+#: crates/rnote-ui/data/ui/dialogs/import.ui:65
 msgid "Info"
 msgstr "資訊"
 
-#: crates/rnote-ui/data/ui/dialogs/import.ui:81
+#: crates/rnote-ui/data/ui/dialogs/import.ui:83
 msgid "Pdf Import Preferences"
 msgstr "pdf 匯入偏好"
 
-#: crates/rnote-ui/data/ui/dialogs/import.ui:85
+#: crates/rnote-ui/data/ui/dialogs/import.ui:87
 msgid "Start Page"
 msgstr "開始頁面"
 
-#: crates/rnote-ui/data/ui/dialogs/import.ui:94
+#: crates/rnote-ui/data/ui/dialogs/import.ui:96
 msgid "End Page"
 msgstr "最後一頁"
 
-#: crates/rnote-ui/data/ui/dialogs/import.ui:103
+#: crates/rnote-ui/data/ui/dialogs/import.ui:105
 msgid "Adjust Document"
 msgstr "調整文件"
 
-#: crates/rnote-ui/data/ui/dialogs/import.ui:104
+#: crates/rnote-ui/data/ui/dialogs/import.ui:106
 msgid "Whether the document layout should be adjusted to the Pdf"
 msgstr "文件佈局是否適應pdf"
 
-#: crates/rnote-ui/data/ui/dialogs/import.ui:109
+#: crates/rnote-ui/data/ui/dialogs/import.ui:111
 msgid "Page Width (%)"
 msgstr "頁面寬度(%)"
 
-#: crates/rnote-ui/data/ui/dialogs/import.ui:110
+#: crates/rnote-ui/data/ui/dialogs/import.ui:112
 msgid "Set the width of imported Pdf's in percentage to the format width"
 msgstr "設定匯入的 pdf 的寬度為格式寬度的百分比"
 
-#: crates/rnote-ui/data/ui/dialogs/import.ui:117
+#: crates/rnote-ui/data/ui/dialogs/import.ui:119
 msgid "Page Spacing"
 msgstr "頁間距"
 
-#: crates/rnote-ui/data/ui/dialogs/import.ui:118
+#: crates/rnote-ui/data/ui/dialogs/import.ui:120
 msgid "How Pdf pages are spaced"
 msgstr "pdf 頁間距模式"
 
-#: crates/rnote-ui/data/ui/dialogs/import.ui:122
+#: crates/rnote-ui/data/ui/dialogs/import.ui:124
 msgid "Continuous"
 msgstr "連續"
 
-#: crates/rnote-ui/data/ui/dialogs/import.ui:123
+#: crates/rnote-ui/data/ui/dialogs/import.ui:125
 msgid "One per Document Page"
 msgstr "分頁"
 
-#: crates/rnote-ui/data/ui/dialogs/import.ui:131
+#: crates/rnote-ui/data/ui/dialogs/import.ui:133
 msgid "Pages Type"
 msgstr "頁面型別"
 
-#: crates/rnote-ui/data/ui/dialogs/import.ui:132
+#: crates/rnote-ui/data/ui/dialogs/import.ui:134
 msgid "Set whether Pdf's should be imported as vector or bitmap images"
 msgstr "設定是否將 pdf 匯入為向量圖或點陣圖"
 
-#: crates/rnote-ui/data/ui/dialogs/import.ui:144
+#: crates/rnote-ui/data/ui/dialogs/import.ui:146
 msgid "Vector"
 msgstr "向量圖"
 
-#: crates/rnote-ui/data/ui/dialogs/import.ui:151
+#: crates/rnote-ui/data/ui/dialogs/import.ui:153
 msgid "Bitmap"
 msgstr "點陣圖"
 
-#: crates/rnote-ui/data/ui/dialogs/import.ui:198
+#: crates/rnote-ui/data/ui/dialogs/import.ui:200
 msgid "Import Xournal++ File"
 msgstr "匯入 Xournal++ 檔案"
 
-#: crates/rnote-ui/data/ui/dialogs/import.ui:241
+#: crates/rnote-ui/data/ui/dialogs/import.ui:245
 msgid "Xournal++ File Import Preferences"
 msgstr "Xournal++ 檔案匯入設定"
 
-#: crates/rnote-ui/data/ui/dialogs/import.ui:245
+#: crates/rnote-ui/data/ui/dialogs/import.ui:249
 msgid "DPI"
 msgstr "畫素密度（DPI）"
 
-#: crates/rnote-ui/data/ui/dialogs/import.ui:246
+#: crates/rnote-ui/data/ui/dialogs/import.ui:250
 msgid "Set the preferred DPI for the Xournal++ file"
 msgstr "為 Xournal++ 檔案設定推薦的 DPI"
 
-#: crates/rnote-ui/data/ui/dialogs/import.ui:267
+#: crates/rnote-ui/data/ui/dialogs/import.ui:271
 msgid "is password protected"
 msgstr "密碼受保護"
 
-#: crates/rnote-ui/data/ui/dialogs/import.ui:270
+#: crates/rnote-ui/data/ui/dialogs/import.ui:274
 msgid "Encrypted PDF"
 msgstr "加密 PDF"
 
-#: crates/rnote-ui/data/ui/dialogs/import.ui:273
+#: crates/rnote-ui/data/ui/dialogs/import.ui:277
 msgid "_Cancel"
 msgstr "取消 [_C]"
 
-#: crates/rnote-ui/data/ui/dialogs/import.ui:274
+#: crates/rnote-ui/data/ui/dialogs/import.ui:278
 msgid "_Unlock"
 msgstr "解鎖 [_U]"
 
-#: crates/rnote-ui/data/ui/dialogs/import.ui:285
+#: crates/rnote-ui/data/ui/dialogs/import.ui:289
 msgid "Enter the PDF password"
 msgstr "請輸入 PDF 密碼"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:18
-msgid "Brush Style"
-msgstr "筆刷樣式"
-
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:33
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:149
-msgid "Brush Configuration"
-msgstr "刷子設定"
-
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:66
-msgid "Brush Styles"
-msgstr "筆刷樣式"
-
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:95
-msgid "Marker"
-msgstr "記號筆"
-
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:96
-msgid "Mark underneath other strokes"
-msgstr "在其他筆畫下方標記"
-
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:107
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:192
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:216
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:26
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:179
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:203
 msgid "Solid"
 msgstr "硬筆"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:108
-msgid "Draw solid color strokes"
-msgstr "繪製純色筆畫"
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:36
+msgid "Marker"
+msgstr "記號筆"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:119
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:46
 msgid "Textured"
 msgstr "材質筆"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:120
-msgid "Draw textured strokes"
-msgstr "繪製材質筆畫"
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:61
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:93
+msgid "Brush Configuration"
+msgstr "刷子設定"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:170
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:114
 msgid "Path Modelling"
 msgstr "路徑模式"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:187
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:131
 msgid "Simple"
 msgstr "簡單"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:188
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:132
 msgid "Produces line segments from the raw input.\n"
 msgstr "按照原始輸入生成線段。\n"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:194
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:138
 msgid "Curved"
 msgstr "曲線"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:195
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:139
 msgid "Produces smooth, curved segments.\n"
 msgstr "生成平滑的曲線段。\n"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:201
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:145
 msgid "Modeled"
 msgstr "建模"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:202
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:146
 msgid ""
 "Produces a modeled path with physics based algorithms.\n"
 "Results in the best looking handwriting."
@@ -624,80 +2375,80 @@ msgstr ""
 "使用模擬物理的演算法生成建模後的軌跡。\n"
 "結果是所有方法中最好看的（譯者注：對於中文使用者不一定如此）。"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:211
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:155
 msgid "Solid Style"
 msgstr "硬筆樣式"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:214
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:158
 msgid "Pressure Curve"
 msgstr "壓力曲線"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:215
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:159
 msgid "Choose a pressure curve"
 msgstr "選擇一種壓力曲線"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:219
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:163
 msgid "Constant"
 msgstr "固定值"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:220
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:164
 msgid "Linear"
 msgstr "線性"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:221
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:165
 msgid "Square root"
 msgstr "平方根"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:222
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:166
 msgid "Cubic root"
 msgstr "立方根"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:223
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:167
 msgid "Quadratic Parabola"
 msgstr "二次拋物線"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:224
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:168
 msgid "Cubic Parabola"
 msgstr "三次拋物線"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:235
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:179
 msgid "Textured Style"
 msgstr "材質筆樣式"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:238
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:182
 msgid "Density"
 msgstr "密度"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:239
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:183
 msgid "The density is the amount of dots per 10x10 area"
 msgstr "密度指的是 10x10 區域內點的數量"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:248
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:192
 msgctxt ""
 "Drawing with a textured pen, how the dots of the texture are distributed"
 msgid "Stroke Dots Position Distribution"
 msgstr "筆畫點的位置分佈"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:249
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:193
 msgid "Choose a dots position probability distribution"
 msgstr "選擇點的分佈機率"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:253
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:197
 msgctxt "A variant of the textured pen texture distribution"
 msgid "Uniform"
 msgstr "集中"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:254
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:198
 msgctxt "A variant of the textured pen texture distribution"
 msgid "Normal"
 msgstr "正常"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:255
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:199
 msgctxt "A variant of the textured pen texture distribution"
 msgid "Exponential"
 msgstr "指數"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:256
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:200
 msgctxt "A variant of the textured pen texture distribution"
 msgid "Reverse Exponential"
 msgstr "對數"
@@ -773,7 +2524,7 @@ msgid "Invert Color Brightness of All Selected Strokes"
 msgstr "反轉所有選中筆畫的色彩亮度"
 
 #: crates/rnote-ui/data/ui/penssidebar/selectorpage.ui:100
-#: crates/rnote-ui/data/ui/shortcuts.ui:260
+#: crates/rnote-ui/data/ui/shortcuts.ui:272
 msgid "Duplicate Selection"
 msgstr "複製所選內容"
 
@@ -781,146 +2532,142 @@ msgstr "複製所選內容"
 msgid "Delete Selection"
 msgstr "刪除所選內容"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:19
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:303
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:20
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:290
 msgid "Shape Builders"
 msgstr "形狀構建工具"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:41
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:80
-msgid "Shape Configuration"
-msgstr "形狀設定"
-
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:103
-msgid "Shaper Style"
-msgstr "形狀工具樣式"
-
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:113
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:48
 msgid "Smooth"
 msgstr "平滑"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:124
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:58
 msgid "Rough"
 msgstr "粗糙"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:141
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:71
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:105
+msgid "Shape Configuration"
+msgstr "形狀設定"
+
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:128
 msgid "Highlighting"
 msgstr "高亮"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:144
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:131
 msgid "Highlight-Mode"
 msgstr "高亮模式"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:145
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:132
 msgid "Fade active color"
 msgstr "淡化"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:150
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:137
 msgid "Highlight-Opacity"
 msgstr "高光-不透明度"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:151
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:138
 msgid "Modify the highlight opacity (%)"
 msgstr "修改高亮不透明度(%)"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:170
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:157
 msgid "Smooth Style"
 msgstr "平滑樣式"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:173
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:160
 msgid "Line Cap"
 msgstr "線端"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:174
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:161
 msgid "Choose a line cap"
 msgstr "選擇線端"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:178
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:165
 msgid "Straight"
 msgstr "直線"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:179
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:166
 msgid "Round"
 msgstr "圓狀"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:187
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:174
 msgid "Line Style"
 msgstr "線樣式"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:188
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:175
 msgid "Choose a line style"
 msgstr "選擇線樣式"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:193
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:180
 msgid "Dotted"
 msgstr "點狀"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:194
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:181
 msgid "Dashed (narrow)"
 msgstr "虛線（細）"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:195
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:182
 msgid "Dashed (equidistant)"
 msgstr "虛線（中）"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:196
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:183
 msgid "Dashed (wide)"
 msgstr "虛線（粗）"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:208
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:195
 msgid "Rough Style"
 msgstr "粗糙樣式"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:211
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:198
 msgid "Fill Style"
 msgstr "填充樣式"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:212
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:199
 msgid "Choose a fill style"
 msgstr "選擇填充樣式"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:217
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:204
 msgid "Hachure"
 msgstr "陰影線"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:218
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:205
 msgid "Zig-Zag"
 msgstr "鋸齒"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:219
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:206
 msgid "Zig-Zag Line"
 msgstr "鋸齒線"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:220
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:207
 msgid "Crosshatch"
 msgstr "交叉陰影線"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:221
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:208
 #: crates/rnote-ui/data/ui/settingspanel.ui:374
 msgid "Dots"
 msgstr "點"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:222
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:209
 msgid "Dashed"
 msgstr "虛線"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:230
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:217
 msgid "Hachure Angle"
 msgstr "帶角度的陰影線"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:231
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:218
 msgid "Set the angle of hachure fills"
 msgstr "設定陰影線的角度"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:250
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:237
 msgid "Constraints"
 msgstr "約束條件"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:261
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:248
 msgid "Enabled"
 msgstr "啟用"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:262
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:249
 msgid ""
 "Hold Ctrl to temporarily enable/disable\n"
 "constraints when this switch is off/on"
@@ -928,37 +2675,37 @@ msgstr ""
 "按住Ctrl鍵可暫時啟用/停用\n"
 "約束條件當此開關被關閉/開啟時"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:268
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:255
 msgid "1:1"
 msgstr "1:1"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:273
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:260
 msgid "3:2"
 msgstr "3:2"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:278
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:265
 msgid "Golden Ratio (1:1.618)"
 msgstr "黃金比例（1:1.618）"
 
-#: crates/rnote-ui/data/ui/penssidebar/toolspage.ui:21
+#: crates/rnote-ui/data/ui/penssidebar/toolspage.ui:22
 msgid "Insert Vertical Space"
 msgstr "插入縱向空白"
 
-#: crates/rnote-ui/data/ui/penssidebar/toolspage.ui:32
-#: crates/rnote-ui/data/ui/penssidebar/toolspage.ui:102
+#: crates/rnote-ui/data/ui/penssidebar/toolspage.ui:33
+#: crates/rnote-ui/data/ui/penssidebar/toolspage.ui:103
 msgid "Vertical-Space Tool Configuration"
 msgstr "縱向空間工具配置"
 
-#: crates/rnote-ui/data/ui/penssidebar/toolspage.ui:48
-#: crates/rnote-ui/data/ui/shortcuts.ui:114
+#: crates/rnote-ui/data/ui/penssidebar/toolspage.ui:49
+#: crates/rnote-ui/data/ui/shortcuts.ui:120
 msgid "Move View"
 msgstr "移動檢視"
 
-#: crates/rnote-ui/data/ui/penssidebar/toolspage.ui:63
+#: crates/rnote-ui/data/ui/penssidebar/toolspage.ui:64
 msgid "Zoom In/Out"
 msgstr "縮放"
 
-#: crates/rnote-ui/data/ui/penssidebar/toolspage.ui:78
+#: crates/rnote-ui/data/ui/penssidebar/toolspage.ui:79
 msgid "Laser"
 msgstr "雷射"
 
@@ -979,17 +2726,17 @@ msgid "Reset Text Attributes"
 msgstr "重置文字屬性"
 
 #: crates/rnote-ui/data/ui/penssidebar/typewriterpage.ui:77
-#: crates/rnote-ui/data/ui/shortcuts.ui:221
+#: crates/rnote-ui/data/ui/shortcuts.ui:233
 msgid "Bold"
 msgstr "粗體"
 
 #: crates/rnote-ui/data/ui/penssidebar/typewriterpage.ui:87
-#: crates/rnote-ui/data/ui/shortcuts.ui:227
+#: crates/rnote-ui/data/ui/shortcuts.ui:239
 msgid "Italic"
 msgstr "斜體"
 
 #: crates/rnote-ui/data/ui/penssidebar/typewriterpage.ui:97
-#: crates/rnote-ui/data/ui/shortcuts.ui:233
+#: crates/rnote-ui/data/ui/shortcuts.ui:245
 msgid "Underline"
 msgstr "下劃線"
 
@@ -1133,10 +2880,12 @@ msgid "Export _Selection"
 msgstr "匯出所選 [_S]"
 
 #: crates/rnote-ui/data/ui/appmenu.ui:130
+#: crates/rnote-ui/data/ui/library/libraryview.ui:23
 msgid "Se_ttings"
 msgstr "設定 [_t]"
 
 #: crates/rnote-ui/data/ui/appmenu.ui:134
+#: crates/rnote-ui/data/ui/library/libraryview.ui:27
 msgid "_Keyboard Shortcuts"
 msgstr "快捷鍵 [_K]"
 
@@ -1145,6 +2894,7 @@ msgid "_Donate 💝"
 msgstr "捐贈💝 [_D]"
 
 #: crates/rnote-ui/data/ui/appmenu.ui:142
+#: crates/rnote-ui/data/ui/library/libraryview.ui:31
 msgid "A_bout Rnote"
 msgstr "關於 Rnote [_b]"
 
@@ -1190,9 +2940,9 @@ msgid "C_lear Document"
 msgstr "清空文件 [_l]"
 
 #: crates/rnote-ui/data/ui/canvasmenu.ui:85
-#: crates/rnote-ui/data/ui/shortcuts.ui:138
 #: crates/rnote-ui/data/ui/shortcuts.ui:144
 #: crates/rnote-ui/data/ui/shortcuts.ui:150
+#: crates/rnote-ui/data/ui/shortcuts.ui:156
 msgid "Zoom out"
 msgstr "縮小"
 
@@ -1201,9 +2951,9 @@ msgid "Reset Zoom"
 msgstr "重置縮放"
 
 #: crates/rnote-ui/data/ui/canvasmenu.ui:101
-#: crates/rnote-ui/data/ui/shortcuts.ui:120
 #: crates/rnote-ui/data/ui/shortcuts.ui:126
 #: crates/rnote-ui/data/ui/shortcuts.ui:132
+#: crates/rnote-ui/data/ui/shortcuts.ui:138
 msgid "Zoom in"
 msgstr "放大"
 
@@ -1212,10 +2962,8 @@ msgid "Zoom to Page Width"
 msgstr "縮放以適合頁寬"
 
 #: crates/rnote-ui/data/ui/canvasmenu.ui:121
-#, fuzzy
-#| msgid "Zoom to Page Width"
 msgid "Zoom to Real Size"
-msgstr "縮放以適合頁寬"
+msgstr "縮放至實際大小"
 
 #: crates/rnote-ui/data/ui/canvasmenu.ui:136
 msgid ""
@@ -1251,6 +2999,7 @@ msgstr "填充顏色"
 
 #: crates/rnote-ui/data/ui/filerow.ui:61
 #: crates/rnote-ui/src/dialogs/import.rs:39
+#: crates/rnote-ui/src/library/open.rs:112
 msgid "Open"
 msgstr "開啟"
 
@@ -1259,51 +3008,127 @@ msgid "Open in Default App"
 msgstr "在預設應用內開啟"
 
 #: crates/rnote-ui/data/ui/filerow.ui:69
+#: crates/rnote-ui/src/library/actions.rs:213
+#: crates/rnote-ui/src/library/manage.rs:67
 #: crates/rnote-ui/src/workspacebrowser/filerow/actions/rename.rs:137
 msgid "Rename"
 msgstr "重新命名"
 
 #: crates/rnote-ui/data/ui/filerow.ui:73
+#: crates/rnote-ui/data/ui/library/libraryview.ui:121
+#: crates/rnote-ui/src/library/actions.rs:26
 msgid "Move to Trash"
 msgstr "移至回收站"
 
 #: crates/rnote-ui/data/ui/filerow.ui:77
+#: crates/rnote-ui/src/library/actions.rs:19
 msgid "Duplicate"
 msgstr "重複所選內容"
 
-#: crates/rnote-ui/data/ui/mainheader.ui:23
-#: crates/rnote-ui/src/canvas/mod.rs:732
-msgid "Draft"
-msgstr "草稿"
+#: crates/rnote-ui/data/ui/library/libraryview.ui:7
+msgid "Sort by Name"
+msgstr "依名稱排序"
 
-#: crates/rnote-ui/data/ui/mainheader.ui:40
-#: crates/rnote-ui/data/ui/mainheader.ui:81
+#: crates/rnote-ui/data/ui/library/libraryview.ui:13
+msgid "Library Folder…"
+msgstr "筆記庫資料夾…"
+
+#: crates/rnote-ui/data/ui/library/libraryview.ui:17
+msgid "Refresh"
+msgstr "重新整理"
+
+#: crates/rnote-ui/data/ui/library/libraryview.ui:35
+msgid "_Quit"
+msgstr "結束 [_Q]"
+
+#: crates/rnote-ui/data/ui/library/libraryview.ui:51
+#: crates/rnote-ui/data/ui/mainheader.ui:42
+msgctxt "notebooks"
+msgid "Library"
+msgstr "筆記庫"
+
+#: crates/rnote-ui/data/ui/library/libraryview.ui:57
+#: crates/rnote-ui/data/ui/mainheader.ui:48
+#: crates/rnote-ui/data/ui/mainheader.ui:90
 msgid "Show/Hide Sidebar"
 msgstr "顯示/隱藏側欄"
 
-#: crates/rnote-ui/data/ui/mainheader.ui:47
+#: crates/rnote-ui/data/ui/library/libraryview.ui:65
+msgid "Open Tabs"
+msgstr "已開啟的標籤頁"
+
+#: crates/rnote-ui/data/ui/library/libraryview.ui:72
+msgid "Library Menu"
+msgstr "筆記庫選單"
+
+#: crates/rnote-ui/data/ui/library/libraryview.ui:84
+#: crates/rnote-ui/src/dialogs/export.rs:351
+#: crates/rnote-ui/src/dialogs/export.rs:775
+#: crates/rnote-ui/src/dialogs/export.rs:1167
+#: crates/rnote-ui/src/dialogs/mod.rs:524
+#: crates/rnote-ui/src/library/card.rs:135
+msgid "Select"
+msgstr "選擇"
+
+#: crates/rnote-ui/data/ui/library/libraryview.ui:91
+msgid "Section Menu"
+msgstr "區段選單"
+
+#: crates/rnote-ui/data/ui/library/libraryview.ui:96
+#: crates/rnote-ui/src/library/actions.rs:152
+msgid "Empty Trash"
+msgstr "清空回收站"
+
+#: crates/rnote-ui/data/ui/library/libraryview.ui:108
+msgid "List View"
+msgstr "清單檢視"
+
+#: crates/rnote-ui/data/ui/library/libraryview.ui:130
+#: crates/rnote-ui/src/library/actions.rs:18
+msgid "Tags…"
+msgstr "標籤…"
+
+#: crates/rnote-ui/data/ui/library/libraryview.ui:136
+#: crates/rnote-ui/src/library/actions.rs:23
+msgid "Move to"
+msgstr "移至"
+
+#: crates/rnote-ui/data/ui/library/libraryview.ui:193
+msgid "The Library Can’t Be Opened"
+msgstr "無法開啟筆記庫"
+
+#: crates/rnote-ui/data/ui/library/libraryview.ui:196
+msgid "Choose Folder…"
+msgstr "選擇資料夾…"
+
+#: crates/rnote-ui/data/ui/mainheader.ui:23
+#: crates/rnote-ui/src/canvas/mod.rs:746
+msgid "Draft"
+msgstr "草稿"
+
+#: crates/rnote-ui/data/ui/mainheader.ui:55
 #: crates/rnote-ui/data/ui/shortcuts.ui:26
 msgid "New Tab"
 msgstr "新標籤頁"
 
-#: crates/rnote-ui/data/ui/mainheader.ui:54
+#: crates/rnote-ui/data/ui/mainheader.ui:62
 msgid "View Open Tabs"
 msgstr "檢視開啟的標籤頁"
 
-#: crates/rnote-ui/data/ui/mainheader.ui:61
+#: crates/rnote-ui/data/ui/mainheader.ui:69
 msgid "Focus Mode"
 msgstr "專注模式"
 
-#: crates/rnote-ui/data/ui/mainheader.ui:73
-#: crates/rnote-ui/data/ui/shortcuts.ui:173
+#: crates/rnote-ui/data/ui/mainheader.ui:82
+#: crates/rnote-ui/data/ui/shortcuts.ui:185
 msgid "Save Document"
 msgstr "儲存文件"
 
-#: crates/rnote-ui/data/ui/mainheader.ui:89
+#: crates/rnote-ui/data/ui/mainheader.ui:98
 msgid "Canvas Menu"
 msgstr "畫布選單"
 
-#: crates/rnote-ui/data/ui/mainheader.ui:94
+#: crates/rnote-ui/data/ui/mainheader.ui:103
 msgid "App Menu"
 msgstr "app 選單"
 
@@ -1318,6 +3143,10 @@ msgstr "右移 [_R]"
 #: crates/rnote-ui/data/ui/overlays.ui:108
 msgid "_Close"
 msgstr "關閉 [_C]"
+
+#: crates/rnote-ui/data/ui/overlays.ui:114
+msgid "_Move to New Window"
+msgstr "移至新視窗 [_M]"
 
 #: crates/rnote-ui/data/ui/penshortcutrow.ui:11
 msgid "Temporary"
@@ -1513,7 +3342,7 @@ msgid "Revert"
 msgstr "撤銷"
 
 #: crates/rnote-ui/data/ui/settingspanel.ui:277
-#: crates/rnote-ui/data/ui/shortcuts.ui:164
+#: crates/rnote-ui/data/ui/shortcuts.ui:176
 #: crates/rnote-ui/src/dialogs/mod.rs:705
 msgid "Document"
 msgstr "文件"
@@ -1575,7 +3404,7 @@ msgid "Lines"
 msgstr "線"
 
 #: crates/rnote-ui/data/ui/settingspanel.ui:373
-#: crates/rnote-ui/src/penssidebar/shaperpage.rs:677
+#: crates/rnote-ui/src/penssidebar/shaperpage.rs:704
 msgid "Grid"
 msgstr "方格"
 
@@ -1743,6 +3572,26 @@ msgstr ""
 "設定畫板\n"
 "按鈕 4 的行為"
 
+#: crates/rnote-ui/data/ui/settingspanel.ui:583
+msgid "Stylus pen modes"
+msgstr "手寫筆模式"
+
+#: crates/rnote-ui/data/ui/settingspanel.ui:586
+msgid "Tool for the pen action"
+msgstr "筆尖使用的工具"
+
+#: crates/rnote-ui/data/ui/settingspanel.ui:587
+msgid "Set/lock the action for the pen"
+msgstr "設定或鎖定筆尖的動作"
+
+#: crates/rnote-ui/data/ui/settingspanel.ui:598
+msgid "Tool for the eraser action"
+msgstr "橡皮端使用的工具"
+
+#: crates/rnote-ui/data/ui/settingspanel.ui:599
+msgid "Set/lock the action for the eraser"
+msgstr "設定或鎖定橡皮端的動作"
+
 #: crates/rnote-ui/data/ui/shortcuts.ui:14
 msgid "Show Keyboard Shortcuts"
 msgstr "顯示快捷鍵"
@@ -1795,81 +3644,89 @@ msgstr "切換到“選擇工具”"
 msgid "Switch to the 'Tools'"
 msgstr "切換到“工具”"
 
-#: crates/rnote-ui/data/ui/shortcuts.ui:111
+#: crates/rnote-ui/data/ui/shortcuts.ui:109
+msgid "Select Color"
+msgstr "選擇顏色"
+
+#: crates/rnote-ui/data/ui/shortcuts.ui:117
 msgid "View"
 msgstr "檢視"
 
-#: crates/rnote-ui/data/ui/shortcuts.ui:115
+#: crates/rnote-ui/data/ui/shortcuts.ui:121
 msgid "Alt + Drag"
 msgstr "Alt + 拖動"
 
-#: crates/rnote-ui/data/ui/shortcuts.ui:156
+#: crates/rnote-ui/data/ui/shortcuts.ui:162
 msgid "Zoom in/out"
 msgstr "縮放"
 
-#: crates/rnote-ui/data/ui/shortcuts.ui:157
+#: crates/rnote-ui/data/ui/shortcuts.ui:163
 msgid "Alt + Shift + Drag"
 msgstr "Alt + Shift + 拖動"
 
-#: crates/rnote-ui/data/ui/shortcuts.ui:167
+#: crates/rnote-ui/data/ui/shortcuts.ui:168
+msgid "Return to Origin Page"
+msgstr "返回到第一頁"
+
+#: crates/rnote-ui/data/ui/shortcuts.ui:179
 msgid "Open Document"
 msgstr "開啟文件"
 
-#: crates/rnote-ui/data/ui/shortcuts.ui:179
+#: crates/rnote-ui/data/ui/shortcuts.ui:191
 #: crates/rnote-ui/src/dialogs/export.rs:41
 msgid "Save Document As"
 msgstr "另存文件為"
 
-#: crates/rnote-ui/data/ui/shortcuts.ui:185
+#: crates/rnote-ui/data/ui/shortcuts.ui:197
 msgid "Snap Positions"
 msgstr "捕獲位置"
 
-#: crates/rnote-ui/data/ui/shortcuts.ui:197
+#: crates/rnote-ui/data/ui/shortcuts.ui:209
 msgid "Add Page (When in Fixed-Size Layout)"
 msgstr "新增頁面（固定大小布局時）"
 
-#: crates/rnote-ui/data/ui/shortcuts.ui:203
+#: crates/rnote-ui/data/ui/shortcuts.ui:215
 msgid "Remove Last Page (When in Fixed-Size Layout)"
 msgstr "移除尾頁（固定大小布局時）"
 
-#: crates/rnote-ui/data/ui/shortcuts.ui:209
+#: crates/rnote-ui/data/ui/shortcuts.ui:221
 msgid "Print Document"
 msgstr "列印"
 
-#: crates/rnote-ui/data/ui/shortcuts.ui:215
+#: crates/rnote-ui/data/ui/shortcuts.ui:227
 #: crates/rnote-ui/src/dialogs/import.rs:93
 msgid "Import File"
 msgstr "匯入檔案"
 
-#: crates/rnote-ui/data/ui/shortcuts.ui:239
+#: crates/rnote-ui/data/ui/shortcuts.ui:251
 msgid "Drawing"
 msgstr "繪畫"
 
-#: crates/rnote-ui/data/ui/shortcuts.ui:242
+#: crates/rnote-ui/data/ui/shortcuts.ui:254
 msgid "Copy to Clipboard"
 msgstr "複製到剪下板"
 
-#: crates/rnote-ui/data/ui/shortcuts.ui:248
+#: crates/rnote-ui/data/ui/shortcuts.ui:260
 msgid "Cut to Clipboard"
 msgstr "剪下到剪下板"
 
-#: crates/rnote-ui/data/ui/shortcuts.ui:254
+#: crates/rnote-ui/data/ui/shortcuts.ui:266
 msgid "Paste Clipboard"
 msgstr "貼上剪下板"
 
-#: crates/rnote-ui/data/ui/shortcuts.ui:266
+#: crates/rnote-ui/data/ui/shortcuts.ui:278
 msgid "Undo"
 msgstr "撤銷"
 
-#: crates/rnote-ui/data/ui/shortcuts.ui:272
+#: crates/rnote-ui/data/ui/shortcuts.ui:284
 msgid "Redo"
 msgstr "重做"
 
-#: crates/rnote-ui/data/ui/sidebar.ui:50
+#: crates/rnote-ui/data/ui/sidebar.ui:52
 msgid "Workspace"
 msgstr "工作區"
 
-#: crates/rnote-ui/data/ui/sidebar.ui:61
+#: crates/rnote-ui/data/ui/sidebar.ui:63
 msgid "Settings"
 msgstr "設定"
 
@@ -1897,8 +3754,8 @@ msgstr "建立新資料夾"
 msgid "Open Workspace Folder"
 msgstr "開啟工作區目錄"
 
-#: crates/rnote-ui/src/appwindow/actions.rs:845
-#: crates/rnote-ui/src/appwindow/imp.rs:425
+#: crates/rnote-ui/src/appwindow/actions.rs:881
+#: crates/rnote-ui/src/appwindow/imp.rs:469
 #: crates/rnote-ui/src/dialogs/export.rs:82
 #: crates/rnote-ui/src/dialogs/mod.rs:127
 #: crates/rnote-ui/src/dialogs/mod.rs:257
@@ -1906,79 +3763,90 @@ msgstr "開啟工作區目錄"
 msgid "Saving document failed"
 msgstr "文件儲存失敗"
 
-#: crates/rnote-ui/src/appwindow/actions.rs:936
+#: crates/rnote-ui/src/appwindow/actions.rs:972
 msgid "Printing document failed"
 msgstr "列印失敗"
 
-#: crates/rnote-ui/src/appwindow/actions.rs:1013
+#: crates/rnote-ui/src/appwindow/actions.rs:1049
 msgid "Exporting selection failed, nothing selected"
 msgstr "匯出選擇內容失敗，沒有選擇內容"
 
-#: crates/rnote-ui/src/appwindow/imp.rs:377
+#: crates/rnote-ui/src/appwindow/imp.rs:421
 msgid "Saves are in progress, waiting before closing..."
 msgstr "儲存正在進行，請稍候再關閉……"
 
-#: crates/rnote-ui/src/appwindow/imp.rs:447
+#: crates/rnote-ui/src/appwindow/imp.rs:491
 msgid "Button 1"
 msgstr "按鈕 1"
 
-#: crates/rnote-ui/src/appwindow/imp.rs:454
+#: crates/rnote-ui/src/appwindow/imp.rs:498
 msgid "Button 2"
 msgstr "按鈕 2"
 
-#: crates/rnote-ui/src/appwindow/imp.rs:461
+#: crates/rnote-ui/src/appwindow/imp.rs:505
 msgid "Button 3"
 msgstr "按鈕 3"
 
-#: crates/rnote-ui/src/appwindow/imp.rs:468
+#: crates/rnote-ui/src/appwindow/imp.rs:512
 msgid "Button 4"
 msgstr "按鈕 4"
 
-#: crates/rnote-ui/src/appwindow/mod.rs:224
+#: crates/rnote-ui/src/appwindow/mod.rs:98
+msgid "Tool Locked"
+msgstr "工具已鎖定"
+
+#: crates/rnote-ui/src/appwindow/mod.rs:99
+msgid "Unlock"
+msgstr "解除鎖定"
+
+#: crates/rnote-ui/src/appwindow/mod.rs:278
+#: crates/rnote-ui/src/library/mod.rs:393
 msgid ""
 "Settings schema is not installed. App settings could not be loaded and won't "
 "be saved."
 msgstr "未安裝設定格式（Settings schema）。無法載入和儲存應用程式設定。"
 
-#: crates/rnote-ui/src/appwindow/mod.rs:572
+#: crates/rnote-ui/src/appwindow/mod.rs:643
+#: crates/rnote-ui/src/library/open.rs:54
 msgid "Opening file failed"
 msgstr "檔案開啟失敗"
 
-#: crates/rnote-ui/src/canvas/mod.rs:1005
+#: crates/rnote-ui/src/canvas/mod.rs:1049
 #: crates/rnote-ui/src/dialogs/mod.rs:205
 #: crates/rnote-ui/src/dialogs/mod.rs:338
 msgid "- invalid file name -"
 msgstr "—— 無效檔名 ——"
 
-#: crates/rnote-ui/src/canvas/mod.rs:1018
+#: crates/rnote-ui/src/canvas/mod.rs:1062
 msgid "- invalid folder path -"
 msgstr "—— 無效的資料夾路徑 ——"
 
-#: crates/rnote-ui/src/canvas/mod.rs:1042
+#: crates/rnote-ui/src/canvas/mod.rs:1090
 msgid "Opened file was modified on disk"
 msgstr "開啟的檔案已在磁碟上被修改過"
 
-#: crates/rnote-ui/src/canvas/mod.rs:1043
+#: crates/rnote-ui/src/canvas/mod.rs:1091
 msgid "Reload"
 msgstr "重新載入"
 
-#: crates/rnote-ui/src/canvas/mod.rs:1059
+#: crates/rnote-ui/src/canvas/mod.rs:1107
+#: crates/rnote-ui/src/sync/opened.rs:142
 msgid "Reloading .rnote file from disk failed"
 msgstr "從磁碟重新載入 .rnote 檔案失敗"
 
-#: crates/rnote-ui/src/canvas/mod.rs:1134
+#: crates/rnote-ui/src/canvas/mod.rs:1182
 msgid "Opened file was renamed or moved."
 msgstr "開啟的檔案已被刪除或者重新命名。"
 
-#: crates/rnote-ui/src/canvas/mod.rs:1153
+#: crates/rnote-ui/src/canvas/mod.rs:1201
 msgid "Opened file was removed."
 msgstr "開啟的檔案已被刪除。"
 
-#: crates/rnote-ui/src/canvas/mod.rs:1383
+#: crates/rnote-ui/src/canvas/mod.rs:1431
 msgid "Inserting file failed"
 msgstr "插入檔案失敗"
 
-#: crates/rnote-ui/src/canvas/mod.rs:1395
+#: crates/rnote-ui/src/canvas/mod.rs:1443
 msgid "Inserting text failed"
 msgstr "插入文字失敗"
 
@@ -2017,13 +3885,6 @@ msgstr "在檔案管理器中檢視"
 #: crates/rnote-ui/src/dialogs/export.rs:1121
 msgid "Failed to view the file in the file manager"
 msgstr "無法在檔案管理器中檢視選擇的檔案"
-
-#: crates/rnote-ui/src/dialogs/export.rs:351
-#: crates/rnote-ui/src/dialogs/export.rs:775
-#: crates/rnote-ui/src/dialogs/export.rs:1167
-#: crates/rnote-ui/src/dialogs/mod.rs:524
-msgid "Select"
-msgstr "選擇"
 
 #: crates/rnote-ui/src/dialogs/export.rs:726
 msgid "Exporting document pages failed, no directory selected"
@@ -2087,39 +3948,39 @@ msgid "Jpg, Pdf, Png, Svg, Xopp, Txt"
 msgstr "jpg，pdf，png，svg，xopp，txt"
 
 #: crates/rnote-ui/src/dialogs/import.rs:187
-#: crates/rnote-ui/src/dialogs/import.rs:419
+#: crates/rnote-ui/src/dialogs/import.rs:414
 msgid "- no file name -"
 msgstr "—— 沒有檔名 ——"
 
-#: crates/rnote-ui/src/dialogs/import.rs:426
+#: crates/rnote-ui/src/dialogs/import.rs:421
 msgid "- no title -"
 msgstr "—— 無標題 ——"
 
-#: crates/rnote-ui/src/dialogs/import.rs:431
+#: crates/rnote-ui/src/dialogs/import.rs:426
 msgid "- no author -"
 msgstr "—— 無作者 ——"
 
-#: crates/rnote-ui/src/dialogs/import.rs:438
+#: crates/rnote-ui/src/dialogs/import.rs:433
 msgid "- no modification date -"
 msgstr "—— 沒有修改日期 ——"
 
-#: crates/rnote-ui/src/dialogs/import.rs:444
+#: crates/rnote-ui/src/dialogs/import.rs:439
 msgid "File name:"
 msgstr "檔名："
 
-#: crates/rnote-ui/src/dialogs/import.rs:445
+#: crates/rnote-ui/src/dialogs/import.rs:440
 msgid "Title:"
 msgstr "標題："
 
-#: crates/rnote-ui/src/dialogs/import.rs:446
+#: crates/rnote-ui/src/dialogs/import.rs:441
 msgid "Author:"
 msgstr "作者："
 
-#: crates/rnote-ui/src/dialogs/import.rs:447
+#: crates/rnote-ui/src/dialogs/import.rs:442
 msgid "Modification date:"
 msgstr "修改日期："
 
-#: crates/rnote-ui/src/dialogs/import.rs:448
+#: crates/rnote-ui/src/dialogs/import.rs:443
 msgid "Pages:"
 msgstr "頁碼："
 
@@ -2356,163 +4217,474 @@ msgstr "天氣"
 msgid "Weight"
 msgstr "權重"
 
-#: crates/rnote-ui/src/penssidebar/shaperpage.rs:635
+#: crates/rnote-ui/src/library/actions.rs:17
+msgid "Rename…"
+msgstr "重新命名…"
+
+#: crates/rnote-ui/src/library/actions.rs:35
+msgid "Restore"
+msgstr "還原"
+
+#: crates/rnote-ui/src/library/actions.rs:37
+msgid "Delete Forever…"
+msgstr "永久刪除…"
+
+#: crates/rnote-ui/src/library/actions.rs:58
+#: crates/rnote-ui/src/library/sidebar.rs:11
+#: crates/rnote-ui/src/library/sidebar.rs:49
+msgid "Uncategorized"
+msgstr "未分類"
+
+#: crates/rnote-ui/src/library/actions.rs:75
+msgid "Rename Folder…"
+msgstr "重新命名資料夾…"
+
+#: crates/rnote-ui/src/library/actions.rs:79
+msgid "Delete Folder…"
+msgstr "刪除資料夾…"
+
+#: crates/rnote-ui/src/library/actions.rs:84
+msgid "Edit Tag…"
+msgstr "編輯標籤…"
+
+#: crates/rnote-ui/src/library/actions.rs:85
+msgid "Delete Tag…"
+msgstr "刪除標籤…"
+
+#: crates/rnote-ui/src/library/actions.rs:140
+msgid "Delete Forever?"
+msgstr "要永久刪除嗎？"
+
+#: crates/rnote-ui/src/library/actions.rs:141
+msgid "The notebook can’t be recovered."
+msgstr "筆記本將無法復原。"
+
+#: crates/rnote-ui/src/library/actions.rs:142
+#: crates/rnote-ui/src/library/manage.rs:98
+#: crates/rnote-ui/src/library/manage.rs:174
+msgid "Delete"
+msgstr "刪除"
+
+#: crates/rnote-ui/src/library/actions.rs:150
+msgid "Empty Trash?"
+msgstr "要清空回收站嗎？"
+
+#: crates/rnote-ui/src/library/actions.rs:151
+msgid "The notebooks in the trash can’t be recovered."
+msgstr "回收站中的筆記本將無法復原。"
+
+#: crates/rnote-ui/src/library/actions.rs:211
+msgid "Rename Notebook"
+msgstr "重新命名筆記本"
+
+#. / "Close “{name}” first", for a notebook open in a tab.
+#: crates/rnote-ui/src/library/actions.rs:292
+#, rust-format
+msgid "Close “{name}” first"
+msgstr "請先關閉「{name}」"
+
+#: crates/rnote-ui/src/library/card.rs:126
+msgid "Notebook Menu"
+msgstr "筆記本選單"
+
+#: crates/rnote-ui/src/library/card.rs:223
+msgid "New"
+msgstr "新建"
+
+#: crates/rnote-ui/src/library/card.rs:224
+msgid "Notebook"
+msgstr "筆記本"
+
+#: crates/rnote-ui/src/library/card.rs:227
+msgid "New Notebook"
+msgstr "新增筆記本"
+
+#: crates/rnote-ui/src/library/card.rs:255
+msgid "Xournal++ · import"
+msgstr "Xournal++ · 匯入"
+
+#. / The card of a notebook in the trash.
+#: crates/rnote-ui/src/library/card.rs:262
+#, rust-format
+msgid "Deleted {date}"
+msgstr "刪除於 {date}"
+
+#: crates/rnote-ui/src/library/dialogs.rs:120
+#: crates/rnote-ui/src/library/sidebar.rs:69
+msgid "Tags"
+msgstr "標籤"
+
+#: crates/rnote-ui/src/library/dialogs.rs:141
+msgid "There are no tags yet: create one in the sidebar."
+msgstr "還沒有任何標籤：請在側邊欄建立。"
+
+#: crates/rnote-ui/src/library/grid.rs:174
+#, rust-format
+msgid "{n} selected"
+msgid_plural "{n} selected"
+msgstr[0] "已選取 {n} 項"
+
+#: crates/rnote-ui/src/library/grid.rs:238
+msgid "Untitled"
+msgstr "未命名"
+
+#: crates/rnote-ui/src/library/grid.rs:243
+#: crates/rnote-ui/src/library/grid.rs:250
+msgid "Creating the notebook failed"
+msgstr "建立筆記本失敗"
+
+#: crates/rnote-ui/src/library/manage.rs:47
+#: crates/rnote-ui/src/library/sidebar.rs:58
+#: crates/rnote-ui/src/workspacebrowser/workspaceactions/createfolder.rs:104
+msgid "New Folder"
+msgstr "新建資料夾"
+
+#: crates/rnote-ui/src/library/manage.rs:47
+#: crates/rnote-ui/src/library/manage.rs:126
+msgid "Create"
+msgstr "建立"
+
+#: crates/rnote-ui/src/library/manage.rs:65
+msgid "Rename Folder"
+msgstr "重新命名資料夾"
+
+#: crates/rnote-ui/src/library/manage.rs:96
+#, rust-format
+msgid "Delete “{folder}”?"
+msgstr "要刪除「{folder}」嗎？"
+
+#: crates/rnote-ui/src/library/manage.rs:97
+msgid "Its notebooks go to the trash."
+msgstr "其中的筆記本會移至回收站。"
+
+#: crates/rnote-ui/src/library/manage.rs:123
+#: crates/rnote-ui/src/library/sidebar.rs:69
+msgid "New Tag"
+msgstr "新增標籤"
+
+#: crates/rnote-ui/src/library/manage.rs:153
+msgid "Edit Tag"
+msgstr "編輯標籤"
+
+#: crates/rnote-ui/src/library/manage.rs:172
+msgid "Delete Tag?"
+msgstr "要刪除標籤嗎？"
+
+#: crates/rnote-ui/src/library/manage.rs:173
+msgid "The notebooks stay; only the tag is removed from them."
+msgstr "筆記本會保留，只會移除它們的這個標籤。"
+
+#: crates/rnote-ui/src/library/mod.rs:373
+msgid "Library Folder"
+msgstr "筆記庫資料夾"
+
+#: crates/rnote-ui/src/library/mod.rs:374
+msgid "Choose"
+msgstr "選擇"
+
+#: crates/rnote-ui/src/library/mod.rs:409
+msgid "The folder doesn’t exist"
+msgstr "資料夾不存在"
+
+#: crates/rnote-ui/src/library/open.rs:100
+msgid "Already Imported"
+msgstr "已匯入過"
+
+#: crates/rnote-ui/src/library/open.rs:102
+#, rust-format
+msgid "“{name}” was imported before as “{existing}”."
+msgstr "「{name}」先前已匯入為「{existing}」。"
+
+#: crates/rnote-ui/src/library/open.rs:111
+msgid "Import Again"
+msgstr "再次匯入"
+
+#: crates/rnote-ui/src/library/open.rs:141
+#: crates/rnote-ui/src/library/open.rs:147
+msgid "Importing the Xournal++ notebook failed"
+msgstr "匯入 Xournal++ 筆記本失敗"
+
+#: crates/rnote-ui/src/library/sidebar.rs:10
+#: crates/rnote-ui/src/library/sidebar.rs:41
+msgid "All Notes"
+msgstr "所有筆記"
+
+#: crates/rnote-ui/src/library/sidebar.rs:56
+msgid "Folders"
+msgstr "資料夾"
+
+#: crates/rnote-ui/src/penssidebar/shaperpage.rs:662
 msgid "Miscellaneous"
 msgstr "雜項"
 
-#: crates/rnote-ui/src/penssidebar/shaperpage.rs:644
+#: crates/rnote-ui/src/penssidebar/shaperpage.rs:671
 msgid "Coordinate Systems"
 msgstr "座標系"
 
-#: crates/rnote-ui/src/penssidebar/shaperpage.rs:652
+#: crates/rnote-ui/src/penssidebar/shaperpage.rs:679
 msgid "Ellipses"
 msgstr "橢圓"
 
-#: crates/rnote-ui/src/penssidebar/shaperpage.rs:659
+#: crates/rnote-ui/src/penssidebar/shaperpage.rs:686
 msgid "Curves & Paths"
 msgstr "曲線與路徑"
 
-#: crates/rnote-ui/src/penssidebar/shaperpage.rs:674
+#: crates/rnote-ui/src/penssidebar/shaperpage.rs:701
 msgid "Arrow"
 msgstr "箭頭"
 
-#: crates/rnote-ui/src/penssidebar/shaperpage.rs:675
+#: crates/rnote-ui/src/penssidebar/shaperpage.rs:702
 msgid "Line"
 msgstr "直線"
 
-#: crates/rnote-ui/src/penssidebar/shaperpage.rs:676
+#: crates/rnote-ui/src/penssidebar/shaperpage.rs:703
 msgid "Rectangle"
 msgstr "矩形"
 
-#: crates/rnote-ui/src/penssidebar/shaperpage.rs:678
+#: crates/rnote-ui/src/penssidebar/shaperpage.rs:705
 msgid "2D coordinate system"
 msgstr "二維座標系"
 
-#: crates/rnote-ui/src/penssidebar/shaperpage.rs:679
+#: crates/rnote-ui/src/penssidebar/shaperpage.rs:706
 msgid "3D coordinate system"
 msgstr "三維座標系"
 
-#: crates/rnote-ui/src/penssidebar/shaperpage.rs:680
+#: crates/rnote-ui/src/penssidebar/shaperpage.rs:707
 msgid "2D single quadrant coordinate system"
 msgstr "二維單象限座標系"
 
-#: crates/rnote-ui/src/penssidebar/shaperpage.rs:681
+#: crates/rnote-ui/src/penssidebar/shaperpage.rs:708
 msgid "Ellipse"
 msgstr "橢圓"
 
-#: crates/rnote-ui/src/penssidebar/shaperpage.rs:682
+#: crates/rnote-ui/src/penssidebar/shaperpage.rs:709
 msgid "Ellipse with foci"
 msgstr "焦點橢圓"
 
-#: crates/rnote-ui/src/penssidebar/shaperpage.rs:683
+#: crates/rnote-ui/src/penssidebar/shaperpage.rs:710
 msgid "Quadratic bezier curve"
 msgstr "二次貝塞爾曲線"
 
-#: crates/rnote-ui/src/penssidebar/shaperpage.rs:684
+#: crates/rnote-ui/src/penssidebar/shaperpage.rs:711
 msgid "Cubic bezier curve"
 msgstr "三次貝塞爾曲線"
 
-#: crates/rnote-ui/src/penssidebar/shaperpage.rs:685
+#: crates/rnote-ui/src/penssidebar/shaperpage.rs:712
 msgid "Polyline"
 msgstr "多段線"
 
-#: crates/rnote-ui/src/penssidebar/shaperpage.rs:686
+#: crates/rnote-ui/src/penssidebar/shaperpage.rs:713
 msgid "Polygon"
 msgstr "多邊形"
 
-#: crates/rnote-ui/src/settingspanel/mod.rs:660
+#: crates/rnote-ui/src/settingspanel/mod.rs:684
 msgid "Application restart is required"
 msgstr "應用程式需要重新啟動"
 
-#: crates/rnote-ui/src/settingspanel/mod.rs:1460
+#: crates/rnote-ui/src/settingspanel/mod.rs:1584
 msgctxt "a cursor type"
 msgid "Crosshair (Small)"
 msgstr "十字準線（小）"
 
-#: crates/rnote-ui/src/settingspanel/mod.rs:1461
+#: crates/rnote-ui/src/settingspanel/mod.rs:1585
 msgctxt "a cursor type"
 msgid "Crosshair (Medium)"
 msgstr "十字準線（中等）"
 
-#: crates/rnote-ui/src/settingspanel/mod.rs:1462
+#: crates/rnote-ui/src/settingspanel/mod.rs:1586
 msgctxt "a cursor type"
 msgid "Crosshair (Large)"
 msgstr "十字準線（大）"
 
-#: crates/rnote-ui/src/settingspanel/mod.rs:1463
+#: crates/rnote-ui/src/settingspanel/mod.rs:1587
 msgctxt "a cursor type"
 msgid "Dot (Small)"
 msgstr "點（小）"
 
-#: crates/rnote-ui/src/settingspanel/mod.rs:1464
+#: crates/rnote-ui/src/settingspanel/mod.rs:1588
 msgctxt "a cursor type"
 msgid "Dot (Medium)"
 msgstr "點（中等）"
 
-#: crates/rnote-ui/src/settingspanel/mod.rs:1465
+#: crates/rnote-ui/src/settingspanel/mod.rs:1589
 msgctxt "a cursor type"
 msgid "Dot (Large)"
 msgstr "點（大）"
 
-#: crates/rnote-ui/src/settingspanel/mod.rs:1466
+#: crates/rnote-ui/src/settingspanel/mod.rs:1590
 msgctxt "a cursor type"
 msgid "Teardrop North-West (Small)"
 msgstr "西北方向水滴（小）"
 
-#: crates/rnote-ui/src/settingspanel/mod.rs:1467
+#: crates/rnote-ui/src/settingspanel/mod.rs:1591
 msgctxt "a cursor type"
 msgid "Teardrop North-West (Medium)"
 msgstr "西北方向水滴（中等）"
 
-#: crates/rnote-ui/src/settingspanel/mod.rs:1468
+#: crates/rnote-ui/src/settingspanel/mod.rs:1592
 msgctxt "a cursor type"
 msgid "Teardrop North-West (Large)"
 msgstr "西北方向水滴（大）"
 
-#: crates/rnote-ui/src/settingspanel/mod.rs:1469
+#: crates/rnote-ui/src/settingspanel/mod.rs:1593
 msgctxt "a cursor type"
 msgid "Teardrop North-East (Small)"
 msgstr "東北方向水滴（小）"
 
-#: crates/rnote-ui/src/settingspanel/mod.rs:1470
+#: crates/rnote-ui/src/settingspanel/mod.rs:1594
 msgctxt "a cursor type"
 msgid "Teardrop North-East (Medium)"
 msgstr "東北方向水滴（中等）"
 
-#: crates/rnote-ui/src/settingspanel/mod.rs:1471
+#: crates/rnote-ui/src/settingspanel/mod.rs:1595
 msgctxt "a cursor type"
 msgid "Teardrop North-East (Large)"
 msgstr "東北方向水滴（大）"
 
-#: crates/rnote-ui/src/settingspanel/mod.rs:1472
+#: crates/rnote-ui/src/settingspanel/mod.rs:1596
 msgctxt "a cursor type"
 msgid "Teardrop North (Small)"
 msgstr "正北方向水滴（小）"
 
-#: crates/rnote-ui/src/settingspanel/mod.rs:1473
+#: crates/rnote-ui/src/settingspanel/mod.rs:1597
 msgctxt "a cursor type"
 msgid "Teardrop North (Medium)"
 msgstr "正北方向水滴（中等）"
 
-#: crates/rnote-ui/src/settingspanel/mod.rs:1474
+#: crates/rnote-ui/src/settingspanel/mod.rs:1598
 msgctxt "a cursor type"
 msgid "Teardrop North (Large)"
 msgstr "正北方向水滴（大）"
 
-#: crates/rnote-ui/src/settingspanel/mod.rs:1475
+#: crates/rnote-ui/src/settingspanel/mod.rs:1599
 msgctxt "a cursor type"
 msgid "Beam (Small)"
 msgstr "橫（小）"
 
-#: crates/rnote-ui/src/settingspanel/mod.rs:1476
+#: crates/rnote-ui/src/settingspanel/mod.rs:1600
 msgctxt "a cursor type"
 msgid "Beam (Medium)"
 msgstr "橫（中等）"
 
-#: crates/rnote-ui/src/settingspanel/mod.rs:1477
+#: crates/rnote-ui/src/settingspanel/mod.rs:1601
 msgctxt "a cursor type"
 msgid "Beam (Large)"
 msgstr "橫（大）"
+
+#: crates/rnote-ui/src/sync/button.rs:98
+#, rust-format
+msgid "Changed on two devices: kept both, one as a conflict copy"
+msgid_plural "Changed on two devices: kept both versions of {n} notebooks"
+msgstr[0] "兩部裝置上都有變更：已保留 {n} 本筆記本的兩個版本"
+
+#: crates/rnote-ui/src/sync/button.rs:129
+msgid "Sync Now"
+msgstr "立即同步"
+
+#: crates/rnote-ui/src/sync/button.rs:135
+msgid "Sign Out of Google Drive"
+msgstr "登出 Google Drive"
+
+#: crates/rnote-ui/src/sync/button.rs:147
+msgid "Sign In with Google"
+msgstr "使用 Google 帳戶登入"
+
+#: crates/rnote-ui/src/sync/button.rs:183
+#, rust-format
+msgid "Signing in to Google Drive failed: {error}"
+msgstr "登入 Google Drive 失敗：{error}"
+
+#: crates/rnote-ui/src/sync/button.rs:193
+msgid "Sign Out of Google Drive?"
+msgstr "要登出 Google Drive 嗎？"
+
+#: crates/rnote-ui/src/sync/button.rs:195
+msgid ""
+"The notebooks stay on this computer and in your Drive. Syncing stops until "
+"you sign in again."
+msgstr ""
+"筆記本會保留在這台電腦和你的 Google Drive 中。在你重新登入之前，同步會暫停。"
+
+#: crates/rnote-ui/src/sync/button.rs:197
+msgid "Sign Out"
+msgstr "登出"
+
+#: crates/rnote-ui/src/sync/button.rs:207
+#, rust-format
+msgid "Signed out here, but Google couldn't be told: {error}"
+msgstr "已在這裡登出，但無法通知 Google：{error}"
+
+#: crates/rnote-ui/src/sync/opened.rs:92
+#, rust-format
+msgid "It changed on another device meanwhile: saved as “{name}”"
+msgstr "這段期間它已在其他裝置上變更：已另存為「{name}」"
+
+#: crates/rnote-ui/src/sync/opened.rs:148
+msgid "It changed on another device: saving keeps both versions"
+msgstr "它已在其他裝置上變更：儲存時會保留兩個版本"
+
+#: crates/rnote-ui/src/sync/opened.rs:157
+msgid "Updated with the changes from another device"
+msgstr "已套用其他裝置上的變更"
+
+#: crates/rnote-ui/src/sync/status.rs:84
+msgid "This build of Rnote has no Google Drive credentials, so it can't sync"
+msgstr "這個 Rnote 版本沒有 Google Drive 憑證，因此無法同步"
+
+#: crates/rnote-ui/src/sync/status.rs:86
+msgid "Checking the Google Drive sign-in…"
+msgstr "正在檢查 Google Drive 登入狀態…"
+
+#: crates/rnote-ui/src/sync/status.rs:87
+msgid "Not signed in to Google Drive"
+msgstr "尚未登入 Google Drive"
+
+#: crates/rnote-ui/src/sync/status.rs:88
+msgid "Sign in to Google Drive again to keep syncing"
+msgstr "請重新登入 Google Drive 以繼續同步"
+
+#: crates/rnote-ui/src/sync/status.rs:89
+msgid "Waiting to sync"
+msgstr "等待同步"
+
+#: crates/rnote-ui/src/sync/status.rs:90
+msgid "Syncing…"
+msgstr "正在同步…"
+
+#: crates/rnote-ui/src/sync/status.rs:94
+#, rust-format
+msgid "Synced {when}"
+msgstr "已同步（{when}）"
+
+#: crates/rnote-ui/src/sync/status.rs:96
+msgid "Offline: it syncs once Google can be reached"
+msgstr "離線：連上 Google 後就會同步"
+
+#: crates/rnote-ui/src/sync/status.rs:97
+#, rust-format
+msgid "Sync failed: {error}"
+msgstr "同步失敗：{error}"
+
+#: crates/rnote-ui/src/sync/status.rs:104
+msgid "just now"
+msgstr "剛剛"
+
+#: crates/rnote-ui/src/sync/status.rs:106
+#, rust-format
+msgid "{n} minute ago"
+msgid_plural "{n} minutes ago"
+msgstr[0] "{n} 分鐘前"
+
+#: crates/rnote-ui/src/sync/status.rs:109
+#, rust-format
+msgid "{n} hour ago"
+msgid_plural "{n} hours ago"
+msgstr[0] "{n} 小時前"
+
+#: crates/rnote-ui/src/sync/status.rs:120
+#, rust-format
+msgid "on {date}"
+msgstr "{date}"
 
 #: crates/rnote-ui/src/workspacebrowser/filerow/actions/duplicate.rs:41
 msgid "Can't duplicate an unsaved document"
@@ -2541,10 +4713,6 @@ msgstr "檔案重新命名失敗"
 #: crates/rnote-ui/src/workspacebrowser/workspaceactions/createfolder.rs:96
 msgid "Folder Name"
 msgstr "資料夾名稱"
-
-#: crates/rnote-ui/src/workspacebrowser/workspaceactions/createfolder.rs:104
-msgid "New Folder"
-msgstr "新建資料夾"
 
 #: crates/rnote-ui/src/utils.rs:169
 msgctxt "used in string representation of the current selected color"
@@ -2676,6 +4844,24 @@ msgctxt "part of string representation of a color"
 msgid "white"
 msgstr "白色"
 
+#~ msgid "Brush Style"
+#~ msgstr "筆刷樣式"
+
+#~ msgid "Brush Styles"
+#~ msgstr "筆刷樣式"
+
+#~ msgid "Mark underneath other strokes"
+#~ msgstr "在其他筆畫下方標記"
+
+#~ msgid "Draw solid color strokes"
+#~ msgstr "繪製純色筆畫"
+
+#~ msgid "Draw textured strokes"
+#~ msgstr "繪製材質筆畫"
+
+#~ msgid "Shaper Style"
+#~ msgstr "形狀工具樣式"
+
 #~ msgid "Page Borders"
 #~ msgstr "頁面邊框"
 
@@ -2712,103 +4898,6 @@ msgstr "白色"
 #~ msgstr ""
 #~ "根據文件的實際大小\n"
 #~ "設定點陣圖縮放倍數"
-
-#, fuzzy
-#~| msgid "Failed to open the file in the file manager"
-#~ msgid "fix: .rnote file icons in file managers"
-#~ msgstr "無法開啟在檔案管理器中選擇的檔案"
-
-#, fuzzy
-#~| msgid ""
-#~| "The page order when documents with layouts\n"
-#~| "that expand in horizontal and vertical directions\n"
-#~| "are cut into pages"
-#~ msgid ""
-#~ "feature: specify page order when exporting documents with layouts that "
-#~ "expand in horizontal and vertical directions (thanks to @Kneemund)"
-#~ msgstr ""
-#~ "文件帶有佈局時的頁面循序\n"
-#~ "向水平和垂直方向擴充套件\n"
-#~ "被切斷成頁"
-
-#, fuzzy
-#~| msgid "Set whether the drawing cursor is visible"
-#~ msgid "feature: ability to toggle drawing cursor visibility"
-#~ msgstr "設定畫筆游標是否可見"
-
-#, fuzzy
-#~| msgid ""
-#~| "Remove Page.\n"
-#~| "Available in Fixed-Size Document Layout."
-#~ msgid "fix: broken resizing in fixed-size document layout"
-#~ msgstr ""
-#~ "移除頁面。\n"
-#~ "可選用固定大小的文件佈局。"
-
-#, fuzzy
-#~| msgid "Switch to the 'Typewriter'"
-#~ msgid "switch to the typewriter when dropping text"
-#~ msgstr "切換到“文字”"
-
-#, fuzzy
-#~| msgid "Select the export file"
-#~ msgid "improved: better export filenames"
-#~ msgstr "選擇匯出檔案"
-
-#, fuzzy
-#~| msgid "Set the background pattern height"
-#~ msgid "fix: background pattern tile rendering size"
-#~ msgstr "選擇背景使用的紋理的高度"
-
-#, fuzzy
-#~| msgid "Write text with the typewriter"
-#~ msgid "long awaited: write and edit text with the typewriter"
-#~ msgstr "使用 “文字工具” 輸入文字"
-
-#, fuzzy
-#~| msgid "Mark underneath other strokes"
-#~ msgid "mark underneath other strokes with the 'Marker' brush style"
-#~ msgstr "在其他筆畫下方標記"
-
-#, fuzzy
-#~| msgid "Set the format border color"
-#~ msgid "feature: setting to change the format border color"
-#~ msgstr "設定格式界線顏色"
-
-#, fuzzy
-#~| msgid "Export selection"
-#~ msgid "improved selector"
-#~ msgstr "匯出所選"
-
-#, fuzzy
-#~| msgid "Set whether Pdf's should be imported as vector or bitmap images"
-#~ msgid "Pdf import as vector images"
-#~ msgstr "設定匯入 PDF 為向量圖或點陣圖"
-
-#, fuzzy
-#~| msgid "Select With a Rectangle"
-#~ msgid "selecting with a rectangle"
-#~ msgstr "選擇一個矩形"
-
-#, fuzzy
-#~| msgid "Choose a background pattern"
-#~ msgid "introducing dots as background pattern"
-#~ msgstr "選擇背景使用的紋理"
-
-#, fuzzy
-#~| msgid "Choose a background pattern"
-#~ msgid "improved background rendering"
-#~ msgstr "選擇背景使用的紋理"
-
-#, fuzzy
-#~| msgid "Choose a background pattern"
-#~ msgid "introducing background patterns"
-#~ msgstr "選擇背景使用的紋理"
-
-#, fuzzy
-#~| msgid "Set the background color"
-#~ msgid "set a background color"
-#~ msgstr "設定背景顏色"
 
 #~ msgid "Opened file was moved or deleted on disk"
 #~ msgstr "開啟的檔案已在磁碟上被移動或者刪除"
@@ -3087,9 +5176,6 @@ msgstr "白色"
 
 #~ msgid "Paste from Clipboard"
 #~ msgstr "從剪下板貼上"
-
-#~ msgid "New"
-#~ msgstr "新建"
 
 #~ msgid ".rnote file"
 #~ msgstr ".rnote檔案"

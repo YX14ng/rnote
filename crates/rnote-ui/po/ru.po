@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rnote\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-01 17:10+0200\n"
+"POT-Creation-Date: 2026-11-17 11:57-0300\n"
 "PO-Revision-Date: 2026-06-30 16:29+0000\n"
 "Last-Translator: David Lapshin <ddaudix@gmail.com>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/rnote/repo/ru/>\n"
@@ -18,6 +18,11 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 "X-Generator: Weblate 2026.7.dev0\n"
+
+#. Translators: This is the App name, don't translate this.
+#: crates/rnote-ui/data/app.desktop.in.in:3
+msgid "@DESKTOP_FILE_NAME_ENTRY@"
+msgstr "@DESKTOP_FILE_NAME_ENTRY@"
 
 #: crates/rnote-ui/data/app.desktop.in.in:4
 #: crates/rnote-ui/data/app.metainfo.xml.in.in:9
@@ -79,8 +84,2039 @@ msgstr "Изменяйте настройки документа"
 msgid "Configure action shortcuts"
 msgstr "Настроить комбинации клавиш"
 
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:93
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:105
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:117
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:139
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:148
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:165
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:191
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:217
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:231
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:240
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:266
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:278
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:293
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:306
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:323
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:342
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:352
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:374
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:384
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:410
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:433
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:441
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:451
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:459
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:474
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:493
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:517
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:528
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:545
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:561
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:576
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:590
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:612
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:624
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:643
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:651
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:661
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:671
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:689
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:701
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:709
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:717
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:725
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:734
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:743
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:756
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:766
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:777
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:786
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:795
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:804
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:821
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:834
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:847
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:861
+msgid "this release changes:"
+msgstr "в этом выпуске:"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:95
+msgid "fix: transparent stroke rendering (@Kneemund)"
+msgstr "исправление: отрисовка прозрачных штрихов (@Kneemund)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:96
+msgid "fix: document not staying centered after zooming (@Kneemund)"
+msgstr ""
+"исправление: документ не оставался по центру после масштабирования "
+"(@Kneemund)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:97
+msgid "fix: pinch zooming on touchscreen (@Kneemund)"
+msgstr "исправление: масштабирование щипком на сенсорном экране (@Kneemund)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:98
+msgid "fix: jumping view while zooming in (@Kneemund)"
+msgstr "исправление: скачки вида при увеличении масштаба (@Kneemund)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:99
+msgid "fix: zooming with \"alt+shift+drag\" (@Kneemund)"
+msgstr ""
+"исправление: масштабирование с помощью «alt+shift+перетаскивание» (@Kneemund)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:107
+msgid ""
+"fix: fixed icon appearance and update to new, more consistent style (@flxzt)"
+msgstr ""
+"исправление: исправлен внешний вид значков, они обновлены до нового, более "
+"единообразного стиля (@flxzt)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:108
+msgid "fix: file erroneously detected as removed after saving (@turicfr)"
+msgstr ""
+"исправление: файл ошибочно считался удалённым после сохранения (@turicfr)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:109
+msgid ""
+"fix: pinch-to-zoom causing scroll by applying workaround for GTK issue "
+"(@RayJW)"
+msgstr ""
+"исправление: масштабирование щипком вызывало прокрутку; применён обходной "
+"путь для ошибки GTK (@RayJW)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:110
+msgid "fix: zooming with Ctrl+Scroll while Capslock is turned on (@Kneemund)"
+msgstr ""
+"исправление: масштабирование с помощью Ctrl+прокрутка при включённом Caps "
+"Lock (@Kneemund)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:111
+msgid "fix: grid snapping for all pattern styles (@Kneemund)"
+msgstr "исправление: привязка к сетке для всех стилей линовки (@Kneemund)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:119
+msgid "feat: apply workspace entry dialog by pressing Enter (@ternison)"
+msgstr "новое: подтверждение диалога коллекции нажатием Enter (@ternison)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:120
+msgid "feat: add text formatting keyboard shortcuts (@ Keschler)"
+msgstr "новое: комбинации клавиш для форматирования текста (@ Keschler)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:121
+msgid "feat: Xournal++ text import (@Doublonmousse)"
+msgstr "новое: импорт текста из Xournal++ (@Doublonmousse)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:122
+msgid ""
+"fix: PDF rendering issues by replace underlying library (from poppler to "
+"hayro) (@flxzt)"
+msgstr ""
+"исправление: проблемы с отрисовкой PDF благодаря замене библиотеки (poppler "
+"на hayro) (@flxzt)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:123
+msgid "feat: CLI create command (@DarshPareek)"
+msgstr "новое: команда create в командной строке (@DarshPareek)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:124
+msgid "feat: CLI thumbnail generation timeout (@flxzt)"
+msgstr "новое: тайм-аут создания миниатюр в командной строке (@flxzt)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:125
+msgid "feat: bundle CLI in flatpak (@flxzt)"
+msgstr "новое: утилита командной строки включена во flatpak (@flxzt)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:126
+msgid "feat: atomic file saving (@anesthetice)"
+msgstr "новое: атомарное сохранение файлов (@anesthetice)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:127
+msgid "improv: pen eraser default (@DorianRudolph)"
+msgstr "улучшение: поведение ластика пера по умолчанию (@DorianRudolph)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:128
+msgid ""
+"improv: improve initial focus for import/export dialogs (@Doublonmousse)"
+msgstr ""
+"улучшение: начальный фокус в диалогах импорта и экспорта (@Doublonmousse)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:129
+msgid ""
+"fix: file picker stealing focus from all opened windows (@Doublonmousse)"
+msgstr ""
+"исправление: окно выбора файла забирало фокус у всех открытых окон "
+"(@Doublonmousse)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:130
+msgid "fix: pen sounds on Windows (@Doublonmousse)"
+msgstr "исправление: звуки пера в Windows (@Doublonmousse)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:131
+msgid ""
+"fix: prevent crash when sorting files with non UTF-8 names (@Doublonmousse)"
+msgstr ""
+"исправление: сбой при сортировке файлов с именами не в UTF-8 (@Doublonmousse)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:132
+msgid "fix: rnote thumbnailer execution (@flxzt)"
+msgstr "исправление: запуск генератора миниатюр rnote (@flxzt)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:133
+msgid "fix: workspace directory default (@flxzt)"
+msgstr "исправление: каталог коллекции по умолчанию (@flxzt)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:141
+msgid "fix: occasional PDF import failure (thanks to @Doublonmousse)"
+msgstr "исправление: периодические сбои импорта PDF (спасибо @Doublonmousse)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:142
+msgid ""
+"fix: add back accidentally removed 'Pen Style' keyboard shortcuts (thanks to "
+"@Doublonmousse)"
+msgstr ""
+"исправление: возвращены случайно удалённые комбинации клавиш «Стиль пера» "
+"(спасибо @Doublonmousse)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:150
+msgid "feat: save/restore engine configuration with preset"
+msgstr ""
+"новое: сохранение и восстановление конфигурации движка с помощью пресета"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:151
+msgid "feat: respect snap-positions option when building shapes"
+msgstr "новое: учёт параметра привязки к точкам при построении фигур"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:152
+msgid ""
+"feat: shape styling options and shape highlight-mode (thanks to @anesthetice)"
+msgstr ""
+"новое: параметры стиля фигур и режим подсветки фигур (спасибо @anesthetice)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:153
+msgid ""
+"improv: application window always focused when opening a file (thanks to "
+"@Nugfle)"
+msgstr ""
+"улучшение: окно приложения всегда получает фокус при открытии файла (спасибо "
+"@Nugfle)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:154
+msgid ""
+"fix: selected part when renaming files in the application file browser "
+"(thanks to @Kneemund)"
+msgstr ""
+"исправление: выделяемая часть имени при переименовании файлов во встроенном "
+"обозревателе файлов (спасибо @Kneemund)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:155
+msgid ""
+"fix: cancelling import dialogs not stopping progress bar (thanks to "
+"@Doublonmousse)"
+msgstr ""
+"исправление: отмена диалогов импорта не останавливала индикатор выполнения "
+"(спасибо @Doublonmousse)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:156
+msgid "fix: missing translation for a string (thanks to @Doublonmousse)"
+msgstr ""
+"исправление: отсутствовал перевод одной строки (спасибо @Doublonmousse)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:157
+msgid ""
+"fix: save file logic when encountering corner cases (thanks to "
+"@Doublonmousse)"
+msgstr ""
+"исправление: логика сохранения файлов в пограничных случаях (спасибо "
+"@Doublonmousse)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:158
+msgid "fix: filename sorting in integrated files list"
+msgstr "исправление: сортировка по имени файла во встроенном списке файлов"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:159
+msgid "fix: prevent occasional xopp import failure"
+msgstr "исправление: предотвращены периодические сбои импорта xopp"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:167
+msgid "feat: laser tool with animations (thanks to @Kneemund)"
+msgstr "новое: инструмент «Лазер» с анимациями (спасибо @Kneemund)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:168
+msgid "feat: tab overviews (thanks to @zefr0x)"
+msgstr "новое: обзор вкладок (спасибо @zefr0x)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:169
+msgid "feat: thumbnailer for .rnote files (thanks to @tiziodcaio)"
+msgstr "новое: генератор миниатюр для файлов .rnote (спасибо @tiziodcaio)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:170
+msgid ""
+"feat: keyboard clipboard paste at pointer location (thanks to @Kneemund)"
+msgstr ""
+"новое: вставка из буфера обмена с клавиатуры в позицию указателя (спасибо "
+"@Kneemund)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:171
+msgid "feat: multi-click selections (thanks to @Kneemund)"
+msgstr "новое: выделение несколькими щелчками (спасибо @Kneemund)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:172
+msgid ""
+"feat: new limit movements options for vertical-space tool (thanks to "
+"@Doublonmousse)"
+msgstr ""
+"новое: параметры ограничения перемещения для инструмента вертикального "
+"пробела (спасибо @Doublonmousse)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:173
+msgid ""
+"feat: confirmation prompt for file/folder trash action (thanks to @RayJW)"
+msgstr ""
+"новое: запрос подтверждения при удалении файла или папки в корзину (спасибо "
+"@RayJW)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:174
+msgid "feat: open workspace folder option (thanks to @Doublonmousse)"
+msgstr "новое: возможность открыть папку коллекции (спасибо @Doublonmousse)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:175
+msgid "feat: import of encrypted PDFs (thanks to @kq98)"
+msgstr "новое: импорт зашифрованных PDF (спасибо @kq98)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:176
+msgid ""
+"improv: support keyboard and uncommon key shortcuts (thanks to @Kneemund)"
+msgstr ""
+"улучшение: поддержка клавиатурных и необычных комбинаций клавиш (спасибо "
+"@Kneemund)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:177
+msgid ""
+"improv: clipboard pasting on certain platforms like macOS (thanks to "
+"@Doublonmousse)"
+msgstr ""
+"улучшение: вставка из буфера обмена на некоторых платформах, например macOS "
+"(спасибо @Doublonmousse)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:178
+msgid "fix: selection handle sensitivity in \"single-selection\" mode"
+msgstr "исправление: чувствительность маркеров выделения в режиме «по одному»"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:179
+msgid ""
+"fix: unwanted activation of long-press gesture after zooming (thanks to "
+"@Kneemund)"
+msgstr ""
+"исправление: нежелательное срабатывание жеста долгого нажатия после "
+"масштабирования (спасибо @Kneemund)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:180
+msgid "fix: allow view movement while having a selection"
+msgstr "исправление: разрешено перемещать вид при наличии выделения"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:181
+msgid ""
+"fix: cli file collision resolution in non-interactive settings (thanks to "
+"@LeSnake04)"
+msgstr ""
+"исправление: разрешение конфликтов файлов в командной строке в "
+"неинтерактивном режиме (спасибо @LeSnake04)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:182
+msgid "fix: missing tooltips (thanks to @Doublonmousse)"
+msgstr ""
+"исправление: отсутствующие всплывающие подсказки (спасибо @Doublonmousse)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:183
+msgid "fix: window shadows on Windows (thanks to @Doublonmousse)"
+msgstr "исправление: тени окон в Windows (спасибо @Doublonmousse)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:184
+msgid "fix: .rnote file icons in file managers"
+msgstr "исправление: значки файлов .rnote в файловых менеджерах"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:185
+msgid ""
+"fix: selecting colors not working properly in certain cases (thanks to "
+"@Kneemund)"
+msgstr ""
+"исправление: в некоторых случаях выбор цвета работал неправильно (спасибо "
+"@Kneemund)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:193
+msgid "feat: add disable option for pen shortcuts (thanks to @Doublonmousse)"
+msgstr ""
+"новое: возможность отключить комбинации клавиш пера (спасибо @Doublonmousse)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:194
+msgid ""
+"feat: add respect-borders option, improving size logic when pasting content "
+"(thanks to @Doublonmousse)"
+msgstr ""
+"новое: параметр учёта границ, улучшающий расчёт размера при вставке "
+"содержимого (спасибо @Doublonmousse)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:195
+msgid ""
+"feat: add improve-for-E-Paper option, showing current selected color as a "
+"string"
+msgstr ""
+"новое: параметр оптимизации для электронной бумаги, показывающий текущий "
+"выбранный цвет текстом"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:196
+msgid "improv: migrate to libadwaita based dialogs (thanks to @zefr0x)"
+msgstr "улучшение: переход на диалоги libadwaita (спасибо @zefr0x)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:197
+msgid ""
+"improv: stroke modeler entirely rewritten in Rust! (thanks to @Doublonmousse)"
+msgstr ""
+"улучшение: модуль моделирования штрихов полностью переписан на Rust! "
+"(спасибо @Doublonmousse)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:198
+msgid "improv: zoom tool following the pointer (thanks to @JonathanGodar)"
+msgstr ""
+"улучшение: инструмент масштабирования следует за указателем (спасибо "
+"@JonathanGodar)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:199
+msgid "improv: developers list in about window (thanks to @zefr0x)"
+msgstr "улучшение: список разработчиков в окне «О программе» (спасибо @zefr0x)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:200
+msgid ""
+"improv: native file dialogs on Windows, macOS (thanks to @Doublonmousse)"
+msgstr ""
+"улучшение: системные диалоги выбора файлов в Windows и macOS (спасибо "
+"@Doublonmousse)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:201
+msgid ""
+"improv: gzip (de)compression optimizations, reducing file save/load times "
+"(thanks to @anesthetice)"
+msgstr ""
+"улучшение: оптимизация сжатия и распаковки gzip, ускоряющая сохранение и "
+"загрузку файлов (спасибо @anesthetice)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:202
+msgid ""
+"improv: prevent accidental resizes/moves when interacting with buttons in "
+"the titlebar"
+msgstr ""
+"улучшение: предотвращены случайные изменения размера и перемещения окна при "
+"нажатии кнопок в заголовке"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:203
+msgid "improv: inhibit app close while saves are in progress"
+msgstr "улучшение: приложение не закрывается, пока идёт сохранение"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:204
+msgid ""
+"improv: ability to change text selection colors inside a single text box"
+msgstr ""
+"улучшение: возможность менять цвет выделенного текста внутри одного "
+"текстового блока"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:205
+msgid "fix: pen state becoming incorrect on windows (thanks to @Doublonmousse)"
+msgstr ""
+"исправление: неверное состояние пера в Windows (спасибо @Doublonmousse)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:206
+msgid "fix: file extension filters in dialogs (thanks to @Doublonmousse)"
+msgstr ""
+"исправление: фильтры расширений файлов в диалогах (спасибо @Doublonmousse)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:207
+msgid ""
+"fix: force the gtk renderer to gl for now, fixing recurring crashes for some "
+"users (thanks to @Doublonmousse)"
+msgstr ""
+"исправление: отрисовщик GTK временно принудительно переключён на GL, что "
+"устраняет регулярные сбои у некоторых пользователей (спасибо @Doublonmousse)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:208
+msgid "fix: two-finger long-press gesture causing crashes for some users"
+msgstr ""
+"исправление: жест долгого нажатия двумя пальцами вызывал сбои у некоторых "
+"пользователей"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:209
+msgid "fix: single element stroke not generating hitboxes"
+msgstr ""
+"исправление: для штрихов из одного элемента не создавались области попадания"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:210
+msgid ""
+"fix: scrolls being captured by unit-entries in settings, causing accidental "
+"value changes"
+msgstr ""
+"исправление: поля с единицами измерения в настройках перехватывали "
+"прокрутку, из-за чего значения случайно менялись"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:211
+msgid "fix: hover state for typewriter move/resize nodes"
+msgstr ""
+"исправление: состояние наведения на узлы перемещения и изменения размера в "
+"инструменте «Текст»"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:219
+msgid ""
+"improv: put handles outside of selection borders, enable resizing to smaller "
+"sizes (thanks to @Doublonmousse)"
+msgstr ""
+"улучшение: маркеры вынесены за границы выделения, теперь можно уменьшать до "
+"меньших размеров (спасибо @Doublonmousse)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:220
+msgid ""
+"improv: error notification when file operations fail in workspace browser"
+msgstr ""
+"улучшение: уведомление об ошибке при сбое файловых операций в обозревателе "
+"коллекции"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:221
+msgid "metainfo: add brand colors (thanks to @bertob)"
+msgstr "метаданные: добавлены фирменные цвета (спасибо @bertob)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:222
+msgid "fix: origin indicator cross size on hi-dpi screens"
+msgstr ""
+"исправление: размер крестика начала документа на экранах с высокой "
+"плотностью пикселей"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:223
+msgid "fix: rendering got out of sync when resizing long-to-render content"
+msgstr ""
+"исправление: рассинхронизация отрисовки при изменении размера долго "
+"отрисовываемого содержимого"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:224
+msgid "fix: selection stroke widths got larger when resizing non-uniformly"
+msgstr ""
+"исправление: толщина штрихов в выделении увеличивалась при неравномерном "
+"изменении размера"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:225
+msgid ""
+"fix: regression which caused excessive rerendering of selection during "
+"resizing"
+msgstr ""
+"исправление: регрессия, из-за которой выделение избыточно перерисовывалось "
+"при изменении размера"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:233
+msgid ""
+"fix: importing images changed document dimensions when `adjust-document` pdf "
+"import setting is set"
+msgstr ""
+"исправление: импорт изображений менял размеры документа, если включён "
+"параметр импорта PDF «adjust-document»"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:234
+msgid ""
+"fix: windows installer now includes EGL/GLES libraries, fixing launch error "
+"when they are present elsewhere but in PATH"
+msgstr ""
+"исправление: установщик для Windows теперь включает библиотеки EGL/GLES, что "
+"устраняет ошибку запуска, если они есть где-то ещё в PATH"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:242
+msgid "feat: touch-hold context-menu with basic actions (thanks to @silvasch)"
+msgstr ""
+"новое: контекстное меню по долгому касанию с основными действиями (спасибо "
+"@silvasch)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:243
+msgid "feat: added polygon shape and builder"
+msgstr "новое: фигура «Многоугольник» и её конструктор"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:244
+msgid ""
+"feat: added adjust-document Pdf import option that configures the document "
+"for improved annotation use-case"
+msgstr ""
+"новое: параметр импорта PDF «adjust-document», который настраивает документ "
+"для удобного аннотирования"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:245
+msgid "improv: additional color button (default: white) (thanks to @silvasch)"
+msgstr ""
+"улучшение: дополнительная кнопка цвета (по умолчанию белый) (спасибо "
+"@silvasch)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:246
+msgid ""
+"improv: new keyboard shortcuts for managing windows and tabs (thanks to "
+"@silvasch)"
+msgstr ""
+"улучшение: новые комбинации клавиш для управления окнами и вкладками "
+"(спасибо @silvasch)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:247
+msgid ""
+"improv: autosave all tabs, but only ones that are flagged modified (thanks "
+"to @Doublonmousse)"
+msgstr ""
+"улучшение: автосохранение всех вкладок, но только тех, что были изменены "
+"(спасибо @Doublonmousse)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:248
+msgid ""
+"improv: don't export empty layers when exporting to xopp (thanks to "
+"@Doublonmousse)"
+msgstr ""
+"улучшение: пустые слои не экспортируются при экспорте в xopp (спасибо "
+"@Doublonmousse)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:249
+msgid ""
+"improv: workspace browser is now separated into three sections: folders - "
+"rnote notes - other importable files"
+msgstr ""
+"улучшение: обозреватель коллекции теперь разделён на три раздела: папки, "
+"заметки rnote и другие файлы для импорта"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:250
+msgid "improv: use start aspect ratio when resizing and locking aspect-ratio"
+msgstr ""
+"улучшение: при изменении размера с фиксированным соотношением сторон "
+"используется исходное соотношение"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:251
+msgid ""
+"improv: renaming file in workspace browser selects only file stem initially"
+msgstr ""
+"улучшение: при переименовании файла в обозревателе коллекции сначала "
+"выделяется только имя без расширения"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:252
+msgid "improv: move document-layout option from canvas-menu to settings"
+msgstr ""
+"улучшение: параметр компоновки документа перенесён из меню холста в настройки"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:253
+msgid ""
+"improv: reduce repaints - when stroke is finished, cache origin-indicator "
+"rendering"
+msgstr ""
+"улучшение: меньше перерисовок — после завершения штриха отрисовка индикатора "
+"начала документа кешируется"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:254
+msgid "improv: added new-window menu entry"
+msgstr "улучшение: добавлен пункт меню «Новое окно»"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:255
+msgid ""
+"improv: file watcher implementation and rnote file writing, possibly fixing "
+"\"reload document\" toasts when file is saved on windows"
+msgstr ""
+"улучшение: отслеживание изменений файлов и запись файлов rnote, что, "
+"возможно, устраняет уведомления «перезагрузить документ» после сохранения в "
+"Windows"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:256
+msgid ""
+"fix: failing export/clipboard-copy with large images (thanks to "
+"@Doublonmousse)"
+msgstr ""
+"исправление: сбой экспорта и копирования в буфер обмена с большими "
+"изображениями (спасибо @Doublonmousse)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:257
+msgid ""
+"fix: menus positions when opened through keyboard shortcut (thanks to "
+"@detiam)"
+msgstr ""
+"исправление: положение меню, открытых комбинацией клавиш (спасибо @detiam)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:258
+msgid "fix: zoom label not being updated after switching tab"
+msgstr "исправление: метка масштаба не обновлялась после переключения вкладки"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:259
+msgid "fix: regression where margin is not applied when exporting selection"
+msgstr ""
+"исправление: регрессия, при которой поле не применялось при экспорте "
+"выделения"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:260
+msgid "fix: undo/redo triggering document-modified flag"
+msgstr "исправление: отмена и повтор помечали документ как изменённый"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:268
+msgid ""
+"ux: increase window threshold width at where the sidebar becomes an overlay"
+msgstr ""
+"удобство: увеличена ширина окна, при которой боковая панель становится "
+"наложением"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:269
+msgid ""
+"fix: indicate unsaved when changing document settings (format, colors, "
+"pattern, ..)"
+msgstr ""
+"исправление: документ помечается несохранённым при изменении его настроек "
+"(формат, цвета, линовка и т. д.)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:270
+msgid "fix: missing progress pulse when saving existing doc"
+msgstr ""
+"исправление: отсутствовал индикатор выполнения при сохранении существующего "
+"документа"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:271
+msgid "fix: ui not being refreshed after loading document from file"
+msgstr "исправление: интерфейс не обновлялся после загрузки документа из файла"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:272
+msgid "fix: jumping view when zoomed out and reaching edges"
+msgstr "исправление: скачки вида при уменьшенном масштабе у краёв"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:280
+msgid ""
+"improvement: add button to export notification to open file location in file-"
+"manager after exporting (thanks to @silvasch)"
+msgstr ""
+"улучшение: в уведомление об экспорте добавлена кнопка, открывающая "
+"расположение файла в файловом менеджере (спасибо @silvasch)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:281
+msgid ""
+"improvement: initial export file picker folder got improved, now "
+"prioritising the rnote file location and are now remembered between exports "
+"(thanks to @pobrn )"
+msgstr ""
+"улучшение: улучшена начальная папка в окне выбора файла для экспорта — "
+"теперь в приоритете расположение файла rnote, и она запоминается между "
+"экспортами (спасибо @pobrn )"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:282
+msgid "improvement: more readable file row names"
+msgstr "улучшение: более читаемые имена в строках файлов"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:283
+msgid "improvement: add keyboard shortcut for snap-positions action"
+msgstr "улучшение: комбинация клавиш для привязки к точкам"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:284
+msgid "improvement: pdf import option to toggle page borders"
+msgstr "улучшение: параметр импорта PDF для включения границ страниц"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:285
+msgid ""
+"fix: don't export empty pages that are adjacent to content that is snapped "
+"to the document grid"
+msgstr ""
+"исправление: не экспортируются пустые страницы рядом с содержимым, "
+"привязанным к сетке документа"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:286
+msgid ""
+"fix: progress pulses getting out of sync when executing multiple operations "
+"in parallel"
+msgstr ""
+"исправление: рассинхронизация индикаторов выполнения при параллельном "
+"выполнении нескольких операций"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:287
+msgid ""
+"fix: typewriter width adjustment button disappearing after setting it to "
+"minimal width"
+msgstr ""
+"исправление: кнопка изменения ширины в инструменте «Текст» пропадала после "
+"установки минимальной ширины"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:295
+msgid ""
+"feature: option to snap positions in different tools to pattern and document "
+"grid"
+msgstr ""
+"новое: параметр привязки позиций в разных инструментах к линовке и сетке "
+"документа"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:296
+msgid ""
+"feature: option to open files with default app from workspace browser list "
+"(thanks to @silvasch)"
+msgstr ""
+"новое: возможность открывать файлы в приложении по умолчанию из списка "
+"обозревателя коллекции (спасибо @silvasch)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:297
+msgid ""
+"improvement: sort workspace files and folders in a more intuitive way "
+"(thanks to @doublonmousse)"
+msgstr ""
+"улучшение: более интуитивная сортировка файлов и папок коллекции (спасибо "
+"@doublonmousse)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:298
+msgid ""
+"fix: initial documents opened with rnote have blurry rendering when system "
+"scale-factor is larger than 1.0"
+msgstr ""
+"исправление: первые документы, открытые в rnote, отрисовывались размыто при "
+"системном масштабе больше 1.0"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:299
+msgid ""
+"fix: selection after nudging view only included strokes in current viewport"
+msgstr ""
+"исправление: выделение после сдвига вида включало только штрихи в текущей "
+"области просмотра"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:300
+msgid "fix: text files not appearing in workspacebrowser"
+msgstr "исправление: текстовые файлы не отображались в обозревателе коллекции"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:308
+msgid ""
+"feature: ability to toggle the visibility of the origin indicator cross "
+"(thanks to @silvasch)"
+msgstr "новое: возможность скрыть крестик начала документа (спасибо @silvasch)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:309
+msgid ""
+"improvement: port rows widgets to libadwaita spezialized variants (thanks to "
+"@oscfdezdz)"
+msgstr ""
+"улучшение: строки интерфейса переведены на специализированные виджеты "
+"libadwaita (спасибо @oscfdezdz)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:310
+msgid ""
+"improvement: text formatting buttons now toggle text attributes (thanks to "
+"@xweskingx)"
+msgstr ""
+"улучшение: кнопки форматирования текста теперь переключают атрибуты текста "
+"(спасибо @xweskingx)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:311
+msgid ""
+"improvement: load documents into the current tab if it is a draft and empty "
+"(thanks to @silvasch)"
+msgstr ""
+"улучшение: документы загружаются в текущую вкладку, если это пустой черновик "
+"(спасибо @silvasch)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:312
+msgid "UI: tweak sidebar width"
+msgstr "интерфейс: подправлена ширина боковой панели"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:313
+msgid ""
+"fix: don't display reload-file dialog after saving to directories synced "
+"with cloud storage"
+msgstr ""
+"исправление: диалог перезагрузки файла больше не показывается после "
+"сохранения в каталоги, синхронизируемые с облачным хранилищем"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:314
+msgid "fix: chinese translations (thanks to @detiam)"
+msgstr "исправление: переводы на китайский (спасибо @detiam)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:315
+msgid "fix: single position strokes not being rendered"
+msgstr "исправление: не отрисовывались штрихи из одной точки"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:316
+msgid ""
+"fix: don't restore maximized window state on macos, fixing inability to "
+"resize the window after launch"
+msgstr ""
+"исправление: развёрнутое состояние окна больше не восстанавливается в macOS, "
+"что устраняет невозможность изменить размер окна после запуска"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:317
+msgid ""
+"fix: windows installer not including certain dll's, possibly causing crashes "
+"when the missing ones are located elsewhere and present in PATH (thanks to "
+"@mdonoughe)"
+msgstr ""
+"исправление: установщик для Windows не включал некоторые DLL, что могло "
+"вызывать сбои, если недостающие находились где-то ещё в PATH (спасибо "
+"@mdonoughe)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:325
+msgid "feature: added ctrl plus space as configurable shortcut"
+msgstr "новое: Ctrl+Пробел добавлен как настраиваемая комбинация клавиш"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:326
+msgid "feature: added plaintext file import"
+msgstr "новое: импорт простых текстовых файлов"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:327
+msgid "feature: ability to nudge view while performing certain pen actions"
+msgstr "новое: возможность сдвигать вид во время некоторых действий пером"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:328
+msgid ""
+"improvement: port the UI to libadwaita 1.4 with an improved sidebar and "
+"adaptivity"
+msgstr ""
+"улучшение: интерфейс переведён на libadwaita 1.4 с улучшенной боковой "
+"панелью и адаптивностью"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:329
+msgid ""
+"improvement: scale widths of brush-strokes and shapes when resizing selection"
+msgstr ""
+"улучшение: толщина штрихов кисти и фигур масштабируется при изменении "
+"размера выделения"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:330
+msgid ""
+"improvement: added keyboard shortcuts to add/remove pages when in fixed-size "
+"layout"
+msgstr ""
+"улучшение: комбинации клавиш для добавления и удаления страниц в компоновке "
+"с фиксированным размером"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:331
+msgid ""
+"improvement: the current document view is saved and restored to/from rnote "
+"files"
+msgstr ""
+"улучшение: текущий вид документа сохраняется в файлы rnote и "
+"восстанавливается из них"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:332
+msgid ""
+"improvement: orientation toggle usable when using custom document dimensions"
+msgstr ""
+"улучшение: переключатель ориентации работает при пользовательских размерах "
+"документа"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:333
+msgid ""
+"improvement: shape builder picker sidebar location (thanks to @PhilDevProg)"
+msgstr ""
+"улучшение: расположение панели выбора конструктора фигур (спасибо "
+"@PhilDevProg)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:334
+msgid ""
+"fix: when using the vertical-space tool strokes that came into view were not "
+"initially rendered"
+msgstr ""
+"исправление: при использовании инструмента вертикального пробела штрихи, "
+"попадавшие в область видимости, сразу не отрисовывались"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:335
+msgid "fix: color picker dialog could be opened multiple times"
+msgstr "исправление: диалог выбора цвета можно было открыть несколько раз"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:336
+msgid "fix: default view offset when opening a new tab"
+msgstr "исправление: смещение вида по умолчанию при открытии новой вкладки"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:344
+msgid "fix: button presses not handled as pen events"
+msgstr "исправление: нажатия кнопок не обрабатывались как события пера"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:345
+msgid "fix: windows build"
+msgstr "исправление: сборка для Windows"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:346
+msgid "fix: bundled fonts not appearing in flatpak"
+msgstr "исправление: встроенные шрифты не отображались во flatpak"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:354
+msgid "feature: export previews"
+msgstr "новое: предпросмотр экспорта"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:355
+msgid "feature: invert selection color brightness (thanks to @Kneemund)"
+msgstr "новое: инвертирование яркости цвета выделения (спасибо @Kneemund)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:356
+msgid "feature: optimize for printing export option (thanks to @Kneemund)"
+msgstr ""
+"новое: параметр экспорта «оптимизировать для печати» (спасибо @Kneemund)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:357
+msgid ""
+"feature: a few handwrite-y,typewriter and dyslexia fonts are now bundled "
+"with the application (check the README for a list of them)"
+msgstr ""
+"новое: несколько рукописных, машинописных шрифтов и шрифтов для людей с "
+"дислексией теперь поставляются вместе с приложением (их список — в README)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:358
+msgid "feature: polyline shape and builder"
+msgstr "новое: фигура «Ломаная» и её конструктор"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:359
+msgid "improvement: cli export enhancements (thanks to @LeSnake04)"
+msgstr "улучшение: доработки экспорта в командной строке (спасибо @LeSnake04)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:360
+msgid "improvement: update outdated symbolic icons (thanks to @oscfdezdz)"
+msgstr ""
+"улучшение: обновлены устаревшие символические значки (спасибо @oscfdezdz)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:361
+msgid "improvement: behaviour when opening files in new tab"
+msgstr "улучшение: поведение при открытии файлов в новой вкладке"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:362
+msgid ""
+"improvement: added close buttons to configuration popovers as a workaround "
+"for the Gtk4 stuck-popover bug"
+msgstr ""
+"улучшение: во всплывающие окна настроек добавлены кнопки закрытия как "
+"обходной путь для ошибки GTK4 с зависающими всплывающими окнами"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:363
+msgid "improvement: default view offset when opening documents"
+msgstr "улучшение: смещение вида по умолчанию при открытии документов"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:364
+msgid "enhancement: move view using arrow keys"
+msgstr "улучшение: перемещение вида клавишами со стрелками"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:365
+msgid "fix: orientation of some popovers when sidebar is on the left"
+msgstr ""
+"исправление: ориентация некоторых всплывающих окон при боковой панели слева"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:366
+msgid "fix: restore vectorized images (Pdf pages, Svg) export"
+msgstr ""
+"исправление: восстановлен экспорт векторных изображений (страницы PDF, SVG)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:367
+msgid "fix: .rnote file imports that were created pre v0.5.9"
+msgstr "исправление: импорт файлов .rnote, созданных до версии 0.5.9"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:368
+msgid "fix: rendering of closed shapes from imported xopp file"
+msgstr "исправление: отрисовка замкнутых фигур из импортированного файла xopp"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:376
+msgid "improvement: more consistent duplicate file naming"
+msgstr "улучшение: более единообразное именование копий файлов"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:377
+msgid "UI: more compact sidebar, shape-picker, workspacebrowser"
+msgstr ""
+"интерфейс: более компактные боковая панель, выбор фигур и обозреватель "
+"коллекции"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:378
+msgid ""
+"fix: import dialogs were not shown when importing files or drag-and-drop "
+"from file-managers (thanks to @Kneemund)"
+msgstr ""
+"исправление: диалоги импорта не показывались при импорте файлов или "
+"перетаскивании из файловых менеджеров (спасибо @Kneemund)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:386
+msgid ""
+"installation: windows users - the installer now uses 64-bit mode, and now "
+"(correctly) installs into \"Program Files\" by default. If you are upgrading "
+"from a previous version, you need to uninstall the old version in \"Program "
+"Files (x86)\" manually."
+msgstr ""
+"установка: для пользователей Windows — установщик теперь работает в 64-"
+"битном режиме и по умолчанию (правильно) устанавливает в «Program Files». "
+"Если вы обновляетесь с предыдущей версии, нужно вручную удалить старую "
+"версию из «Program Files (x86)»."
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:388
+msgid "feature: remove page from fixed size document (thanks to @PhilDevProg)"
+msgstr ""
+"новое: удаление страницы из документа с фиксированным размером (спасибо "
+"@PhilDevProg)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:389
+msgid ""
+"feature: specify page order when exporting documents with layouts that "
+"expand in horizontal and vertical directions (thanks to @Kneemund)"
+msgstr ""
+"новое: выбор порядка страниц при экспорте документов с компоновкой, "
+"расширяющейся по горизонтали и вертикали (спасибо @Kneemund)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:390
+msgid "feature: inertial touch scrolling (thanks to @Kneemund)"
+msgstr "новое: инерционная сенсорная прокрутка (спасибо @Kneemund)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:391
+msgid "feature: ability to toggle drawing cursor visibility"
+msgstr ""
+"новое: возможность включать и выключать видимость курсора для рисования"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:392
+msgid ""
+"feature: \"focus mode\" that hides the toolbars, improving the experience on "
+"low-resolution tablets"
+msgstr ""
+"новое: «режим фокусировки», скрывающий панели инструментов, что удобнее на "
+"планшетах с низким разрешением"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:393
+msgid ""
+"feature: dedicated zoom tool, making navigating while touch-drawing is "
+"enabled easier"
+msgstr ""
+"новое: отдельный инструмент масштабирования, упрощающий навигацию при "
+"включённом рисовании пальцем"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:394
+msgid "improvement: selection highlights for brush-strokes"
+msgstr "улучшение: подсветка выделения для штрихов кисти"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:395
+msgid "improvement: ctrl + scroll following the pointer"
+msgstr "улучшение: Ctrl + прокрутка следует за указателем"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:396
+msgid ""
+"improvement: scale-ratio when resizing the selection with locked aspect-ratio"
+msgstr ""
+"улучшение: коэффициент масштаба при изменении размера выделения с "
+"фиксированным соотношением сторон"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:397
+msgid ""
+"improvement: provide selection content as Svg and Png when copying/cutting "
+"to the clipboard"
+msgstr ""
+"улучшение: содержимое выделения передаётся в формате SVG и PNG при "
+"копировании или вырезании в буфер обмена"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:398
+msgid "improvement: save file logic in close tab/window dialogs"
+msgstr "улучшение: логика сохранения файлов в диалогах закрытия вкладки и окна"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:399
+msgid "improvement: memory consumption when loading rnote files"
+msgstr "улучшение: потребление памяти при загрузке файлов rnote"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:400
+msgid ""
+"UI: page controls for the fixed-size layout were moved into the canvas menu "
+"dropdown"
+msgstr ""
+"интерфейс: элементы управления страницами для компоновки с фиксированным "
+"размером перенесены в выпадающее меню холста"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:401
+msgid "UI: undo/redo buttons were moved to the pen switcher toolbar"
+msgstr ""
+"интерфейс: кнопки отмены и повтора перенесены на панель переключения перьев"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:402
+msgid "fix: apply pressure curves when exporting to xopp"
+msgstr "исправление: при экспорте в xopp применяются кривые давления"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:403
+msgid "fix: single element/position strokes were not rendered"
+msgstr ""
+"исправление: не отрисовывались штрихи из одного элемента или одной точки"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:404
+msgid "fix: stop document autoexpanding when scrolling with scrollbars"
+msgstr ""
+"исправление: документ больше не расширяется автоматически при прокрутке "
+"полосами прокрутки"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:412
+msgid ""
+"orga: Rnote now follows a new versioning scheme - feature updates will "
+"increment x, while patches will increment y in versions 0.x.y . Breakages in "
+"the file format will be explicitly announced (but we'll work as hard as "
+"possible to avoid them!) and are not reflected in the version anymore."
+msgstr ""
+"организационное: Rnote теперь следует новой схеме версий — обновления с "
+"новыми возможностями увеличивают x, а исправления — y в версиях 0.x.y. О "
+"несовместимых изменениях формата файлов будет объявляться явно (но мы изо "
+"всех сил постараемся их избегать!), и они больше не отражаются в номере "
+"версии."
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:414
+msgid ""
+"orga: the app is now available for Windows and MacOS! Check the installation "
+"section on the website / README, you'll find links to the installer and app "
+"bundle there."
+msgstr ""
+"организационное: приложение теперь доступно для Windows и macOS! Загляните в "
+"раздел установки на сайте или в README — там вы найдёте ссылки на установщик "
+"и пакет приложения."
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:415
+msgid "feature: arrow shapes (thanks to @TornaxO7 )"
+msgstr "новое: фигуры-стрелки (спасибо @TornaxO7 )"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:416
+msgid "feature: ability to recolor selected strokes (thanks to @Kneemund )"
+msgstr ""
+"новое: возможность перекрашивать выделенные штрихи (спасибо @Kneemund )"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:417
+msgid "feature: isometric background patterns (thanks to @Kneemund )"
+msgstr "новое: изометрические виды линовки (спасибо @Kneemund )"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:418
+msgid "feature: add option to block pinch zoom (thanks to @LeSnake04 )"
+msgstr ""
+"новое: параметр для блокировки масштабирования щипком (спасибо @LeSnake04 )"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:419
+msgid "improvement: typewriter keyboard navigation (thanks to @Kneemund )"
+msgstr ""
+"улучшение: навигация с клавиатуры в инструменте «Текст» (спасибо @Kneemund )"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:420
+msgid "improvement: exiting / closing dialogs and logic (thanks to @adih-20 )"
+msgstr ""
+"улучшение: выход и закрытие диалогов и связанная логика (спасибо @adih-20 )"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:421
+msgid "improvement: more icons for workspace list entries"
+msgstr "улучшение: больше значков для элементов списка коллекции"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:422
+msgid "improvement: associated symbolic icon for .rnote files"
+msgstr "улучшение: связанный символический значок для файлов .rnote"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:423
+msgid ""
+"improvement: added labels for name and directory of the active workspace"
+msgstr "улучшение: добавлены подписи с именем и каталогом активной коллекции"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:424
+msgid "fix: occasional crashes when doing three-finger swipes"
+msgstr "исправление: периодические сбои при смахивании тремя пальцами"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:425
+msgid ""
+"fix: size limits for grid builder, preventing slowdowns and crashes (thanks "
+"to @Kneemund)"
+msgstr ""
+"исправление: ограничения размера для конструктора сетки, предотвращающие "
+"замедления и сбои (спасибо @Kneemund)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:426
+msgid ""
+"fix: strokes not generating hitboxes when pen is being changed mid-stroke"
+msgstr ""
+"исправление: штрихи не создавали области попадания, если перо менялось "
+"посреди штриха"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:427
+msgid "fix: limit chars for dirs in edit-workspace dialog"
+msgstr ""
+"исправление: ограничение числа символов для каталогов в диалоге "
+"редактирования коллекции"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:435
+msgid ""
+"fix: panic on app start when color scheme setting is set to \"Use Light "
+"Colors\" / \"Use Dark Colors\""
+msgstr ""
+"исправление: аварийное завершение при запуске, если цветовая схема "
+"установлена в «Использовать светлые цвета» или «Использовать тёмные цвета»"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:443
+msgid "fix: some users experienced zip-zapping while using stylus"
+msgstr ""
+"исправление: у некоторых пользователей при работе стилусом возникали зигзаги"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:444
+msgid "fix: sporadic jumps when view is near document edge"
+msgstr "исправление: случайные скачки, когда вид находится у края документа"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:445
+msgid "fix: regression where redo button stays insensitive"
+msgstr ""
+"исправление: регрессия, из-за которой кнопка повтора оставалась неактивной"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:453
+msgid "fix: vector export when bounds are not origin aligned"
+msgstr ""
+"исправление: векторный экспорт, когда границы не выровнены по началу "
+"координат"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:461
+msgid "feature: configurable shortcuts for drawing pad buttons"
+msgstr "новое: настраиваемые комбинации для кнопок графического планшета"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:462
+msgid ""
+"improvement: input events for rate-limited devices (E-Paper/ low-frequency "
+"displays)"
+msgstr ""
+"улучшение: события ввода для устройств с ограниченной частотой (электронная "
+"бумага и дисплеи с низкой частотой обновления)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:463
+msgid "improvement: reduced Svg export size"
+msgstr "улучшение: уменьшен размер экспорта в SVG"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:464
+msgid "fix: artifacts when printing"
+msgstr "исправление: артефакты при печати"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:465
+msgid "fix: Jpeg images embedded in Pdfs were not rendered"
+msgstr "исправление: не отрисовывались изображения JPEG, встроенные в PDF"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:466
+msgid "fix: select-all with \"ctrl+a\" included trashed strokes"
+msgstr "исправление: «выделить всё» по «ctrl+a» включало удалённые штрихи"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:467
+msgid "fix: units in settings kept resetting to \"Px\""
+msgstr ""
+"исправление: единицы измерения в настройках постоянно сбрасывались на «Px»"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:468
+msgid "fix: flicker when duplicating large selections"
+msgstr "исправление: мерцание при дублировании больших выделений"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:476
+msgid "feature: toggle mode for shortcuts"
+msgstr "новое: режим переключения для комбинаций клавиш"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:477
+msgid "feature: eraser size picker"
+msgstr "новое: выбор размера ластика"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:478
+msgid "improvement: reduce toolbar overlays margins when scrollbar is disabled"
+msgstr ""
+"улучшение: уменьшены отступы наложенных панелей инструментов при отключённой "
+"полосе прокрутки"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:479
+msgid "improvement: indicate hover over nodes in the selector and typewriter"
+msgstr ""
+"улучшение: подсветка при наведении на узлы в инструментах «Выделение» и "
+"«Текст»"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:480
+msgid "improvement: reduced save and xopp export file sizes"
+msgstr "улучшение: уменьшен размер файлов при сохранении и экспорте в xopp"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:481
+msgid ""
+"UI: follow Gnome HIG writing style more closely and fixed string "
+"inconsistencies"
+msgstr ""
+"интерфейс: более точное следование стилю текстов GNOME HIG и исправление "
+"несоответствий в строках"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:482
+msgid "fix: Pdf import with different size pages"
+msgstr "исправление: импорт PDF со страницами разного размера"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:483
+msgid ""
+"fix: image and Pdf import offsets now take the document bounds into account"
+msgstr ""
+"исправление: смещения при импорте изображений и PDF теперь учитывают границы "
+"документа"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:484
+msgid "fix: broken resizing in fixed-size document layout"
+msgstr ""
+"исправление: изменение размера в компоновке документа с фиксированным "
+"размером не работало"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:485
+msgid "fix: crash when navigating up/down into non-ASCII text"
+msgstr "исправление: сбой при навигации вверх/вниз в тексте не в ASCII"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:486
+msgid "fix: crash on launch when using a custom stylesheet"
+msgstr "исправление: сбой при запуске с пользовательской таблицей стилей"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:487
+msgid "fix: rough style fill calculations"
+msgstr "исправление: расчёт заливки в грубом стиле"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:495
+msgid "feature: tabs!"
+msgstr "новое: вкладки!"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:496
+msgid "feature: a global colorpicker"
+msgstr "новое: глобальная пипетка"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:497
+msgid "feature: stroke width preset palette"
+msgstr "новое: палитра пресетов толщины штриха"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:498
+msgid "feature: added \"semi-infinite\" canvas layout ( thanks @D0V4HKIIN !)"
+msgstr "новое: компоновка холста «полубесконечная» ( спасибо @D0V4HKIIN !)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:499
+msgid ""
+"feature: added two-finger long-press touch gesture that switches the active "
+"pen (like stylus buttons)"
+msgstr ""
+"новое: жест долгого касания двумя пальцами, переключающий активное перо (как "
+"кнопки стилуса)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:500
+msgid "feature: added pdf import bitmap scaling preference"
+msgstr "новое: параметр масштабирования растровых изображений при импорте PDF"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:501
+msgid "UI: floating toolbars"
+msgstr "интерфейс: плавающие панели инструментов"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:502
+msgid ""
+"UI: shape builder picker is now a categorized grid (thanks a lot @Kneemund !)"
+msgstr ""
+"интерфейс: выбор конструктора фигур теперь представлен сеткой с категориями "
+"(большое спасибо @Kneemund !)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:503
+msgid "improvement: copy, cut and paste selections between tabs and windows"
+msgstr ""
+"улучшение: копирование, вырезание и вставка выделений между вкладками и "
+"окнами"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:504
+msgid "improvement: flap revealed state is now remembered across app launches"
+msgstr ""
+"улучшение: состояние раскрытия боковой панели теперь запоминается между "
+"запусками приложения"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:505
+msgid "fix: svg clipboard paste"
+msgstr "исправление: вставка SVG из буфера обмена"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:506
+msgid "fix: lag when panning in \"continuous-vertical\" layout"
+msgstr ""
+"исправление: задержки при прокрутке в компоновке «вертикальная "
+"многостраничная»"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:507
+msgid "fix: layers when erasing marker strokes in \"split-stroke\" mode"
+msgstr ""
+"исправление: слои при стирании штрихов маркера в режиме «разделять штрихи»"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:508
+msgid "fix: \"split-stroke\" mode only eraser one segment at a time"
+msgstr ""
+"исправление: режим «разделять штрихи» стирал только один сегмент за раз"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:509
+msgid "fix: freeze when saving multiple times in succession"
+msgstr "исправление: зависание при многократном сохранении подряд"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:510
+msgid "fix: blurry vector images after zooming in"
+msgstr "исправление: размытые векторные изображения после увеличения масштаба"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:511
+msgid "fix: some blurry icons"
+msgstr "исправление: некоторые размытые значки"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:519
+msgid "UI: minor sidebar tweaks"
+msgstr "интерфейс: небольшие доработки боковой панели"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:520
+msgid "i18n: updated strings and translations"
+msgstr "локализация: обновлены строки и переводы"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:521
+msgid "fix: remove selection bounds margins"
+msgstr "исправление: убраны поля у границ выделения"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:522
+msgid ""
+"fix: don't overwrite active palette color when start modifying existing text"
+msgstr ""
+"исправление: активный цвет палитры больше не перезаписывается при начале "
+"редактирования существующего текста"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:530
+msgid "feature: added a grid builder"
+msgstr "новое: конструктор сетки"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:531
+msgid ""
+"feature: ctrl + pointer drag for panning the canvas, ctrl+shift + pointer "
+"drag for zooming"
+msgstr ""
+"новое: Ctrl + перетаскивание указателем для панорамирования холста, "
+"Ctrl+Shift + перетаскивание указателем для масштабирования"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:533
+msgid "improvement: added the ability to reorder workspaces"
+msgstr "улучшение: возможность менять порядок коллекций"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:534
+msgid "improvement: rough style now supports transparent colors"
+msgstr "улучшение: грубый стиль теперь поддерживает прозрачные цвета"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:535
+msgid "improvement: full asynchronicity for all import and exports"
+msgstr "улучшение: полная асинхронность всех операций импорта и экспорта"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:536
+msgid "fix: rough style bezier curves drawing"
+msgstr "исправление: рисование кривых Безье в грубом стиле"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:537
+msgid "fix: added missing association for `.xopp` files"
+msgstr "исправление: добавлена отсутствовавшая ассоциация для файлов `.xopp`"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:538
+msgid "fix: ability to select folders in export-doc-pages filechooser"
+msgstr ""
+"исправление: возможность выбирать папки в окне выбора файлов при экспорте "
+"страниц документа"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:539
+msgid "fix: text input with IME's ( thanks @Mr-Spade !)"
+msgstr "исправление: ввод текста с помощью IME ( спасибо @Mr-Spade !)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:547
+msgid "feature: hatched fills for the rough shape style"
+msgstr "новое: штриховая заливка для грубого стиля фигур"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:548
+msgid ""
+"improvements to the monitoring and handling of file changes to the currently "
+"opened file (thanks @Kneemund !)"
+msgstr ""
+"улучшения отслеживания и обработки изменений текущего открытого файла "
+"(спасибо @Kneemund !)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:550
+msgid "simplified textured brush style options"
+msgstr "упрощены параметры текстурированного стиля кисти"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:551
+msgid "faster start up times"
+msgstr "ускорен запуск"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:552
+msgid "switch to the typewriter when dropping text"
+msgstr "переключение на инструмент «Текст» при перетаскивании текста"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:553
+msgid "more icon improvements (thanks @bertob !)"
+msgstr "ещё больше улучшений значков (спасибо @bertob !)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:554
+msgid "fix: view \"jumps\" when quickly zooming multiple times"
+msgstr "исправление: «скачки» вида при быстром многократном масштабировании"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:555
+msgid "fix: typewriter now handles cut (Ctrl + x) properly"
+msgstr ""
+"исправление: инструмент «Текст» теперь правильно обрабатывает вырезание "
+"(Ctrl + x)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:563
+msgid ""
+"feature: added keyboard shortcuts \"Ctrl+1..6\" to switch between the "
+"different pens"
+msgstr "новое: комбинации клавиш «Ctrl+1..6» для переключения между перьями"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:564
+msgid "feature: added coordinate system builders (thanks to @Kneemund )"
+msgstr "новое: конструкторы систем координат (спасибо @Kneemund )"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:565
+msgid "feature: drop text on the canvas"
+msgstr "новое: перетаскивание текста на холст"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:566
+msgid "improvement: export preferences, new export dialogs and options"
+msgstr "улучшение: настройки экспорта, новые диалоги и параметры экспорта"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:567
+msgid ""
+"improvement: UI following Gnome HIG more closely ( with @bertob's help )"
+msgstr "улучшение: интерфейс точнее следует GNOME HIG ( при помощи @bertob )"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:568
+msgid ""
+"fix: update current document state when the file was modified from the "
+"workspace browser. (thanks @Kneemund )"
+msgstr ""
+"исправление: состояние текущего документа обновляется, если файл был изменён "
+"из обозревателя коллекции. (спасибо @Kneemund )"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:570
+msgid "fix: clearing text attributes for new text fields"
+msgstr "исправление: сброс атрибутов текста для новых текстовых полей"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:578
+msgid "improvement: Add zoom buttons to the quick-actions overlay"
+msgstr "улучшение: кнопки масштабирования добавлены на панель быстрых действий"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:579
+msgid ""
+"improvement: By default use the workspace directory for import and export "
+"dialogs, and document file for save dialogs"
+msgstr ""
+"улучшение: по умолчанию диалоги импорта и экспорта открываются в каталоге "
+"коллекции, а диалоги сохранения — в каталоге файла документа"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:581
+msgid "fix: Pdf export and print sometimes produced empty pages"
+msgstr "исправление: экспорт в PDF и печать иногда давали пустые страницы"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:582
+msgid ""
+"fix: workspace files list not refreshing after modifying the workspace path"
+msgstr ""
+"исправление: список файлов коллекции не обновлялся после изменения пути "
+"коллекции"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:583
+msgid ""
+"fix: Selector being canceled when attempting to interact with the selection "
+"when \"touch-drawing\" was enabled"
+msgstr ""
+"исправление: инструмент «Выделение» сбрасывался при попытке "
+"взаимодействовать с выделением, если было включено рисование пальцем"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:592
+msgid ""
+"feature: a new brush option to select between different path modelers. Added "
+"a physics-based modelling type (as default) which decreases jitter and "
+"improves handwriting smoothness. It also includes a predictor to minimize "
+"input lag."
+msgstr ""
+"новое: параметр кисти для выбора модели траектории. Добавлена физическая "
+"модель (по умолчанию), которая уменьшает дрожание и делает рукописный ввод "
+"более плавным. Она также включает предсказание, снижающее задержку ввода."
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:595
+msgid ""
+"feature: switch between different cursors while hovering and drawing, with "
+"new \"teardrop\", \"crosshair\" and \"beam\" cursors in different variations "
+"and sizes."
+msgstr ""
+"новое: переключение между разными курсорами при наведении и рисовании, с "
+"новыми курсорами «капля», «перекрестие» и «луч» в разных вариантах и "
+"размерах."
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:597
+msgid ""
+"feature: a new `duplicate` file action and a new `create directory` "
+"workspace action (thanks @TornaxO7 !)"
+msgstr ""
+"новое: действие с файлом «дублировать» и действие коллекции «создать "
+"каталог» (спасибо @TornaxO7 !)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:599
+msgid "improved: better palm rejection while drawing with a stylus"
+msgstr "улучшение: лучшее подавление касаний ладонью при рисовании стилусом"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:600
+msgid "improved: better export filenames"
+msgstr "улучшение: более удачные имена экспортируемых файлов"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:601
+msgid ""
+"improved: typewriter input now accepts letter accents, improved unicode "
+"support"
+msgstr ""
+"улучшение: ввод в инструменте «Текст» теперь принимает буквы с диакритикой, "
+"улучшена поддержка Unicode"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:602
+msgid "fix: background pattern tile rendering size"
+msgstr "исправление: размер отрисовки фрагментов линовки фона"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:603
+msgid ""
+"fix: scrolling with touchpad was not possible when the \"permanent hidden "
+"scrollbars\" option was enabled"
+msgstr ""
+"исправление: прокрутка сенсорной панелью была невозможна при включённом "
+"параметре «всегда скрывать полосы прокрутки»"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:605
+msgid "fix: broken Svg export"
+msgstr "исправление: экспорт в SVG не работал"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:606
+msgid "fix: image layers when exporting to .xopp"
+msgstr "исправление: слои изображений при экспорте в .xopp"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:614
+msgid "Port to libadwaita 1.2 with an updated about window, improved dialogs"
+msgstr ""
+"переход на libadwaita 1.2 с обновлённым окном «О программе» и улучшенными "
+"диалогами"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:615
+msgid "new feature: \"permanently hide scrollbars\" toggle in the settings"
+msgstr "новое: переключатель «всегда скрывать полосы прокрутки» в настройках"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:616
+msgid "new feature: \"paste from clipboard\" button in the selector page"
+msgstr ""
+"новое: кнопка «вставить из буфера обмена» на странице инструмента «Выделение»"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:617
+msgid "improved window title, now shows the current document name"
+msgstr ""
+"улучшен заголовок окна: теперь в нём показывается имя текущего документа"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:618
+msgid "tweaked app icon"
+msgstr "подправлен значок приложения"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:626
+msgid ""
+"A new app icon and symbolic! (based on @bertob's design and with his help. "
+"Thanks a ton!)"
+msgstr ""
+"Новый значок приложения и символический значок! (по дизайну @bertob и при "
+"его помощи. Огромное спасибо!)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:628
+msgid "long awaited: write and edit text with the typewriter"
+msgstr ""
+"долгожданное: ввод и редактирование текста с помощью инструмента «Текст»"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:629
+msgid ""
+"pdf import dialog with the added option to import aligned with the document "
+"pages ( one pdf page per document page )"
+msgstr ""
+"диалог импорта PDF с новым параметром импорта с выравниванием по страницам "
+"документа (одна страница PDF на одну страницу документа)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:631
+msgid ""
+"import bitmap images (e.g. screenshots) from the clipboard (thanks "
+"@RickStanley!)"
+msgstr ""
+"импорт растровых изображений (например, снимков экрана) из буфера обмена "
+"(спасибо @RickStanley!)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:632
+msgid "proportial shapes / input constraints (thanks @sei0o!)"
+msgstr "пропорциональные фигуры и ограничения ввода (спасибо @sei0o!)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:633
+msgid "additional selector modes: single, intersecting path"
+msgstr "дополнительные режимы выделения: по одному, пересечением"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:634
+msgid ""
+"improved workspace browser, added sidebar to select between different "
+"workspaces (inspired by the `Paper` app)"
+msgstr ""
+"улучшен обозреватель коллекции, добавлена боковая панель для выбора между "
+"коллекциями (по мотивам приложения `Paper`)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:636
+msgid "mark underneath other strokes with the 'Marker' brush style"
+msgstr "рисование под другими штрихами стилем кисти «Маркер»"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:637
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:645
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:655
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:665
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:682
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:695
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:728
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:737
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:750
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:760
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:771
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:780
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:789
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:798
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:815
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:828
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:841
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:855
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:867
+msgid "bug fixes"
+msgstr "исправления ошибок"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:653
+msgid "feature: paste clipboard files ( nautilus support )"
+msgstr "новое: вставка файлов из буфера обмена (поддержка nautilus)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:654
+msgid "stylus eraser mode improvements"
+msgstr "улучшения режима ластика стилуса"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:663
+msgid "feature: setting to change the format border color"
+msgstr "новое: параметр для изменения цвета обводки формата"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:664
+msgid "UI text improvements"
+msgstr "улучшены тексты интерфейса"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:673
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:691
+msgid "disclaimer: breaking file format compatibility"
+msgstr "внимание: нарушена совместимость формата файлов"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:674
+msgid "more shape types (curves, ellipse with foci)"
+msgstr "больше типов фигур (кривые, эллипс по фокусам)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:675
+msgid "feature: new eraser type: split strokes"
+msgstr "новое: новый тип ластика — разделять штрихи"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:676
+msgid "feature: autosave"
+msgstr "новое: автосохранение"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:677
+msgid "reduced handwriting latency"
+msgstr "уменьшена задержка рукописного ввода"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:678
+msgid "improved selector"
+msgstr "улучшен инструмент «Выделение»"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:679
+msgid "improved undo / redo system"
+msgstr "улучшена система отмены и повтора"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:680
+msgid "Xournal++ file import: drawn shapes are now imported correctly"
+msgstr ""
+"импорт файлов Xournal++: нарисованные фигуры теперь импортируются правильно"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:681
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:827
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:840
+msgid "UI tweaks"
+msgstr "доработки интерфейса"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:683
+msgid "a lot of code refactoring"
+msgstr "большой рефакторинг кода"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:692
+msgid "feature: configurable button shortcuts (stylus, mouse)"
+msgstr "новое: настраиваемые комбинации для кнопок (стилус, мышь)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:693
+msgid "change: moved the marker into the brush pen as a style"
+msgstr "изменение: маркер перенесён в перо «Кисть» в качестве стиля"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:694
+msgid "improvement: faster Pdf export & fix export with large sheet dimensions"
+msgstr ""
+"улучшение: ускорен экспорт в PDF и исправлен экспорт с большими размерами "
+"листа"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:703
+msgid "A new feature: infinite mode for expandable sheets in every direction"
+msgstr "Новое: бесконечный режим для листов, расширяемых во всех направлениях"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:711
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:749
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:759
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:813
+msgid "UI improvements"
+msgstr "улучшения интерфейса"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:719
+msgid "UX: Adaptive pen buttons (support smaller screens)"
+msgstr "удобство: адаптивные кнопки перьев (поддержка небольших экранов)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:727
+msgid "new feature: Export as Pdf"
+msgstr "новое: экспорт в PDF"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:736
+msgid "`Select all` and `Deselect all` selector buttons"
+msgstr "кнопки инструмента «Выделение» «Выделить всё» и «Снять выделение»"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:745
+msgid "file format changes. Breaking to older versions!"
+msgstr "изменения формата файлов. Несовместимы с более старыми версиями!"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:746
+msgid "Stroke and image rotation"
+msgstr "Поворот штрихов и изображений"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:747
+msgid "rudimentary import and export to Xournal++ files"
+msgstr "базовые импорт и экспорт файлов Xournal++"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:748
+msgid "more persistent UI state"
+msgstr "больше сохраняемых состояний интерфейса"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:758
+msgid "Textured brush with tweakable parameters"
+msgstr "Текстурированная кисть с настраиваемыми параметрами"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:768
+msgid "using libadwaita 1.0!"
+msgstr "используется libadwaita 1.0!"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:769
+msgid ""
+"Tools as new pen type. Expand the sheet vertically, modify stroke elements "
+"by dragging"
+msgstr ""
+"Инструменты как новый тип пера. Расширяйте лист по вертикали, изменяйте "
+"элементы штрихов перетаскиванием"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:770
+msgid "asynchronous import, export"
+msgstr "асинхронные импорт и экспорт"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:779
+msgid "Pdf import as vector images"
+msgstr "Импорт PDF в виде векторных изображений"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:788
+msgid "selecting with a rectangle"
+msgstr "выделение прямоугольником"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:797
+msgid "significant rendering speed improvements"
+msgstr "значительно ускорена отрисовка"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:806
+msgid "an updated icon!"
+msgstr "обновлённый значок!"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:807
+msgid ""
+"an updated file format. !!! Breaks compatibility to older versions. Please "
+"export existing files before upgrading / downgrade temporarily (explained "
+"how to downgrade at github.com/flxzt/rnote)"
+msgstr ""
+"обновлённый формат файлов. !!! Нарушает совместимость со старыми версиями. "
+"Перед обновлением экспортируйте существующие файлы или временно откатитесь "
+"на прежнюю версию (как это сделать, описано на github.com/flxzt/rnote)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:810
+msgid "new features: Pdf import, clipboard and drag&drop support"
+msgstr ""
+"новые возможности: импорт PDF, поддержка буфера обмена и перетаскивания"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:811
+msgid ""
+"performance improvements in stroke rendering, selecting, erasing by "
+"parallelizing these operations"
+msgstr ""
+"улучшена производительность отрисовки, выделения и стирания штрихов за счёт "
+"распараллеливания этих операций"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:814
+msgid "internal: code refactoring into ECS pattern"
+msgstr "внутреннее: рефакторинг кода по шаблону ECS"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:823
+msgid "introducing dots as background pattern"
+msgstr "точки в качестве линовки фона"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:824
+msgid "added undo, redo, close app and close active window shortcuts"
+msgstr ""
+"добавлены комбинации клавиш для отмены, повтора, закрытия приложения и "
+"закрытия активного окна"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:825
+msgid "added current file as title, with unsaved changes indicator"
+msgstr "текущий файл в заголовке с индикатором несохранённых изменений"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:826
+msgid "improved background rendering"
+msgstr "улучшена отрисовка фона"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:836
+msgid "introducing background patterns"
+msgstr "линовка фона"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:837
+msgid "improved zooming"
+msgstr "улучшено масштабирование"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:838
+msgid "improved performance"
+msgstr "улучшена производительность"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:839
+msgid "saving and loading more settings"
+msgstr "сохраняется и загружается больше настроек"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:849
+msgid "UI improvements: sidebar and settings"
+msgstr "улучшения интерфейса: боковая панель и настройки"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:850
+msgid "set a background color"
+msgstr "установка цвета фона"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:851
+msgid "added ellipse as a rough shape"
+msgstr "эллипс в качестве грубой фигуры"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:852
+msgid ""
+"new and improved gestures and shortcuts (zoom with \"ctrl+scroll\", drag the "
+"canvas with the middle mouse button)"
+msgstr ""
+"новые и улучшенные жесты и комбинации клавиш (масштабирование с помощью "
+"«ctrl+прокрутка», перемещение холста средней кнопкой мыши)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:854
+msgid "improved strokes algorithms"
+msgstr "улучшены алгоритмы штрихов"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:863
+msgid "Introducing rough shapes for a sketched look"
+msgstr "Грубые фигуры для эффекта наброска"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:864
+msgid "fill shapes with a color"
+msgstr "заливка фигур цветом"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:865
+msgid ""
+"improved shape drawing (broke .rnote file backward compatibility, sorry!)"
+msgstr ""
+"улучшено рисование фигур (нарушена обратная совместимость файлов .rnote, "
+"извините!)"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:866
+msgid "alpha checkerboard background in the colorpicker"
+msgstr "шахматный фон прозрачности в окне выбора цвета"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:873
+msgid "improved zooming, UI tweaks and bug fixes"
+msgstr "улучшено масштабирование, доработки интерфейса и исправления ошибок"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:878
+msgid "using native filechooser dialogs"
+msgstr "используются системные диалоги выбора файлов"
+
+#: crates/rnote-ui/data/app.metainfo.xml.in.in:883
+msgid "The initial release"
+msgstr "Первый выпуск"
+
 #: crates/rnote-ui/data/ui/dialogs/dialogs.ui:5
-#: crates/rnote-ui/data/ui/shortcuts.ui:191
+#: crates/rnote-ui/data/ui/shortcuts.ui:203
 msgid "Clear Document"
 msgstr "Очистить документ"
 
@@ -92,13 +2128,15 @@ msgstr "Это очистит весь документ. Подтвердите,
 #: crates/rnote-ui/data/ui/dialogs/dialogs.ui:22
 #: crates/rnote-ui/data/ui/dialogs/dialogs.ui:40
 #: crates/rnote-ui/data/ui/dialogs/dialogs.ui:58
-#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:74
-#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:213
-#: crates/rnote-ui/data/ui/dialogs/export.ui:14
-#: crates/rnote-ui/data/ui/dialogs/export.ui:183
-#: crates/rnote-ui/data/ui/dialogs/export.ui:423
-#: crates/rnote-ui/data/ui/dialogs/import.ui:14
-#: crates/rnote-ui/data/ui/dialogs/import.ui:207
+#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:75
+#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:215
+#: crates/rnote-ui/data/ui/dialogs/export.ui:15
+#: crates/rnote-ui/data/ui/dialogs/export.ui:186
+#: crates/rnote-ui/data/ui/dialogs/export.ui:428
+#: crates/rnote-ui/data/ui/dialogs/import.ui:15
+#: crates/rnote-ui/data/ui/dialogs/import.ui:210
+#: crates/rnote-ui/src/library/dialogs.rs:25
+#: crates/rnote-ui/src/library/open.rs:110
 #: crates/rnote-ui/src/workspacebrowser/widgethelper.rs:31
 msgid "Cancel"
 msgstr "Отменить"
@@ -109,7 +2147,7 @@ msgstr "Очистить"
 
 #: crates/rnote-ui/data/ui/dialogs/dialogs.ui:16
 #: crates/rnote-ui/data/ui/mainheader.ui:22
-#: crates/rnote-ui/src/canvas/mod.rs:730
+#: crates/rnote-ui/src/canvas/mod.rs:744
 msgid "New Document"
 msgstr "Новый документ"
 
@@ -130,6 +2168,7 @@ msgstr "Не сохранять"
 #: crates/rnote-ui/data/ui/dialogs/dialogs.ui:42
 #: crates/rnote-ui/data/ui/dialogs/dialogs.ui:60
 #: crates/rnote-ui/src/dialogs/export.rs:43
+#: crates/rnote-ui/src/library/manage.rs:156
 msgid "Save"
 msgstr "Сохранить"
 
@@ -169,43 +2208,45 @@ msgstr "Отменить все"
 msgid "Edit Workspace"
 msgstr "Редактировать коллекцию"
 
-#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:79
+#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:81
 #: crates/rnote-ui/data/ui/settingspanel.ui:264
+#: crates/rnote-ui/src/library/dialogs.rs:120
 #: crates/rnote-ui/src/workspacebrowser/widgethelper.rs:36
 msgid "Apply"
 msgstr "Применить"
 
-#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:119
+#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:121
 msgid "Workspace Name"
 msgstr "Имя коллекции"
 
-#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:124
+#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:126
 msgid "Icon"
 msgstr "Иконка"
 
-#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:125
+#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:127
 msgid "Change the workspace icon"
 msgstr "Выбрать иконку коллекции"
 
-#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:145
+#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:147
 #: crates/rnote-ui/data/ui/settingspanel.ui:345
+#: crates/rnote-ui/src/library/dialogs.rs:94
 msgid "Color"
 msgstr "Цвет"
 
-#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:146
+#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:148
 msgid "Change the workspace color"
 msgstr "Выбрать цвет коллекции"
 
-#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:160
+#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:162
 msgid "Directory"
 msgstr "Каталог"
 
-#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:161
+#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:163
 msgid "Change the workspace directory"
 msgstr "Выбрать каталог коллекции"
 
-#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:170
-#: crates/rnote-ui/data/ui/dialogs/export.ui:290
+#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:172
+#: crates/rnote-ui/data/ui/dialogs/export.ui:294
 #: crates/rnote-ui/src/dialogs/export.rs:485
 #: crates/rnote-ui/src/dialogs/export.rs:522
 #: crates/rnote-ui/src/dialogs/export.rs:530
@@ -213,19 +2254,21 @@ msgstr "Выбрать каталог коллекции"
 msgid "- no directory selected -"
 msgstr "- каталог не выбран -"
 
-#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:185
+#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:187
 msgid "Change the directory"
 msgstr "Изменить каталог"
 
-#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:208
+#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:210
 msgid "Trash File"
 msgstr "Удалить файл"
 
-#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:209
+#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:211
 msgid "Are you sure you want to move this file to the trash?"
 msgstr "Вы уверены, что хотите удалить файл в корзину?"
 
-#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:214
+#: crates/rnote-ui/data/ui/dialogs/dialogs.ui:216
+#: crates/rnote-ui/src/library/sidebar.rs:18
+#: crates/rnote-ui/src/library/sidebar.rs:80
 msgid "Trash"
 msgstr "Корзина"
 
@@ -234,27 +2277,27 @@ msgstr "Корзина"
 msgid "Export Document"
 msgstr "Экспортировать документ"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:19
-#: crates/rnote-ui/data/ui/dialogs/export.ui:188
-#: crates/rnote-ui/data/ui/dialogs/export.ui:428
+#: crates/rnote-ui/data/ui/dialogs/export.ui:21
+#: crates/rnote-ui/data/ui/dialogs/export.ui:192
+#: crates/rnote-ui/data/ui/dialogs/export.ui:434
 #: crates/rnote-ui/src/dialogs/export.rs:1257
 #: crates/rnote-ui/src/dialogs/export.rs:1318
 msgid "Export"
 msgstr "Экспортировать"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:74
-#: crates/rnote-ui/data/ui/dialogs/export.ui:483
+#: crates/rnote-ui/data/ui/dialogs/export.ui:76
+#: crates/rnote-ui/data/ui/dialogs/export.ui:489
 msgid "Export File"
 msgstr "Экспортировать файл"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:75
-#: crates/rnote-ui/data/ui/dialogs/export.ui:484
+#: crates/rnote-ui/data/ui/dialogs/export.ui:77
+#: crates/rnote-ui/data/ui/dialogs/export.ui:490
 msgid "Select the export file"
 msgstr "Выбрать файл для экспорта"
 
 #. force the user to pick another file
-#: crates/rnote-ui/data/ui/dialogs/export.ui:84
-#: crates/rnote-ui/data/ui/dialogs/export.ui:493
+#: crates/rnote-ui/data/ui/dialogs/export.ui:86
+#: crates/rnote-ui/data/ui/dialogs/export.ui:499
 #: crates/rnote-ui/src/dialogs/export.rs:136
 #: crates/rnote-ui/src/dialogs/export.rs:158
 #: crates/rnote-ui/src/dialogs/export.rs:165
@@ -266,85 +2309,85 @@ msgstr "Выбрать файл для экспорта"
 msgid "- no file selected -"
 msgstr "- файл не выбран -"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:108
-#: crates/rnote-ui/data/ui/dialogs/export.ui:319
-#: crates/rnote-ui/data/ui/dialogs/export.ui:517
+#: crates/rnote-ui/data/ui/dialogs/export.ui:110
+#: crates/rnote-ui/data/ui/dialogs/export.ui:323
+#: crates/rnote-ui/data/ui/dialogs/export.ui:523
 msgid "Export Preferences"
 msgstr "Настройки экспорта"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:112
-#: crates/rnote-ui/data/ui/dialogs/export.ui:323
-#: crates/rnote-ui/data/ui/dialogs/export.ui:521
+#: crates/rnote-ui/data/ui/dialogs/export.ui:114
+#: crates/rnote-ui/data/ui/dialogs/export.ui:327
+#: crates/rnote-ui/data/ui/dialogs/export.ui:527
 msgid "With Background"
 msgstr "С фоном"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:113
-#: crates/rnote-ui/data/ui/dialogs/export.ui:324
-#: crates/rnote-ui/data/ui/dialogs/export.ui:522
+#: crates/rnote-ui/data/ui/dialogs/export.ui:115
+#: crates/rnote-ui/data/ui/dialogs/export.ui:328
+#: crates/rnote-ui/data/ui/dialogs/export.ui:528
 msgid "Set whether the background should be exported"
 msgstr "Указать, следует ли экспортировать фон"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:118
-#: crates/rnote-ui/data/ui/dialogs/export.ui:329
-#: crates/rnote-ui/data/ui/dialogs/export.ui:527
+#: crates/rnote-ui/data/ui/dialogs/export.ui:120
+#: crates/rnote-ui/data/ui/dialogs/export.ui:333
+#: crates/rnote-ui/data/ui/dialogs/export.ui:533
 msgid "With Pattern"
 msgstr "С линовкой"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:119
-#: crates/rnote-ui/data/ui/dialogs/export.ui:330
-#: crates/rnote-ui/data/ui/dialogs/export.ui:528
+#: crates/rnote-ui/data/ui/dialogs/export.ui:121
+#: crates/rnote-ui/data/ui/dialogs/export.ui:334
+#: crates/rnote-ui/data/ui/dialogs/export.ui:534
 msgid "Set whether the background pattern should be exported"
 msgstr "Указать, следует ли экспортировать линовку фона"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:124
-#: crates/rnote-ui/data/ui/dialogs/export.ui:335
-#: crates/rnote-ui/data/ui/dialogs/export.ui:533
+#: crates/rnote-ui/data/ui/dialogs/export.ui:126
+#: crates/rnote-ui/data/ui/dialogs/export.ui:339
+#: crates/rnote-ui/data/ui/dialogs/export.ui:539
 msgid "Optimize for Printing"
 msgstr "Оптимизировать для печати"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:125
-#: crates/rnote-ui/data/ui/dialogs/export.ui:336
-#: crates/rnote-ui/data/ui/dialogs/export.ui:534
+#: crates/rnote-ui/data/ui/dialogs/export.ui:127
+#: crates/rnote-ui/data/ui/dialogs/export.ui:340
+#: crates/rnote-ui/data/ui/dialogs/export.ui:540
 msgid "Set whether the content should be optimized for printing"
 msgstr "Установить, следует ли оптимизировать содержимое для печати"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:130
-#: crates/rnote-ui/data/ui/dialogs/export.ui:341
-#: crates/rnote-ui/data/ui/dialogs/export.ui:539
+#: crates/rnote-ui/data/ui/dialogs/export.ui:132
+#: crates/rnote-ui/data/ui/dialogs/export.ui:345
+#: crates/rnote-ui/data/ui/dialogs/export.ui:545
 msgid "Export Format"
 msgstr "Формат для экспорта"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:131
-#: crates/rnote-ui/data/ui/dialogs/export.ui:342
+#: crates/rnote-ui/data/ui/dialogs/export.ui:133
+#: crates/rnote-ui/data/ui/dialogs/export.ui:346
 msgid "The export format"
 msgstr "Формат для экспорта"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:135
-#: crates/rnote-ui/data/ui/dialogs/export.ui:346
-#: crates/rnote-ui/data/ui/dialogs/export.ui:544
+#: crates/rnote-ui/data/ui/dialogs/export.ui:137
+#: crates/rnote-ui/data/ui/dialogs/export.ui:350
+#: crates/rnote-ui/data/ui/dialogs/export.ui:550
 #: crates/rnote-ui/src/dialogs/export.rs:368
 #: crates/rnote-ui/src/dialogs/export.rs:793
 #: crates/rnote-ui/src/dialogs/export.rs:1186
 msgid "Svg"
 msgstr "SVG"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:136
+#: crates/rnote-ui/data/ui/dialogs/export.ui:138
 #: crates/rnote-ui/src/dialogs/export.rs:379
 msgid "Pdf"
 msgstr "PDF"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:137
+#: crates/rnote-ui/data/ui/dialogs/export.ui:139
 #: crates/rnote-ui/src/dialogs/export.rs:390
 msgid "Xopp"
 msgstr "XOPP"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:145
-#: crates/rnote-ui/data/ui/dialogs/export.ui:356
+#: crates/rnote-ui/data/ui/dialogs/export.ui:147
+#: crates/rnote-ui/data/ui/dialogs/export.ui:360
 msgid "Page Order"
 msgstr "Порядок страниц"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:146
-#: crates/rnote-ui/data/ui/dialogs/export.ui:357
+#: crates/rnote-ui/data/ui/dialogs/export.ui:148
+#: crates/rnote-ui/data/ui/dialogs/export.ui:361
 msgid ""
 "The page order when documents with layouts\n"
 "that expand in horizontal and vertical directions\n"
@@ -354,62 +2397,62 @@ msgstr ""
 "расширяющейся по горизонтали и вертикали,\n"
 "делятся на страницы"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:152
-#: crates/rnote-ui/data/ui/dialogs/export.ui:363
+#: crates/rnote-ui/data/ui/dialogs/export.ui:154
+#: crates/rnote-ui/data/ui/dialogs/export.ui:367
 msgid "Horizontal First"
 msgstr "Сначала горизонтальные"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:153
-#: crates/rnote-ui/data/ui/dialogs/export.ui:364
+#: crates/rnote-ui/data/ui/dialogs/export.ui:155
+#: crates/rnote-ui/data/ui/dialogs/export.ui:368
 msgid "Vertical First"
 msgstr "Сначала вертикальные"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:174
+#: crates/rnote-ui/data/ui/dialogs/export.ui:176
 #: crates/rnote-ui/src/dialogs/export.rs:773
 msgid "Export Document Pages"
 msgstr "Экспортировать страницы документа"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:260
+#: crates/rnote-ui/data/ui/dialogs/export.ui:264
 msgid "Page Files Naming:"
 msgstr "Именование файлов страниц:"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:280
+#: crates/rnote-ui/data/ui/dialogs/export.ui:284
 msgid "Export Directory"
 msgstr "Экспортировать каталог"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:281
+#: crates/rnote-ui/data/ui/dialogs/export.ui:285
 msgid "Select the export directory"
 msgstr "Выбрать каталог экспорта"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:312
+#: crates/rnote-ui/data/ui/dialogs/export.ui:316
 msgctxt ""
 "When pages are exported this is the base name, followed by: - Page 0,1,.."
 msgid "Export Files Stem Name"
 msgstr "Базовое имя экспортируемых файлов"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:347
-#: crates/rnote-ui/data/ui/dialogs/export.ui:545
+#: crates/rnote-ui/data/ui/dialogs/export.ui:351
+#: crates/rnote-ui/data/ui/dialogs/export.ui:551
 #: crates/rnote-ui/src/dialogs/export.rs:804
 #: crates/rnote-ui/src/dialogs/export.rs:1197
 msgid "Png"
 msgstr "PNG"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:348
-#: crates/rnote-ui/data/ui/dialogs/export.ui:546
+#: crates/rnote-ui/data/ui/dialogs/export.ui:352
+#: crates/rnote-ui/data/ui/dialogs/export.ui:552
 #: crates/rnote-ui/src/dialogs/export.rs:817
 #: crates/rnote-ui/src/dialogs/export.rs:1210
 msgid "Jpeg"
 msgstr "JPEG"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:372
-#: crates/rnote-ui/data/ui/dialogs/export.ui:554
-#: crates/rnote-ui/data/ui/dialogs/import.ui:160
+#: crates/rnote-ui/data/ui/dialogs/export.ui:376
+#: crates/rnote-ui/data/ui/dialogs/export.ui:560
+#: crates/rnote-ui/data/ui/dialogs/import.ui:162
 msgid "Bitmap Scale-Factor"
 msgstr "Коэффициент масштабирования растрового изображения"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:373
-#: crates/rnote-ui/data/ui/dialogs/export.ui:555
-#: crates/rnote-ui/data/ui/dialogs/import.ui:161
+#: crates/rnote-ui/data/ui/dialogs/export.ui:377
+#: crates/rnote-ui/data/ui/dialogs/export.ui:561
+#: crates/rnote-ui/data/ui/dialogs/import.ui:163
 msgid ""
 "Set the bitmap scale factor in relation\n"
 "to the actual size on the document"
@@ -417,30 +2460,30 @@ msgstr ""
 "Установить коэффициент растрового масштабирования\n"
 "относительно фактического размера документа"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:381
-#: crates/rnote-ui/data/ui/dialogs/export.ui:563
+#: crates/rnote-ui/data/ui/dialogs/export.ui:385
+#: crates/rnote-ui/data/ui/dialogs/export.ui:569
 msgid "Jpeg Quality"
 msgstr "Качество JPEG"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:382
-#: crates/rnote-ui/data/ui/dialogs/export.ui:564
+#: crates/rnote-ui/data/ui/dialogs/export.ui:386
+#: crates/rnote-ui/data/ui/dialogs/export.ui:570
 msgid "Set the quality of the Jpeg image (1 - 100)"
 msgstr "Указать качество изображения JPEG (1 - 100)"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:414
+#: crates/rnote-ui/data/ui/dialogs/export.ui:418
 #: crates/rnote-ui/src/dialogs/export.rs:1165
 msgid "Export Selection"
 msgstr "Экспортировать выделение"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:540
+#: crates/rnote-ui/data/ui/dialogs/export.ui:546
 msgid "The export image format"
 msgstr "Формат экспортируемого изображения"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:571
+#: crates/rnote-ui/data/ui/dialogs/export.ui:577
 msgid "Margin"
 msgstr "Поля"
 
-#: crates/rnote-ui/data/ui/dialogs/export.ui:572
+#: crates/rnote-ui/data/ui/dialogs/export.ui:578
 msgid "Set the margin around the selected area"
 msgstr "Установить поля вокруг выбранной области"
 
@@ -448,178 +2491,158 @@ msgstr "Установить поля вокруг выбранной облас
 msgid "Import Pdf"
 msgstr "Импортировать PDF"
 
-#: crates/rnote-ui/data/ui/dialogs/import.ui:19
-#: crates/rnote-ui/data/ui/dialogs/import.ui:212
+#: crates/rnote-ui/data/ui/dialogs/import.ui:21
+#: crates/rnote-ui/data/ui/dialogs/import.ui:216
 #: crates/rnote-ui/src/dialogs/import.rs:95
 msgid "Import"
 msgstr "Импортировать"
 
-#: crates/rnote-ui/data/ui/dialogs/import.ui:63
+#: crates/rnote-ui/data/ui/dialogs/import.ui:65
 msgid "Info"
 msgstr "Информация"
 
-#: crates/rnote-ui/data/ui/dialogs/import.ui:81
+#: crates/rnote-ui/data/ui/dialogs/import.ui:83
 msgid "Pdf Import Preferences"
 msgstr "Настройки импорта PDF"
 
-#: crates/rnote-ui/data/ui/dialogs/import.ui:85
+#: crates/rnote-ui/data/ui/dialogs/import.ui:87
 msgid "Start Page"
 msgstr "Первая страница"
 
-#: crates/rnote-ui/data/ui/dialogs/import.ui:94
+#: crates/rnote-ui/data/ui/dialogs/import.ui:96
 msgid "End Page"
 msgstr "Последняя страница"
 
-#: crates/rnote-ui/data/ui/dialogs/import.ui:103
+#: crates/rnote-ui/data/ui/dialogs/import.ui:105
 msgid "Adjust Document"
 msgstr "Адаптация документа"
 
-#: crates/rnote-ui/data/ui/dialogs/import.ui:104
+#: crates/rnote-ui/data/ui/dialogs/import.ui:106
 msgid "Whether the document layout should be adjusted to the Pdf"
 msgstr "Следует ли адаптировать макет документа к формату PDF"
 
-#: crates/rnote-ui/data/ui/dialogs/import.ui:109
+#: crates/rnote-ui/data/ui/dialogs/import.ui:111
 msgid "Page Width (%)"
 msgstr "Ширина страницы (%)"
 
-#: crates/rnote-ui/data/ui/dialogs/import.ui:110
+#: crates/rnote-ui/data/ui/dialogs/import.ui:112
 msgid "Set the width of imported Pdf's in percentage to the format width"
 msgstr "Установить ширину импортированных PDF в процентах от ширины формата"
 
-#: crates/rnote-ui/data/ui/dialogs/import.ui:117
+#: crates/rnote-ui/data/ui/dialogs/import.ui:119
 msgid "Page Spacing"
 msgstr "Расстояние между страницами"
 
-#: crates/rnote-ui/data/ui/dialogs/import.ui:118
+#: crates/rnote-ui/data/ui/dialogs/import.ui:120
 msgid "How Pdf pages are spaced"
 msgstr "Как расположены страницы PDF"
 
-#: crates/rnote-ui/data/ui/dialogs/import.ui:122
+#: crates/rnote-ui/data/ui/dialogs/import.ui:124
 msgid "Continuous"
 msgstr "Непрерывно"
 
-#: crates/rnote-ui/data/ui/dialogs/import.ui:123
+#: crates/rnote-ui/data/ui/dialogs/import.ui:125
 msgid "One per Document Page"
 msgstr "По одной на страницу документа"
 
-#: crates/rnote-ui/data/ui/dialogs/import.ui:131
+#: crates/rnote-ui/data/ui/dialogs/import.ui:133
 msgid "Pages Type"
 msgstr "Тип страниц"
 
-#: crates/rnote-ui/data/ui/dialogs/import.ui:132
+#: crates/rnote-ui/data/ui/dialogs/import.ui:134
 msgid "Set whether Pdf's should be imported as vector or bitmap images"
 msgstr ""
 "Установить, каким образом должны импортироваться PDF файлы: как векторные "
 "или как растровые изображения"
 
-#: crates/rnote-ui/data/ui/dialogs/import.ui:144
+#: crates/rnote-ui/data/ui/dialogs/import.ui:146
 msgid "Vector"
 msgstr "Векторное изображение"
 
-#: crates/rnote-ui/data/ui/dialogs/import.ui:151
+#: crates/rnote-ui/data/ui/dialogs/import.ui:153
 msgid "Bitmap"
 msgstr "Растровое изображение"
 
-#: crates/rnote-ui/data/ui/dialogs/import.ui:198
+#: crates/rnote-ui/data/ui/dialogs/import.ui:200
 msgid "Import Xournal++ File"
 msgstr "Импортировать файл Xournal++"
 
-#: crates/rnote-ui/data/ui/dialogs/import.ui:241
+#: crates/rnote-ui/data/ui/dialogs/import.ui:245
 msgid "Xournal++ File Import Preferences"
 msgstr "Настройки импорта файлов Xournal++"
 
-#: crates/rnote-ui/data/ui/dialogs/import.ui:245
+#: crates/rnote-ui/data/ui/dialogs/import.ui:249
 msgid "DPI"
 msgstr "DPI"
 
-#: crates/rnote-ui/data/ui/dialogs/import.ui:246
+#: crates/rnote-ui/data/ui/dialogs/import.ui:250
 msgid "Set the preferred DPI for the Xournal++ file"
 msgstr "Установить предпочтительный DPI для файла Xournal++"
 
-#: crates/rnote-ui/data/ui/dialogs/import.ui:267
+#: crates/rnote-ui/data/ui/dialogs/import.ui:271
 msgid "is password protected"
 msgstr "защищено паролем"
 
-#: crates/rnote-ui/data/ui/dialogs/import.ui:270
+#: crates/rnote-ui/data/ui/dialogs/import.ui:274
 msgid "Encrypted PDF"
 msgstr "Зашифрованный PDF"
 
-#: crates/rnote-ui/data/ui/dialogs/import.ui:273
+#: crates/rnote-ui/data/ui/dialogs/import.ui:277
 msgid "_Cancel"
 msgstr "Отмена"
 
-#: crates/rnote-ui/data/ui/dialogs/import.ui:274
+#: crates/rnote-ui/data/ui/dialogs/import.ui:278
 msgid "_Unlock"
 msgstr "Разблокировать"
 
-#: crates/rnote-ui/data/ui/dialogs/import.ui:285
+#: crates/rnote-ui/data/ui/dialogs/import.ui:289
 msgid "Enter the PDF password"
 msgstr "Введите пароль для PDF файла"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:18
-msgid "Brush Style"
-msgstr "Стиль кисти"
-
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:33
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:149
-msgid "Brush Configuration"
-msgstr "Настройки кисти"
-
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:66
-msgid "Brush Styles"
-msgstr "Стили кисти"
-
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:95
-msgid "Marker"
-msgstr "Маркер"
-
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:96
-msgid "Mark underneath other strokes"
-msgstr "Рисовать под штрихами других кистей"
-
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:107
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:192
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:216
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:26
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:179
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:203
 msgid "Solid"
 msgstr "Сплошной"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:108
-msgid "Draw solid color strokes"
-msgstr "Рисовать сплошным цветом"
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:36
+msgid "Marker"
+msgstr "Маркер"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:119
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:46
 msgid "Textured"
 msgstr "Текстурированный"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:120
-msgid "Draw textured strokes"
-msgstr "Рисовать текстурированные линии"
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:61
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:93
+msgid "Brush Configuration"
+msgstr "Настройки кисти"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:170
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:114
 msgid "Path Modelling"
 msgstr "Моделирование траектории"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:187
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:131
 msgid "Simple"
 msgstr "Простое"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:188
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:132
 msgid "Produces line segments from the raw input.\n"
 msgstr "Создает сегменты линии из необработанных входных данных.\n"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:194
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:138
 msgid "Curved"
 msgstr "Криволинейное"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:195
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:139
 msgid "Produces smooth, curved segments.\n"
 msgstr "Создает гладкие, изогнутые сегменты.\n"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:201
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:145
 msgid "Modeled"
 msgstr "Смоделированное"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:202
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:146
 msgid ""
 "Produces a modeled path with physics based algorithms.\n"
 "Results in the best looking handwriting."
@@ -628,80 +2651,80 @@ msgstr ""
 "физике.\n"
 "В результате получается самый красивый почерк."
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:211
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:155
 msgid "Solid Style"
 msgstr "Стиль простого моделирования"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:214
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:158
 msgid "Pressure Curve"
 msgstr "Кривая давления"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:215
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:159
 msgid "Choose a pressure curve"
 msgstr "Выбрать кривую давления"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:219
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:163
 msgid "Constant"
 msgstr "Постоянная"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:220
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:164
 msgid "Linear"
 msgstr "Линейная"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:221
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:165
 msgid "Square root"
 msgstr "Квадратный корень"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:222
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:166
 msgid "Cubic root"
 msgstr "Кубический корень"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:223
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:167
 msgid "Quadratic Parabola"
 msgstr "Квадратичная парабола"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:224
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:168
 msgid "Cubic Parabola"
 msgstr "Кубическая парабола"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:235
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:179
 msgid "Textured Style"
 msgstr "Стиль текстурированного моделирования"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:238
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:182
 msgid "Density"
 msgstr "Плотность"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:239
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:183
 msgid "The density is the amount of dots per 10x10 area"
 msgstr "Плотность - это количество точек на площади 10x10"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:248
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:192
 msgctxt ""
 "Drawing with a textured pen, how the dots of the texture are distributed"
 msgid "Stroke Dots Position Distribution"
 msgstr "Распределение точек текстуры кисти"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:249
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:193
 msgid "Choose a dots position probability distribution"
 msgstr "Выбрать распределение вероятности расположения точек"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:253
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:197
 msgctxt "A variant of the textured pen texture distribution"
 msgid "Uniform"
 msgstr "Равномерное"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:254
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:198
 msgctxt "A variant of the textured pen texture distribution"
 msgid "Normal"
 msgstr "Нормальное"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:255
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:199
 msgctxt "A variant of the textured pen texture distribution"
 msgid "Exponential"
 msgstr "Экспоненциальное"
 
-#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:256
+#: crates/rnote-ui/data/ui/penssidebar/brushpage.ui:200
 msgctxt "A variant of the textured pen texture distribution"
 msgid "Reverse Exponential"
 msgstr "Обратное экспоненциальное"
@@ -778,7 +2801,7 @@ msgid "Invert Color Brightness of All Selected Strokes"
 msgstr "Инвертировать яркость выделенных штрихов"
 
 #: crates/rnote-ui/data/ui/penssidebar/selectorpage.ui:100
-#: crates/rnote-ui/data/ui/shortcuts.ui:260
+#: crates/rnote-ui/data/ui/shortcuts.ui:272
 msgid "Duplicate Selection"
 msgstr "Дублировать выделенное"
 
@@ -786,207 +2809,180 @@ msgstr "Дублировать выделенное"
 msgid "Delete Selection"
 msgstr "Удалить выделенное"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:19
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:303
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:20
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:290
 msgid "Shape Builders"
 msgstr "Конструкторы фигур"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:41
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:80
-msgid "Shape Configuration"
-msgstr "Настройки фигур"
-
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:103
-msgid "Shaper Style"
-msgstr "Стиль фигур"
-
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:113
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:48
 msgid "Smooth"
 msgstr "Ровный"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:124
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:58
 msgid "Rough"
 msgstr "Грубый"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:141
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:71
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:105
+msgid "Shape Configuration"
+msgstr "Настройки фигур"
+
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:128
 msgid "Highlighting"
-msgstr ""
+msgstr "Подсветка"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:144
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:131
 msgid "Highlight-Mode"
-msgstr ""
+msgstr "Режим подсветки"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:145
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:132
 msgid "Fade active color"
-msgstr ""
+msgstr "Приглушить активный цвет"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:150
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:137
 msgid "Highlight-Opacity"
-msgstr ""
+msgstr "Непрозрачность подсветки"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:151
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:138
 msgid "Modify the highlight opacity (%)"
-msgstr ""
+msgstr "Изменить непрозрачность подсветки (%)"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:170
-#, fuzzy
-#| msgid "Solid Style"
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:157
 msgid "Smooth Style"
-msgstr "Стиль простого моделирования"
+msgstr "Ровный стиль"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:173
-#, fuzzy
-#| msgid "Linear"
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:160
 msgid "Line Cap"
-msgstr "Линейная"
+msgstr "Концы линий"
+
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:161
+msgid "Choose a line cap"
+msgstr "Выбрать форму концов линий"
+
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:165
+msgid "Straight"
+msgstr "Прямые"
+
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:166
+msgid "Round"
+msgstr "Скруглённые"
 
 #: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:174
-#, fuzzy
-#| msgid "Choose a format"
-msgid "Choose a line cap"
-msgstr "Выбрать формат"
-
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:178
-#, fuzzy
-#| msgctxt "part of string representation of a color"
-#| msgid "bright"
-msgid "Straight"
-msgstr "светлый"
-
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:179
-msgid "Round"
-msgstr ""
-
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:187
-#, fuzzy
-#| msgid "Fill Style"
 msgid "Line Style"
-msgstr "Стиль заливки"
+msgstr "Стиль линии"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:188
-#, fuzzy
-#| msgid "Choose a fill style"
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:175
 msgid "Choose a line style"
-msgstr "Выбрать стиль заливки"
+msgstr "Выбрать стиль линии"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:193
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:180
 msgid "Dotted"
-msgstr ""
+msgstr "Точечный"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:194
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:181
 msgid "Dashed (narrow)"
-msgstr ""
+msgstr "Пунктирный (частый)"
+
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:182
+msgid "Dashed (equidistant)"
+msgstr "Пунктирный (равномерный)"
+
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:183
+msgid "Dashed (wide)"
+msgstr "Пунктирный (редкий)"
 
 #: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:195
-msgid "Dashed (equidistant)"
-msgstr ""
-
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:196
-#, fuzzy
-#| msgid "Dashed"
-msgid "Dashed (wide)"
-msgstr "Пунктирный"
-
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:208
-#, fuzzy
-#| msgid "Rough style"
 msgid "Rough Style"
 msgstr "Грубый стиль"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:211
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:198
 msgid "Fill Style"
 msgstr "Стиль заливки"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:212
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:199
 msgid "Choose a fill style"
 msgstr "Выбрать стиль заливки"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:217
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:204
 msgid "Hachure"
 msgstr "Штриховка"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:218
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:205
 msgid "Zig-Zag"
 msgstr "Зиг-Заг"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:219
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:206
 msgid "Zig-Zag Line"
 msgstr "Линия Зиг-Заг"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:220
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:207
 msgid "Crosshatch"
 msgstr "Перекрестная штриховка"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:221
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:208
 #: crates/rnote-ui/data/ui/settingspanel.ui:374
 msgid "Dots"
 msgstr "Точки"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:222
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:209
 msgid "Dashed"
 msgstr "Пунктирный"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:230
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:217
 msgid "Hachure Angle"
 msgstr "Угол штриховки"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:231
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:218
 msgid "Set the angle of hachure fills"
 msgstr "Установить угол штриховки"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:250
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:237
 msgid "Constraints"
 msgstr "Ограничения"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:261
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:248
 msgid "Enabled"
 msgstr "Включено"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:262
-#, fuzzy
-#| msgid ""
-#| "Hold Ctrl to temporarily\n"
-#| "enable/disable constraints\n"
-#| "when this switch is off/on"
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:249
 msgid ""
 "Hold Ctrl to temporarily enable/disable\n"
 "constraints when this switch is off/on"
 msgstr ""
-"Удерживать Ctrl, чтобы\n"
-"временно включить/выключить\n"
-"ограничения, когда кнопка в положении выкл/вкл"
+"Удерживайте Ctrl, чтобы временно включить или выключить\n"
+"ограничения, когда этот переключатель выключен или включён"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:268
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:255
 msgid "1:1"
 msgstr "1:1"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:273
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:260
 msgid "3:2"
 msgstr "3:2"
 
-#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:278
+#: crates/rnote-ui/data/ui/penssidebar/shaperpage.ui:265
 msgid "Golden Ratio (1:1.618)"
 msgstr "Золотое сечение (1:1.618)"
 
-#: crates/rnote-ui/data/ui/penssidebar/toolspage.ui:21
+#: crates/rnote-ui/data/ui/penssidebar/toolspage.ui:22
 msgid "Insert Vertical Space"
 msgstr "Вставка вертикального пробела"
 
-#: crates/rnote-ui/data/ui/penssidebar/toolspage.ui:32
-#: crates/rnote-ui/data/ui/penssidebar/toolspage.ui:102
+#: crates/rnote-ui/data/ui/penssidebar/toolspage.ui:33
+#: crates/rnote-ui/data/ui/penssidebar/toolspage.ui:103
 msgid "Vertical-Space Tool Configuration"
 msgstr "Настройки вертикального пробела"
 
-#: crates/rnote-ui/data/ui/penssidebar/toolspage.ui:48
-#: crates/rnote-ui/data/ui/shortcuts.ui:114
+#: crates/rnote-ui/data/ui/penssidebar/toolspage.ui:49
+#: crates/rnote-ui/data/ui/shortcuts.ui:120
 msgid "Move View"
 msgstr "Смещение взгляда"
 
-#: crates/rnote-ui/data/ui/penssidebar/toolspage.ui:63
+#: crates/rnote-ui/data/ui/penssidebar/toolspage.ui:64
 msgid "Zoom In/Out"
 msgstr "Увеличение/Уменьшение масштаба"
 
-#: crates/rnote-ui/data/ui/penssidebar/toolspage.ui:78
+#: crates/rnote-ui/data/ui/penssidebar/toolspage.ui:79
 msgid "Laser"
 msgstr "Инструмент Лазер"
 
@@ -1007,17 +3003,17 @@ msgid "Reset Text Attributes"
 msgstr "Сбросить атрибуты текста"
 
 #: crates/rnote-ui/data/ui/penssidebar/typewriterpage.ui:77
-#: crates/rnote-ui/data/ui/shortcuts.ui:221
+#: crates/rnote-ui/data/ui/shortcuts.ui:233
 msgid "Bold"
 msgstr "Жирный"
 
 #: crates/rnote-ui/data/ui/penssidebar/typewriterpage.ui:87
-#: crates/rnote-ui/data/ui/shortcuts.ui:227
+#: crates/rnote-ui/data/ui/shortcuts.ui:239
 msgid "Italic"
 msgstr "Курсив"
 
 #: crates/rnote-ui/data/ui/penssidebar/typewriterpage.ui:97
-#: crates/rnote-ui/data/ui/shortcuts.ui:233
+#: crates/rnote-ui/data/ui/shortcuts.ui:245
 msgid "Underline"
 msgstr "Подчеркнутый"
 
@@ -1161,10 +3157,12 @@ msgid "Export _Selection"
 msgstr "Экспортировать выделенное"
 
 #: crates/rnote-ui/data/ui/appmenu.ui:130
+#: crates/rnote-ui/data/ui/library/libraryview.ui:23
 msgid "Se_ttings"
 msgstr "Настройки"
 
 #: crates/rnote-ui/data/ui/appmenu.ui:134
+#: crates/rnote-ui/data/ui/library/libraryview.ui:27
 msgid "_Keyboard Shortcuts"
 msgstr "Комбинации клавиш"
 
@@ -1173,6 +3171,7 @@ msgid "_Donate 💝"
 msgstr "Пожертвование 💝"
 
 #: crates/rnote-ui/data/ui/appmenu.ui:142
+#: crates/rnote-ui/data/ui/library/libraryview.ui:31
 msgid "A_bout Rnote"
 msgstr "О программе"
 
@@ -1218,9 +3217,9 @@ msgid "C_lear Document"
 msgstr "О_чистить документ"
 
 #: crates/rnote-ui/data/ui/canvasmenu.ui:85
-#: crates/rnote-ui/data/ui/shortcuts.ui:138
 #: crates/rnote-ui/data/ui/shortcuts.ui:144
 #: crates/rnote-ui/data/ui/shortcuts.ui:150
+#: crates/rnote-ui/data/ui/shortcuts.ui:156
 msgid "Zoom out"
 msgstr "Отдалить"
 
@@ -1229,9 +3228,9 @@ msgid "Reset Zoom"
 msgstr "Сбросить масштаб"
 
 #: crates/rnote-ui/data/ui/canvasmenu.ui:101
-#: crates/rnote-ui/data/ui/shortcuts.ui:120
 #: crates/rnote-ui/data/ui/shortcuts.ui:126
 #: crates/rnote-ui/data/ui/shortcuts.ui:132
+#: crates/rnote-ui/data/ui/shortcuts.ui:138
 msgid "Zoom in"
 msgstr "Приблизить"
 
@@ -1240,10 +3239,8 @@ msgid "Zoom to Page Width"
 msgstr "Масштабировать по ширине страницы"
 
 #: crates/rnote-ui/data/ui/canvasmenu.ui:121
-#, fuzzy
-#| msgid "Zoom to Page Width"
 msgid "Zoom to Real Size"
-msgstr "Масштабировать по ширине страницы"
+msgstr "Масштабировать до реального размера"
 
 #: crates/rnote-ui/data/ui/canvasmenu.ui:136
 msgid ""
@@ -1279,6 +3276,7 @@ msgstr "Цвет заливки"
 
 #: crates/rnote-ui/data/ui/filerow.ui:61
 #: crates/rnote-ui/src/dialogs/import.rs:39
+#: crates/rnote-ui/src/library/open.rs:112
 msgid "Open"
 msgstr "Открыть"
 
@@ -1287,51 +3285,127 @@ msgid "Open in Default App"
 msgstr "Открыть в приложении по умолчанию"
 
 #: crates/rnote-ui/data/ui/filerow.ui:69
+#: crates/rnote-ui/src/library/actions.rs:213
+#: crates/rnote-ui/src/library/manage.rs:67
 #: crates/rnote-ui/src/workspacebrowser/filerow/actions/rename.rs:137
 msgid "Rename"
 msgstr "Переименовать"
 
 #: crates/rnote-ui/data/ui/filerow.ui:73
+#: crates/rnote-ui/data/ui/library/libraryview.ui:121
+#: crates/rnote-ui/src/library/actions.rs:26
 msgid "Move to Trash"
 msgstr "Переместить в корзину"
 
 #: crates/rnote-ui/data/ui/filerow.ui:77
+#: crates/rnote-ui/src/library/actions.rs:19
 msgid "Duplicate"
 msgstr "Дублировать"
 
-#: crates/rnote-ui/data/ui/mainheader.ui:23
-#: crates/rnote-ui/src/canvas/mod.rs:732
-msgid "Draft"
-msgstr "Черновик"
+#: crates/rnote-ui/data/ui/library/libraryview.ui:7
+msgid "Sort by Name"
+msgstr "Сортировать по имени"
 
-#: crates/rnote-ui/data/ui/mainheader.ui:40
-#: crates/rnote-ui/data/ui/mainheader.ui:81
+#: crates/rnote-ui/data/ui/library/libraryview.ui:13
+msgid "Library Folder…"
+msgstr "Папка библиотеки…"
+
+#: crates/rnote-ui/data/ui/library/libraryview.ui:17
+msgid "Refresh"
+msgstr "Обновить"
+
+#: crates/rnote-ui/data/ui/library/libraryview.ui:35
+msgid "_Quit"
+msgstr "_Выйти"
+
+#: crates/rnote-ui/data/ui/library/libraryview.ui:51
+#: crates/rnote-ui/data/ui/mainheader.ui:42
+msgctxt "notebooks"
+msgid "Library"
+msgstr "Библиотека"
+
+#: crates/rnote-ui/data/ui/library/libraryview.ui:57
+#: crates/rnote-ui/data/ui/mainheader.ui:48
+#: crates/rnote-ui/data/ui/mainheader.ui:90
 msgid "Show/Hide Sidebar"
 msgstr "Показать/Скрыть боковую панель"
 
-#: crates/rnote-ui/data/ui/mainheader.ui:47
+#: crates/rnote-ui/data/ui/library/libraryview.ui:65
+msgid "Open Tabs"
+msgstr "Открытые вкладки"
+
+#: crates/rnote-ui/data/ui/library/libraryview.ui:72
+msgid "Library Menu"
+msgstr "Меню библиотеки"
+
+#: crates/rnote-ui/data/ui/library/libraryview.ui:84
+#: crates/rnote-ui/src/dialogs/export.rs:351
+#: crates/rnote-ui/src/dialogs/export.rs:775
+#: crates/rnote-ui/src/dialogs/export.rs:1167
+#: crates/rnote-ui/src/dialogs/mod.rs:524
+#: crates/rnote-ui/src/library/card.rs:135
+msgid "Select"
+msgstr "Выбрать"
+
+#: crates/rnote-ui/data/ui/library/libraryview.ui:91
+msgid "Section Menu"
+msgstr "Меню раздела"
+
+#: crates/rnote-ui/data/ui/library/libraryview.ui:96
+#: crates/rnote-ui/src/library/actions.rs:152
+msgid "Empty Trash"
+msgstr "Очистить корзину"
+
+#: crates/rnote-ui/data/ui/library/libraryview.ui:108
+msgid "List View"
+msgstr "Список"
+
+#: crates/rnote-ui/data/ui/library/libraryview.ui:130
+#: crates/rnote-ui/src/library/actions.rs:18
+msgid "Tags…"
+msgstr "Метки…"
+
+#: crates/rnote-ui/data/ui/library/libraryview.ui:136
+#: crates/rnote-ui/src/library/actions.rs:23
+msgid "Move to"
+msgstr "Переместить в"
+
+#: crates/rnote-ui/data/ui/library/libraryview.ui:193
+msgid "The Library Can’t Be Opened"
+msgstr "Не удаётся открыть библиотеку"
+
+#: crates/rnote-ui/data/ui/library/libraryview.ui:196
+msgid "Choose Folder…"
+msgstr "Выбрать папку…"
+
+#: crates/rnote-ui/data/ui/mainheader.ui:23
+#: crates/rnote-ui/src/canvas/mod.rs:746
+msgid "Draft"
+msgstr "Черновик"
+
+#: crates/rnote-ui/data/ui/mainheader.ui:55
 #: crates/rnote-ui/data/ui/shortcuts.ui:26
 msgid "New Tab"
 msgstr "Новая вкладка"
 
-#: crates/rnote-ui/data/ui/mainheader.ui:54
+#: crates/rnote-ui/data/ui/mainheader.ui:62
 msgid "View Open Tabs"
 msgstr "Показать открытые вкладки"
 
-#: crates/rnote-ui/data/ui/mainheader.ui:61
+#: crates/rnote-ui/data/ui/mainheader.ui:69
 msgid "Focus Mode"
 msgstr "Режим фокусировки"
 
-#: crates/rnote-ui/data/ui/mainheader.ui:73
-#: crates/rnote-ui/data/ui/shortcuts.ui:173
+#: crates/rnote-ui/data/ui/mainheader.ui:82
+#: crates/rnote-ui/data/ui/shortcuts.ui:185
 msgid "Save Document"
 msgstr "Сохранить документ"
 
-#: crates/rnote-ui/data/ui/mainheader.ui:89
+#: crates/rnote-ui/data/ui/mainheader.ui:98
 msgid "Canvas Menu"
 msgstr "Меню холста"
 
-#: crates/rnote-ui/data/ui/mainheader.ui:94
+#: crates/rnote-ui/data/ui/mainheader.ui:103
 msgid "App Menu"
 msgstr "Меню приложения"
 
@@ -1346,6 +3420,10 @@ msgstr "Правее"
 #: crates/rnote-ui/data/ui/overlays.ui:108
 msgid "_Close"
 msgstr "Закрыть активное окно"
+
+#: crates/rnote-ui/data/ui/overlays.ui:114
+msgid "_Move to New Window"
+msgstr "_Переместить в новое окно"
 
 #: crates/rnote-ui/data/ui/penshortcutrow.ui:11
 msgid "Temporary"
@@ -1541,7 +3619,7 @@ msgid "Revert"
 msgstr "По умолчанию"
 
 #: crates/rnote-ui/data/ui/settingspanel.ui:277
-#: crates/rnote-ui/data/ui/shortcuts.ui:164
+#: crates/rnote-ui/data/ui/shortcuts.ui:176
 #: crates/rnote-ui/src/dialogs/mod.rs:705
 msgid "Document"
 msgstr "Документ"
@@ -1603,7 +3681,7 @@ msgid "Lines"
 msgstr "В линейку"
 
 #: crates/rnote-ui/data/ui/settingspanel.ui:373
-#: crates/rnote-ui/src/penssidebar/shaperpage.rs:677
+#: crates/rnote-ui/src/penssidebar/shaperpage.rs:704
 msgid "Grid"
 msgstr "В клетку"
 
@@ -1771,6 +3849,26 @@ msgstr ""
 "Выбрать действие для кнопки 4\n"
 "графического планшета"
 
+#: crates/rnote-ui/data/ui/settingspanel.ui:583
+msgid "Stylus pen modes"
+msgstr "Режимы пера стилуса"
+
+#: crates/rnote-ui/data/ui/settingspanel.ui:586
+msgid "Tool for the pen action"
+msgstr "Инструмент для действия пера"
+
+#: crates/rnote-ui/data/ui/settingspanel.ui:587
+msgid "Set/lock the action for the pen"
+msgstr "Задать или закрепить действие для пера"
+
+#: crates/rnote-ui/data/ui/settingspanel.ui:598
+msgid "Tool for the eraser action"
+msgstr "Инструмент для действия ластика"
+
+#: crates/rnote-ui/data/ui/settingspanel.ui:599
+msgid "Set/lock the action for the eraser"
+msgstr "Задать или закрепить действие для ластика"
+
 #: crates/rnote-ui/data/ui/shortcuts.ui:14
 msgid "Show Keyboard Shortcuts"
 msgstr "Показать комбинации клавиш"
@@ -1823,82 +3921,90 @@ msgstr "Переключиться на 'Инструмент Выделение
 msgid "Switch to the 'Tools'"
 msgstr "Переключиться на 'Инструменты'"
 
-#: crates/rnote-ui/data/ui/shortcuts.ui:111
+#: crates/rnote-ui/data/ui/shortcuts.ui:109
+msgid "Select Color"
+msgstr "Выбрать цвет"
+
+#: crates/rnote-ui/data/ui/shortcuts.ui:117
 msgid "View"
 msgstr "Взгляд"
 
-#: crates/rnote-ui/data/ui/shortcuts.ui:115
+#: crates/rnote-ui/data/ui/shortcuts.ui:121
 msgid "Alt + Drag"
 msgstr "Alt + Перетаскивание"
 
-#: crates/rnote-ui/data/ui/shortcuts.ui:156
+#: crates/rnote-ui/data/ui/shortcuts.ui:162
 msgid "Zoom in/out"
 msgstr "Приблизить/Отдалить"
 
-#: crates/rnote-ui/data/ui/shortcuts.ui:157
+#: crates/rnote-ui/data/ui/shortcuts.ui:163
 msgid "Alt + Shift + Drag"
 msgstr "Alt + Shift + Перетаскивание"
 
-#: crates/rnote-ui/data/ui/shortcuts.ui:167
+#: crates/rnote-ui/data/ui/shortcuts.ui:168
+msgid "Return to Origin Page"
+msgstr "Вернуться на изначальную страницу"
+
+#: crates/rnote-ui/data/ui/shortcuts.ui:179
 msgid "Open Document"
 msgstr "Открыть документ"
 
-#: crates/rnote-ui/data/ui/shortcuts.ui:179
+#: crates/rnote-ui/data/ui/shortcuts.ui:191
 #: crates/rnote-ui/src/dialogs/export.rs:41
 msgid "Save Document As"
 msgstr "Сохранить документ как"
 
-#: crates/rnote-ui/data/ui/shortcuts.ui:185
+#: crates/rnote-ui/data/ui/shortcuts.ui:197
 msgid "Snap Positions"
 msgstr "Привязка фигур к точкам"
 
-#: crates/rnote-ui/data/ui/shortcuts.ui:197
+#: crates/rnote-ui/data/ui/shortcuts.ui:209
 msgid "Add Page (When in Fixed-Size Layout)"
 msgstr "Добавить страницу (только для документов с фиксированным размером)"
 
-#: crates/rnote-ui/data/ui/shortcuts.ui:203
+#: crates/rnote-ui/data/ui/shortcuts.ui:215
 msgid "Remove Last Page (When in Fixed-Size Layout)"
 msgstr ""
 "Удалить последнюю страницу (только для документов с фиксированным размером)"
 
-#: crates/rnote-ui/data/ui/shortcuts.ui:209
+#: crates/rnote-ui/data/ui/shortcuts.ui:221
 msgid "Print Document"
 msgstr "Распечатать документ"
 
-#: crates/rnote-ui/data/ui/shortcuts.ui:215
+#: crates/rnote-ui/data/ui/shortcuts.ui:227
 #: crates/rnote-ui/src/dialogs/import.rs:93
 msgid "Import File"
 msgstr "Импортировать файл"
 
-#: crates/rnote-ui/data/ui/shortcuts.ui:239
+#: crates/rnote-ui/data/ui/shortcuts.ui:251
 msgid "Drawing"
 msgstr "Рисование"
 
-#: crates/rnote-ui/data/ui/shortcuts.ui:242
+#: crates/rnote-ui/data/ui/shortcuts.ui:254
 msgid "Copy to Clipboard"
 msgstr "Копировать в буфер обмена"
 
-#: crates/rnote-ui/data/ui/shortcuts.ui:248
+#: crates/rnote-ui/data/ui/shortcuts.ui:260
 msgid "Cut to Clipboard"
 msgstr "Вырезать в буфер обмена"
 
-#: crates/rnote-ui/data/ui/shortcuts.ui:254
+#: crates/rnote-ui/data/ui/shortcuts.ui:266
 msgid "Paste Clipboard"
 msgstr "Вставить из буфера обмена"
 
-#: crates/rnote-ui/data/ui/shortcuts.ui:266
+#: crates/rnote-ui/data/ui/shortcuts.ui:278
 msgid "Undo"
 msgstr "Отменить"
 
-#: crates/rnote-ui/data/ui/shortcuts.ui:272
+#: crates/rnote-ui/data/ui/shortcuts.ui:284
 msgid "Redo"
 msgstr "Повторить"
 
-#: crates/rnote-ui/data/ui/sidebar.ui:50
+#: crates/rnote-ui/data/ui/sidebar.ui:52
 msgid "Workspace"
 msgstr "Коллекции"
 
-#: crates/rnote-ui/data/ui/sidebar.ui:61
+#: crates/rnote-ui/data/ui/sidebar.ui:63
 msgid "Settings"
 msgstr "Настройки"
 
@@ -1926,8 +4032,8 @@ msgstr "Создать новую папку"
 msgid "Open Workspace Folder"
 msgstr "Открыть папку коллекции"
 
-#: crates/rnote-ui/src/appwindow/actions.rs:845
-#: crates/rnote-ui/src/appwindow/imp.rs:425
+#: crates/rnote-ui/src/appwindow/actions.rs:881
+#: crates/rnote-ui/src/appwindow/imp.rs:469
 #: crates/rnote-ui/src/dialogs/export.rs:82
 #: crates/rnote-ui/src/dialogs/mod.rs:127
 #: crates/rnote-ui/src/dialogs/mod.rs:257
@@ -1935,37 +4041,44 @@ msgstr "Открыть папку коллекции"
 msgid "Saving document failed"
 msgstr "Не удалось сохранить документ"
 
-#: crates/rnote-ui/src/appwindow/actions.rs:936
+#: crates/rnote-ui/src/appwindow/actions.rs:972
 msgid "Printing document failed"
 msgstr "Не удалось распечатать документ"
 
-#: crates/rnote-ui/src/appwindow/actions.rs:1013
+#: crates/rnote-ui/src/appwindow/actions.rs:1049
 msgid "Exporting selection failed, nothing selected"
 msgstr "Не удалось экспортировать выделение, ничего не выделено"
 
-#: crates/rnote-ui/src/appwindow/imp.rs:377
-#, fuzzy
-#| msgid "Saves are in progress, waiting before closing.."
+#: crates/rnote-ui/src/appwindow/imp.rs:421
 msgid "Saves are in progress, waiting before closing..."
-msgstr "Сохранения в прогрессе, не закрывайте до завершения..."
+msgstr "Идёт сохранение, приложение закроется после его завершения…"
 
-#: crates/rnote-ui/src/appwindow/imp.rs:447
+#: crates/rnote-ui/src/appwindow/imp.rs:491
 msgid "Button 1"
 msgstr "Кнопка 1"
 
-#: crates/rnote-ui/src/appwindow/imp.rs:454
+#: crates/rnote-ui/src/appwindow/imp.rs:498
 msgid "Button 2"
 msgstr "Кнопка 2"
 
-#: crates/rnote-ui/src/appwindow/imp.rs:461
+#: crates/rnote-ui/src/appwindow/imp.rs:505
 msgid "Button 3"
 msgstr "Кнопка 3"
 
-#: crates/rnote-ui/src/appwindow/imp.rs:468
+#: crates/rnote-ui/src/appwindow/imp.rs:512
 msgid "Button 4"
 msgstr "Кнопка 4"
 
-#: crates/rnote-ui/src/appwindow/mod.rs:224
+#: crates/rnote-ui/src/appwindow/mod.rs:98
+msgid "Tool Locked"
+msgstr "Инструмент закреплён"
+
+#: crates/rnote-ui/src/appwindow/mod.rs:99
+msgid "Unlock"
+msgstr "Открепить"
+
+#: crates/rnote-ui/src/appwindow/mod.rs:278
+#: crates/rnote-ui/src/library/mod.rs:393
 msgid ""
 "Settings schema is not installed. App settings could not be loaded and won't "
 "be saved."
@@ -1973,45 +4086,47 @@ msgstr ""
 "Схема настроек не установлена. Настройки программы не были загружены и не "
 "будут сохранены."
 
-#: crates/rnote-ui/src/appwindow/mod.rs:572
+#: crates/rnote-ui/src/appwindow/mod.rs:643
+#: crates/rnote-ui/src/library/open.rs:54
 msgid "Opening file failed"
 msgstr "Не удалось открыть файл"
 
-#: crates/rnote-ui/src/canvas/mod.rs:1005
+#: crates/rnote-ui/src/canvas/mod.rs:1049
 #: crates/rnote-ui/src/dialogs/mod.rs:205
 #: crates/rnote-ui/src/dialogs/mod.rs:338
 msgid "- invalid file name -"
 msgstr "- недопустимое имя файла -"
 
-#: crates/rnote-ui/src/canvas/mod.rs:1018
+#: crates/rnote-ui/src/canvas/mod.rs:1062
 msgid "- invalid folder path -"
 msgstr "- неверный путь папки -"
 
-#: crates/rnote-ui/src/canvas/mod.rs:1042
+#: crates/rnote-ui/src/canvas/mod.rs:1090
 msgid "Opened file was modified on disk"
 msgstr "Открытый файл был изменен на диске"
 
-#: crates/rnote-ui/src/canvas/mod.rs:1043
+#: crates/rnote-ui/src/canvas/mod.rs:1091
 msgid "Reload"
 msgstr "Перезагрузить"
 
-#: crates/rnote-ui/src/canvas/mod.rs:1059
+#: crates/rnote-ui/src/canvas/mod.rs:1107
+#: crates/rnote-ui/src/sync/opened.rs:142
 msgid "Reloading .rnote file from disk failed"
 msgstr "Перезагрузка файла .rnote с диска не удалась"
 
-#: crates/rnote-ui/src/canvas/mod.rs:1134
+#: crates/rnote-ui/src/canvas/mod.rs:1182
 msgid "Opened file was renamed or moved."
 msgstr "Открытый файл был переименован или перемещён."
 
-#: crates/rnote-ui/src/canvas/mod.rs:1153
+#: crates/rnote-ui/src/canvas/mod.rs:1201
 msgid "Opened file was removed."
 msgstr "Открытый файл был удалён."
 
-#: crates/rnote-ui/src/canvas/mod.rs:1383
+#: crates/rnote-ui/src/canvas/mod.rs:1431
 msgid "Inserting file failed"
 msgstr "Не удалось вставить файл"
 
-#: crates/rnote-ui/src/canvas/mod.rs:1395
+#: crates/rnote-ui/src/canvas/mod.rs:1443
 msgid "Inserting text failed"
 msgstr "Не удалось вставить текст"
 
@@ -2050,13 +4165,6 @@ msgstr "Показать в проводнике"
 #: crates/rnote-ui/src/dialogs/export.rs:1121
 msgid "Failed to view the file in the file manager"
 msgstr "Не удалось показать файл в проводнике"
-
-#: crates/rnote-ui/src/dialogs/export.rs:351
-#: crates/rnote-ui/src/dialogs/export.rs:775
-#: crates/rnote-ui/src/dialogs/export.rs:1167
-#: crates/rnote-ui/src/dialogs/mod.rs:524
-msgid "Select"
-msgstr "Выбрать"
 
 #: crates/rnote-ui/src/dialogs/export.rs:726
 msgid "Exporting document pages failed, no directory selected"
@@ -2120,41 +4228,39 @@ msgid "Jpg, Pdf, Png, Svg, Xopp, Txt"
 msgstr "JPG, PDF, PNG, SVG, XOPP, TXT"
 
 #: crates/rnote-ui/src/dialogs/import.rs:187
-#: crates/rnote-ui/src/dialogs/import.rs:419
+#: crates/rnote-ui/src/dialogs/import.rs:414
 msgid "- no file name -"
 msgstr "- нет имени файла -"
 
-#: crates/rnote-ui/src/dialogs/import.rs:426
+#: crates/rnote-ui/src/dialogs/import.rs:421
 msgid "- no title -"
 msgstr "- без названия -"
 
-#: crates/rnote-ui/src/dialogs/import.rs:431
+#: crates/rnote-ui/src/dialogs/import.rs:426
 msgid "- no author -"
 msgstr "- без автора -"
 
-#: crates/rnote-ui/src/dialogs/import.rs:438
-#, fuzzy
-#| msgid "Modification date:"
+#: crates/rnote-ui/src/dialogs/import.rs:433
 msgid "- no modification date -"
-msgstr "Дата изменения:"
+msgstr "— дата изменения неизвестна —"
 
-#: crates/rnote-ui/src/dialogs/import.rs:444
+#: crates/rnote-ui/src/dialogs/import.rs:439
 msgid "File name:"
 msgstr "Имя файла:"
 
-#: crates/rnote-ui/src/dialogs/import.rs:445
+#: crates/rnote-ui/src/dialogs/import.rs:440
 msgid "Title:"
 msgstr "Название:"
 
-#: crates/rnote-ui/src/dialogs/import.rs:446
+#: crates/rnote-ui/src/dialogs/import.rs:441
 msgid "Author:"
 msgstr "Автор:"
 
-#: crates/rnote-ui/src/dialogs/import.rs:447
+#: crates/rnote-ui/src/dialogs/import.rs:442
 msgid "Modification date:"
 msgstr "Дата изменения:"
 
-#: crates/rnote-ui/src/dialogs/import.rs:448
+#: crates/rnote-ui/src/dialogs/import.rs:443
 msgid "Pages:"
 msgstr "Страницы:"
 
@@ -2389,163 +4495,488 @@ msgstr "Погода"
 msgid "Weight"
 msgstr "Масса"
 
-#: crates/rnote-ui/src/penssidebar/shaperpage.rs:635
+#: crates/rnote-ui/src/library/actions.rs:17
+msgid "Rename…"
+msgstr "Переименовать…"
+
+#: crates/rnote-ui/src/library/actions.rs:35
+msgid "Restore"
+msgstr "Восстановить"
+
+#: crates/rnote-ui/src/library/actions.rs:37
+msgid "Delete Forever…"
+msgstr "Удалить навсегда…"
+
+#: crates/rnote-ui/src/library/actions.rs:58
+#: crates/rnote-ui/src/library/sidebar.rs:11
+#: crates/rnote-ui/src/library/sidebar.rs:49
+msgid "Uncategorized"
+msgstr "Без категории"
+
+#: crates/rnote-ui/src/library/actions.rs:75
+msgid "Rename Folder…"
+msgstr "Переименовать папку…"
+
+#: crates/rnote-ui/src/library/actions.rs:79
+msgid "Delete Folder…"
+msgstr "Удалить папку…"
+
+#: crates/rnote-ui/src/library/actions.rs:84
+msgid "Edit Tag…"
+msgstr "Изменить метку…"
+
+#: crates/rnote-ui/src/library/actions.rs:85
+msgid "Delete Tag…"
+msgstr "Удалить метку…"
+
+#: crates/rnote-ui/src/library/actions.rs:140
+msgid "Delete Forever?"
+msgstr "Удалить навсегда?"
+
+#: crates/rnote-ui/src/library/actions.rs:141
+msgid "The notebook can’t be recovered."
+msgstr "Блокнот нельзя будет восстановить."
+
+#: crates/rnote-ui/src/library/actions.rs:142
+#: crates/rnote-ui/src/library/manage.rs:98
+#: crates/rnote-ui/src/library/manage.rs:174
+msgid "Delete"
+msgstr "Удалить"
+
+#: crates/rnote-ui/src/library/actions.rs:150
+msgid "Empty Trash?"
+msgstr "Очистить корзину?"
+
+#: crates/rnote-ui/src/library/actions.rs:151
+msgid "The notebooks in the trash can’t be recovered."
+msgstr "Блокноты из корзины нельзя будет восстановить."
+
+#: crates/rnote-ui/src/library/actions.rs:211
+msgid "Rename Notebook"
+msgstr "Переименовать блокнот"
+
+#. / "Close “{name}” first", for a notebook open in a tab.
+#: crates/rnote-ui/src/library/actions.rs:292
+#, rust-format
+msgid "Close “{name}” first"
+msgstr "Сначала закройте «{name}»"
+
+#: crates/rnote-ui/src/library/card.rs:126
+msgid "Notebook Menu"
+msgstr "Меню блокнота"
+
+#: crates/rnote-ui/src/library/card.rs:223
+msgid "New"
+msgstr "Новый"
+
+#: crates/rnote-ui/src/library/card.rs:224
+msgid "Notebook"
+msgstr "Блокнот"
+
+#: crates/rnote-ui/src/library/card.rs:227
+msgid "New Notebook"
+msgstr "Новый блокнот"
+
+#: crates/rnote-ui/src/library/card.rs:255
+msgid "Xournal++ · import"
+msgstr "Xournal++ · импорт"
+
+#. / The card of a notebook in the trash.
+#: crates/rnote-ui/src/library/card.rs:262
+#, rust-format
+msgid "Deleted {date}"
+msgstr "Удалён {date}"
+
+#: crates/rnote-ui/src/library/dialogs.rs:120
+#: crates/rnote-ui/src/library/sidebar.rs:69
+msgid "Tags"
+msgstr "Метки"
+
+#: crates/rnote-ui/src/library/dialogs.rs:141
+msgid "There are no tags yet: create one in the sidebar."
+msgstr "Меток пока нет: создайте метку на боковой панели."
+
+#: crates/rnote-ui/src/library/grid.rs:174
+#, rust-format
+msgid "{n} selected"
+msgid_plural "{n} selected"
+msgstr[0] "Выбрано: {n}"
+msgstr[1] "Выбрано: {n}"
+msgstr[2] "Выбрано: {n}"
+
+#: crates/rnote-ui/src/library/grid.rs:238
+msgid "Untitled"
+msgstr "Без названия"
+
+#: crates/rnote-ui/src/library/grid.rs:243
+#: crates/rnote-ui/src/library/grid.rs:250
+msgid "Creating the notebook failed"
+msgstr "Не удалось создать блокнот"
+
+#: crates/rnote-ui/src/library/manage.rs:47
+#: crates/rnote-ui/src/library/sidebar.rs:58
+#: crates/rnote-ui/src/workspacebrowser/workspaceactions/createfolder.rs:104
+msgid "New Folder"
+msgstr "Новая папка"
+
+#: crates/rnote-ui/src/library/manage.rs:47
+#: crates/rnote-ui/src/library/manage.rs:126
+msgid "Create"
+msgstr "Создать"
+
+#: crates/rnote-ui/src/library/manage.rs:65
+msgid "Rename Folder"
+msgstr "Переименовать папку"
+
+#: crates/rnote-ui/src/library/manage.rs:96
+#, rust-format
+msgid "Delete “{folder}”?"
+msgstr "Удалить «{folder}»?"
+
+#: crates/rnote-ui/src/library/manage.rs:97
+msgid "Its notebooks go to the trash."
+msgstr "Её блокноты будут перемещены в корзину."
+
+#: crates/rnote-ui/src/library/manage.rs:123
+#: crates/rnote-ui/src/library/sidebar.rs:69
+msgid "New Tag"
+msgstr "Новая метка"
+
+#: crates/rnote-ui/src/library/manage.rs:153
+msgid "Edit Tag"
+msgstr "Изменить метку"
+
+#: crates/rnote-ui/src/library/manage.rs:172
+msgid "Delete Tag?"
+msgstr "Удалить метку?"
+
+#: crates/rnote-ui/src/library/manage.rs:173
+msgid "The notebooks stay; only the tag is removed from them."
+msgstr "Блокноты останутся, с них будет снята только эта метка."
+
+#: crates/rnote-ui/src/library/mod.rs:373
+msgid "Library Folder"
+msgstr "Папка библиотеки"
+
+#: crates/rnote-ui/src/library/mod.rs:374
+msgid "Choose"
+msgstr "Выбрать"
+
+#: crates/rnote-ui/src/library/mod.rs:409
+msgid "The folder doesn’t exist"
+msgstr "Папка не существует"
+
+#: crates/rnote-ui/src/library/open.rs:100
+msgid "Already Imported"
+msgstr "Уже импортировано"
+
+#: crates/rnote-ui/src/library/open.rs:102
+#, rust-format
+msgid "“{name}” was imported before as “{existing}”."
+msgstr "«{name}» уже был импортирован ранее как «{existing}»."
+
+#: crates/rnote-ui/src/library/open.rs:111
+msgid "Import Again"
+msgstr "Импортировать снова"
+
+#: crates/rnote-ui/src/library/open.rs:141
+#: crates/rnote-ui/src/library/open.rs:147
+msgid "Importing the Xournal++ notebook failed"
+msgstr "Не удалось импортировать блокнот Xournal++"
+
+#: crates/rnote-ui/src/library/sidebar.rs:10
+#: crates/rnote-ui/src/library/sidebar.rs:41
+msgid "All Notes"
+msgstr "Все заметки"
+
+#: crates/rnote-ui/src/library/sidebar.rs:56
+msgid "Folders"
+msgstr "Папки"
+
+#: crates/rnote-ui/src/penssidebar/shaperpage.rs:662
 msgid "Miscellaneous"
 msgstr "Разные"
 
-#: crates/rnote-ui/src/penssidebar/shaperpage.rs:644
+#: crates/rnote-ui/src/penssidebar/shaperpage.rs:671
 msgid "Coordinate Systems"
 msgstr "Системы координат"
 
-#: crates/rnote-ui/src/penssidebar/shaperpage.rs:652
+#: crates/rnote-ui/src/penssidebar/shaperpage.rs:679
 msgid "Ellipses"
 msgstr "Эллипсы"
 
-#: crates/rnote-ui/src/penssidebar/shaperpage.rs:659
+#: crates/rnote-ui/src/penssidebar/shaperpage.rs:686
 msgid "Curves & Paths"
 msgstr "Кривые и траектории"
 
-#: crates/rnote-ui/src/penssidebar/shaperpage.rs:674
+#: crates/rnote-ui/src/penssidebar/shaperpage.rs:701
 msgid "Arrow"
 msgstr "Стрелка"
 
-#: crates/rnote-ui/src/penssidebar/shaperpage.rs:675
+#: crates/rnote-ui/src/penssidebar/shaperpage.rs:702
 msgid "Line"
 msgstr "Линия"
 
-#: crates/rnote-ui/src/penssidebar/shaperpage.rs:676
+#: crates/rnote-ui/src/penssidebar/shaperpage.rs:703
 msgid "Rectangle"
 msgstr "Прямоугольник"
 
-#: crates/rnote-ui/src/penssidebar/shaperpage.rs:678
+#: crates/rnote-ui/src/penssidebar/shaperpage.rs:705
 msgid "2D coordinate system"
 msgstr "Двумерная система координат"
 
-#: crates/rnote-ui/src/penssidebar/shaperpage.rs:679
+#: crates/rnote-ui/src/penssidebar/shaperpage.rs:706
 msgid "3D coordinate system"
 msgstr "Трехмерная система координат"
 
-#: crates/rnote-ui/src/penssidebar/shaperpage.rs:680
+#: crates/rnote-ui/src/penssidebar/shaperpage.rs:707
 msgid "2D single quadrant coordinate system"
 msgstr "Двумерная одноквадрантная система координат"
 
-#: crates/rnote-ui/src/penssidebar/shaperpage.rs:681
+#: crates/rnote-ui/src/penssidebar/shaperpage.rs:708
 msgid "Ellipse"
 msgstr "Эллипс"
 
-#: crates/rnote-ui/src/penssidebar/shaperpage.rs:682
+#: crates/rnote-ui/src/penssidebar/shaperpage.rs:709
 msgid "Ellipse with foci"
 msgstr "Эллипс с очагами"
 
-#: crates/rnote-ui/src/penssidebar/shaperpage.rs:683
+#: crates/rnote-ui/src/penssidebar/shaperpage.rs:710
 msgid "Quadratic bezier curve"
 msgstr "Квадратичная кривая Безье"
 
-#: crates/rnote-ui/src/penssidebar/shaperpage.rs:684
+#: crates/rnote-ui/src/penssidebar/shaperpage.rs:711
 msgid "Cubic bezier curve"
 msgstr "Кубическая кривая Безье"
 
-#: crates/rnote-ui/src/penssidebar/shaperpage.rs:685
+#: crates/rnote-ui/src/penssidebar/shaperpage.rs:712
 msgid "Polyline"
 msgstr "Ломаная линия"
 
-#: crates/rnote-ui/src/penssidebar/shaperpage.rs:686
+#: crates/rnote-ui/src/penssidebar/shaperpage.rs:713
 msgid "Polygon"
 msgstr "Многоугольник"
 
-#: crates/rnote-ui/src/settingspanel/mod.rs:660
+#: crates/rnote-ui/src/settingspanel/mod.rs:684
 msgid "Application restart is required"
 msgstr "Требуется перезапуск приложения"
 
-#: crates/rnote-ui/src/settingspanel/mod.rs:1460
+#: crates/rnote-ui/src/settingspanel/mod.rs:1584
 msgctxt "a cursor type"
 msgid "Crosshair (Small)"
 msgstr "Перекрестие (маленькое)"
 
-#: crates/rnote-ui/src/settingspanel/mod.rs:1461
+#: crates/rnote-ui/src/settingspanel/mod.rs:1585
 msgctxt "a cursor type"
 msgid "Crosshair (Medium)"
 msgstr "Перекрестие (среднее)"
 
-#: crates/rnote-ui/src/settingspanel/mod.rs:1462
+#: crates/rnote-ui/src/settingspanel/mod.rs:1586
 msgctxt "a cursor type"
 msgid "Crosshair (Large)"
 msgstr "Перекрестие (большое)"
 
-#: crates/rnote-ui/src/settingspanel/mod.rs:1463
+#: crates/rnote-ui/src/settingspanel/mod.rs:1587
 msgctxt "a cursor type"
 msgid "Dot (Small)"
 msgstr "Точка (маленькая)"
 
-#: crates/rnote-ui/src/settingspanel/mod.rs:1464
+#: crates/rnote-ui/src/settingspanel/mod.rs:1588
 msgctxt "a cursor type"
 msgid "Dot (Medium)"
 msgstr "Точка (средняя)"
 
-#: crates/rnote-ui/src/settingspanel/mod.rs:1465
+#: crates/rnote-ui/src/settingspanel/mod.rs:1589
 msgctxt "a cursor type"
 msgid "Dot (Large)"
 msgstr "Точка (большая)"
 
-#: crates/rnote-ui/src/settingspanel/mod.rs:1466
+#: crates/rnote-ui/src/settingspanel/mod.rs:1590
 msgctxt "a cursor type"
 msgid "Teardrop North-West (Small)"
 msgstr "Cлеза, северо-запад (маленькая)"
 
-#: crates/rnote-ui/src/settingspanel/mod.rs:1467
+#: crates/rnote-ui/src/settingspanel/mod.rs:1591
 msgctxt "a cursor type"
 msgid "Teardrop North-West (Medium)"
 msgstr "Слеза, северо-запад (средняя)"
 
-#: crates/rnote-ui/src/settingspanel/mod.rs:1468
+#: crates/rnote-ui/src/settingspanel/mod.rs:1592
 msgctxt "a cursor type"
 msgid "Teardrop North-West (Large)"
 msgstr "Слеза, северо-запад (большая)"
 
-#: crates/rnote-ui/src/settingspanel/mod.rs:1469
+#: crates/rnote-ui/src/settingspanel/mod.rs:1593
 msgctxt "a cursor type"
 msgid "Teardrop North-East (Small)"
 msgstr "Слеза, северо-восток (маленькая)"
 
-#: crates/rnote-ui/src/settingspanel/mod.rs:1470
+#: crates/rnote-ui/src/settingspanel/mod.rs:1594
 msgctxt "a cursor type"
 msgid "Teardrop North-East (Medium)"
 msgstr "Слеза, северо-восток (средняя)"
 
-#: crates/rnote-ui/src/settingspanel/mod.rs:1471
+#: crates/rnote-ui/src/settingspanel/mod.rs:1595
 msgctxt "a cursor type"
 msgid "Teardrop North-East (Large)"
 msgstr "Слеза, северо-восток (большая)"
 
-#: crates/rnote-ui/src/settingspanel/mod.rs:1472
+#: crates/rnote-ui/src/settingspanel/mod.rs:1596
 msgctxt "a cursor type"
 msgid "Teardrop North (Small)"
 msgstr "Слеза, север (маленькая)"
 
-#: crates/rnote-ui/src/settingspanel/mod.rs:1473
+#: crates/rnote-ui/src/settingspanel/mod.rs:1597
 msgctxt "a cursor type"
 msgid "Teardrop North (Medium)"
 msgstr "Слеза, север (средняя)"
 
-#: crates/rnote-ui/src/settingspanel/mod.rs:1474
+#: crates/rnote-ui/src/settingspanel/mod.rs:1598
 msgctxt "a cursor type"
 msgid "Teardrop North (Large)"
 msgstr "Слеза, север (большая)"
 
-#: crates/rnote-ui/src/settingspanel/mod.rs:1475
+#: crates/rnote-ui/src/settingspanel/mod.rs:1599
 msgctxt "a cursor type"
 msgid "Beam (Small)"
 msgstr "Луч (маленький)"
 
-#: crates/rnote-ui/src/settingspanel/mod.rs:1476
+#: crates/rnote-ui/src/settingspanel/mod.rs:1600
 msgctxt "a cursor type"
 msgid "Beam (Medium)"
 msgstr "Луч (средний)"
 
-#: crates/rnote-ui/src/settingspanel/mod.rs:1477
+#: crates/rnote-ui/src/settingspanel/mod.rs:1601
 msgctxt "a cursor type"
 msgid "Beam (Large)"
 msgstr "Луч (большой)"
+
+#: crates/rnote-ui/src/sync/button.rs:98
+#, rust-format
+msgid "Changed on two devices: kept both, one as a conflict copy"
+msgid_plural "Changed on two devices: kept both versions of {n} notebooks"
+msgstr[0] "Изменено на двух устройствах: сохранены обе версии {n} блокнота"
+msgstr[1] "Изменено на двух устройствах: сохранены обе версии {n} блокнотов"
+msgstr[2] "Изменено на двух устройствах: сохранены обе версии {n} блокнотов"
+
+#: crates/rnote-ui/src/sync/button.rs:129
+msgid "Sync Now"
+msgstr "Синхронизировать сейчас"
+
+#: crates/rnote-ui/src/sync/button.rs:135
+msgid "Sign Out of Google Drive"
+msgstr "Выйти из Google Drive"
+
+#: crates/rnote-ui/src/sync/button.rs:147
+msgid "Sign In with Google"
+msgstr "Войти через Google"
+
+#: crates/rnote-ui/src/sync/button.rs:183
+#, rust-format
+msgid "Signing in to Google Drive failed: {error}"
+msgstr "Не удалось войти в Google Drive: {error}"
+
+#: crates/rnote-ui/src/sync/button.rs:193
+msgid "Sign Out of Google Drive?"
+msgstr "Выйти из Google Drive?"
+
+#: crates/rnote-ui/src/sync/button.rs:195
+msgid ""
+"The notebooks stay on this computer and in your Drive. Syncing stops until "
+"you sign in again."
+msgstr ""
+"Блокноты останутся на этом компьютере и на вашем Google Drive. Синхронизация "
+"остановится, пока вы снова не войдёте."
+
+#: crates/rnote-ui/src/sync/button.rs:197
+msgid "Sign Out"
+msgstr "Выйти"
+
+#: crates/rnote-ui/src/sync/button.rs:207
+#, rust-format
+msgid "Signed out here, but Google couldn't be told: {error}"
+msgstr "Выход выполнен здесь, но сообщить об этом Google не удалось: {error}"
+
+#: crates/rnote-ui/src/sync/opened.rs:92
+#, rust-format
+msgid "It changed on another device meanwhile: saved as “{name}”"
+msgstr ""
+"Блокнот тем временем изменили на другом устройстве: ваша версия сохранена "
+"как «{name}»"
+
+#: crates/rnote-ui/src/sync/opened.rs:148
+msgid "It changed on another device: saving keeps both versions"
+msgstr ""
+"Блокнот изменили на другом устройстве: при сохранении останутся обе версии"
+
+#: crates/rnote-ui/src/sync/opened.rs:157
+msgid "Updated with the changes from another device"
+msgstr "Обновлено с учётом изменений с другого устройства"
+
+#: crates/rnote-ui/src/sync/status.rs:84
+msgid "This build of Rnote has no Google Drive credentials, so it can't sync"
+msgstr ""
+"В этой сборке Rnote нет учётных данных Google Drive, поэтому синхронизация "
+"невозможна"
+
+#: crates/rnote-ui/src/sync/status.rs:86
+msgid "Checking the Google Drive sign-in…"
+msgstr "Проверка входа в Google Drive…"
+
+#: crates/rnote-ui/src/sync/status.rs:87
+msgid "Not signed in to Google Drive"
+msgstr "Вход в Google Drive не выполнен"
+
+#: crates/rnote-ui/src/sync/status.rs:88
+msgid "Sign in to Google Drive again to keep syncing"
+msgstr "Снова войдите в Google Drive, чтобы продолжить синхронизацию"
+
+#: crates/rnote-ui/src/sync/status.rs:89
+msgid "Waiting to sync"
+msgstr "Ожидание синхронизации"
+
+#: crates/rnote-ui/src/sync/status.rs:90
+msgid "Syncing…"
+msgstr "Синхронизация…"
+
+#: crates/rnote-ui/src/sync/status.rs:94
+#, rust-format
+msgid "Synced {when}"
+msgstr "Синхронизировано {when}"
+
+#: crates/rnote-ui/src/sync/status.rs:96
+msgid "Offline: it syncs once Google can be reached"
+msgstr "Нет сети: синхронизация начнётся, как только Google станет доступен"
+
+#: crates/rnote-ui/src/sync/status.rs:97
+#, rust-format
+msgid "Sync failed: {error}"
+msgstr "Ошибка синхронизации: {error}"
+
+#: crates/rnote-ui/src/sync/status.rs:104
+msgid "just now"
+msgstr "только что"
+
+#: crates/rnote-ui/src/sync/status.rs:106
+#, rust-format
+msgid "{n} minute ago"
+msgid_plural "{n} minutes ago"
+msgstr[0] "{n} минуту назад"
+msgstr[1] "{n} минуты назад"
+msgstr[2] "{n} минут назад"
+
+#: crates/rnote-ui/src/sync/status.rs:109
+#, rust-format
+msgid "{n} hour ago"
+msgid_plural "{n} hours ago"
+msgstr[0] "{n} час назад"
+msgstr[1] "{n} часа назад"
+msgstr[2] "{n} часов назад"
+
+#: crates/rnote-ui/src/sync/status.rs:120
+#, rust-format
+msgid "on {date}"
+msgstr "{date}"
 
 #: crates/rnote-ui/src/workspacebrowser/filerow/actions/duplicate.rs:41
 msgid "Can't duplicate an unsaved document"
@@ -2574,10 +5005,6 @@ msgstr "Не удалось переименовать файл"
 #: crates/rnote-ui/src/workspacebrowser/workspaceactions/createfolder.rs:96
 msgid "Folder Name"
 msgstr "Имя папки"
-
-#: crates/rnote-ui/src/workspacebrowser/workspaceactions/createfolder.rs:104
-msgid "New Folder"
-msgstr "Новая папка"
 
 #: crates/rnote-ui/src/utils.rs:169
 msgctxt "used in string representation of the current selected color"
@@ -2709,6 +5136,24 @@ msgctxt "part of string representation of a color"
 msgid "white"
 msgstr "белый"
 
+#~ msgid "Brush Style"
+#~ msgstr "Стиль кисти"
+
+#~ msgid "Brush Styles"
+#~ msgstr "Стили кисти"
+
+#~ msgid "Mark underneath other strokes"
+#~ msgstr "Рисовать под штрихами других кистей"
+
+#~ msgid "Draw solid color strokes"
+#~ msgstr "Рисовать сплошным цветом"
+
+#~ msgid "Draw textured strokes"
+#~ msgstr "Рисовать текстурированные линии"
+
+#~ msgid "Shaper Style"
+#~ msgstr "Стиль фигур"
+
 #~ msgid "Page Borders"
 #~ msgstr "Границы страницы"
 
@@ -2736,105 +5181,6 @@ msgstr "белый"
 #~ msgstr ""
 #~ "Установить коэффициент растрового масштабирования\n"
 #~ "\tотносительно фактического размера документа"
-
-#, fuzzy
-#~| msgid "Failed to open the file in the file manager"
-#~ msgid "fix: .rnote file icons in file managers"
-#~ msgstr "Не удалось показать файл в проводнике"
-
-#, fuzzy
-#~| msgid ""
-#~| "The page order when documents with layouts\n"
-#~| "that expand in horizontal and vertical directions\n"
-#~| "are cut into pages"
-#~ msgid ""
-#~ "feature: specify page order when exporting documents with layouts that "
-#~ "expand in horizontal and vertical directions (thanks to @Kneemund)"
-#~ msgstr ""
-#~ "Порядок страниц, при котором документы с компоновкой,\n"
-#~ "расширяющейся по горизонтали и вертикали,\n"
-#~ "делятся на страницы"
-
-#, fuzzy
-#~| msgid "Set whether the drawing cursor is visible"
-#~ msgid "feature: ability to toggle drawing cursor visibility"
-#~ msgstr "Установить, виден ли курсор для рисования"
-
-#, fuzzy
-#~| msgid ""
-#~| "Remove Page.\n"
-#~| "Available in Fixed-Size Document Layout."
-#~ msgid "fix: broken resizing in fixed-size document layout"
-#~ msgstr ""
-#~ "Удалить страницу.\n"
-#~ "Только для документов с фиксированным размером."
-
-#, fuzzy
-#~| msgid "Switch to the 'Typewriter'"
-#~ msgid "switch to the typewriter when dropping text"
-#~ msgstr "Переключиться на 'Инструмент Текст'"
-
-#, fuzzy
-#~| msgid "Select the export file"
-#~ msgid "improved: better export filenames"
-#~ msgstr "Выбрать файл для экспорта"
-
-#, fuzzy
-#~| msgid "Set the background pattern height"
-#~ msgid "fix: background pattern tile rendering size"
-#~ msgstr "Установить высоту линовки"
-
-#, fuzzy
-#~| msgid "Write text with the typewriter"
-#~ msgid "long awaited: write and edit text with the typewriter"
-#~ msgstr "Пишите текст с помощью инструмента «Текст»"
-
-#, fuzzy
-#~| msgid "Mark underneath other strokes"
-#~ msgid "mark underneath other strokes with the 'Marker' brush style"
-#~ msgstr "Рисовать под штрихами других кистей"
-
-#, fuzzy
-#~| msgid "Set the format border color"
-#~ msgid "feature: setting to change the format border color"
-#~ msgstr "Выбрать цвет обводки формата"
-
-#, fuzzy
-#~| msgid "Export selection"
-#~ msgid "improved selector"
-#~ msgstr "Экспортировать выделение"
-
-#, fuzzy
-#~| msgid "Set whether Pdf's should be imported as vector or bitmap images"
-#~ msgid "Pdf import as vector images"
-#~ msgstr ""
-#~ "Установить, каким образом должны импортироваться PDF файлы: как векторные "
-#~ "или как растровые изображения"
-
-#, fuzzy
-#~| msgid "Select With a Rectangle"
-#~ msgid "selecting with a rectangle"
-#~ msgstr "Прямоугольное выделение"
-
-#, fuzzy
-#~| msgid "Choose a background pattern"
-#~ msgid "introducing dots as background pattern"
-#~ msgstr "Выбрать стиль линовки на фоне"
-
-#, fuzzy
-#~| msgid "Choose a background pattern"
-#~ msgid "improved background rendering"
-#~ msgstr "Выбрать стиль линовки на фоне"
-
-#, fuzzy
-#~| msgid "Choose a background pattern"
-#~ msgid "introducing background patterns"
-#~ msgstr "Выбрать стиль линовки на фоне"
-
-#, fuzzy
-#~| msgid "Set the background color"
-#~ msgid "set a background color"
-#~ msgstr "Выбрать цвет фона"
 
 #~ msgid "Opened file was moved or deleted on disk"
 #~ msgstr "Открытый файл был перемещен или удален на диске"
@@ -3127,9 +5473,6 @@ msgstr "белый"
 
 #~ msgid "Paste from Clipboard"
 #~ msgstr "Вставить содержимое буфера обмена"
-
-#~ msgid "New"
-#~ msgstr "Новый"
 
 #~ msgid ".rnote file"
 #~ msgstr ".rnote файл"
