@@ -98,12 +98,16 @@ impl RnoteDocument {
             true
         };
         if follows {
-            let now = Instant::now();
-            for event in pen_input::pen_events(phase, samples) {
+            for (event, at) in
+                pen_input::pen_events(phase, samples, &mut self.pen_clock, Instant::now())
+            {
                 let (_propagation, event_flags) =
-                    self.engine.handle_pen_event(event, Some(pen_mode), now);
+                    self.engine.handle_pen_event(event, Some(pen_mode), at);
                 flags |= event_flags;
             }
+        }
+        if matches!(phase, PenPhase::Up | PenPhase::Cancel) {
+            self.pen_clock.reset();
         }
         self.finish_edit(flags, bounds_before)
     }

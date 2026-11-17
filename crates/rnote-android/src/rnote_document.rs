@@ -10,6 +10,7 @@ use rnote_engine::pens::PenStyle;
 use rnote_engine::pens::pensconfig::selectorconfig::SelectorStyle;
 use rnote_engine::{Engine, WidgetFlags};
 
+use crate::pen_input::PenClock;
 use crate::render::{self, BackgroundTiles, PixelLayout, Viewport};
 
 pub use clipboard::ClipboardEntry;
@@ -57,6 +58,8 @@ pub struct RnoteDocument {
     text_input: bool,
     modified: bool,
     recognition: recognition::Recognition,
+    // When the samples of the stroke being drawn were taken, for the engine's smoothing.
+    pen_clock: PenClock,
 }
 
 impl RnoteDocument {
@@ -99,6 +102,7 @@ impl RnoteDocument {
             text_input: false,
             modified: false,
             recognition: recognition::Recognition::default(),
+            pen_clock: PenClock::default(),
         };
         document.finish_operation(flags);
         document

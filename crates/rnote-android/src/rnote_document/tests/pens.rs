@@ -1,7 +1,13 @@
 //! Pens: brush, eraser, shaper and selection, and the camera they draw with.
 
-use super::*;
+use std::f64::consts::PI;
+
+use parry2d_f64::bounding_volume::Aabb;
+use rnote_compose::penpath::Segment;
 use rnote_engine::pens::pensconfig::brushconfig::BrushStyle;
+use rnote_engine::strokes::Stroke;
+
+use super::*;
 
 #[test]
 fn brush_draws_a_stroke() {
@@ -35,11 +41,11 @@ fn eraser_removes_the_stroke() {
     draw_line(&mut document, 200.0);
 
     let across = [
-        PenSample { x: 200.0, y: 150.0, pressure: 1.0 },
-        PenSample { x: 200.0, y: 200.0, pressure: 1.0 },
+        PenSample { x: 200.0, y: 150.0, pressure: 1.0, time_ms: 0.0 },
+        PenSample { x: 200.0, y: 200.0, pressure: 1.0, time_ms: 0.0 },
     ];
     document.handle_pen(PenPhase::Down, Tool::Eraser, &across, IDENTITY, VIEW);
-    let end = [PenSample { x: 200.0, y: 250.0, pressure: 1.0 }];
+    let end = [PenSample { x: 200.0, y: 250.0, pressure: 1.0, time_ms: 0.0 }];
     document.handle_pen(PenPhase::Up, Tool::Eraser, &end, IDENTITY, VIEW);
 
     assert_pixel_near(render_pixel(&mut document, 200.0, 200.0), [255, 255, 255, 255]);
@@ -50,7 +56,7 @@ fn shaper_draws_a_rectangle_outline() {
     let mut document = plain_document();
     document.set_brush(RED, 4.0);
     document.set_shape(ShapeBuilderType::Rectangle);
-    let corner = |x, y| PenSample { x, y, pressure: 1.0 };
+    let corner = |x, y| PenSample { x, y, pressure: 1.0, time_ms: 0.0 };
     let drag = [corner(100.0, 100.0), corner(200.0, 200.0), corner(300.0, 300.0)];
     document.handle_pen(PenPhase::Down, Tool::Shaper, &drag, IDENTITY, VIEW);
     let state =
@@ -65,7 +71,7 @@ fn shaper_draws_a_rectangle_outline() {
 fn shaper_works_after_erasing_with_the_eraser_end() {
     let mut document = plain_document();
     document.set_brush(RED, 4.0);
-    let point = |x, y| PenSample { x, y, pressure: 1.0 };
+    let point = |x, y| PenSample { x, y, pressure: 1.0, time_ms: 0.0 };
     // The stylus' eraser end leaves the engine in eraser mode.
     document.handle_pen(PenPhase::Up, Tool::Eraser, &[point(500.0, 500.0)], IDENTITY, VIEW);
     document.set_tool(Tool::Shaper);
@@ -84,7 +90,7 @@ fn polyline_takes_several_taps_and_finishes_with_enter() {
     let mut document = plain_document();
     document.set_brush(RED, 4.0);
     document.set_shape(ShapeBuilderType::Polyline);
-    let point = |x, y| PenSample { x, y, pressure: 1.0 };
+    let point = |x, y| PenSample { x, y, pressure: 1.0, time_ms: 0.0 };
     for corner in [point(100.0, 100.0), point(300.0, 100.0), point(300.0, 300.0)] {
         document.handle_pen(PenPhase::Down, Tool::Shaper, &[corner], IDENTITY, VIEW);
         document.handle_pen(PenPhase::Up, Tool::Shaper, &[corner], IDENTITY, VIEW);
@@ -128,6 +134,7 @@ fn infinite_document_keeps_its_size_while_drawing_on_the_origin_page() {
                 x: viewport.x + (300.0 + 45.0 * f64::from(i)) / viewport.zoom,
                 y: viewport.y + screen_y / viewport.zoom,
                 pressure: 1.0,
+                time_ms: 0.0,
             })
             .collect();
         let (moves, last) = line.split_at(line.len() - 1);
@@ -148,6 +155,7 @@ fn eraser_works_at_the_bottom_of_a_portrait_view() {
         x: viewport.x + screen_x / viewport.zoom,
         y: viewport.y + screen_y / viewport.zoom,
         pressure: 1.0,
+        time_ms: 0.0,
     };
     let line: Vec<PenSample> = (0..=20).map(|i| at(300.0 + 45.0 * f64::from(i), 2600.0)).collect();
     let (moves, last) = line.split_at(line.len() - 1);
@@ -195,7 +203,12 @@ fn lasso(document: &mut RnoteDocument, corners: &[(f64, f64)]) -> EditState {
         let (next_x, next_y) = corners[(i + 1) % corners.len()];
         samples.extend((0..10).map(|step| {
             let t = f64::from(step) / 10.0;
-            PenSample { x: x + (next_x - x) * t, y: y + (next_y - y) * t, pressure: 1.0 }
+            PenSample {
+                x: x + (next_x - x) * t,
+                y: y + (next_y - y) * t,
+                pressure: 1.0,
+                time_ms: 0.0,
+            }
         }));
     }
     let (moves, last) = samples.split_at(samples.len() - 1);
@@ -259,8 +272,9 @@ fn brush_styles_keep_the_pressure_curves_the_preview_assumes() {
 
 /// Draws a horizontal line at `y` pressing lightly.
 fn draw_light_line(document: &mut RnoteDocument, y: f64) {
-    let samples: Vec<PenSample> =
-        (0..=20).map(|i| PenSample { x: 100.0 + 10.0 * f64::from(i), y, pressure: 0.2 }).collect();
+    let samples: Vec<PenSample> = (0..=20)
+        .map(|i| PenSample { x: 100.0 + 10.0 * f64::from(i), y, pressure: 0.2, time_ms: 0.0 })
+        .collect();
     let (moves, last) = samples.split_at(samples.len() - 1);
     document.handle_pen(PenPhase::Down, Tool::Brush, moves, IDENTITY, VIEW);
     document.handle_pen(PenPhase::Up, Tool::Brush, last, IDENTITY, VIEW);
@@ -282,4 +296,47 @@ fn a_ballpoint_keeps_its_width_whatever_the_pressure() {
     // 5 units off the middle: inside a 12 wide line, outside a 12 × 0.2 one.
     assert_pixel_near(render_pixel(&mut pen, 200.0, 205.0), [255, 255, 255, 255]);
     assert_pixel_near(render_pixel(&mut ballpoint, 200.0, 205.0), [255, 0, 0, 255]);
+}
+
+/// How far the brush stroke's path strays from the circle of `radius` around (`cx`, `cy`).
+fn farthest_from_circle(document: &RnoteDocument, cx: f64, cy: f64, radius: f64) -> f64 {
+    let everything = Aabb::new(Vector2::splat(-1e6), Vector2::splat(1e6));
+    let content = document.engine.extract_content_in_bounds(everything);
+    let [layered] = content.strokes.as_slice() else {
+        panic!("expected one stroke, got {}", content.strokes.len());
+    };
+    let Stroke::BrushStroke(brush) = &*layered.stroke else {
+        panic!("expected a brush stroke");
+    };
+    let ends = brush.path.segments.iter().map(|segment| match segment {
+        Segment::LineTo { end } => end.pos,
+        Segment::QuadBezTo { end, .. } | Segment::CubBezTo { end, .. } => end.pos,
+    });
+    ends.map(|pos| ((pos - Vector2::new(cx, cy)).length() - radius).abs()).fold(0.0, f64::max)
+}
+
+#[test]
+fn brush_keeps_a_curve_round_when_samples_come_in_batches() {
+    let mut document = plain_document();
+    document.set_brush(Color::BLACK, 2.0);
+    // A stylus reports every 4 ms, but the app gets them a frame at a time: 6 per batch.
+    let samples: Vec<PenSample> = (0..=180)
+        .map(|i| {
+            let angle = f64::from(i) / 180.0 * 1.5 * PI;
+            PenSample {
+                x: 500.0 + 100.0 * angle.cos(),
+                y: 500.0 + 100.0 * angle.sin(),
+                pressure: 1.0,
+                time_ms: 4.0 * f64::from(i),
+            }
+        })
+        .collect();
+    let (moves, last) = samples.split_at(samples.len() - 1);
+    for batch in moves.chunks(6) {
+        document.handle_pen(PenPhase::Down, Tool::Brush, batch, IDENTITY, VIEW);
+    }
+    document.handle_pen(PenPhase::Up, Tool::Brush, last, IDENTITY, VIEW);
+
+    let off = farthest_from_circle(&document, 500.0, 500.0, 100.0);
+    assert!(off < 1.0, "the stroke strays {off:.2} from the circle");
 }

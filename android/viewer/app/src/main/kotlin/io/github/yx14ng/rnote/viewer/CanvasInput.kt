@@ -2,6 +2,7 @@ package io.github.yx14ng.rnote.viewer
 
 import android.content.Context
 import android.graphics.Color
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.view.MotionEvent
@@ -297,7 +298,7 @@ internal class CanvasInput(
 
     private fun send(phase: PenPhase, samples: DoubleArray) {
         if (penTool == Tool.BRUSH && previewing) {
-            for (index in samples.indices step 3) {
+            for (index in samples.indices step SAMPLE_VALUES) {
                 preview.add(samples[index], samples[index + 1], samples[index + 2])
             }
         }
@@ -320,10 +321,13 @@ internal class CanvasInput(
         }
     }
 
-    /** `x, y, pressure` triples of the pointer at [index], in document coordinates. */
+    /**
+     * `x, y, pressure, time` of the pointer at [index]: document coordinates, and when it was
+     * there in milliseconds since boot.
+     */
     private fun samplesOf(event: MotionEvent, index: Int, withHistory: Boolean): DoubleArray {
         val history = if (withHistory) event.historySize else 0
-        val samples = DoubleArray((history + 1) * 3)
+        val samples = DoubleArray((history + 1) * SAMPLE_VALUES)
         // Mice and fingers report no meaningful pressure; use the middle, like the desktop app.
         val toolType = event.getToolType(index)
         val hasPressure = toolType == MotionEvent.TOOL_TYPE_STYLUS || toolType == MotionEvent.TOOL_TYPE_ERASER
@@ -340,12 +344,23 @@ internal class CanvasInput(
                 y = event.getY(index)
                 rawPressure = event.getPressure(index)
             }
-            samples[step * 3] = camera.toDocumentX(x)
-            samples[step * 3 + 1] = camera.toDocumentY(y)
-            samples[step * 3 + 2] = if (hasPressure) rawPressure.toDouble().coerceIn(0.0, 1.0) else DEFAULT_PRESSURE
+            val at = step * SAMPLE_VALUES
+            samples[at] = camera.toDocumentX(x)
+            samples[at + 1] = camera.toDocumentY(y)
+            samples[at + 2] = if (hasPressure) rawPressure.toDouble().coerceIn(0.0, 1.0) else DEFAULT_PRESSURE
+            samples[at + 3] = timeMillis(event, step, history)
         }
         return samples
     }
+
+    /** When sample [step] of [event] was taken, in milliseconds since boot. */
+    private fun timeMillis(event: MotionEvent, step: Int, history: Int): Double =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            val nanos = if (step < history) event.getHistoricalEventTimeNanos(step) else event.eventTimeNanos
+            nanos / NANOS_PER_MILLI
+        } else {
+            (if (step < history) event.getHistoricalEventTime(step) else event.eventTime).toDouble()
+        }
 
     private enum class FingerGesture {
         NONE,
@@ -356,6 +371,10 @@ internal class CanvasInput(
 
     private companion object {
         const val DEFAULT_PRESSURE = 0.5
+        const val NANOS_PER_MILLI = 1_000_000.0
+
+        /** Values per sample sent to the engine: x, y, pressure and time. */
+        const val SAMPLE_VALUES = 4
         const val NO_POINTER = -1
 
         /** How long the pen must hold still for the stroke to become a shape. */

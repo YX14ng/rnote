@@ -18,7 +18,8 @@ use crate::{PenPhase, PenSample, TextEmphasis, ViewSize, Viewport};
 /// double x, double y, double zoom, int viewWidth, int viewHeight)`
 ///
 /// `phase` is 0 (down), 1 (up), 2 (cancel) or 3 (proximity); `tool` as in `tool_from_int`.
-/// `samples` holds `x, y, pressure` triples in document coordinates.
+/// `samples` holds `x, y, pressure, time` per sample: document coordinates, and when the pen
+/// was there in milliseconds since boot.
 #[unsafe(no_mangle)]
 pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_handlePen<'caller>(
     mut unowned_env: EnvUnowned<'caller>,
@@ -47,15 +48,17 @@ pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_handlePen
             let tool = tool_from_int(tool)?;
             let mut values = vec![0.0; samples.len(env)?];
             samples.get_region(env, 0, &mut values)?;
-            let (triples, rest) = values.as_chunks::<VALUES_PER_SAMPLE>();
+            let (chunks, rest) = values.as_chunks::<VALUES_PER_SAMPLE>();
             if !rest.is_empty() {
                 return Err(BridgeError::Rnote(format!(
                     "Sample array length {} is not a multiple of {VALUES_PER_SAMPLE}",
                     values.len()
                 )));
             }
-            let samples: Vec<PenSample> =
-                triples.iter().map(|&[x, y, pressure]| PenSample { x, y, pressure }).collect();
+            let samples: Vec<PenSample> = chunks
+                .iter()
+                .map(|&[x, y, pressure, time_ms]| PenSample { x, y, pressure, time_ms })
+                .collect();
             let view_size = ViewSize {
                 width: u32::try_from(view_width).unwrap_or(0),
                 height: u32::try_from(view_height).unwrap_or(0),

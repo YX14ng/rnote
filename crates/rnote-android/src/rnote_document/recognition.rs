@@ -121,6 +121,7 @@ mod tests {
                     x: 300.0 + t.cos() * radius,
                     y: 300.0 + t.sin() * radius,
                     pressure: 1.0,
+                    time_ms: 0.0,
                 }
             })
             .collect()
@@ -192,7 +193,12 @@ mod tests {
         let scribble: Vec<PenSample> = (0..60)
             .map(|i| {
                 let t = f64::from(i);
-                PenSample { x: 200.0 + t * 5.0, y: 300.0 + (t * 0.8).sin() * 80.0, pressure: 1.0 }
+                PenSample {
+                    x: 200.0 + t * 5.0,
+                    y: 300.0 + (t * 0.8).sin() * 80.0,
+                    pressure: 1.0,
+                    time_ms: 0.0,
+                }
             })
             .collect();
         pen_down(&mut document, &scribble[..40]);

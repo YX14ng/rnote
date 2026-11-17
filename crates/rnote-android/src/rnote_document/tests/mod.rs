@@ -53,8 +53,9 @@ pub(super) fn assert_pixel_near(pixel: [u8; 4], expected: [u8; 4]) {
 
 /// Draws a horizontal brush line at `y` from x = 100 to x = 300.
 pub(super) fn draw_line(document: &mut RnoteDocument, y: f64) -> EditState {
-    let samples: Vec<PenSample> =
-        (0..=20).map(|i| PenSample { x: 100.0 + 10.0 * f64::from(i), y, pressure: 1.0 }).collect();
+    let samples: Vec<PenSample> = (0..=20)
+        .map(|i| PenSample { x: 100.0 + 10.0 * f64::from(i), y, pressure: 1.0, time_ms: 0.0 })
+        .collect();
     let (moves, last) = samples.split_at(samples.len() - 1);
     document.handle_pen(PenPhase::Down, Tool::Brush, moves, IDENTITY, VIEW);
     document.handle_pen(PenPhase::Up, Tool::Brush, last, IDENTITY, VIEW)

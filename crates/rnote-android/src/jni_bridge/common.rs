@@ -20,8 +20,8 @@ const FLAG_HAS_SELECTION: jint = 1 << 4;
 const FLAG_TEXT_INPUT: jint = 1 << 5;
 const FLAG_SHAPE_SNAPPED: jint = 1 << 6;
 
-/// Values per sample in the `samples` array of `handlePen`: x, y and pressure.
-pub(super) const VALUES_PER_SAMPLE: usize = 3;
+/// Values per sample in the `samples` array of `handlePen`: x, y, pressure and time.
+pub(super) const VALUES_PER_SAMPLE: usize = 4;
 
 /// Errors surfaced to Java as a `RuntimeException`.
 #[derive(Debug)]

@@ -6,7 +6,7 @@ use super::*;
 fn typewriter_types_and_edits_text() {
     let mut document = plain_document();
     document.set_brush(RED, 4.0);
-    let spot = [PenSample { x: 100.0, y: 100.0, pressure: 1.0 }];
+    let spot = [PenSample { x: 100.0, y: 100.0, pressure: 1.0, time_ms: 0.0 }];
     document.handle_pen(PenPhase::Down, Tool::Typewriter, &spot, IDENTITY, VIEW);
     let tapped = document.handle_pen(PenPhase::Up, Tool::Typewriter, &spot, IDENTITY, VIEW);
     assert!(tapped.text_input, "tapping with the text tool should ask for the keyboard");
@@ -24,7 +24,7 @@ fn typewriter_types_and_edits_text() {
 #[test]
 fn text_format_applies_to_the_text_being_edited() {
     let mut document = plain_document();
-    let spot = [PenSample { x: 100.0, y: 100.0, pressure: 1.0 }];
+    let spot = [PenSample { x: 100.0, y: 100.0, pressure: 1.0, time_ms: 0.0 }];
     document.handle_pen(PenPhase::Down, Tool::Typewriter, &spot, IDENTITY, VIEW);
     document.handle_pen(PenPhase::Up, Tool::Typewriter, &spot, IDENTITY, VIEW);
     document.handle_text("Hola");
@@ -56,7 +56,7 @@ fn pasted_text_becomes_a_text_box() {
 #[test]
 fn formats_only_the_selected_text() {
     let mut document = plain_document();
-    let spot = [PenSample { x: 100.0, y: 100.0, pressure: 1.0 }];
+    let spot = [PenSample { x: 100.0, y: 100.0, pressure: 1.0, time_ms: 0.0 }];
     document.handle_pen(PenPhase::Down, Tool::Typewriter, &spot, IDENTITY, VIEW);
     document.handle_pen(PenPhase::Up, Tool::Typewriter, &spot, IDENTITY, VIEW);
     document.handle_text("Hola mundo");
@@ -75,7 +75,7 @@ fn formats_only_the_selected_text() {
 #[test]
 fn ctrl_a_selects_all_the_text() {
     let mut document = plain_document();
-    let spot = [PenSample { x: 100.0, y: 100.0, pressure: 1.0 }];
+    let spot = [PenSample { x: 100.0, y: 100.0, pressure: 1.0, time_ms: 0.0 }];
     document.handle_pen(PenPhase::Down, Tool::Typewriter, &spot, IDENTITY, VIEW);
     document.handle_pen(PenPhase::Up, Tool::Typewriter, &spot, IDENTITY, VIEW);
     document.handle_text("abc");

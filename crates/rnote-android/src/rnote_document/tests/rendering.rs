@@ -135,7 +135,12 @@ fn renders_strokes_drawn_beside_a_fixed_size_page() {
     // The brush takes input a little beyond the page, so strokes can stick out of it.
     let left_of_page = -20.0;
     let samples: Vec<PenSample> = (0..=10)
-        .map(|i| PenSample { x: left_of_page, y: 100.0 + 20.0 * f64::from(i), pressure: 1.0 })
+        .map(|i| PenSample {
+            x: left_of_page,
+            y: 100.0 + 20.0 * f64::from(i),
+            pressure: 1.0,
+            time_ms: 0.0,
+        })
         .collect();
     let (moves, last) = samples.split_at(samples.len() - 1);
     let viewport = Viewport { x: -400.0, y: 0.0, zoom: 1.0 };

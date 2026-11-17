@@ -85,8 +85,8 @@ internal object NativeBridge {
     @JvmStatic external fun render(handle: Long, target: Bitmap, x: Double, y: Double, zoom: Double)
 
     /**
-     * Feeds stylus [samples] (`x, y, pressure` triples in document coordinates) to the
-     * engine. Returns the editing state packed as in [EditState.fromFlags].
+     * Feeds stylus [samples] (`x, y, pressure, time`: document coordinates and milliseconds
+     * since boot) to the engine. Returns the editing state packed as in [EditState.fromFlags].
      */
     @JvmStatic external fun handlePen(
         handle: Long,
