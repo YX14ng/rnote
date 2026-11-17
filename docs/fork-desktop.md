@@ -85,6 +85,25 @@ tooltip that says why.
 
 For a `meson` development build, export the two variables before `meson compile`.
 
+### Release bundle
+
+```bash
+build-aux/install-fork-flatpak.sh --bundle rnote-yx14ng-desktop.flatpak
+```
+
+builds the same app into a single `.flatpak` file for a GitHub release and installs nothing.
+It refuses to build without the OAuth client, since a release is for other people. The
+client secret ends up inside the app, as in any distributed desktop app (Google doesn't treat
+it as confidential for "Desktop app" clients), but never in the repository.
+
+Whoever downloads it installs it with:
+
+```bash
+flatpak install --user rnote-yx14ng-desktop.flatpak
+```
+
+which also fetches the GNOME runtime from Flathub.
+
 ## Developing
 
 `build-aux/dev-setup.sh` configures `_mesonbuild` with the development id
