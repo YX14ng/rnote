@@ -84,7 +84,7 @@ pub(crate) fn with_index<T>(
 }
 
 /// Keeps what the recognizer read in the fragment `hash` (its best `candidates`, up to
-/// three) in the index at `path`, which is in `language`.
+/// three) in the index at `path`, if the index is in `language`, the one it was read in.
 pub(crate) fn add_reading(
     path: &Path,
     language: &str,
@@ -93,9 +93,15 @@ pub(crate) fn add_reading(
     candidates: &[String],
 ) -> anyhow::Result<()> {
     let candidates = candidates.iter().take(3).cloned().collect();
-    with_index(path, language, |index| {
-        index.entries.insert(hash.to_owned(), Entry { rect, candidates });
-    })
+    let _guard = INDEX_LOCK.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
+    let mut index = match read(path) {
+        // Asked for before the language changed: it would empty the index in the new one.
+        Some(index) if index.language != language => return Ok(()),
+        Some(index) => index,
+        None => InkIndex::empty(language),
+    };
+    index.entries.insert(hash.to_owned(), Entry { rect, candidates });
+    index.save(path)
 }
 
 /// Drops from `index` the fragments that aren't in `fragments` anymore, and returns the

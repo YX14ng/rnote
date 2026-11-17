@@ -93,3 +93,25 @@ fn add_reading_keeps_the_language_and_the_other_readings() {
     assert_eq!(index.entries.len(), 2);
     assert_eq!(index.entries["a"].rect, [1.0, 2.0, 3.0, 4.0]);
 }
+
+#[test]
+fn a_late_reading_in_the_old_language_is_dropped() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("a.json");
+    let add = |language: &str, hash: &str, text: &str| {
+        crate::ink_index::store::add_reading(&path, language, hash, [0.0; 4], &[text.to_owned()])
+            .unwrap();
+    };
+    add("es", "a", "hola");
+    // The language changed to English: listing what to read empties the index into
+    // English, and the first fragment is read again in it.
+    crate::ink_index::store::with_index(&path, "en-US", |_| ()).unwrap();
+    add("en-US", "a", "hello");
+
+    // A reading asked for in Spanish before the change comes back now.
+    add("es", "b", "tarde");
+
+    let index = InkIndex::load(&path, "en-US");
+    assert_eq!(index.entries.len(), 1);
+    assert_eq!(index.entries["a"].candidates, ["hello"]);
+}
