@@ -188,3 +188,12 @@ fn a_phrase_with_a_split_word_is_found() {
 
     assert_eq!(hits, [found.iter().map(|f| f.rect).collect::<Vec<_>>()]);
 }
+
+#[test]
+fn normalize_keeps_marks_that_make_other_letters() {
+    // Japanese voiced marks make other kana; Spanish accents and the Russian ё don't.
+    assert_ne!(normalize("がき"), normalize("かき"));
+    assert_ne!(normalize("パン"), normalize("ハン"));
+    assert_eq!(normalize("Ёлка"), normalize("елка"));
+    assert_eq!(normalize("한국어"), normalize("한국어"));
+}

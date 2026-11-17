@@ -5,7 +5,6 @@ use std::collections::BTreeMap;
 use std::ops::Range;
 
 use unicode_normalization::UnicodeNormalization;
-use unicode_normalization::char::is_combining_mark;
 
 use super::fragments::Fragment;
 use super::store::InkIndex;
@@ -25,6 +24,12 @@ pub(crate) enum Hit {
     Ink { rects: Vec<[f64; 4]> },
     /// In the text box `text` of the ones searched, at the bytes `range` of its text.
     Typed { text: usize, range: Range<usize>, bounds: [f64; 4] },
+}
+
+/// Whether `c` is an accent laid over a letter (á, ü, ё, ç…): the Combining Diacritical
+/// Marks block. Other marks make other letters (the voiced marks of Japanese kana) and stay.
+fn is_accent(c: char) -> bool {
+    ('\u{300}'..='\u{36f}').contains(&c)
 }
 
 /// `text` in lower case, without accents, with single spaces and none at the ends.
@@ -47,7 +52,7 @@ fn normalize_mapped(text: &str) -> (String, Vec<Range<usize>>) {
         }
         let mut pieces = std::iter::once(c)
             .nfd()
-            .filter(|piece| !is_combining_mark(*piece))
+            .filter(|piece| !is_accent(*piece))
             .flat_map(char::to_lowercase)
             .peekable();
         if pieces.peek().is_none() {
