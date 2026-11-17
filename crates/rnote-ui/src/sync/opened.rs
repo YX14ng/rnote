@@ -165,8 +165,18 @@ pub(crate) fn reload_if_clean(appwindow: &RnAppWindow, canvas: &RnCanvas) -> boo
 }
 
 /// The path of `file` in the library at `root`, with `/`, if it is a notebook the sync
-/// keeps: a `.rnote` inside the root and outside hidden folders.
+/// keeps: a `.rnote` inside the root and outside hidden folders. A file reached through a
+/// link (or a library set to one) counts by where it really is.
 pub(crate) fn library_path(root: &Path, file: &Path) -> Option<String> {
+    notebook_path(root, file).or_else(|| {
+        let root = root.canonicalize().ok()?;
+        // The folder only: the notebook itself being a link to elsewhere doesn't count.
+        let folder = file.parent()?.canonicalize().ok()?;
+        notebook_path(&root, &folder.join(file.file_name()?))
+    })
+}
+
+fn notebook_path(root: &Path, file: &Path) -> Option<String> {
     let relative = file.strip_prefix(root).ok()?;
     let mut parts = Vec::new();
     for component in relative.components() {
@@ -219,6 +229,26 @@ mod tests {
         assert_eq!(
             library_path(root, &root.join("a.rnote")).as_deref(),
             Some("a.rnote")
+        );
+    }
+
+    #[test]
+    fn library_path_through_a_link_to_the_library() {
+        let dir = tempfile::tempdir().unwrap();
+        let root = dir.path().join("HandNotes");
+        std::fs::create_dir_all(root.join("Algebra")).unwrap();
+        std::fs::write(root.join("Algebra/a.rnote"), b"").unwrap();
+        let link = dir.path().join("link");
+        std::os::unix::fs::symlink(&root, &link).unwrap();
+
+        // The file opened through the link, and the library set to the link.
+        assert_eq!(
+            library_path(&root, &link.join("Algebra/a.rnote")).as_deref(),
+            Some("Algebra/a.rnote")
+        );
+        assert_eq!(
+            library_path(&link, &root.join("Algebra/a.rnote")).as_deref(),
+            Some("Algebra/a.rnote")
         );
     }
 
