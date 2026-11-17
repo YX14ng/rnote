@@ -1,6 +1,7 @@
 //! Searching the recognized writing and the typed text, without telling apart upper and
 //! lower case or accented letters.
 
+use std::collections::BTreeMap;
 use std::ops::Range;
 
 use unicode_normalization::UnicodeNormalization;
@@ -24,16 +25,6 @@ pub(crate) enum Hit {
     Ink { rects: Vec<[f64; 4]> },
     /// In the text box `text` of the ones searched, at the bytes `range` of its text.
     Typed { text: usize, range: Range<usize>, bounds: [f64; 4] },
-}
-
-impl Hit {
-    /// Where it starts, for the reading order: top, then left.
-    fn position(&self) -> (f64, f64) {
-        match self {
-            Self::Ink { rects } => rects.first().map_or((0.0, 0.0), |r| (r[1], r[0])),
-            Self::Typed { bounds, .. } => (bounds[1], bounds[0]),
-        }
-    }
 }
 
 /// `text` in lower case, without accents, with single spaces and none at the ends.
@@ -86,37 +77,47 @@ pub(crate) fn search(
     if query.is_empty() {
         return Vec::new();
     }
-    let mut hits = Vec::new();
+    // Hits in the writing sort by the top of their line, so a tall capital letter doesn't
+    // put a word before the one on its left.
+    let mut line_tops: BTreeMap<usize, f64> = BTreeMap::new();
+    for fragment in fragments {
+        let top = line_tops.entry(fragment.line).or_insert(fragment.rect[1]);
+        *top = top.min(fragment.rect[1]);
+    }
+    let ink_key = |first: &Fragment| (line_tops[&first.line], first.rect[0]);
+    let mut hits: Vec<((f64, f64), Hit)> = Vec::new();
     for fragment in fragments {
         let read = index.entries.get(&fragment.hash);
         if read.is_some_and(|entry| entry.candidates.iter().any(|c| normalize(c).contains(&query)))
         {
-            hits.push(Hit::Ink { rects: vec![fragment.rect] });
+            hits.push((ink_key(fragment), Hit::Ink { rects: vec![fragment.rect] }));
         }
     }
-    if query.contains(' ') {
-        hits.extend(phrases(index, fragments, &query));
+    for covered in across_fragments(index, fragments, &query) {
+        let rects = covered.iter().map(|&n| fragments[n].rect).collect();
+        hits.push((ink_key(&fragments[covered[0]]), Hit::Ink { rects }));
     }
     for (number, text) in typed.iter().enumerate() {
         let (normalized, origin) = normalize_mapped(&text.text);
         for (start, found) in normalized.match_indices(&query) {
             let end = start + found.len();
-            hits.push(Hit::Typed {
+            let hit = Hit::Typed {
                 text: number,
                 range: origin[start].start..origin[end - 1].end,
                 bounds: text.bounds,
-            });
+            };
+            hits.push(((text.bounds[1], text.bounds[0]), hit));
         }
     }
-    hits.sort_by(|a, b| {
-        let (a, b) = (a.position(), b.position());
-        a.0.total_cmp(&b.0).then(a.1.total_cmp(&b.1))
-    });
-    hits
+    hits.sort_by(|(a, _), (b, _)| a.0.total_cmp(&b.0).then(a.1.total_cmp(&b.1)));
+    hits.into_iter().map(|(_, hit)| hit).collect()
 }
 
-/// The places a phrase spans several fragments of a line, read with their best reading.
-fn phrases(index: &InkIndex, fragments: &[Fragment], query: &str) -> Vec<Hit> {
+/// The places `query` goes across several fragments of a line, read with their best
+/// reading, as the positions of those fragments in `fragments`: a phrase across words, or
+/// a word the grouping split in two (its pieces read without the space between them).
+fn across_fragments(index: &InkIndex, fragments: &[Fragment], query: &str) -> Vec<Vec<usize>> {
+    let between = if query.contains(' ') { " " } else { "" };
     let mut hits = Vec::new();
     let mut start = 0;
     while start < fragments.len() {
@@ -130,8 +131,8 @@ fn phrases(index: &InkIndex, fragments: &[Fragment], query: &str) -> Vec<Hit> {
         let mut owner: Vec<Option<usize>> = Vec::new();
         for (number, fragment) in fragments.iter().enumerate().take(end).skip(start) {
             if !text.is_empty() {
-                text.push(' ');
-                owner.push(None);
+                text.push_str(between);
+                owner.extend(std::iter::repeat_n(None, between.len()));
             }
             match index.entries.get(&fragment.hash).and_then(|entry| entry.candidates.first()) {
                 Some(best) => {
@@ -139,7 +140,7 @@ fn phrases(index: &InkIndex, fragments: &[Fragment], query: &str) -> Vec<Hit> {
                     owner.extend(std::iter::repeat_n(Some(number), best.len()));
                     text.push_str(&best);
                 }
-                // Not read yet: a phrase can't go across it.
+                // Not read yet: nothing can go across it.
                 None => {
                     text.push('\u{0}');
                     owner.push(None);
@@ -147,11 +148,17 @@ fn phrases(index: &InkIndex, fragments: &[Fragment], query: &str) -> Vec<Hit> {
             }
         }
         for (at, found) in text.match_indices(query) {
-            let mut covered: Vec<usize> =
-                owner[at..at + found.len()].iter().flatten().copied().collect();
+            let span = &owner[at..at + found.len()];
+            let mut covered: Vec<usize> = span.iter().flatten().copied().collect();
             covered.dedup();
-            if covered.len() > 1 {
-                hits.push(Hit::Ink { rects: covered.iter().map(|&n| fragments[n].rect).collect() });
+            // Pieces of a split word: the end of one and the start of the next alone would
+            // also be the bits of two words where they meet.
+            let whole_piece = covered.iter().any(|&n| {
+                owner.iter().filter(|o| **o == Some(n)).count()
+                    == span.iter().filter(|o| **o == Some(n)).count()
+            });
+            if covered.len() > 1 && (!between.is_empty() || whole_piece) {
+                hits.push(covered);
             }
         }
         start = end;

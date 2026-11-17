@@ -126,3 +126,43 @@ fn an_empty_query_finds_nothing() {
 
     assert!(search(&InkIndex::empty("es"), &[], &typed, "  ").is_empty());
 }
+
+#[test]
+fn a_word_split_in_two_fragments_is_found() {
+    let (index, found) = indexed(&[word(0.0, 0.0), word(100.0, 0.0)], &[&["alge"], &["bra"]]);
+
+    let hits = ink_rects(&search(&index, &found, &[], "algebra"));
+
+    assert_eq!(hits, [vec![found[0].rect, found[1].rect]]);
+}
+
+#[test]
+fn a_split_word_doesnt_hide_the_words_found_whole() {
+    let (index, found) = indexed(&[word(0.0, 0.0), word(100.0, 0.0)], &[&["matriz"], &["inversa"]]);
+
+    assert_eq!(ink_rects(&search(&index, &found, &[], "matriz")), [vec![found[0].rect]]);
+    // Bits of two words that only meet without the space between them aren't a word.
+    assert!(search(&index, &found, &[], "zin").is_empty());
+}
+
+#[test]
+fn part_of_a_split_word_is_found_when_it_covers_one_piece() {
+    let (index, found) = indexed(&[word(0.0, 0.0), word(100.0, 0.0)], &[&["alge"], &["bra"]]);
+
+    assert_eq!(search(&index, &found, &[], "gebra").len(), 1);
+    assert_eq!(search(&index, &found, &[], "algeb").len(), 1);
+}
+
+#[test]
+fn hits_on_a_line_go_left_to_right_even_with_a_tall_letter() {
+    // "es" and then "Lineal", whose capital L starts above the "es".
+    let short = InkStroke { points: vec![(0.0, 10.0), (20.0, 20.0), (40.0, 10.0)] };
+    let tall = InkStroke { points: vec![(100.0, 0.0), (120.0, 20.0), (140.0, 0.0)] };
+    let (index, found) = indexed(&[short, tall], &[&["esa"], &["Lineal"]]);
+    let left = found.iter().find(|f| f.rect[0] == 0.0).unwrap().rect;
+    let right = found.iter().find(|f| f.rect[0] == 100.0).unwrap().rect;
+
+    let hits = ink_rects(&search(&index, &found, &[], "a"));
+
+    assert_eq!(hits, [vec![left], vec![right]]);
+}
