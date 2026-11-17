@@ -23,6 +23,7 @@ class MainActivity : Activity() {
     private lateinit var toolRow: ToolRow
     private lateinit var topBar: EditorTopBar
     private lateinit var ink: InkIndexer
+    private lateinit var search: InkSearch
     private lateinit var controls: EditorControls
     private lateinit var selectionBar: SelectionBar
     private var shownZoomPercent = 0
@@ -69,7 +70,11 @@ class MainActivity : Activity() {
         toolRow.onColorOptions = ::showColorPanel
         toolRow.onToolOptions = { tool -> toggleToolOptions(tool, toolRow.buttonFor(tool)) }
         toolRow.onWidthTapped = { toggleToolOptions(Tool.BRUSH, toolRow.widthAnchor) }
-        topBar = EditorTopBar(this, toolRow, onAction = ::perform, onBack = ::leave, onTitle = ::renameNotebook)
+        topBar = EditorTopBar(
+            this, toolRow, onAction = ::perform, onBack = ::leave, onTitle = ::renameNotebook,
+            onSearch = { search.open() },
+        )
+        search = InkSearch(this, canvasView, renderer, ink, topBar)
         selectionBar = SelectionBar(this, palette = { controls.settings.palette }, onAction = ::perform)
         clipboard = ClipboardActions(this, canvasView, renderer, onToolChanged = { tool ->
             // The engine already switched to the tool that shows what was pasted.
@@ -453,6 +458,7 @@ class MainActivity : Activity() {
         canvasView.showDocument(info.bounds, info.settings, info.startAt)
         controls.applyToDocument()
         updateEditState(info.editState)
+        search.close()
         // A notebook with no file yet has no index: its text boxes are searched still.
         ink.open((libraryPath ?: saver.currentUri?.toString())?.let { InkIndexer.indexFileFor(this, it) })
     }

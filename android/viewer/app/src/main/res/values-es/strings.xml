@@ -260,6 +260,22 @@
     <string name="ink_language_es">Español</string>
     <string name="ink_language_en">Inglés</string>
     <string name="ink_language_zh">Chino</string>
+    <string name="action_search">Buscar</string>
+    <string name="search_hint">Buscar en el cuaderno</string>
+    <string name="search_close">Cerrar la búsqueda</string>
+    <string name="search_previous">Resultado anterior</string>
+    <string name="search_next">Resultado siguiente</string>
+    <string name="search_count">%1$d de %2$d</string>
+    <string name="search_none">Sin resultados</string>
+    <string name="search_language">Idioma de la escritura</string>
+    <string name="ink_downloading">Descargando el reconocedor de escritura en %s…</string>
+    <string name="ink_offline">Sin conexión: por ahora solo texto tipeado</string>
+    <plurals name="ink_pending">
+        <item quantity="one">Leyendo la escritura: falta %d</item>
+        <item quantity="many">Leyendo la escritura: faltan %d</item>
+        <item quantity="other">Leyendo la escritura: faltan %d</item>
+    </plurals>
+    <string name="ink_failed">Falló el reconocimiento de escritura: %s</string>
     <string name="library_no_cover">Sin portada</string>
     <!-- Importing a PDF, an image or a photo as a new notebook -->
     <string name="create_import_pdf">Importar PDF…</string>

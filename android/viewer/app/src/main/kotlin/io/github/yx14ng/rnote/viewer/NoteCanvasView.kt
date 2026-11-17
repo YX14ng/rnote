@@ -180,6 +180,21 @@ class NoteCanvasView(context: Context) : View(context) {
         onAddPage = ::addPage,
     )
     private val pullHint = PagePullHint(context)
+    private val highlights = MatchHighlights(context)
+
+    /** Marks the results of a search, each as its rectangles; [current] stands out. */
+    fun showMatches(matches: List<List<DoubleArray>>, current: Int?) {
+        highlights.matches = matches
+        highlights.current = current
+        invalidate()
+    }
+
+    /** Moves the view to the result made of [rects], if it isn't on screen. */
+    fun revealMatch(rects: List<DoubleArray>) {
+        if (rects.isEmpty()) return
+        camera.reveal(rects.minOf { it[0] }, rects.minOf { it[1] }, rects.maxOf { it[2] }, rects.maxOf { it[3] })
+        onViewportChanged()
+    }
 
     /**
      * Set while another document is being opened: input and edits are dropped until it is
@@ -354,6 +369,7 @@ class NoteCanvasView(context: Context) : View(context) {
             )
         }
         frames.draw(canvas, viewport)
+        highlights.draw(canvas, viewport)
         input.preview.draw(canvas, viewport)
         navigation.pullProgress?.let { progress -> pullHint.draw(canvas, width, height, progress) }
     }

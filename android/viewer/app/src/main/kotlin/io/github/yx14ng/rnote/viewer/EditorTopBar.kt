@@ -24,6 +24,7 @@ internal class EditorTopBar(
     private val onAction: (EditorMenu.Action) -> Unit,
     onBack: () -> Unit,
     onTitle: () -> Unit,
+    onSearch: () -> Unit,
 ) : LinearLayout(context) {
     private val title = TextView(context).apply {
         textSize = 17f
@@ -49,6 +50,10 @@ internal class EditorTopBar(
     private val undo = button(R.drawable.ic_undo, R.string.action_undo) { onAction(EditorMenu.Action.Undo) }
     private val redo = button(R.drawable.ic_redo, R.string.action_redo) { onAction(EditorMenu.Action.Redo) }
     private val fold = button(R.drawable.ic_chevron_down, R.string.toolbar_fold) { toggleToolsRow() }
+    private val search = button(R.drawable.ic_search, R.string.action_search) { onSearch() }
+
+    // The first row, and the search field that takes its place while searching.
+    private val firstRowHost = FrameLayout(context)
 
     /** Where the menu opens. */
     val moreButton: View = button(R.drawable.ic_more, R.string.more_options) { onAction(EditorMenu.Action.More) }
@@ -83,15 +88,27 @@ internal class EditorTopBar(
             addView(button(R.drawable.ic_back, R.string.back_to_library) { onBack() }, square())
             addView(titles, LayoutParams(0, MATCH_PARENT, 1f).apply { marginStart = dp(4f) })
             addView(finishShape, square())
+            addView(search, square())
             addView(zoom, LayoutParams(dp(72f), dp(44f)))
             addView(moreButton, square())
             addView(fold, square())
         }
-        addView(firstRow, LayoutParams(MATCH_PARENT, dp(FIRST_ROW_DP)))
+        firstRowHost.addView(firstRow, FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT))
+        addView(firstRowHost, LayoutParams(MATCH_PARENT, dp(FIRST_ROW_DP)))
         addView(View(context).apply { setBackgroundColor(Graphite.DIVIDER) }, LayoutParams(MATCH_PARENT, dp(1f)))
         addView(toolsRow, LayoutParams(MATCH_PARENT, dp(TOOLS_ROW_DP)))
         // Pointing up: tapping folds the tools row away.
         fold.rotation = 180f
+    }
+
+    /** Shows [searchBar] in place of the first row, or the first row again with null. */
+    fun showSearch(searchBar: View?) {
+        val firstRow = firstRowHost.getChildAt(0)
+        while (firstRowHost.childCount > 1) firstRowHost.removeViewAt(1)
+        firstRow.visibility = if (searchBar == null) VISIBLE else GONE
+        if (searchBar != null) {
+            firstRowHost.addView(searchBar, FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT))
+        }
     }
 
     /** Shows the notebook's [name] and the state of the document. */
@@ -102,6 +119,7 @@ internal class EditorTopBar(
         enable(redo, state.documentOpen && state.editState.canRedo)
         zoom.text = context.getString(R.string.zoom_percent, state.zoomPercent)
         zoom.visibility = if (state.documentOpen) VISIBLE else GONE
+        search.visibility = if (state.documentOpen) VISIBLE else GONE
         finishShape.visibility =
             if (state.documentOpen && state.settings.tool == Tool.SHAPER && state.settings.shape.needsFinish) VISIBLE else GONE
     }

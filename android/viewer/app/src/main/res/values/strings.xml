@@ -256,6 +256,21 @@
     <string name="ink_language_es">Spanish</string>
     <string name="ink_language_en">English</string>
     <string name="ink_language_zh">Chinese</string>
+    <string name="action_search">Search</string>
+    <string name="search_hint">Search this notebook</string>
+    <string name="search_close">Close search</string>
+    <string name="search_previous">Previous result</string>
+    <string name="search_next">Next result</string>
+    <string name="search_count">%1$d of %2$d</string>
+    <string name="search_none">No results</string>
+    <string name="search_language">Handwriting language</string>
+    <string name="ink_downloading">Downloading the %s handwriting recognizer…</string>
+    <string name="ink_offline">Offline: only typed text for now</string>
+    <plurals name="ink_pending">
+        <item quantity="one">Reading the writing: %d left</item>
+        <item quantity="other">Reading the writing: %d left</item>
+    </plurals>
+    <string name="ink_failed">Handwriting recognition failed: %s</string>
     <string name="library_no_cover">No cover</string>
     <!-- Importing a PDF, an image or a photo as a new notebook -->
     <string name="create_import_pdf">Import PDF…</string>

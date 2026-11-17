@@ -168,6 +168,21 @@ internal class ViewportController(context: Context) {
         viewport = clamp(viewport.copy(y = y - height * SHOW_FROM_FRACTION / viewport.zoom))
     }
 
+    /**
+     * Shows the document rectangle [left], [top], [right], [bottom]: when it isn't all on
+     * screen, it goes to the middle across and to the upper third down, keeping the zoom.
+     */
+    fun reveal(left: Double, top: Double, right: Double, bottom: Double) {
+        val visibleWidth = width / viewport.zoom
+        val visibleHeight = height / viewport.zoom
+        val inside = left >= viewport.x && right <= viewport.x + visibleWidth &&
+            top >= viewport.y && bottom <= viewport.y + visibleHeight
+        if (inside) return
+        val x = (left + right) / 2 - visibleWidth / 2
+        val y = top - visibleHeight * REVEAL_FROM_TOP
+        viewport = clamp(viewport.copy(x = x, y = y))
+    }
+
     /** Document coordinates of the view point ([x], [y]). */
     fun toDocumentX(x: Float): Double = viewport.x + x / viewport.zoom
 
@@ -242,6 +257,9 @@ internal class ViewportController(context: Context) {
 
         /** How close to the end, in screen pixels, counts as being there. */
         const val END_TOLERANCE_PX = 1.0
+
+        /** Where [reveal] puts a result, as a fraction of the view height from the top. */
+        const val REVEAL_FROM_TOP = 0.33
 
         /** Where [showFromY] puts the line, as a fraction of the view height from the top. */
         const val SHOW_FROM_FRACTION = 0.15
