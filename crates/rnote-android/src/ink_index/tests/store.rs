@@ -134,3 +134,18 @@ fn a_batch_of_readings_is_kept_at_once() {
     assert_eq!(index.entries["a"].rect, [1.0, 2.0, 3.0, 4.0]);
     assert_eq!(index.entries["a"].candidates, ["uno", "una", "uña"]);
 }
+
+#[test]
+fn an_index_that_didnt_change_isnt_written() {
+    use std::os::unix::fs::PermissionsExt;
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("a.json");
+    crate::ink_index::store::add_reading(&path, "es", "a", [0.0; 4], &["uno".to_owned()]).unwrap();
+    // Writing would fail now.
+    std::fs::set_permissions(dir.path(), std::fs::Permissions::from_mode(0o555)).unwrap();
+
+    let result = crate::ink_index::store::with_index(&path, "es", |_| ());
+
+    std::fs::set_permissions(dir.path(), std::fs::Permissions::from_mode(0o755)).unwrap();
+    result.unwrap();
+}

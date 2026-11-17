@@ -77,9 +77,16 @@ pub(crate) fn with_index<T>(
     change: impl FnOnce(&mut InkIndex) -> T,
 ) -> anyhow::Result<T> {
     let _guard = INDEX_LOCK.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
-    let mut index = InkIndex::load(path, language);
+    let stored = read(path);
+    let mut index = stored
+        .clone()
+        .filter(|index| index.language == language)
+        .unwrap_or_else(|| InkIndex::empty(language));
     let result = change(&mut index);
-    index.save(path)?;
+    // Listing what to read runs after every edit; most times nothing changed.
+    if stored.as_ref() != Some(&index) {
+        index.save(path)?;
+    }
     Ok(result)
 }
 
