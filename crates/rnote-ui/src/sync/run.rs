@@ -12,12 +12,15 @@ use super::status::SyncStatus;
 
 /// Runs `attempt` and words how it went. When Drive refuses the access token, it's dropped
 /// and `attempt` runs once more with a new one; refused again (e.g. the access was removed
-/// from the Google account), the refresh token is forgotten and the user has to sign in.
+/// from the Google account), the refresh token is forgotten and the user has to sign in,
+/// unless the user signed in again meanwhile.
 pub(crate) fn run_with_retry(
     tokens: &Arc<Mutex<AccessTokens>>,
     store: &dyn RefreshTokenStore,
     mut attempt: impl FnMut() -> Result<SyncReport, SyncError>,
 ) -> SyncStatus {
+    // Signing out and in again during the sync replaces it; that one isn't to be forgotten.
+    let token_at_start = store.load().ok().flatten();
     let mut outcome = attempt();
     if matches!(outcome, Err(SyncError::Unauthorized)) {
         if let Ok(mut tokens) = tokens.lock() {
@@ -30,6 +33,9 @@ pub(crate) fn run_with_retry(
             at: SystemTime::now(),
             report,
         },
+        Err(SyncError::Unauthorized) if store.load().ok().flatten() != token_at_start => {
+            SyncStatus::Pending
+        }
         Err(SyncError::Unauthorized) => {
             if let Err(error) = store.delete() {
                 warn!("Forgetting the Google Drive token failed: {error:?}");
@@ -79,6 +85,21 @@ mod tests {
         assert_eq!(status, SyncStatus::SignInNeeded);
         assert_eq!(attempts, 2);
         assert_eq!(store.load().unwrap(), None);
+    }
+
+    #[test]
+    fn signing_in_again_during_the_sync_keeps_the_new_token() {
+        let store = MemoryStore::default();
+        store.save("old").unwrap();
+
+        // Signed out and in again while the sync ran with the old token.
+        let status = run_with_retry(&tokens(), &store, || {
+            store.save("new").unwrap();
+            Err(SyncError::Unauthorized)
+        });
+
+        assert_eq!(store.load().unwrap().as_deref(), Some("new"));
+        assert_eq!(status, SyncStatus::Pending);
     }
 
     #[test]
