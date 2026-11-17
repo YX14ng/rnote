@@ -55,8 +55,9 @@ android {
     }
 
     lint {
-        // The app doesn't use AndroidX (only Play Services pulls it in), so no KTX helpers.
-        disable += "UseKtx"
+        // The app doesn't use AndroidX (only Play Services and ML Kit pull it in), so no KTX
+        // helpers and no AppCompat replacements of platform APIs.
+        disable += listOf("UseKtx", "UseCompatLoadingForDrawables", "UseCompatTextViewDrawableApis")
     }
 
     compileOptions {
@@ -68,6 +69,9 @@ android {
 dependencies {
     // The Authorization API, for the access token of the Drive sync.
     implementation("com.google.android.gms:play-services-auth:22.0.0")
+
+    // Handwriting recognition for the search, with a model per language downloaded once.
+    implementation("com.google.mlkit:digital-ink-recognition:19.0.0")
 
     // Unit tests of plain logic on the JVM (`./gradlew testDebugUnitTest`).
     testImplementation("junit:junit:4.13.2")

@@ -253,6 +253,9 @@
     <string name="cover_graphite">Graphite</string>
     <string name="library_cover">Cover…</string>
     <string name="pull_to_add_page">Keep pulling to add a page</string>
+    <string name="ink_language_es">Spanish</string>
+    <string name="ink_language_en">English</string>
+    <string name="ink_language_zh">Chinese</string>
     <string name="library_no_cover">No cover</string>
     <!-- Importing a PDF, an image or a photo as a new notebook -->
     <string name="create_import_pdf">Import PDF…</string>
