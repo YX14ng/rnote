@@ -2,6 +2,7 @@
 //! redirect to a port on this computer, then keeping an access token fresh with the
 //! refresh token. Android gets its tokens from Play Services instead.
 
+use std::fmt;
 use std::io::{BufRead, BufReader, ErrorKind, Write};
 use std::net::{TcpListener, TcpStream};
 use std::time::{Duration, Instant};
@@ -37,7 +38,7 @@ const DONE_PAGE: &str = "<!doctype html><meta charset=\"utf-8\"><title>Rnote</ti
 <p>Listo: ya podés volver a Rnote.</p><p>Done: you can go back to Rnote.</p>";
 
 /// A "Desktop app" OAuth client of the Google Cloud project.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq)]
 pub struct OAuthClient {
     /// The client id.
     pub id: String,
@@ -46,7 +47,7 @@ pub struct OAuthClient {
 }
 
 /// A PKCE pair: the verifier stays here, the challenge goes to Google with the request.
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct Pkce {
     /// The secret proving this app asked for the code.
     pub verifier: String,
@@ -215,7 +216,7 @@ fn respond(stream: &mut TcpStream, status: &str, body: &str) {
 }
 
 /// What Google hands out for a code or a refresh token.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq)]
 pub struct Tokens {
     /// The token Drive takes.
     pub access_token: String,
@@ -223,6 +224,28 @@ pub struct Tokens {
     pub expires_in: Duration,
     /// The token that gets new access tokens; only when signing in.
     pub refresh_token: Option<String>,
+}
+
+// Printed without the secrets, so a log line never carries them.
+impl fmt::Debug for OAuthClient {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("OAuthClient").field("id", &self.id).finish_non_exhaustive()
+    }
+}
+
+impl fmt::Debug for Pkce {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("Pkce").field("challenge", &self.challenge).finish_non_exhaustive()
+    }
+}
+
+impl fmt::Debug for Tokens {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("Tokens")
+            .field("expires_in", &self.expires_in)
+            .field("has_refresh_token", &self.refresh_token.is_some())
+            .finish_non_exhaustive()
+    }
 }
 
 #[derive(Deserialize)]

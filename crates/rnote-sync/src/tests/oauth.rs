@@ -259,3 +259,20 @@ fn a_stalled_revoke_gives_up() {
     assert!(matches!(revoked, Err(crate::RemoteError::Offline(_))), "{revoked:?}");
     assert!(started.elapsed() < Duration::from_secs(5));
 }
+
+#[test]
+fn debug_output_hides_the_secrets() {
+    let tokens = Tokens {
+        access_token: "access-1".to_owned(),
+        expires_in: Duration::from_secs(3600),
+        refresh_token: Some("refresh-1".to_owned()),
+    };
+    let pkce = Pkce::from_verifier("verifier-1");
+
+    let printed = format!("{:?} {tokens:?} {pkce:?}", client());
+
+    assert!(printed.contains("id-1"), "{printed}");
+    for secret in ["secret-1", "access-1", "refresh-1", "verifier-1"] {
+        assert!(!printed.contains(secret), "{printed}");
+    }
+}
