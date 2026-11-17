@@ -185,7 +185,7 @@
     <string name="zoom_unlock">Desbloquear el zoom</string>
     <string name="action_zoom_fit">Ajustar al ancho de la página</string>
     <string name="zoom_percent">%d %%</string>
-    <string name="library_bad_path">"%1$s" no es un cuaderno de la biblioteca, o ya existe.</string>
+    <string name="library_bad_path">“%1$s” no es un cuaderno de la biblioteca, o ya existe.</string>
     <string name="color_hex">Hex</string>
     <string name="color_keep">Guardar este color</string>
     <string name="sync_button">Sincronización con Google Drive</string>

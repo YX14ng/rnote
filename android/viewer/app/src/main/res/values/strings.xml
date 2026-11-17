@@ -184,7 +184,7 @@
     <string name="zoom_unlock">Unlock zoom</string>
     <string name="action_zoom_fit">Fit the page width</string>
     <string name="zoom_percent">%d %%</string>
-    <string name="library_bad_path">"%1$s" is not a notebook of the library, or it already exists.</string>
+    <string name="library_bad_path">“%1$s” is not a notebook of the library, or it already exists.</string>
     <string name="color_hex">Hex</string>
     <string name="color_keep">Keep this color</string>
     <string name="sync_button">Google Drive sync</string>
