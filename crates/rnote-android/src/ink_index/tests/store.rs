@@ -73,3 +73,23 @@ fn unreadable_index_file_is_an_empty_index() {
     assert_eq!(InkIndex::load(&dir.path().join("missing.json"), "es"), InkIndex::empty("es"));
     assert_eq!(InkIndex::stored_language(&path), None);
 }
+
+#[test]
+fn add_reading_keeps_the_language_and_the_other_readings() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("a.json");
+
+    crate::ink_index::store::add_reading(
+        &path,
+        "es",
+        "a",
+        [1.0, 2.0, 3.0, 4.0],
+        &["uno".to_owned()],
+    )
+    .unwrap();
+    crate::ink_index::store::add_reading(&path, "es", "b", [0.0; 4], &["dos".to_owned()]).unwrap();
+
+    let index = InkIndex::load(&path, "es");
+    assert_eq!(index.entries.len(), 2);
+    assert_eq!(index.entries["a"].rect, [1.0, 2.0, 3.0, 4.0]);
+}

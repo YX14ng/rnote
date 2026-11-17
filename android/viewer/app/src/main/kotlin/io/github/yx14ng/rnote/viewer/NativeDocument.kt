@@ -284,6 +284,14 @@ internal class NativeDocument private constructor(private var handle: Long) : Au
 
     fun setPageBorders(show: Boolean): EditState = EditState.fromFlags(NativeBridge.setPageBorders(checkOpen(), show))
 
+    /** The fragments of writing [indexPath] (in [language]) has no reading of, as JSON. */
+    fun inkPending(indexPath: String, language: String): String =
+        NativeBridge.inkPending(checkOpen(), indexPath, language)
+
+    /** Where [query] is in the read writing and the text boxes, as JSON, in reading order. */
+    fun inkSearch(indexPath: String, query: String): String =
+        NativeBridge.inkSearch(checkOpen(), indexPath, query)
+
     /** A page more at the end, in a document of pages; not undoable. */
     fun addPage(): EditState = EditState.fromFlags(NativeBridge.addPage(checkOpen()))
 

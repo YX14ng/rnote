@@ -60,6 +60,12 @@ internal object NativeBridge {
     @JvmStatic external fun setPageBorders(handle: Long, show: Boolean): Int
     @JvmStatic external fun addPage(handle: Long): Int
 
+    // Handwriting search: the index is a file per notebook in the app's cache.
+    @JvmStatic external fun inkPending(handle: Long, indexPath: String, language: String): String
+    @JvmStatic external fun inkAdd(indexPath: String, language: String, hash: String, rect: DoubleArray, candidatesJson: String)
+    @JvmStatic external fun inkSearch(handle: Long, indexPath: String, query: String): String
+    @JvmStatic external fun inkLanguage(indexPath: String, fallback: String): String
+
     /** The selection's bounds as `[minX, minY, maxX, maxY]`, or empty if nothing is selected. */
     @JvmStatic external fun selectionBounds(handle: Long): DoubleArray
 

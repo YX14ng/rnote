@@ -25,11 +25,13 @@ chrono = { workspace = true }
 futures = { workspace = true }
 hayro = { workspace = true }
 image = { workspace = true }
+kurbo = { workspace = true }
 num-traits = { workspace = true }
 parry2d-f64 = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 unicode-normalization = { workspace = true }
+unicode-segmentation = { workspace = true }
 
 [dev-dependencies]
 rnote-sync = { workspace = true, features = ["fake"] }

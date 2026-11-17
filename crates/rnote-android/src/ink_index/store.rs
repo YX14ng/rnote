@@ -4,6 +4,7 @@
 use std::collections::{BTreeMap, BTreeSet};
 use std::fs;
 use std::path::Path;
+use std::sync::Mutex;
 
 use anyhow::Context;
 use serde::{Deserialize, Serialize};
@@ -62,6 +63,39 @@ impl InkIndex {
 
 fn read(path: &Path) -> Option<InkIndex> {
     serde_json::from_slice(&fs::read(path).ok()?).ok()
+}
+
+/// Kept while an index file is read, changed and written: the recognizer adds readings on
+/// one thread while the document prunes the index on another.
+static INDEX_LOCK: Mutex<()> = Mutex::new(());
+
+/// Runs `change` on the index at `path` in `language` and saves it, with no other change
+/// to an index in between.
+pub(crate) fn with_index<T>(
+    path: &Path,
+    language: &str,
+    change: impl FnOnce(&mut InkIndex) -> T,
+) -> anyhow::Result<T> {
+    let _guard = INDEX_LOCK.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
+    let mut index = InkIndex::load(path, language);
+    let result = change(&mut index);
+    index.save(path)?;
+    Ok(result)
+}
+
+/// Keeps what the recognizer read in the fragment `hash` (its best `candidates`, up to
+/// three) in the index at `path`, which is in `language`.
+pub(crate) fn add_reading(
+    path: &Path,
+    language: &str,
+    hash: &str,
+    rect: [f64; 4],
+    candidates: &[String],
+) -> anyhow::Result<()> {
+    let candidates = candidates.iter().take(3).cloned().collect();
+    with_index(path, language, |index| {
+        index.entries.insert(hash.to_owned(), Entry { rect, candidates });
+    })
 }
 
 /// Drops from `index` the fragments that aren't in `fragments` anymore, and returns the

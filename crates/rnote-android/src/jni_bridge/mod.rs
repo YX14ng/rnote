@@ -14,6 +14,7 @@ mod common;
 mod creation;
 mod document;
 mod editing;
+mod ink;
 mod library;
 mod pdf;
 mod selection;

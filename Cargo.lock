@@ -4405,6 +4405,7 @@ dependencies = [
  "hayro",
  "image",
  "jni 0.22.4",
+ "kurbo",
  "num-traits",
  "parry2d-f64",
  "rnote-compose",
@@ -4415,6 +4416,7 @@ dependencies = [
  "serde_json",
  "tempfile",
  "unicode-normalization",
+ "unicode-segmentation",
 ]
 
 [[package]]
