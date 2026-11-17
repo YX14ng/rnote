@@ -39,7 +39,7 @@
                   <object class="GtkButton">
                     <property name="icon-name">go-home-symbolic</property>
                     <property name="action-name">win.show-library</property>
-                    <property name="tooltip-text" translatable="yes">Library</property>
+                    <property name="tooltip-text" translatable="yes" context="notebooks">Library</property>
                   </object>
                 </child>
                 <child>

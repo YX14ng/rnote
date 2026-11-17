@@ -48,7 +48,7 @@
           <object class="AdwHeaderBar" id="headerbar">
             <property name="title-widget">
               <object class="AdwWindowTitle" id="title">
-                <property name="title" translatable="yes">Library</property>
+                <property name="title" translatable="yes" context="notebooks">Library</property>
               </object>
             </property>
             <child type="start">
