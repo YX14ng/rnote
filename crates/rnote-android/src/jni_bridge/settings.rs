@@ -47,16 +47,19 @@ pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_setShape<
     })
 }
 
-/// `static native int setBrushStyle(long handle, int style)`, a `BrushStyle` discriminant.
+/// `static native int setBrushStyle(long handle, int style, boolean constantWidth)`, a
+/// `BrushStyle` discriminant; solid strokes keep their width with `constantWidth`.
 #[unsafe(no_mangle)]
 pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_setBrushStyle<'caller>(
     mut unowned_env: EnvUnowned<'caller>,
     _class: JClass<'caller>,
     handle: jlong,
     style: jint,
+    constant_width: jboolean,
 ) -> jint {
     edit(&mut unowned_env, handle, |document| {
         document.set_brush_style(enum_from_int::<BrushStyle>(style, "brush style")?);
+        document.set_constant_width(constant_width);
         Ok(document.edit_state())
     })
 }

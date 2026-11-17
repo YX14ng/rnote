@@ -81,13 +81,13 @@ internal class StrokePreview {
 
 /**
  * How wide the engine draws a brush stroke where the pen pressed with [pressure] (0 to 1),
- * in document units: the pressure curves of `rnote-engine`'s brush styles, which the
- * Android app leaves at their defaults. Marker ignores the pressure; solid and textured
- * strokes grow with it linearly, up to the brush width at full pressure.
+ * in document units: the pressure curves of `rnote-engine`'s brush styles. Marker and
+ * ballpoint (solid with a constant curve) ignore the pressure; solid and textured strokes
+ * grow with it linearly, up to the brush width at full pressure.
  */
 internal object StrokeWidth {
     fun at(style: BrushStyle, width: Double, pressure: Double): Double = when (style) {
-        BrushStyle.MARKER -> width
+        BrushStyle.MARKER, BrushStyle.BALLPOINT -> width
         BrushStyle.SOLID, BrushStyle.TEXTURED -> width * pressure.coerceIn(0.0, 1.0)
     }
 }

@@ -35,7 +35,8 @@
     <string name="shape_grid">Grilla</string>
     <string name="shape_coordinate_system">Ejes de coordenadas</string>
     <string name="brush_style_marker">Marcador</string>
-    <string name="brush_style_solid">Sólido</string>
+    <string name="brush_style_solid">Pluma</string>
+    <string name="brush_style_ballpoint">Lapicera</string>
     <string name="brush_style_textured">Texturado</string>
     <string name="eraser_whole_strokes">Trazos enteros</string>
     <string name="eraser_split_strokes">Solo lo que toca</string>

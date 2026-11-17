@@ -92,9 +92,12 @@ enum class Shape(val nativeValue: Int, val label: Int, val needsFinish: Boolean 
 }
 
 /** Brush stroke looks. Values are `BrushStyle` discriminants in rnote-engine. */
-enum class BrushStyle(val nativeValue: Int, val label: Int) {
+enum class BrushStyle(val nativeValue: Int, val label: Int, val constantWidth: Boolean = false) {
     MARKER(0, R.string.brush_style_marker),
+    /** Solid, as wide as the pressure: a fountain pen. */
     SOLID(1, R.string.brush_style_solid),
+    /** Solid, always as wide as set: a ballpoint. */
+    BALLPOINT(1, R.string.brush_style_ballpoint, constantWidth = true),
     TEXTURED(2, R.string.brush_style_textured),
 }
 
@@ -216,7 +219,7 @@ internal class NativeDocument private constructor(private var handle: Long) : Au
     fun setShape(shape: Shape): EditState = EditState.fromFlags(NativeBridge.setShape(checkOpen(), shape.nativeValue))
 
     fun setBrushStyle(style: BrushStyle): EditState =
-        EditState.fromFlags(NativeBridge.setBrushStyle(checkOpen(), style.nativeValue))
+        EditState.fromFlags(NativeBridge.setBrushStyle(checkOpen(), style.nativeValue, style.constantWidth))
 
     fun setEraserStyle(style: EraserStyle): EditState =
         EditState.fromFlags(NativeBridge.setEraserStyle(checkOpen(), style.nativeValue))

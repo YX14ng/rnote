@@ -120,7 +120,7 @@ internal object NativeBridge {
     @JvmStatic external fun setShape(handle: Long, shape: Int): Int
 
     /** Sets the look of brush strokes, see [BrushStyle]. Returns the packed editing state. */
-    @JvmStatic external fun setBrushStyle(handle: Long, style: Int): Int
+    @JvmStatic external fun setBrushStyle(handle: Long, style: Int, constantWidth: Boolean): Int
 
     /** Sets what the eraser removes, see [EraserStyle]. Returns the packed editing state. */
     @JvmStatic external fun setEraserStyle(handle: Long, style: Int): Int

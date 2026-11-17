@@ -36,7 +36,8 @@
     <string name="shape_grid">Grid</string>
     <string name="shape_coordinate_system">Coordinate system</string>
     <string name="brush_style_marker">Marker</string>
-    <string name="brush_style_solid">Solid</string>
+    <string name="brush_style_solid">Fountain pen</string>
+    <string name="brush_style_ballpoint">Ballpoint</string>
     <string name="brush_style_textured">Textured</string>
     <string name="eraser_whole_strokes">Whole strokes</string>
     <string name="eraser_split_strokes">Only what it touches</string>

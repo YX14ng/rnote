@@ -1,6 +1,7 @@
 //! Pens: brush, eraser, shaper and selection, and the camera they draw with.
 
 use super::*;
+use rnote_engine::pens::pensconfig::brushconfig::BrushStyle;
 
 #[test]
 fn brush_draws_a_stroke() {
@@ -254,4 +255,31 @@ fn brush_styles_keep_the_pressure_curves_the_preview_assumes() {
     assert!(matches!(config.marker_options.pressure_curve, PressureCurve::Const));
     assert!(matches!(config.solid_options.pressure_curve, PressureCurve::Linear));
     assert!(matches!(config.textured_options.pressure_curve, PressureCurve::Linear));
+}
+
+/// Draws a horizontal line at `y` pressing lightly.
+fn draw_light_line(document: &mut RnoteDocument, y: f64) {
+    let samples: Vec<PenSample> =
+        (0..=20).map(|i| PenSample { x: 100.0 + 10.0 * f64::from(i), y, pressure: 0.2 }).collect();
+    let (moves, last) = samples.split_at(samples.len() - 1);
+    document.handle_pen(PenPhase::Down, Tool::Brush, moves, IDENTITY, VIEW);
+    document.handle_pen(PenPhase::Up, Tool::Brush, last, IDENTITY, VIEW);
+}
+
+#[test]
+fn a_ballpoint_keeps_its_width_whatever_the_pressure() {
+    let mut pen = plain_document();
+    pen.set_brush(RED, 12.0);
+    pen.set_brush_style(BrushStyle::Solid);
+    let mut ballpoint = plain_document();
+    ballpoint.set_brush(RED, 12.0);
+    ballpoint.set_brush_style(BrushStyle::Solid);
+    ballpoint.set_constant_width(true);
+
+    draw_light_line(&mut pen, 200.0);
+    draw_light_line(&mut ballpoint, 200.0);
+
+    // 5 units off the middle: inside a 12 wide line, outside a 12 × 0.2 one.
+    assert_pixel_near(render_pixel(&mut pen, 200.0, 205.0), [255, 255, 255, 255]);
+    assert_pixel_near(render_pixel(&mut ballpoint, 200.0, 205.0), [255, 0, 0, 255]);
 }

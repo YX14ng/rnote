@@ -18,4 +18,9 @@ class StrokeWidthTest {
     fun markerIgnoresThePressure() {
         assertEquals(3.0, StrokeWidth.at(BrushStyle.MARKER, width = 3.0, pressure = 0.2), 1e-9)
     }
+
+    @Test
+    fun ballpointIgnoresThePressure() {
+        assertEquals(3.0, StrokeWidth.at(BrushStyle.BALLPOINT, width = 3.0, pressure = 0.2), 1e-9)
+    }
 }

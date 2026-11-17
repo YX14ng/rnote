@@ -3,6 +3,7 @@
 use parry2d_f64::bounding_volume::Aabb;
 use rnote_compose::Color;
 use rnote_compose::builders::ShapeBuilderType;
+use rnote_compose::style::PressureCurve;
 use rnote_engine::WidgetFlags;
 use rnote_engine::document::Layout;
 use rnote_engine::document::background::PatternStyle;
@@ -40,6 +41,13 @@ impl RnoteDocument {
     /// Sets the look of brush strokes.
     pub fn set_brush_style(&mut self, style: BrushStyle) {
         self.config.write().pens_config.brush_config.style = style;
+    }
+
+    /// Sets whether solid strokes keep their width whatever the pressure, like a ballpoint,
+    /// or follow it, like a fountain pen.
+    pub fn set_constant_width(&mut self, constant: bool) {
+        let curve = if constant { PressureCurve::Const } else { PressureCurve::Linear };
+        self.config.write().pens_config.brush_config.solid_options.pressure_curve = curve;
     }
 
     /// Sets whether the eraser removes whole strokes or only the parts it touches.
