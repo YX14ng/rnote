@@ -19,6 +19,9 @@ const LINE_BAND: f64 = 0.5;
 const MARK_REACH: f64 = 1.0;
 /// Strokes smaller than this both ways are marks, in median stroke heights.
 const MARK_SIZE: f64 = 0.5;
+/// Strokes taller than this reach above or below their line (an l, the tail of a g), in
+/// median stroke heights.
+const RAISED: f64 = 1.5;
 /// Strokes taller than this (a bracket, a box, a line down the margin) are a line of their
 /// own, so they don't pull lines together, in median stroke heights.
 const TALL: f64 = 2.5;
@@ -126,9 +129,10 @@ fn median_height(boxes: &[(usize, [f64; 4])]) -> f64 {
 /// The strokes of each line, as positions in `boxes`, lines from the top.
 ///
 /// A stroke belongs to the line whose vertical center is nearest to its own, if near
-/// enough: the extent of a line never grows, so descenders of one line and ascenders of the
-/// next don't join them. Marks (dots, accents) go to the nearest line afterwards, and very
-/// tall strokes are lines of their own.
+/// enough or if the stroke goes across that center (an l reaching above the line, the tail
+/// of a g below it): the extent of a line never grows, so descenders of one line and
+/// ascenders of the next don't join them. Marks (dots, accents) go to the nearest line
+/// afterwards, and very tall strokes are lines of their own.
 fn lines(boxes: &[(usize, [f64; 4])], height: f64) -> Vec<Vec<usize>> {
     let center = |position: usize| (boxes[position].1[1] + boxes[position].1[3]) / 2.0;
     let size = |position: usize| {
@@ -140,25 +144,43 @@ fn lines(boxes: &[(usize, [f64; 4])], height: f64) -> Vec<Vec<usize>> {
     // Each line as the sum of its members' centers, and its members.
     let mut lines: Vec<(f64, Vec<usize>)> = Vec::new();
     let mut marks = Vec::new();
+    let mut raised = Vec::new();
+    // The letters of common height make the lines; the ones reaching above or below them
+    // (an l, the tail of a g) would pull a line's center off, so they join afterwards.
     for position in order {
         let (width, tall) = size(position);
         if tall > TALL * height {
             lines.push((center(position), vec![position]));
-            continue;
-        }
-        if tall < MARK_SIZE * height && width < MARK_SIZE * height {
+        } else if tall < MARK_SIZE * height && width < MARK_SIZE * height {
             marks.push(position);
-            continue;
+        } else if tall > RAISED * height {
+            raised.push(position);
+        } else {
+            let reach = Reach { band: LINE_BAND * height, span: None };
+            join_nearest(&mut lines, position, center(position), reach, &size, height);
         }
-        join_nearest(&mut lines, position, center(position), LINE_BAND * height, &size, height);
+    }
+    for position in raised {
+        let [_, top, _, bottom] = boxes[position].1;
+        let reach = Reach { band: LINE_BAND * height, span: Some((top, bottom)) };
+        join_nearest(&mut lines, position, center(position), reach, &size, height);
     }
     for position in marks {
-        join_nearest(&mut lines, position, center(position), MARK_REACH * height, &size, height);
+        let reach = Reach { band: MARK_REACH * height, span: None };
+        join_nearest(&mut lines, position, center(position), reach, &size, height);
     }
     let top =
         |members: &[usize]| members.iter().map(|&p| boxes[p].1[1]).fold(f64::INFINITY, f64::min);
     lines.sort_by(|a, b| top(&a.1).total_cmp(&top(&b.1)));
     lines.into_iter().map(|(_, members)| members).collect()
+}
+
+/// Which lines a stroke may join.
+struct Reach {
+    /// How far the line's center may be from the stroke's.
+    band: f64,
+    /// The stroke's top and bottom: a line whose center is between them may take it too.
+    span: Option<(f64, f64)>,
 }
 
 /// Adds the stroke at `position`, centered at `center`, to the line whose center is nearest,
@@ -167,7 +189,7 @@ fn join_nearest(
     lines: &mut Vec<(f64, Vec<usize>)>,
     position: usize,
     center: f64,
-    reach: f64,
+    reach: Reach,
     size: &impl Fn(usize) -> (f64, f64),
     height: f64,
 ) {
@@ -178,7 +200,11 @@ fn join_nearest(
             let line_center = line.0 / line.1.len() as f64;
             ((center - line_center).abs(), line)
         })
-        .filter(|(distance, _)| *distance <= reach)
+        .filter(|(distance, line)| {
+            let line_center = line.0 / line.1.len() as f64;
+            *distance <= reach.band
+                || reach.span.is_some_and(|(top, bottom)| (top..=bottom).contains(&line_center))
+        })
         .min_by(|a, b| a.0.total_cmp(&b.0));
     match nearest {
         Some((_, (sum, members))) => {

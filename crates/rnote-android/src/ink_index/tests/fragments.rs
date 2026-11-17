@@ -136,3 +136,29 @@ fn points_that_are_not_numbers_are_ignored() {
     assert!(found[0].rect.iter().all(|v| v.is_finite()));
     assert!(found[0].strokes[0].iter().all(|&(x, y, _)| x.is_finite() && y.is_finite()));
 }
+
+#[test]
+fn printed_letters_with_ascenders_and_descenders_stay_in_their_words() {
+    // "lineal gana", a stroke per letter: x-height 20 on the baseline y = 120, the l's
+    // reaching 28 above it and the g's tail 24 below.
+    let strokes = [
+        letters(0.0, 72.0, 4.0, 48.0),  // l
+        letters(8.0, 100.0, 4.0, 20.0), // i
+        dot(9.0, 92.0),
+        letters(16.0, 100.0, 12.0, 20.0),  // n
+        letters(32.0, 100.0, 12.0, 20.0),  // e
+        letters(48.0, 100.0, 12.0, 20.0),  // a
+        letters(64.0, 72.0, 4.0, 48.0),    // l
+        letters(100.0, 100.0, 12.0, 20.0), // g's bowl
+        letters(110.0, 100.0, 4.0, 44.0),  // g's tail
+        letters(118.0, 100.0, 12.0, 20.0), // a
+        letters(134.0, 100.0, 12.0, 20.0), // n
+        letters(150.0, 100.0, 12.0, 20.0), // a
+    ];
+
+    let found = fragments(&strokes);
+
+    assert_eq!(found.len(), 2, "{found:#?}");
+    assert_eq!((found[0].line, found[1].line), (0, 0));
+    assert_eq!((found[0].strokes.len(), found[1].strokes.len()), (7, 5));
+}
