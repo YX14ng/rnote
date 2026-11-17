@@ -47,6 +47,7 @@ internal class EditorTopBar(
         tooltipText = contentDescription
         setOnClickListener { onAction(EditorMenu.Action.ZoomToFit) }
     }
+    private val zoomLock = button(R.drawable.ic_lock_open, R.string.zoom_lock) { onAction(EditorMenu.Action.ToggleZoomLock) }
     private val undo = button(R.drawable.ic_undo, R.string.action_undo) { onAction(EditorMenu.Action.Undo) }
     private val redo = button(R.drawable.ic_redo, R.string.action_redo) { onAction(EditorMenu.Action.Redo) }
     private val fold = button(R.drawable.ic_chevron_down, R.string.toolbar_fold) { toggleToolsRow() }
@@ -90,6 +91,7 @@ internal class EditorTopBar(
             addView(finishShape, square())
             addView(search, square())
             addView(zoom, LayoutParams(dp(72f), dp(44f)))
+            addView(zoomLock, square())
             addView(moreButton, square())
             addView(fold, square())
         }
@@ -119,6 +121,11 @@ internal class EditorTopBar(
         enable(redo, state.documentOpen && state.editState.canRedo)
         zoom.text = context.getString(R.string.zoom_percent, state.zoomPercent)
         zoom.visibility = if (state.documentOpen) VISIBLE else GONE
+        val locked = state.settings.zoomLocked
+        zoomLock.setImageResource(if (locked) R.drawable.ic_lock else R.drawable.ic_lock_open)
+        zoomLock.contentDescription = context.getString(if (locked) R.string.zoom_unlock else R.string.zoom_lock)
+        zoomLock.tooltipText = zoomLock.contentDescription
+        zoomLock.visibility = zoom.visibility
         search.visibility = if (state.documentOpen) VISIBLE else GONE
         finishShape.visibility =
             if (state.documentOpen && state.settings.tool == Tool.SHAPER && state.settings.shape.needsFinish) VISIBLE else GONE

@@ -180,6 +180,8 @@
     <string name="back_to_library">Back to the library</string>
     <string name="toolbar_fold">Hide the tools</string>
     <string name="toolbar_unfold">Show the tools</string>
+    <string name="zoom_lock">Lock zoom</string>
+    <string name="zoom_unlock">Unlock zoom</string>
     <string name="action_zoom_fit">Fit the page width</string>
     <string name="zoom_percent">%d %%</string>
     <string name="library_bad_path">"%1$s" is not a notebook of the library, or it already exists.</string>

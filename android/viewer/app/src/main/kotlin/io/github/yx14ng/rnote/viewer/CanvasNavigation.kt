@@ -26,6 +26,9 @@ internal class CanvasNavigation(
 ) {
     private val pull = PagePull()
 
+    /** When on, pinching, double taps and Ctrl+wheel leave the zoom as it is. */
+    var zoomLocked = false
+
     /** How far along pulling to add a page is, from 0 to 1, or null when there is none. */
     val pullProgress: Float?
         get() = pull.progress
@@ -34,6 +37,7 @@ internal class CanvasNavigation(
         context,
         object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
             override fun onScale(detector: ScaleGestureDetector): Boolean {
+                if (zoomLocked) return true
                 camera.zoomAround(camera.viewport.zoom * detector.scaleFactor, detector.focusX, detector.focusY)
                 onMoved()
                 return true
@@ -69,6 +73,7 @@ internal class CanvasNavigation(
             override fun onSingleTapConfirmed(e: MotionEvent): Boolean = onTap()
 
             override fun onDoubleTap(e: MotionEvent): Boolean {
+                if (zoomLocked) return true
                 camera.toggleZoom(e.x, e.y)
                 onMoved()
                 return true
@@ -105,6 +110,7 @@ internal class CanvasNavigation(
         val vertical = event.getAxisValue(MotionEvent.AXIS_VSCROLL)
         val horizontal = event.getAxisValue(MotionEvent.AXIS_HSCROLL)
         if (event.metaState and KeyEvent.META_CTRL_ON != 0) {
+            if (zoomLocked) return true
             camera.zoomAround(camera.viewport.zoom * (1 + WHEEL_ZOOM_STEP * vertical), event.x, event.y)
         } else {
             camera.panBy(-horizontal * WHEEL_PAN_STEP_PX, -vertical * WHEEL_PAN_STEP_PX)

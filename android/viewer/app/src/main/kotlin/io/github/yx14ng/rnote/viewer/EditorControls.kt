@@ -93,6 +93,7 @@ internal class EditorControls(
                 change(current.copy(shape = action.shape, tool = Tool.SHAPER))
                 canvas.applyEdit { it.setShape(action.shape); it.setTool(Tool.SHAPER) }
             }
+            EditorMenu.Action.ToggleZoomLock -> change(current.copy(zoomLocked = !current.zoomLocked))
             is EditorMenu.Action.SelectBrushStyle -> {
                 change(current.copy(brushStyle = action.style))
                 canvas.applyEdit { it.setBrushStyle(action.style) }
@@ -178,6 +179,7 @@ internal class EditorControls(
         canvas.brush = settings.brush
         canvas.brushStyle = settings.brushStyle
         canvas.fingerDrawing = settings.fingerDrawing
+        canvas.zoomLocked = settings.zoomLocked
         canvas.holdToSnap = settings.shapeRecognition
     }
 

@@ -110,6 +110,13 @@ class NoteCanvasView(context: Context) : View(context) {
             input.fingerDrawing = value
         }
 
+    /** When on, the zoom stays as it is; panning still works. */
+    var zoomLocked: Boolean
+        get() = navigation.zoomLocked
+        set(value) {
+            navigation.zoomLocked = value
+        }
+
     private val camera = ViewportController(context)
     private val bounds: DocumentBounds?
         get() = camera.bounds

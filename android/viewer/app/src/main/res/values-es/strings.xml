@@ -181,6 +181,8 @@
     <string name="back_to_library">Volver a la biblioteca</string>
     <string name="toolbar_fold">Ocultar las herramientas</string>
     <string name="toolbar_unfold">Mostrar las herramientas</string>
+    <string name="zoom_lock">Bloquear el zoom</string>
+    <string name="zoom_unlock">Desbloquear el zoom</string>
     <string name="action_zoom_fit">Ajustar al ancho de la página</string>
     <string name="zoom_percent">%d %%</string>
     <string name="library_bad_path">"%1$s" no es un cuaderno de la biblioteca, o ya existe.</string>

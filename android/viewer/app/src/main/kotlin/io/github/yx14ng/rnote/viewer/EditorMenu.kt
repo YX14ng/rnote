@@ -16,6 +16,7 @@ internal object EditorMenu {
         data object Undo : Action
         data object Redo : Action
         data object ZoomToFit : Action
+        data object ToggleZoomLock : Action
         data object More : Action
         data object FinishShape : Action
         data class SelectWidth(val width: Double) : Action
