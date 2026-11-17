@@ -79,3 +79,17 @@ fn ink_search_without_an_index_finds_typed_text_only() {
         1
     );
 }
+
+#[test]
+fn highlighter_strokes_are_not_writing() {
+    use rnote_engine::pens::pensconfig::brushconfig::BrushStyle;
+
+    let mut document = plain_document();
+    draw_line(&mut document, 100.0);
+    document.set_brush_style(BrushStyle::Marker);
+    draw_line(&mut document, 200.0);
+
+    let strokes = document.ink_strokes();
+
+    assert_eq!(strokes.len(), 1, "only the solid stroke: {strokes:?}");
+}

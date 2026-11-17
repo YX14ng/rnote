@@ -40,7 +40,13 @@ impl RnoteDocument {
                 let strokes: Vec<Vec<[f64; 3]>> = fragment
                     .strokes
                     .iter()
-                    .map(|stroke| stroke.iter().map(|&(x, y, t)| [x, y, t as f64]).collect())
+                    // A hundredth is finer than the recognizer needs, and keeps the JSON small.
+                    .map(|stroke| {
+                        stroke
+                            .iter()
+                            .map(|&(x, y, t)| [hundredths(x), hundredths(y), t as f64])
+                            .collect()
+                    })
                     .collect();
                 json!({ "hash": fragment.hash, "rect": fragment.rect, "strokes": strokes })
             })
@@ -90,6 +96,10 @@ impl RnoteDocument {
             })
             .collect()
     }
+}
+
+fn hundredths(value: f64) -> f64 {
+    (value * 100.0).round() / 100.0
 }
 
 /// Where the bytes `range` of `text` are on the page, a rectangle per line they cover.

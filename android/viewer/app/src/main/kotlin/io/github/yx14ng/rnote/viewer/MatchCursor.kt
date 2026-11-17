@@ -18,6 +18,12 @@ internal class MatchCursor {
         current = if (count > 0) 0 else null
     }
 
+    /** The same search found [count] results now: the one shown stays, if it still can. */
+    fun resize(count: Int) {
+        this.count = count
+        current = if (count > 0) (current ?: 0).coerceAtMost(count - 1) else null
+    }
+
     fun next() {
         current = current?.let { (it + 1) % count }
     }

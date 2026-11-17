@@ -1,6 +1,8 @@
 package io.github.yx14ng.rnote.viewer
 
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import org.json.JSONArray
 import java.io.File
@@ -25,20 +27,30 @@ internal class InkSearch(
         onLanguage = ink::setLanguage,
         onClose = ::close,
     )
+    private val main = Handler(Looper.getMainLooper())
+    private val refresh = Runnable { search(query, quiet = true) }
     private val cursor = MatchCursor()
     private var matches: List<List<DoubleArray>> = emptyList()
     private var query = ""
     private var showing = false
-    private var lastPending = 0
 
     init {
         ink.onChanged = {
             bar.setLanguage(ink.language)
-            // Everything read: what was found may have changed.
-            if (showing && lastPending > 0 && ink.pending == 0) search(query)
-            lastPending = ink.pending
+            // A reading run ended: what was found may have changed.
+            if (showing && ink.pending == 0) search(query, quiet = true)
             showStatus()
         }
+    }
+
+    /**
+     * The notebook changed: the results are looked for again once editing stops (erased
+     * words, edited text boxes), without moving the view.
+     */
+    fun onEdited() {
+        if (!showing || query.isBlank()) return
+        main.removeCallbacks(refresh)
+        main.postDelayed(refresh, EDIT_PAUSE_MS)
     }
 
     /** Shows the search field in the editor's bar. */
@@ -46,12 +58,14 @@ internal class InkSearch(
         showing = true
         topBar.showSearch(bar)
         bar.setLanguage(ink.language)
+        ink.retry()
         showStatus()
         bar.focus()
     }
 
     /** Puts the field away and clears the marks. */
     fun close() {
+        main.removeCallbacks(refresh)
         if (!showing) return
         showing = false
         bar.clear()
@@ -62,26 +76,36 @@ internal class InkSearch(
         canvas.showMatches(matches, null)
     }
 
-    private fun search(text: String) {
+    /**
+     * Looks for [text]. A [quiet] search (the notebook changed, not the query) keeps the
+     * result shown and doesn't move the view.
+     */
+    private fun search(text: String, quiet: Boolean = false) {
         query = text
         if (text.isBlank()) {
-            show(emptyList())
+            show(emptyList(), quiet)
             return
         }
         // Without an index (a notebook with no file yet), only the text boxes.
         val index = (ink.indexFile ?: File(File(context.cacheDir, "ink"), "none.json")).path
-        renderer.query({ document -> document.inkSearch(index, text) }) { result ->
+        renderer.query({ document -> parse(document.inkSearch(index, text)) }) { result ->
             if (text != query || !showing) return@query
             result
-                .onSuccess { json -> show(parse(json)) }
+                .onSuccess { found -> show(found, quiet) }
                 .onFailure { error -> Log.w(TAG, "Searching failed", error) }
         }
     }
 
-    private fun show(found: List<List<DoubleArray>>) {
+    private fun show(found: List<List<DoubleArray>>, quiet: Boolean) {
         matches = found
-        cursor.reset(found.size)
-        showCurrent()
+        if (quiet) {
+            cursor.resize(found.size)
+            canvas.showMatches(matches, cursor.current)
+            showStatus()
+        } else {
+            cursor.reset(found.size)
+            showCurrent()
+        }
     }
 
     private fun move(step: (MatchCursor) -> Unit) {
@@ -105,6 +129,7 @@ internal class InkSearch(
         }
         val language = context.getString(ink.language.label)
         val reading = if (ink.indexFile == null) null else when (val state = ink.modelState) {
+            ModelState.Checking -> null
             ModelState.Downloading -> context.getString(R.string.ink_downloading, language)
             ModelState.Offline -> context.getString(R.string.ink_offline)
             is ModelState.Failed -> context.getString(R.string.ink_failed, state.message)
@@ -126,5 +151,6 @@ internal class InkSearch(
 
     private companion object {
         const val TAG = "RnoteSearch"
+        const val EDIT_PAUSE_MS = 700L
     }
 }

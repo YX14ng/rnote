@@ -15,6 +15,9 @@ import com.google.mlkit.vision.digitalink.recognition.WritingArea
 
 /** Whether the recognizer of a language can read yet. */
 internal sealed interface ModelState {
+    /** Not known yet whether the model is on the device. */
+    data object Checking : ModelState
+
     data object Ready : ModelState
 
     data object Downloading : ModelState

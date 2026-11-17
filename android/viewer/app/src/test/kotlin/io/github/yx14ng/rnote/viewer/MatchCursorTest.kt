@@ -46,4 +46,23 @@ class MatchCursorTest {
         assertNull(cursor.current)
         assertEquals(0 to 0, cursor.position)
     }
+
+    @Test
+    fun aQuietRefreshKeepsTheResultShown() {
+        val cursor = MatchCursor()
+        cursor.reset(count = 7)
+        repeat(4) { cursor.next() }
+
+        cursor.resize(count = 7)
+        assertEquals(5 to 7, cursor.position)
+
+        cursor.resize(count = 3)
+        assertEquals(3 to 3, cursor.position)
+
+        cursor.resize(count = 0)
+        assertNull(cursor.current)
+
+        cursor.resize(count = 2)
+        assertEquals(1 to 2, cursor.position)
+    }
 }

@@ -1,6 +1,8 @@
 package io.github.yx14ng.rnote.viewer
 
 import android.content.Context
+import android.net.ConnectivityManager
+import android.net.Network
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
@@ -18,13 +20,17 @@ import java.util.concurrent.Executors
  * and the index is written on a thread of its own.
  */
 internal class InkIndexer(
-    private val context: Context,
+    context: Context,
     private val recognizer: InkRecognizer,
     private val renderer: DocumentRenderer,
 ) {
     private val main = Handler(Looper.getMainLooper())
     private val writer = Executors.newSingleThreadExecutor()
-    private val preferences = context.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE)
+    // The application's, so a model download or a network callback never keeps the editor.
+    private val app = context.applicationContext
+    private val preferences = app.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE)
+    private val connectivity = app.getSystemService(ConnectivityManager::class.java)
+    private var networkCallback: ConnectivityManager.NetworkCallback? = null
     private var schedule = InkSchedule()
 
     // Bumped on every notebook and language, so the answers of an older run are dropped.
@@ -37,7 +43,7 @@ internal class InkIndexer(
     var language: InkLanguage = InkLanguage.fromTag(preferences.getString(KEY_LANGUAGE, null))
         private set
 
-    var modelState: ModelState = ModelState.Downloading
+    var modelState: ModelState = ModelState.Checking
         private set
 
     /** How many fragments are waiting to be read. */
@@ -53,11 +59,15 @@ internal class InkIndexer(
         indexFile = file
         schedule = InkSchedule()
         if (file == null) return
-        language = InkLanguage.fromTag(NativeBridge.inkLanguage(file.path, language.tag))
+        // A notebook not read yet takes the language chosen last.
+        val chosen = InkLanguage.fromTag(preferences.getString(KEY_LANGUAGE, null))
+        language = InkLanguage.fromTag(NativeBridge.inkLanguage(file.path, chosen.tag))
         start()
     }
 
     private fun start() {
+        // Another notebook may be in a language whose model isn't on the device.
+        modelState = ModelState.Checking
         schedule = InkSchedule()
         schedule.opened(SystemClock.uptimeMillis())
         prepareModel()
@@ -81,6 +91,12 @@ internal class InkIndexer(
         onChanged?.invoke()
     }
 
+    /** Tries the model again if it couldn't be had, e.g. when the search opens. */
+    fun retry() {
+        val state = modelState
+        if (indexFile != null && (state == ModelState.Offline || state is ModelState.Failed)) prepareModel()
+    }
+
     /** Stops reading for good: the editor is gone. */
     fun close() {
         stop()
@@ -92,6 +108,7 @@ internal class InkIndexer(
         generation++
         schedule.close()
         main.removeCallbacksAndMessages(null)
+        unwatchNetwork()
         pending = 0
     }
 
@@ -102,7 +119,27 @@ internal class InkIndexer(
             modelState = state
             onChanged?.invoke()
             if (state == ModelState.Ready) tick()
+            // The model comes down as soon as there's a connection again.
+            if (state == ModelState.Offline) watchNetwork()
         }
+    }
+
+    private fun watchNetwork() {
+        if (networkCallback != null) return
+        val callback = object : ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(network: Network) {
+                main.post {
+                    unwatchNetwork()
+                    if (indexFile != null && modelState == ModelState.Offline) prepareModel()
+                }
+            }
+        }
+        if (runCatching { connectivity.registerDefaultNetworkCallback(callback) }.isSuccess) networkCallback = callback
+    }
+
+    private fun unwatchNetwork() {
+        networkCallback?.let { callback -> runCatching { connectivity.unregisterNetworkCallback(callback) } }
+        networkCallback = null
     }
 
     private fun tick() {
@@ -111,10 +148,11 @@ internal class InkIndexer(
         schedule.started()
         val run = generation
         val tag = language.tag
-        renderer.query({ document -> document.inkPending(file.path, tag) }) { result ->
+        // Read and parsed on the renderer's thread: a big notebook has a lot of points.
+        renderer.query({ document -> parse(document.inkPending(file.path, tag)) }) { result ->
             if (run != generation) return@query
             result
-                .onSuccess { json -> readNext(parse(json), 0, run) }
+                .onSuccess { fragments -> readNext(fragments, 0, run) }
                 .onFailure { error ->
                     Log.w(TAG, "Listing the writing to read failed", error)
                     finishRun()

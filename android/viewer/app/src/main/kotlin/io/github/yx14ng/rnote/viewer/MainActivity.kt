@@ -51,7 +51,7 @@ class MainActivity : Activity() {
             Toast.makeText(this, R.string.sync_saved_as_copy, Toast.LENGTH_LONG).show()
             refreshBar()
         }
-        ink = InkIndexer(this, InkRecognizer(this), renderer)
+        ink = InkIndexer(this, InkRecognizer(applicationContext), renderer)
         canvasView = NoteCanvasView(this).apply {
             renderer = this@MainActivity.renderer
             onError = ::showError
@@ -309,6 +309,8 @@ class MainActivity : Activity() {
     }
 
     override fun onDestroy() {
+        // Before the renderer closes: a search waiting to run would use it.
+        search.close()
         ink.close()
         renderer.close()
         super.onDestroy()
@@ -541,7 +543,10 @@ class MainActivity : Activity() {
     }
 
     private fun updateEditState(state: EditState) {
-        if (documentOpen && state.modified) ink.onEdited()
+        if (documentOpen && state.modified) {
+            ink.onEdited()
+            search.onEdited()
+        }
         editState = state
         refreshSelectionBar()
         refreshBar()

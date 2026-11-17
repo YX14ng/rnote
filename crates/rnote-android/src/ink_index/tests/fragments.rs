@@ -90,3 +90,49 @@ fn hash_ignores_jitter_below_a_hundredth() {
 fn no_strokes_no_fragments() {
     assert!(fragments(&[]).is_empty());
 }
+
+#[test]
+fn close_lines_with_ascenders_and_descenders_stay_apart() {
+    // x-height 20, ascenders and descenders 15, lines 54 apart: ruled paper.
+    let strokes = [
+        letters(0.0, 0.0, 60.0, 35.0),    // "agua", with a descender
+        letters(100.0, 0.0, 60.0, 20.0),  // "casa"
+        letters(0.0, 39.0, 60.0, 35.0),   // "hola", with an ascender
+        letters(100.0, 54.0, 60.0, 20.0), // "mesa"
+    ];
+
+    let found = fragments(&strokes);
+
+    assert_eq!(found.len(), 4, "{found:#?}");
+    let lines: Vec<usize> = found.iter().map(|f| f.line).collect();
+    assert_eq!(lines, [0, 0, 1, 1]);
+}
+
+#[test]
+fn a_tall_stroke_doesnt_join_lines() {
+    let strokes = [
+        letters(0.0, 0.0, 60.0, 20.0),
+        letters(0.0, 54.0, 60.0, 20.0),
+        letters(-20.0, -5.0, 4.0, 85.0), // a bracket beside both lines
+    ];
+
+    let found = fragments(&strokes);
+
+    let words: Vec<&_> = found.iter().filter(|f| f.rect[0] >= 0.0).collect();
+    assert_eq!(words.len(), 2, "{found:#?}");
+    assert_ne!(words[0].line, words[1].line);
+}
+
+#[test]
+fn points_that_are_not_numbers_are_ignored() {
+    let mut stroke = letters(0.0, 0.0, 60.0, 20.0);
+    stroke.points.push((f64::NAN, 5.0));
+    stroke.points.push((f64::INFINITY, 5.0));
+    let strokes = [stroke, InkStroke { points: vec![(f64::NAN, f64::NAN)] }];
+
+    let found = fragments(&strokes);
+
+    assert_eq!(found.len(), 1);
+    assert!(found[0].rect.iter().all(|v| v.is_finite()));
+    assert!(found[0].strokes[0].iter().all(|&(x, y, _)| x.is_finite() && y.is_finite()));
+}

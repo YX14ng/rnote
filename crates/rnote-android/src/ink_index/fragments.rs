@@ -6,14 +6,22 @@ use parry2d_f64::bounding_volume::Aabb;
 use parry2d_f64::math::Vector2;
 use rnote_compose::penpath::Segment;
 use rnote_engine::Engine;
+use rnote_engine::store::chrono_comp::StrokeLayer;
 use rnote_engine::strokes::Stroke;
 
 /// How far apart two strokes on one line may be and still be one fragment, in median
 /// stroke heights.
 const FRAGMENT_GAP: f64 = 0.6;
-/// How far above or below a line a stroke may be and still belong to it (the dot of an i,
-/// an accent), in median stroke heights.
-const LINE_GAP: f64 = 0.4;
+/// How far the vertical center of a stroke may be from its line's, in median stroke heights.
+const LINE_BAND: f64 = 0.5;
+/// How far the center of a small mark (the dot of an i, an accent) may be from the center of
+/// the line it belongs to, in median stroke heights.
+const MARK_REACH: f64 = 1.0;
+/// Strokes smaller than this both ways are marks, in median stroke heights.
+const MARK_SIZE: f64 = 0.5;
+/// Strokes taller than this (a bracket, a box, a line down the margin) are a line of their
+/// own, so they don't pull lines together, in median stroke heights.
+const TALL: f64 = 2.5;
 /// The made-up time between two points of a stroke, in milliseconds.
 const POINT_MS: i64 = 10;
 /// The made-up pause between two strokes, in milliseconds.
@@ -40,13 +48,15 @@ pub(crate) struct Fragment {
     pub strokes: Vec<Vec<(f64, f64, i64)>>,
 }
 
-/// The pen strokes of the document, in the order they were drawn.
+/// The pen strokes of the document, in the order they were drawn; highlighter strokes
+/// aren't writing.
 pub(crate) fn ink_strokes(engine: &Engine) -> Vec<InkStroke> {
     let everything = Aabb::new(Vector2::splat(-1e9), Vector2::splat(1e9));
     engine
         .extract_content_in_bounds(everything)
         .strokes
         .iter()
+        .filter(|layered| layered.layer != StrokeLayer::Highlighter)
         .filter_map(|layered| match layered.stroke.as_ref() {
             Stroke::BrushStroke(brush) => {
                 let path = &brush.path;
@@ -68,6 +78,19 @@ pub(crate) fn ink_strokes(engine: &Engine) -> Vec<InkStroke> {
 
 /// The fragments of `strokes`, line by line from the top and left to right in each line.
 pub(crate) fn fragments(strokes: &[InkStroke]) -> Vec<Fragment> {
+    // Points that aren't numbers would poison the bounds and the JSON.
+    let strokes: Vec<InkStroke> = strokes
+        .iter()
+        .map(|stroke| InkStroke {
+            points: stroke
+                .points
+                .iter()
+                .copied()
+                .filter(|(x, y)| x.is_finite() && y.is_finite())
+                .collect(),
+        })
+        .collect();
+    let strokes = strokes.as_slice();
     let boxes: Vec<(usize, [f64; 4])> = strokes
         .iter()
         .enumerate()
@@ -101,28 +124,69 @@ fn median_height(boxes: &[(usize, [f64; 4])]) -> f64 {
 }
 
 /// The strokes of each line, as positions in `boxes`, lines from the top.
+///
+/// A stroke belongs to the line whose vertical center is nearest to its own, if near
+/// enough: the extent of a line never grows, so descenders of one line and ascenders of the
+/// next don't join them. Marks (dots, accents) go to the nearest line afterwards, and very
+/// tall strokes are lines of their own.
 fn lines(boxes: &[(usize, [f64; 4])], height: f64) -> Vec<Vec<usize>> {
+    let center = |position: usize| (boxes[position].1[1] + boxes[position].1[3]) / 2.0;
+    let size = |position: usize| {
+        let [left, top, right, bottom] = boxes[position].1;
+        (right - left, bottom - top)
+    };
     let mut order: Vec<usize> = (0..boxes.len()).collect();
-    order.sort_by(|&a, &b| boxes[a].1[1].total_cmp(&boxes[b].1[1]));
-    // Each line with its vertical extent so far.
-    let mut lines: Vec<(f64, f64, Vec<usize>)> = Vec::new();
+    order.sort_by(|&a, &b| center(a).total_cmp(&center(b)));
+    // Each line as the sum of its members' centers, and its members.
+    let mut lines: Vec<(f64, Vec<usize>)> = Vec::new();
+    let mut marks = Vec::new();
     for position in order {
-        let [_, top, _, bottom] = boxes[position].1;
-        let near = lines.iter_mut().rev().find(|(line_top, line_bottom, _)| {
-            let gap = (top - *line_bottom).max(*line_top - bottom).max(0.0);
-            gap <= LINE_GAP * height
-        });
-        match near {
-            Some((line_top, line_bottom, members)) => {
-                *line_top = line_top.min(top);
-                *line_bottom = line_bottom.max(bottom);
-                members.push(position);
-            }
-            None => lines.push((top, bottom, vec![position])),
+        let (width, tall) = size(position);
+        if tall > TALL * height {
+            lines.push((center(position), vec![position]));
+            continue;
         }
+        if tall < MARK_SIZE * height && width < MARK_SIZE * height {
+            marks.push(position);
+            continue;
+        }
+        join_nearest(&mut lines, position, center(position), LINE_BAND * height, &size, height);
     }
-    lines.sort_by(|a, b| a.0.total_cmp(&b.0));
-    lines.into_iter().map(|(_, _, members)| members).collect()
+    for position in marks {
+        join_nearest(&mut lines, position, center(position), MARK_REACH * height, &size, height);
+    }
+    let top =
+        |members: &[usize]| members.iter().map(|&p| boxes[p].1[1]).fold(f64::INFINITY, f64::min);
+    lines.sort_by(|a, b| top(&a.1).total_cmp(&top(&b.1)));
+    lines.into_iter().map(|(_, members)| members).collect()
+}
+
+/// Adds the stroke at `position`, centered at `center`, to the line whose center is nearest,
+/// if within `reach`, or else to a new line. Tall lines (a single tall stroke) take nothing.
+fn join_nearest(
+    lines: &mut Vec<(f64, Vec<usize>)>,
+    position: usize,
+    center: f64,
+    reach: f64,
+    size: &impl Fn(usize) -> (f64, f64),
+    height: f64,
+) {
+    let nearest = lines
+        .iter_mut()
+        .filter(|(_, members)| !(members.len() == 1 && size(members[0]).1 > TALL * height))
+        .map(|line| {
+            let line_center = line.0 / line.1.len() as f64;
+            ((center - line_center).abs(), line)
+        })
+        .filter(|(distance, _)| *distance <= reach)
+        .min_by(|a, b| a.0.total_cmp(&b.0));
+    match nearest {
+        Some((_, (sum, members))) => {
+            *sum += center;
+            members.push(position);
+        }
+        None => lines.push((center, vec![position])),
+    }
 }
 
 /// The strokes of a line split where the gap is wide, each group in writing order.
