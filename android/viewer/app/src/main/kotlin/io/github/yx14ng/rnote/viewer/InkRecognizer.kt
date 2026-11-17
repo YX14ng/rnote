@@ -33,6 +33,10 @@ internal class InkFragment(
     val hash: String,
     val rect: DoubleArray,
     val strokes: List<List<DoubleArray>>,
+    /** The reading of the fragment before it on its line, if that one was read. */
+    val before: String? = null,
+    /** The hash of the fragment before it on its line, if any. */
+    val previous: String? = null,
 )
 
 /**

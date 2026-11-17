@@ -32,7 +32,7 @@ fn unchanged_fragments_keep_their_candidates() {
     let todo = pending(&mut index, &current);
 
     assert_eq!(todo.len(), 1);
-    assert_eq!(todo[0].hash, current[1].hash);
+    assert_eq!(todo[0].fragment.hash, current[1].hash);
     assert_eq!(index.entries[&current[0].hash].candidates, ["hola"]);
 }
 
@@ -148,4 +148,25 @@ fn an_index_that_didnt_change_isnt_written() {
 
     std::fs::set_permissions(dir.path(), std::fs::Permissions::from_mode(0o755)).unwrap();
     result.unwrap();
+}
+
+#[test]
+fn pending_fragments_carry_what_is_written_before_them_on_their_line() {
+    let mut strokes: Vec<InkStroke> = [0.0, 200.0, 400.0].map(word).into();
+    // A line below.
+    strokes.push(InkStroke { points: vec![(0.0, 100.0), (20.0, 120.0), (40.0, 100.0)] });
+    let current = fragments(&strokes);
+    let mut index = InkIndex::empty("es");
+    index.entries.insert(current[0].hash.clone(), entry("la"));
+
+    let todo = pending(&mut index, &current);
+
+    assert_eq!(todo.len(), 3);
+    assert_eq!(todo[0].before.as_deref(), Some("la"));
+    assert_eq!(todo[0].previous.as_deref(), Some(current[0].hash.as_str()));
+    // Its previous one isn't read yet: the app knows it once it reads it.
+    assert_eq!(todo[1].before, None);
+    assert_eq!(todo[1].previous.as_deref(), Some(current[1].hash.as_str()));
+    // First on its line.
+    assert_eq!((todo[2].before.as_deref(), todo[2].previous.as_deref()), (None, None));
 }

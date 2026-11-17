@@ -55,6 +55,8 @@ internal class InkIndexer(
     var unread: Int = 0
         private set
     private var runUnread = 0
+    // The best reading of each fragment read in this run, for the context of the next one.
+    private val runReadings = HashMap<String, String>()
 
     // Readings not written to the index yet: it's rewritten whole, so they go in batches.
     private var batch: Batch? = null
@@ -159,6 +161,7 @@ internal class InkIndexer(
         if (modelState != ModelState.Ready || !schedule.due(SystemClock.uptimeMillis())) return
         schedule.started()
         runUnread = 0
+        runReadings.clear()
         val run = generation
         val tag = language.tag
         // Read and parsed on the renderer's thread: a big notebook has a lot of points.
@@ -184,10 +187,12 @@ internal class InkIndexer(
         val fragment = fragments[at]
         val file = indexFile ?: return
         val tag = language.tag
-        recognizer.recognize(fragment, language, before = "") { result ->
+        val before = fragment.before ?: fragment.previous?.let(runReadings::get)
+        recognizer.recognize(fragment, language, preContext(before)) { result ->
             if (run != generation) return@recognize
             result
                 .onSuccess { candidates ->
+                    candidates.firstOrNull()?.let { runReadings[fragment.hash] = it }
                     val reading = JSONObject()
                         .put("hash", fragment.hash)
                         .put("rect", JSONArray(fragment.rect.toList()))
@@ -230,6 +235,8 @@ internal class InkIndexer(
         }
     }
 
+    private fun JSONObject.optStringOrNull(key: String): String? = if (isNull(key)) null else getString(key)
+
     private class Batch(val file: File, val tag: String) {
         val items = JSONArray()
     }
@@ -248,7 +255,7 @@ internal class InkIndexer(
                     }
                 }
             }
-            InkFragment(item.getString("hash"), rect, strokes)
+            InkFragment(item.getString("hash"), rect, strokes, item.optStringOrNull("before"), item.optStringOrNull("previous"))
         }
     }
 
@@ -258,6 +265,12 @@ internal class InkIndexer(
         private const val KEY_LANGUAGE = "language"
         private const val TICK_SLACK_MS = 50L
         private const val BATCH_SIZE = 25
+        // ML Kit looks at up to 20 characters before the writing.
+        private const val PRE_CONTEXT_CHARS = 20
+
+        /** What goes before a fragment for the recognizer: the end of [before] and a space. */
+        fun preContext(before: String?): String =
+            if (before.isNullOrBlank()) "" else before.takeLast(PRE_CONTEXT_CHARS - 1) + " "
 
         /** The index file of the notebook known as [key] (its library path or its URI). */
         fun indexFileFor(context: Context, key: String): File =

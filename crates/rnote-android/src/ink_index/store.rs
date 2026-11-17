@@ -138,14 +138,40 @@ pub(crate) fn add_readings(
     index.save(path)
 }
 
-/// Drops from `index` the fragments that aren't in `fragments` anymore, and returns the
-/// fragments it has no reading of.
-pub(crate) fn pending(index: &mut InkIndex, fragments: &[Fragment]) -> Vec<Fragment> {
+/// A fragment the recognizer still has to read, and what is written before it on its line,
+/// which helps the recognizer.
+#[derive(Debug, Clone, PartialEq)]
+pub(crate) struct Pending {
+    pub fragment: Fragment,
+    /// The best reading of the fragment before it on its line, if it was read.
+    pub before: Option<String>,
+    /// The hash of the fragment before it on its line, if any: when that one isn't read
+    /// yet, the app reads it first and knows its reading.
+    pub previous: Option<String>,
+}
+
+/// Drops from `index` the fragments that aren't in `fragments` anymore (which are line by
+/// line, as [`super::fragments::fragments`] gives them), and returns the fragments it has
+/// no reading of.
+pub(crate) fn pending(index: &mut InkIndex, fragments: &[Fragment]) -> Vec<Pending> {
     let live: BTreeSet<&str> = fragments.iter().map(|fragment| fragment.hash.as_str()).collect();
     index.entries.retain(|hash, _| live.contains(hash.as_str()));
-    fragments
-        .iter()
-        .filter(|fragment| !index.entries.contains_key(&fragment.hash))
-        .cloned()
-        .collect()
+    let mut todo = Vec::new();
+    for (at, fragment) in fragments.iter().enumerate() {
+        if index.entries.contains_key(&fragment.hash) {
+            continue;
+        }
+        let previous = at
+            .checked_sub(1)
+            .map(|before| &fragments[before])
+            .filter(|before| before.line == fragment.line);
+        todo.push(Pending {
+            fragment: fragment.clone(),
+            before: previous
+                .and_then(|before| index.entries.get(&before.hash))
+                .and_then(|entry| entry.candidates.first().cloned()),
+            previous: previous.map(|before| before.hash.clone()),
+        });
+    }
+    todo
 }

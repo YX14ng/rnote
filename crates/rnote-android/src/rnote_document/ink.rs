@@ -24,7 +24,8 @@ impl RnoteDocument {
     }
 
     /// The fragments of the writing the index at `index_path` (in `language`) has no
-    /// reading of, as JSON: `[{"hash", "rect": [4], "strokes": [[[x, y, t], ...], ...]}]`.
+    /// reading of, as JSON: `[{"hash", "rect": [4], "strokes": [[[x, y, t], ...], ...],
+    /// "before", "previous"}]`, the last two as [`store::Pending`] has them (or null).
     /// Readings of fragments that are gone are dropped from the index.
     pub(crate) fn ink_pending_json(
         &self,
@@ -36,7 +37,7 @@ impl RnoteDocument {
             store::with_index(index_path, language, |index| store::pending(index, &current))?;
         let list: Vec<_> = todo
             .iter()
-            .map(|fragment| {
+            .map(|store::Pending { fragment, before, previous }| {
                 let strokes: Vec<Vec<[f64; 3]>> = fragment
                     .strokes
                     .iter()
@@ -48,7 +49,13 @@ impl RnoteDocument {
                             .collect()
                     })
                     .collect();
-                json!({ "hash": fragment.hash, "rect": fragment.rect, "strokes": strokes })
+                json!({
+                    "hash": fragment.hash,
+                    "rect": fragment.rect,
+                    "strokes": strokes,
+                    "before": before,
+                    "previous": previous,
+                })
             })
             .collect();
         Ok(serde_json::to_string(&list)?)
