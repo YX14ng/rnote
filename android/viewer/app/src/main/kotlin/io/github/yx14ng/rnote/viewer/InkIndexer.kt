@@ -140,15 +140,25 @@ internal class InkIndexer(
 
     private fun watchNetwork() {
         if (networkCallback != null) return
+        // Android tells about a network right away, even one this app may not use (data
+        // saver, a firewall): only a connection the app has counts, or it would ask again
+        // and again.
         val callback = object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
-                main.post {
-                    unwatchNetwork()
-                    if (indexFile != null && modelState == ModelState.Offline) prepareModel()
-                }
+                main.post(::retryIfOnline)
+            }
+
+            override fun onBlockedStatusChanged(network: Network, blocked: Boolean) {
+                if (!blocked) main.post(::retryIfOnline)
             }
         }
         if (runCatching { connectivity.registerDefaultNetworkCallback(callback) }.isSuccess) networkCallback = callback
+    }
+
+    private fun retryIfOnline() {
+        if (networkCallback == null || connectivity.activeNetwork == null) return
+        unwatchNetwork()
+        if (indexFile != null && modelState == ModelState.Offline) prepareModel()
     }
 
     private fun unwatchNetwork() {
