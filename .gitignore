@@ -11,3 +11,4 @@
 *.mo
 .toggletasks.json
 *.flatpak
+/gdrive-client.env

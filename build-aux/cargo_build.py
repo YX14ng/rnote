@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import os
 import subprocess
 from subprocess import CalledProcessError
 import sys
@@ -25,6 +26,16 @@ print(
 """,
     file=sys.stderr,
 )
+
+# The fork's Flatpak build hands the Google Drive OAuth client in as this file instead of
+# its environment, which flatpak-builder would copy into the app's manifest.json.
+client_file = os.path.join(project_src_root, "gdrive-client.env")
+if os.path.isfile(client_file):
+    with open(client_file) as client:
+        for line in client:
+            key, _, value = line.rstrip("\n").partition("=")
+            if key in ("RNOTE_GDRIVE_CLIENT_ID", "RNOTE_GDRIVE_CLIENT_SECRET"):
+                os.environ[key] = value
 
 cargo_call = f"env {cargo_env} {cargo_cmd} build {cargo_options}"
 cp_call = f"cp {bin_output} {output_file}"
