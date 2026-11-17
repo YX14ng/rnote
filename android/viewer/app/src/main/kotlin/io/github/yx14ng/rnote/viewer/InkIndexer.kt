@@ -50,7 +50,12 @@ internal class InkIndexer(
     var pending: Int = 0
         private set
 
-    /** Called whenever [modelState], [pending] or [language] change. */
+    /** How many fragments the last run couldn't read; they are tried again later. */
+    var unread: Int = 0
+        private set
+    private var runUnread = 0
+
+    /** Called whenever [modelState], [pending], [unread] or [language] change. */
     var onChanged: (() -> Unit)? = null
 
     /** Starts reading the notebook whose index is [file]. */
@@ -110,6 +115,7 @@ internal class InkIndexer(
         main.removeCallbacksAndMessages(null)
         unwatchNetwork()
         pending = 0
+        unread = 0
     }
 
     private fun prepareModel() {
@@ -146,6 +152,7 @@ internal class InkIndexer(
         val file = indexFile ?: return
         if (modelState != ModelState.Ready || !schedule.due(SystemClock.uptimeMillis())) return
         schedule.started()
+        runUnread = 0
         val run = generation
         val tag = language.tag
         // Read and parsed on the renderer's thread: a big notebook has a lot of points.
@@ -181,15 +188,22 @@ internal class InkIndexer(
                             .onFailure { error -> Log.w(TAG, "Keeping a reading failed", error) }
                     }
                 }
-                .onFailure { error -> Log.w(TAG, "Reading a fragment failed", error) }
+                .onFailure { error ->
+                    Log.w(TAG, "Reading a fragment failed", error)
+                    runUnread++
+                }
             readNext(fragments, at + 1, run)
         }
     }
 
     private fun finishRun() {
-        schedule.finished()
-        // Edits during the run asked for another one.
-        tick()
+        val now = SystemClock.uptimeMillis()
+        unread = runUnread
+        schedule.finished(now, unread)
+        onChanged?.invoke()
+        // Edits during the run asked for another one; fragments it couldn't read, for a
+        // later one.
+        schedule.dueIn(now)?.let { wait -> main.postDelayed(::tick, wait + TICK_SLACK_MS) }
     }
 
     private fun parse(json: String): List<InkFragment> {

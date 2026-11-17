@@ -5,6 +5,7 @@ import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.text.Editable
+import android.text.TextUtils
 import android.text.TextWatcher
 import android.view.Gravity
 import android.view.inputmethod.EditorInfo
@@ -42,6 +43,9 @@ internal class SearchBar(
         textSize = 13f
         setTextColor(Graphite.TEXT_SECONDARY)
         maxLines = 1
+        // A long status on a phone would squeeze the field to nothing.
+        ellipsize = TextUtils.TruncateAt.END
+        maxWidth = (resources.displayMetrics.widthPixels * STATUS_MAX_WIDTH).toInt()
     }
     private val chip = TextView(context).apply {
         textSize = 14f
@@ -123,6 +127,8 @@ internal class SearchBar(
 
     private companion object {
         const val TYPING_PAUSE_MS = 300L
+        // The share of the screen width the status may take.
+        const val STATUS_MAX_WIDTH = 0.35f
         const val BUTTON_DP = 44f
         const val CHIP_WIDTH_DP = 52f
         const val CHIP_HEIGHT_DP = 32f

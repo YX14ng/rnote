@@ -270,6 +270,10 @@
         <item quantity="one">Reading the writing: %d left</item>
         <item quantity="other">Reading the writing: %d left</item>
     </plurals>
+    <plurals name="ink_unread">
+        <item quantity="one">%d word couldn\'t be read: trying again soon</item>
+        <item quantity="other">%d words couldn\'t be read: trying again soon</item>
+    </plurals>
     <string name="ink_failed">Handwriting recognition failed: %s</string>
     <string name="library_no_cover">No cover</string>
     <!-- Importing a PDF, an image or a photo as a new notebook -->

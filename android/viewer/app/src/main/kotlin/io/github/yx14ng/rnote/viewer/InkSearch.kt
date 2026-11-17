@@ -133,7 +133,11 @@ internal class InkSearch(
             ModelState.Downloading -> context.getString(R.string.ink_downloading, language)
             ModelState.Offline -> context.getString(R.string.ink_offline)
             is ModelState.Failed -> context.getString(R.string.ink_failed, state.message)
-            ModelState.Ready -> if (ink.pending > 0) context.resources.getQuantityString(R.plurals.ink_pending, ink.pending, ink.pending) else null
+            ModelState.Ready -> when {
+                ink.pending > 0 -> context.resources.getQuantityString(R.plurals.ink_pending, ink.pending, ink.pending)
+                ink.unread > 0 -> context.resources.getQuantityString(R.plurals.ink_unread, ink.unread, ink.unread)
+                else -> null
+            }
         }
         bar.setStatus(listOfNotNull(count, reading).joinToString(" · "))
     }
