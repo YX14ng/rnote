@@ -22,6 +22,7 @@ class MainActivity : Activity() {
     private lateinit var clipboard: ClipboardActions
     private lateinit var toolRow: ToolRow
     private lateinit var topBar: EditorTopBar
+    private lateinit var ink: InkIndexer
     private lateinit var controls: EditorControls
     private lateinit var selectionBar: SelectionBar
     private var shownZoomPercent = 0
@@ -49,6 +50,7 @@ class MainActivity : Activity() {
             Toast.makeText(this, R.string.sync_saved_as_copy, Toast.LENGTH_LONG).show()
             refreshBar()
         }
+        ink = InkIndexer(this, InkRecognizer(this), renderer)
         canvasView = NoteCanvasView(this).apply {
             renderer = this@MainActivity.renderer
             onError = ::showError
@@ -302,6 +304,7 @@ class MainActivity : Activity() {
     }
 
     override fun onDestroy() {
+        ink.close()
         renderer.close()
         super.onDestroy()
     }
@@ -450,6 +453,8 @@ class MainActivity : Activity() {
         canvasView.showDocument(info.bounds, info.settings, info.startAt)
         controls.applyToDocument()
         updateEditState(info.editState)
+        // A notebook with no file yet has no index: its text boxes are searched still.
+        ink.open((libraryPath ?: saver.currentUri?.toString())?.let { InkIndexer.indexFileFor(this, it) })
     }
 
     /** Reads the document settings back after the document dialog changed them. */
@@ -530,6 +535,7 @@ class MainActivity : Activity() {
     }
 
     private fun updateEditState(state: EditState) {
+        if (documentOpen && state.modified) ink.onEdited()
         editState = state
         refreshSelectionBar()
         refreshBar()
