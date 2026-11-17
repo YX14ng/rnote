@@ -262,7 +262,11 @@
     <string name="pull_to_add_page">Seguí arrastrando para agregar una hoja</string>
     <string name="ink_language_es">Español</string>
     <string name="ink_language_en">Inglés</string>
-    <string name="ink_language_zh">Chino</string>
+    <string name="ink_language_zh">Chino simplificado</string>
+    <string name="ink_language_zh_hant">Chino tradicional</string>
+    <string name="ink_language_ja">Japonés</string>
+    <string name="ink_language_ko">Coreano</string>
+    <string name="ink_language_ru">Ruso</string>
     <string name="action_search">Buscar</string>
     <string name="search_hint">Buscar en el cuaderno</string>
     <string name="search_close">Cerrar la búsqueda</string>

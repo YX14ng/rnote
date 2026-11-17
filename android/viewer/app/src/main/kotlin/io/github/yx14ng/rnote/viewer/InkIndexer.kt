@@ -198,7 +198,7 @@ internal class InkIndexer(
         val file = indexFile ?: return
         val tag = language.tag
         val before = fragment.before ?: fragment.previous?.let(runReadings::get)
-        recognizer.recognize(fragment, language, preContext(before)) { result ->
+        recognizer.recognize(fragment, language, preContext(before, language)) { result ->
             if (run != generation) return@recognize
             result
                 .onSuccess { candidates ->
@@ -278,9 +278,15 @@ internal class InkIndexer(
         // ML Kit looks at up to 20 characters before the writing.
         private const val PRE_CONTEXT_CHARS = 20
 
-        /** What goes before a fragment for the recognizer: the end of [before] and a space. */
-        fun preContext(before: String?): String =
-            if (before.isNullOrBlank()) "" else before.takeLast(PRE_CONTEXT_CHARS - 1) + " "
+        /**
+         * What goes before a fragment for the recognizer: the end of [before], and a space in
+         * a [language] that writes its words apart.
+         */
+        fun preContext(before: String?, language: InkLanguage): String = when {
+            before.isNullOrBlank() -> ""
+            language.spaced -> before.takeLast(PRE_CONTEXT_CHARS - 1) + " "
+            else -> before.takeLast(PRE_CONTEXT_CHARS)
+        }
 
         /** The index file of the notebook known as [key] (its library path or its URI). */
         fun indexFileFor(context: Context, key: String): File =

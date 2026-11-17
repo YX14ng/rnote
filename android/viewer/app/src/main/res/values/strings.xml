@@ -258,7 +258,11 @@
     <string name="pull_to_add_page">Keep pulling to add a page</string>
     <string name="ink_language_es">Spanish</string>
     <string name="ink_language_en">English</string>
-    <string name="ink_language_zh">Chinese</string>
+    <string name="ink_language_zh">Chinese (Simplified)</string>
+    <string name="ink_language_zh_hant">Chinese (Traditional)</string>
+    <string name="ink_language_ja">Japanese</string>
+    <string name="ink_language_ko">Korean</string>
+    <string name="ink_language_ru">Russian</string>
     <string name="action_search">Search</string>
     <string name="search_hint">Search this notebook</string>
     <string name="search_close">Close search</string>
