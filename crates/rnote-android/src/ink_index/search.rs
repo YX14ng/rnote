@@ -125,7 +125,26 @@ pub(crate) fn search(
 /// reading, as the positions of those fragments in `fragments`: a phrase across words, or
 /// a word the grouping split in two (its pieces read without the space between them).
 fn across_fragments(index: &InkIndex, fragments: &[Fragment], query: &str) -> Vec<Vec<usize>> {
-    let between = if query.contains(' ') { " " } else { "" };
+    if !query.contains(' ') {
+        return read_together(index, fragments, query, "");
+    }
+    // A phrase, also without its spaces: one of its words may be split in pieces.
+    let mut hits = read_together(index, fragments, query, " ");
+    for covered in read_together(index, fragments, &query.replace(' ', ""), "") {
+        if !hits.contains(&covered) {
+            hits.push(covered);
+        }
+    }
+    hits
+}
+
+/// [`across_fragments`], with the readings of a line put together with `between` them.
+fn read_together(
+    index: &InkIndex,
+    fragments: &[Fragment],
+    query: &str,
+    between: &str,
+) -> Vec<Vec<usize>> {
     let mut hits = Vec::new();
     let mut start = 0;
     while start < fragments.len() {

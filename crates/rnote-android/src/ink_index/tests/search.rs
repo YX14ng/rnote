@@ -176,3 +176,15 @@ fn a_typed_accent_written_apart_is_part_of_its_letter() {
 
     assert!(matches!(&hits[..], [Hit::Typed { range, .. }] if *range == (0..6)), "{hits:?}");
 }
+
+#[test]
+fn a_phrase_with_a_split_word_is_found() {
+    let (index, found) = indexed(
+        &[word(0.0, 0.0), word(100.0, 0.0), word(200.0, 0.0), word(300.0, 0.0)],
+        &[&["álgebra"], &["l"], &["i"], &["neal"]],
+    );
+
+    let hits = ink_rects(&search(&index, &found, &[], "algebra lineal"));
+
+    assert_eq!(hits, [found.iter().map(|f| f.rect).collect::<Vec<_>>()]);
+}
