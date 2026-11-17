@@ -83,8 +83,20 @@ pub(crate) fn with_index<T>(
     Ok(result)
 }
 
+/// What the recognizer read in one fragment, as the app hands it over.
+#[derive(Debug, Clone, PartialEq, Deserialize)]
+pub(crate) struct Reading {
+    /// The fragment's hash.
+    pub hash: String,
+    /// Its bounds: left, top, right, bottom.
+    pub rect: [f64; 4],
+    /// The best readings, best first.
+    pub candidates: Vec<String>,
+}
+
 /// Keeps what the recognizer read in the fragment `hash` (its best `candidates`, up to
 /// three) in the index at `path`, if the index is in `language`, the one it was read in.
+#[cfg(test)]
 pub(crate) fn add_reading(
     path: &Path,
     language: &str,
@@ -92,7 +104,19 @@ pub(crate) fn add_reading(
     rect: [f64; 4],
     candidates: &[String],
 ) -> anyhow::Result<()> {
-    let candidates = candidates.iter().take(3).cloned().collect();
+    let reading = Reading { hash: hash.to_owned(), rect, candidates: candidates.to_vec() };
+    add_readings(path, language, &[reading])
+}
+
+/// Keeps what the recognizer read in several fragments (their best candidates, up to three)
+/// in the index at `path`, if the index is in `language`, the one they were read in. The
+/// index is written once: it is rewritten whole, and a long notebook has thousands of
+/// fragments.
+pub(crate) fn add_readings(
+    path: &Path,
+    language: &str,
+    readings: &[Reading],
+) -> anyhow::Result<()> {
     let _guard = INDEX_LOCK.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
     let mut index = match read(path) {
         // Asked for before the language changed: it would empty the index in the new one.
@@ -100,7 +124,10 @@ pub(crate) fn add_reading(
         Some(index) => index,
         None => InkIndex::empty(language),
     };
-    index.entries.insert(hash.to_owned(), Entry { rect, candidates });
+    for reading in readings {
+        let candidates = reading.candidates.iter().take(3).cloned().collect();
+        index.entries.insert(reading.hash.clone(), Entry { rect: reading.rect, candidates });
+    }
     index.save(path)
 }
 

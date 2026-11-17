@@ -115,3 +115,22 @@ fn a_late_reading_in_the_old_language_is_dropped() {
     assert_eq!(index.entries.len(), 1);
     assert_eq!(index.entries["a"].candidates, ["hello"]);
 }
+
+#[test]
+fn a_batch_of_readings_is_kept_at_once() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("a.json");
+    // As the app sends them.
+    let readings: Vec<crate::ink_index::store::Reading> = serde_json::from_str(
+        r#"[{"hash":"a","rect":[1,2,3,4],"candidates":["uno","una","uña","ufa"]},
+            {"hash":"b","rect":[0,0,0,0],"candidates":["dos"]}]"#,
+    )
+    .unwrap();
+
+    crate::ink_index::store::add_readings(&path, "es", &readings).unwrap();
+
+    let index = InkIndex::load(&path, "es");
+    assert_eq!(index.entries.len(), 2);
+    assert_eq!(index.entries["a"].rect, [1.0, 2.0, 3.0, 4.0]);
+    assert_eq!(index.entries["a"].candidates, ["uno", "una", "uña"]);
+}

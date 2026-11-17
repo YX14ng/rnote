@@ -8,6 +8,7 @@ import android.os.Looper
 import android.os.SystemClock
 import android.util.Log
 import org.json.JSONArray
+import org.json.JSONObject
 import java.io.File
 import java.util.concurrent.Executors
 
@@ -54,6 +55,9 @@ internal class InkIndexer(
     var unread: Int = 0
         private set
     private var runUnread = 0
+
+    // Readings not written to the index yet: it's rewritten whole, so they go in batches.
+    private var batch: Batch? = null
 
     /** Called whenever [modelState], [pending], [unread] or [language] change. */
     var onChanged: (() -> Unit)? = null
@@ -114,6 +118,8 @@ internal class InkIndexer(
         schedule.close()
         main.removeCallbacksAndMessages(null)
         unwatchNetwork()
+        // Still the readings of that notebook (the index drops them if its language changed).
+        flush()
         pending = 0
         unread = 0
     }
@@ -162,19 +168,19 @@ internal class InkIndexer(
                 .onSuccess { fragments -> readNext(fragments, 0, run) }
                 .onFailure { error ->
                     Log.w(TAG, "Listing the writing to read failed", error)
-                    finishRun()
+                    finishRun(run)
                 }
         }
     }
 
     private fun readNext(fragments: List<InkFragment>, at: Int, run: Int) {
         if (run != generation) return
-        pending = fragments.size - at
-        onChanged?.invoke()
         if (at == fragments.size) {
-            finishRun()
+            finishRun(run)
             return
         }
+        pending = fragments.size - at
+        onChanged?.invoke()
         val fragment = fragments[at]
         val file = indexFile ?: return
         val tag = language.tag
@@ -182,11 +188,13 @@ internal class InkIndexer(
             if (run != generation) return@recognize
             result
                 .onSuccess { candidates ->
-                    val json = JSONArray(candidates).toString()
-                    writer.execute {
-                        runCatching { NativeBridge.inkAdd(file.path, tag, fragment.hash, fragment.rect, json) }
-                            .onFailure { error -> Log.w(TAG, "Keeping a reading failed", error) }
-                    }
+                    val reading = JSONObject()
+                        .put("hash", fragment.hash)
+                        .put("rect", JSONArray(fragment.rect.toList()))
+                        .put("candidates", JSONArray(candidates))
+                    val current = batch ?: Batch(file, tag).also { batch = it }
+                    current.items.put(reading)
+                    if (current.items.length() >= BATCH_SIZE) flush()
                 }
                 .onFailure { error ->
                     Log.w(TAG, "Reading a fragment failed", error)
@@ -196,14 +204,34 @@ internal class InkIndexer(
         }
     }
 
-    private fun finishRun() {
+    private fun finishRun(run: Int) {
         val now = SystemClock.uptimeMillis()
+        pending = 0
         unread = runUnread
         schedule.finished(now, unread)
-        onChanged?.invoke()
+        // Told once the readings are in the index, so a search that follows finds them.
+        flush { if (run == generation) onChanged?.invoke() }
         // Edits during the run asked for another one; fragments it couldn't read, for a
         // later one.
         schedule.dueIn(now)?.let { wait -> main.postDelayed(::tick, wait + TICK_SLACK_MS) }
+    }
+
+    /** Writes the batch to the index, then calls [then] on the main thread. */
+    private fun flush(then: (() -> Unit)? = null) {
+        val readings = batch
+        batch = null
+        if (readings == null && then == null) return
+        writer.execute {
+            if (readings != null) {
+                runCatching { NativeBridge.inkAddAll(readings.file.path, readings.tag, readings.items.toString()) }
+                    .onFailure { error -> Log.w(TAG, "Keeping the readings failed", error) }
+            }
+            if (then != null) main.post(then)
+        }
+    }
+
+    private class Batch(val file: File, val tag: String) {
+        val items = JSONArray()
     }
 
     private fun parse(json: String): List<InkFragment> {
@@ -229,6 +257,7 @@ internal class InkIndexer(
         private const val PREFERENCES = "ink"
         private const val KEY_LANGUAGE = "language"
         private const val TICK_SLACK_MS = 50L
+        private const val BATCH_SIZE = 25
 
         /** The index file of the notebook known as [key] (its library path or its URI). */
         fun indexFileFor(context: Context, key: String): File =

@@ -62,7 +62,7 @@ internal object NativeBridge {
 
     // Handwriting search: the index is a file per notebook in the app's cache.
     @JvmStatic external fun inkPending(handle: Long, indexPath: String, language: String): String
-    @JvmStatic external fun inkAdd(indexPath: String, language: String, hash: String, rect: DoubleArray, candidatesJson: String)
+    @JvmStatic external fun inkAddAll(indexPath: String, language: String, readingsJson: String)
     @JvmStatic external fun inkSearch(handle: Long, indexPath: String, query: String): String
     @JvmStatic external fun inkLanguage(indexPath: String, fallback: String): String
 

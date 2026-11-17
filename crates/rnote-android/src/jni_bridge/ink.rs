@@ -5,7 +5,7 @@ use std::path::Path;
 
 use jni::EnvUnowned;
 use jni::errors::ThrowRuntimeExAndDefault;
-use jni::objects::{JClass, JDoubleArray, JObject, JString};
+use jni::objects::{JClass, JObject, JString};
 use jni::sys::jlong;
 
 use super::common::{BridgeError, document_from_handle};
@@ -33,29 +33,25 @@ pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_inkPendin
         .resolve::<ThrowRuntimeExAndDefault>()
 }
 
-/// `static native void inkAdd(String indexPath, String language, String hash, double[]
-/// rect, String candidatesJson)`: keeps what the recognizer read in a fragment.
+/// `static native void inkAddAll(String indexPath, String language, String readingsJson)`:
+/// keeps what the recognizer read in several fragments, as JSON
+/// `[{"hash": ..., "rect": [left, top, right, bottom], "candidates": [...]}]`.
 #[unsafe(no_mangle)]
-pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_inkAdd<'caller>(
+pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_inkAddAll<'caller>(
     mut unowned_env: EnvUnowned<'caller>,
     _class: JClass<'caller>,
     index_path: JString<'caller>,
     language: JString<'caller>,
-    hash: JString<'caller>,
-    rect: JDoubleArray<'caller>,
-    candidates_json: JString<'caller>,
+    readings_json: JString<'caller>,
 ) {
     unowned_env
         .with_env(|env| -> Result<(), BridgeError> {
             let index_path = index_path.try_to_string(env)?;
             let language = language.try_to_string(env)?;
-            let hash = hash.try_to_string(env)?;
-            let mut values = [0.0; 4];
-            rect.get_region(env, 0, &mut values)?;
-            let candidates: Vec<String> =
-                serde_json::from_str(&candidates_json.try_to_string(env)?)
+            let readings: Vec<store::Reading> =
+                serde_json::from_str(&readings_json.try_to_string(env)?)
                     .map_err(anyhow::Error::from)?;
-            store::add_reading(Path::new(&index_path), &language, &hash, values, &candidates)?;
+            store::add_readings(Path::new(&index_path), &language, &readings)?;
             Ok(())
         })
         .resolve::<ThrowRuntimeExAndDefault>()
