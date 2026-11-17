@@ -119,6 +119,7 @@ pub(super) fn portrait_origin_view(document: &RnoteDocument) -> (Viewport, ViewS
 }
 
 mod documents;
+mod ink;
 mod pens;
 mod rendering;
 mod text;

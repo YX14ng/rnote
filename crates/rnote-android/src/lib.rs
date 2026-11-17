@@ -9,6 +9,9 @@ mod android_color;
 mod document_settings;
 #[cfg(target_os = "android")]
 mod jni_bridge;
+// TEMPORARY until the JNI bridge (stage 6, task 3) uses it on Android too.
+#[allow(dead_code)]
+mod ink_index;
 mod library_bridge;
 // Only the JNI entry points, built for Android, call them outside of tests.
 #[cfg_attr(not(target_os = "android"), allow(dead_code))]
