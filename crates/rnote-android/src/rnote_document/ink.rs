@@ -65,8 +65,7 @@ impl RnoteDocument {
     /// boxes, in reading order, as JSON: `[{"rects": [[left, top, right, bottom], ...]}]`.
     pub(crate) fn ink_search_json(&self, index_path: &Path, query: &str) -> anyhow::Result<String> {
         let current = fragments::fragments(&self.ink_strokes());
-        let index = InkIndex::stored_language(index_path)
-            .map_or_else(|| InkIndex::empty(""), |language| InkIndex::load(index_path, &language));
+        let index = InkIndex::stored(index_path).unwrap_or_else(|| InkIndex::empty(""));
         let texts = self.text_strokes();
         let typed: Vec<TypedText> = texts
             .iter()

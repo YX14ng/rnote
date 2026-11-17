@@ -37,16 +37,28 @@ impl InkIndex {
 
     /// The index at `path` if it was read in `language`; else an empty one in `language`,
     /// so changing the language reads everything again. A missing or unreadable file is
-    /// an empty index too: it is only a cache.
+    /// an empty index too: it is only a cache. ([`with_index`] reads it this way.)
+    #[cfg(test)]
     pub(crate) fn load(path: &Path, language: &str) -> Self {
         read(path)
             .filter(|index| index.language == language)
             .unwrap_or_else(|| Self::empty(language))
     }
 
-    /// The language of the index at `path`, if there is a readable one.
+    /// The index at `path` whatever its language, if there is a readable one.
+    pub(crate) fn stored(path: &Path) -> Option<Self> {
+        read(path)
+    }
+
+    /// The language of the index at `path`, if there is a readable one. Only the language
+    /// is kept: asked for on the main thread, when a notebook opens.
     pub(crate) fn stored_language(path: &Path) -> Option<String> {
-        read(path).map(|index| index.language)
+        #[derive(Deserialize)]
+        struct Language {
+            language: String,
+        }
+        let index: Language = serde_json::from_slice(&fs::read(path).ok()?).ok()?;
+        Some(index.language)
     }
 
     /// Writes the index to `path` at once, through a file beside it.
