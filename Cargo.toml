@@ -99,6 +99,7 @@ tempfile = "3.27"
 thiserror = "2.0"
 tracing = "0.1.44"
 tracing-subscriber = { version = "0.3.23", features = ["env-filter"] }
+unicode-normalization = "0.1"
 unicode-segmentation = "1.13"
 ureq = { version = "3.5.1", default-features = false, features = ["rustls"] }
 url = "2.5"
