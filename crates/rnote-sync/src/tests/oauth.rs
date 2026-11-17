@@ -276,3 +276,29 @@ fn debug_output_hides_the_secrets() {
         assert!(!printed.contains(secret), "{printed}");
     }
 }
+
+#[test]
+fn redirect_ignores_a_request_with_nothing_in_it() {
+    let (listener, port) = listener();
+    let waiting =
+        std::thread::spawn(move || wait_for_redirect(&listener, "s", Duration::from_secs(5)));
+
+    let bare = browse(port, "GET / HTTP/1.1").join().unwrap();
+    browse(port, "GET /?state=s&code=c HTTP/1.1").join().unwrap();
+
+    assert!(bare.starts_with("HTTP/1.1 400"), "{bare}");
+    assert_eq!(waiting.join().unwrap().unwrap(), "c");
+}
+
+#[test]
+fn the_page_after_a_denial_doesnt_say_done() {
+    let (listener, port) = listener();
+    let browser = browse(port, "GET /?state=s&error=access_denied HTTP/1.1");
+
+    wait_for_redirect(&listener, "s", Duration::from_secs(5)).unwrap_err();
+    let page = browser.join().unwrap();
+
+    assert!(page.starts_with("HTTP/1.1 200"), "{page}");
+    assert!(!page.contains("Listo"), "{page}");
+    assert!(page.contains("Rnote"), "{page}");
+}

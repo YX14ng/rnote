@@ -36,6 +36,10 @@ const READ_TIMEOUT: Duration = Duration::from_secs(5);
 /// What the browser shows once it handed over the answer.
 const DONE_PAGE: &str = "<!doctype html><meta charset=\"utf-8\"><title>Rnote</title>\
 <p>Listo: ya podés volver a Rnote.</p><p>Done: you can go back to Rnote.</p>";
+/// The page the browser shows when the sign-in didn't go through.
+const NOT_DONE_PAGE: &str = "<!doctype html><meta charset=\"utf-8\"><title>Rnote</title>\
+<p>No se inició sesión: volvé a Rnote para intentarlo de nuevo.</p>\
+<p>Not signed in: go back to Rnote to try again.</p>";
 
 /// A "Desktop app" OAuth client of the Google Cloud project.
 #[derive(Clone, PartialEq, Eq)]
@@ -191,17 +195,20 @@ fn answer_browser(
     let value = |key: &str| {
         url.query_pairs().find(|(name, _)| name == key).map(|(_, value)| value.into_owned())
     };
+    // Not Google's answer at all (e.g. the browser asking for the page by itself).
+    if value("code").is_none() && value("error").is_none() {
+        respond(&mut stream, "400 Bad Request", "");
+        return Ok(None);
+    }
     let answer = if value("state").as_deref() != Some(state) {
         Err(OAuthError::StateMismatch)
     } else if value("error").is_some() {
         Err(OAuthError::Denied)
-    } else if let Some(code) = value("code") {
-        Ok(code)
     } else {
-        respond(&mut stream, "400 Bad Request", "");
-        return Ok(None);
+        Ok(value("code").unwrap_or_default())
     };
-    respond(&mut stream, "200 OK", DONE_PAGE);
+    let page = if answer.is_ok() { DONE_PAGE } else { NOT_DONE_PAGE };
+    respond(&mut stream, "200 OK", page);
     Ok(Some(answer))
 }
 
