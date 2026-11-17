@@ -5,6 +5,7 @@
 use std::fmt;
 use std::io::{BufRead, BufReader, ErrorKind, Write};
 use std::net::{TcpListener, TcpStream};
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::{Duration, Instant};
 
 use anyhow::anyhow;
@@ -116,6 +117,9 @@ pub enum OAuthError {
     /// The browser never came back.
     #[error("Signing in took too long")]
     TimedOut,
+    /// The app stopped waiting, e.g. because the browser couldn't be opened.
+    #[error("Signing in was cancelled")]
+    Cancelled,
     /// The access was removed, e.g. from the Google account: sign in again.
     #[error("The access to Google Drive was removed")]
     Revoked,
@@ -139,11 +143,12 @@ impl From<RemoteError> for OAuthError {
 
 /// Waits up to `timeout` for the browser to come back to `listener` from Google, and
 /// returns the code it brings. Requests for anything but `/` (e.g. `/favicon.ico`) get a
-/// 404 and the wait goes on.
+/// 404 and the wait goes on. Setting `cancelled` stops the wait.
 pub fn wait_for_redirect(
     listener: &TcpListener,
     state: &str,
     timeout: Duration,
+    cancelled: &AtomicBool,
 ) -> Result<String, OAuthError> {
     listener.set_nonblocking(true).map_err(|error| anyhow!(error))?;
     let deadline = Instant::now() + timeout;
@@ -155,6 +160,9 @@ pub fn wait_for_redirect(
                 }
             }
             Err(error) if error.kind() == ErrorKind::WouldBlock => {
+                if cancelled.load(Ordering::SeqCst) {
+                    return Err(OAuthError::Cancelled);
+                }
                 if Instant::now() >= deadline {
                     return Err(OAuthError::TimedOut);
                 }

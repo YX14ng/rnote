@@ -13,6 +13,7 @@ use std::cell::RefCell;
 use std::net::TcpListener;
 use std::path::PathBuf;
 use std::rc::Rc;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 
@@ -237,9 +238,13 @@ impl RnSync {
         // Clicked again while the first sign-in waits: its page again, not a second one.
         let started = self.inner.signing_in.borrow_mut().start(url.as_str());
         let page = started.as_deref().unwrap_or(url.as_str());
-        UriLauncher::new(page).launch(Some(window), gio::Cancellable::NONE, |result| {
+        // Without a browser nobody comes back: the wait stops instead of lasting minutes.
+        let cancelled = Arc::new(AtomicBool::new(false));
+        let no_browser = Arc::clone(&cancelled);
+        UriLauncher::new(page).launch(Some(window), gio::Cancellable::NONE, move |result| {
             if let Err(error) = result {
                 error!("Opening Google's sign-in page failed: {error:?}");
+                no_browser.store(true, Ordering::SeqCst);
             }
         });
         if started.is_some() {
@@ -250,7 +255,13 @@ impl RnSync {
         let this = self.clone();
         glib::spawn_future_local(async move {
             let signed_in = gio::spawn_blocking(move || -> Result<(), OAuthError> {
-                let code = oauth::wait_for_redirect(&listener, &state, SIGN_IN_TIMEOUT)?;
+                let code = oauth::wait_for_redirect(&listener, &state, SIGN_IN_TIMEOUT, &cancelled)
+                    .map_err(|error| match error {
+                        OAuthError::Cancelled => {
+                            OAuthError::Failed(anyhow!("The browser couldn't be opened"))
+                        }
+                        other => other,
+                    })?;
                 let tokens = oauth::exchange_code(&client, &code, &pkce, &redirect_uri)?;
                 let refresh_token = tokens
                     .refresh_token

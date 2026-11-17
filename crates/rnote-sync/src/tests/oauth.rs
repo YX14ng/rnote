@@ -2,6 +2,8 @@
 
 use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
+use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::thread::JoinHandle;
 use std::time::{Duration, Instant};
 
@@ -74,7 +76,7 @@ fn redirect_returns_the_code() {
     let (listener, port) = listener();
     let browser = browse(port, "GET /?state=s&code=c%2F1 HTTP/1.1");
 
-    let code = wait_for_redirect(&listener, "s", Duration::from_secs(5));
+    let code = wait_for_redirect(&listener, "s", Duration::from_secs(5), &AtomicBool::new(false));
 
     assert_eq!(code.unwrap(), "c/1");
     assert!(browser.join().unwrap().starts_with("HTTP/1.1 200"));
@@ -83,8 +85,9 @@ fn redirect_returns_the_code() {
 #[test]
 fn redirect_ignores_other_paths() {
     let (listener, port) = listener();
-    let waiting =
-        std::thread::spawn(move || wait_for_redirect(&listener, "s", Duration::from_secs(5)));
+    let waiting = std::thread::spawn(move || {
+        wait_for_redirect(&listener, "s", Duration::from_secs(5), &AtomicBool::new(false))
+    });
 
     let favicon = browse(port, "GET /favicon.ico HTTP/1.1").join().unwrap();
     browse(port, "GET /?state=s&code=c HTTP/1.1").join().unwrap();
@@ -98,7 +101,7 @@ fn redirect_rejects_another_state() {
     let (listener, port) = listener();
     let browser = browse(port, "GET /?state=x&code=c HTTP/1.1");
 
-    let code = wait_for_redirect(&listener, "s", Duration::from_secs(5));
+    let code = wait_for_redirect(&listener, "s", Duration::from_secs(5), &AtomicBool::new(false));
 
     assert!(matches!(code, Err(OAuthError::StateMismatch)), "{code:?}");
     browser.join().unwrap();
@@ -109,7 +112,7 @@ fn redirect_reports_a_denial() {
     let (listener, port) = listener();
     let browser = browse(port, "GET /?state=s&error=access_denied HTTP/1.1");
 
-    let code = wait_for_redirect(&listener, "s", Duration::from_secs(5));
+    let code = wait_for_redirect(&listener, "s", Duration::from_secs(5), &AtomicBool::new(false));
 
     assert!(matches!(code, Err(OAuthError::Denied)), "{code:?}");
     browser.join().unwrap();
@@ -120,7 +123,8 @@ fn redirect_times_out() {
     let (listener, _port) = listener();
     let started = Instant::now();
 
-    let code = wait_for_redirect(&listener, "s", Duration::from_millis(200));
+    let code =
+        wait_for_redirect(&listener, "s", Duration::from_millis(200), &AtomicBool::new(false));
 
     assert!(matches!(code, Err(OAuthError::TimedOut)), "{code:?}");
     assert!(started.elapsed() < Duration::from_secs(2));
@@ -280,8 +284,9 @@ fn debug_output_hides_the_secrets() {
 #[test]
 fn redirect_ignores_a_request_with_nothing_in_it() {
     let (listener, port) = listener();
-    let waiting =
-        std::thread::spawn(move || wait_for_redirect(&listener, "s", Duration::from_secs(5)));
+    let waiting = std::thread::spawn(move || {
+        wait_for_redirect(&listener, "s", Duration::from_secs(5), &AtomicBool::new(false))
+    });
 
     let bare = browse(port, "GET / HTTP/1.1").join().unwrap();
     browse(port, "GET /?state=s&code=c HTTP/1.1").join().unwrap();
@@ -295,10 +300,27 @@ fn the_page_after_a_denial_doesnt_say_done() {
     let (listener, port) = listener();
     let browser = browse(port, "GET /?state=s&error=access_denied HTTP/1.1");
 
-    wait_for_redirect(&listener, "s", Duration::from_secs(5)).unwrap_err();
+    wait_for_redirect(&listener, "s", Duration::from_secs(5), &AtomicBool::new(false)).unwrap_err();
     let page = browser.join().unwrap();
 
     assert!(page.starts_with("HTTP/1.1 200"), "{page}");
     assert!(!page.contains("Listo"), "{page}");
     assert!(page.contains("Rnote"), "{page}");
+}
+
+#[test]
+fn waiting_for_the_redirect_stops_when_cancelled() {
+    let (listener, _port) = listener();
+    let cancelled = Arc::new(AtomicBool::new(false));
+    let flag = Arc::clone(&cancelled);
+    let started = Instant::now();
+    let waiting = std::thread::spawn(move || {
+        wait_for_redirect(&listener, "s", Duration::from_secs(60), &flag)
+    });
+
+    cancelled.store(true, Ordering::SeqCst);
+    let code = waiting.join().unwrap();
+
+    assert!(matches!(code, Err(OAuthError::Cancelled)), "{code:?}");
+    assert!(started.elapsed() < Duration::from_secs(5));
 }
