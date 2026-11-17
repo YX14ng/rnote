@@ -6,6 +6,7 @@ pub(crate) mod credentials;
 pub(crate) mod opened;
 pub(crate) mod run;
 pub(crate) mod schedule;
+pub(crate) mod sign_in;
 pub(crate) mod status;
 
 use std::cell::RefCell;
@@ -23,6 +24,7 @@ use tracing::error;
 
 use credentials::{KeyringStore, RefreshTokenStore};
 use schedule::Scheduler;
+use sign_in::PendingSignIn;
 pub(crate) use status::SyncStatus;
 
 /// How long after a save [`RnSync::sync_soon`] waits.
@@ -50,6 +52,7 @@ struct Inner {
     soon: RefCell<Option<glib::SourceId>>,
     listeners: RefCell<Vec<Listener>>,
     root: RefCell<Option<RootProvider>>,
+    signing_in: RefCell<PendingSignIn>,
 }
 
 impl std::fmt::Debug for RnSync {
@@ -85,6 +88,7 @@ impl RnSync {
                 soon: RefCell::new(None),
                 listeners: RefCell::new(Vec::new()),
                 root: RefCell::new(None),
+                signing_in: RefCell::new(PendingSignIn::default()),
             }),
         }
     }
@@ -230,11 +234,17 @@ impl RnSync {
         let pkce = oauth::Pkce::new();
         let state = oauth::random_state();
         let url = oauth::authorization_url(&client, &redirect_uri, &pkce, &state);
-        UriLauncher::new(url.as_str()).launch(Some(window), gio::Cancellable::NONE, |result| {
+        // Clicked again while the first sign-in waits: its page again, not a second one.
+        let started = self.inner.signing_in.borrow_mut().start(url.as_str());
+        let page = started.as_deref().unwrap_or(url.as_str());
+        UriLauncher::new(page).launch(Some(window), gio::Cancellable::NONE, |result| {
             if let Err(error) = result {
                 error!("Opening Google's sign-in page failed: {error:?}");
             }
         });
+        if started.is_some() {
+            return;
+        }
         let store = Arc::clone(&self.inner.store);
         let access = Arc::clone(&self.inner.tokens);
         let this = self.clone();
@@ -257,6 +267,7 @@ impl RnSync {
                     "Signing in stopped unexpectedly"
                 )))
             });
+            this.inner.signing_in.borrow_mut().finish();
             match signed_in {
                 Ok(()) => {
                     this.set_status(SyncStatus::Waiting);
