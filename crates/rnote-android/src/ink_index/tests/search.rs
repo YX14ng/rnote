@@ -166,3 +166,13 @@ fn hits_on_a_line_go_left_to_right_even_with_a_tall_letter() {
 
     assert_eq!(hits, [vec![left], vec![right]]);
 }
+
+#[test]
+fn a_typed_accent_written_apart_is_part_of_its_letter() {
+    // "café" with the accent as its own character after the e.
+    let typed = [TypedText { text: "cafe\u{301} con leche".to_owned(), bounds: [0.0; 4] }];
+
+    let hits = search(&InkIndex::empty("es"), &[], &typed, "cafe");
+
+    assert!(matches!(&hits[..], [Hit::Typed { range, .. }] if *range == (0..6)), "{hits:?}");
+}

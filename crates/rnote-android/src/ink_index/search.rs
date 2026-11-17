@@ -51,6 +51,14 @@ fn normalize_mapped(text: &str) -> (String, Vec<Range<usize>>) {
             .flat_map(char::to_lowercase)
             .peekable();
         if pieces.peek().is_none() {
+            // A mark written apart (an accent after its letter) belongs to the letter.
+            if space.is_none()
+                && let Some(last) = origin.last().map(|r: &Range<usize>| r.start)
+            {
+                for r in origin.iter_mut().rev().take_while(|r| r.start == last) {
+                    r.end = range.end;
+                }
+            }
             continue;
         }
         if let Some(space) = space.take() {
