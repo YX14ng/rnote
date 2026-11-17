@@ -51,11 +51,16 @@ pub(crate) fn setup(button: &MenuButton, appwindow: &RnAppWindow) {
     let toasted: Rc<RefCell<Option<String>>> = Rc::default();
     let button = button.downgrade();
     let window = appwindow.downgrade();
+    let menu = popover.downgrade();
     let show = move |status: &SyncStatus| {
         let (Some(button), Some(appwindow)) = (button.upgrade(), window.upgrade()) else {
             return;
         };
         show_status(&button, status);
+        // A menu open while the sync ends shows how it went, not how it was going.
+        if let Some(menu) = menu.upgrade().filter(|menu| menu.is_visible()) {
+            fill_popover(&menu, &appwindow);
+        }
         match status {
             SyncStatus::Done { report, .. } => {
                 toasted.borrow_mut().take();
