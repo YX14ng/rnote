@@ -110,6 +110,7 @@
     <string name="action_copy">复制</string>
     <string name="action_paste">粘贴</string>
     <string name="clipboard_empty">没有可粘贴的内容</string>
+    <string name="clipboard_kept_in_app">内容太大，无法放入系统剪贴板：只能在本应用中粘贴。</string>
     <string name="nothing_selected">未选择任何内容</string>
     <string name="clipboard_label">Rnote 内容</string>
     <string name="label_page_width">宽度（毫米）</string>

@@ -111,6 +111,7 @@
     <string name="action_copy">Copy</string>
     <string name="action_paste">Paste</string>
     <string name="clipboard_empty">Nothing to paste</string>
+    <string name="clipboard_kept_in_app">Too big for the system clipboard: it can only be pasted in this app.</string>
     <string name="nothing_selected">Nothing is selected</string>
     <string name="clipboard_label">Rnote content</string>
     <string name="label_page_width">Width (mm)</string>

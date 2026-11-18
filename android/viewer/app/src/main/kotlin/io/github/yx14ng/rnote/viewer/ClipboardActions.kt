@@ -39,7 +39,8 @@ data class ClipContent(val mimeType: String, val data: String) {
  * Strokes go on the clipboard as Rnote stroke content, which only this app and the desktop
  * format understand; text goes as plain text. Pasting also takes plain text and images from
  * other apps. Pasted content is centered in the view; [onToolChanged] gets the tool the
- * engine switched to for it.
+ * engine switched to for it. A copy too big for the system clipboard stays
+ * in the app (see [InAppClip]).
  */
 internal class ClipboardActions(
     private val context: Context,
@@ -70,6 +71,15 @@ internal class ClipboardActions(
         }
         val item = clip.getItemAt(0)
         val (x, y) = canvas.documentCenter()
+        val isMarker = clip.description.hasMimeType(InAppClip.MARKER_MIME_TYPE)
+        InAppClip.shared.lookup(isMarker, item.text?.toString())?.let { kept ->
+            when (kept.mimeType) {
+                ClipContent.STROKE_CONTENT_MIME_TYPE ->
+                    pasteWith(Tool.SELECTOR) { it.pasteStrokeContent(kept.data, x, y) }
+                else -> pasteWith(Tool.TYPEWRITER) { it.pasteText(kept.data, x, y) }
+            }
+            return
+        }
         val uri = item.uri
         val itemText = item.text?.toString()
         when {
@@ -114,11 +124,24 @@ internal class ClipboardActions(
             return
         }
         val label = context.getString(R.string.clipboard_label)
+        if (InAppClip.tooBig(content)) {
+            keepInApp(content, label)
+            return
+        }
         val clip = if (content.mimeType == ClipContent.STROKE_CONTENT_MIME_TYPE) {
             ClipData(ClipDescription(label, arrayOf(content.mimeType)), ClipData.Item(content.data))
         } else {
             ClipData.newPlainText(label, content.data)
         }
-        clipboard.setPrimaryClip(clip)
+        // The size check leaves room, but a refused copy must not take the app down.
+        runCatching { clipboard.setPrimaryClip(clip) }.onFailure { keepInApp(content, label) }
+    }
+
+    /** Keeps [content] in the app, with a marker on the system clipboard that pastes it. */
+    private fun keepInApp(content: ClipContent, label: String) {
+        val marker = InAppClip.shared.keep(content)
+        val clip = ClipData(ClipDescription(label, arrayOf(InAppClip.MARKER_MIME_TYPE)), ClipData.Item(marker))
+        runCatching { clipboard.setPrimaryClip(clip) }
+        Toast.makeText(context, R.string.clipboard_kept_in_app, Toast.LENGTH_LONG).show()
     }
 }

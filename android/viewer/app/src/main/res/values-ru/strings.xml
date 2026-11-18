@@ -110,6 +110,7 @@
     <string name="action_copy">Копировать</string>
     <string name="action_paste">Вставить</string>
     <string name="clipboard_empty">Нечего вставить</string>
+    <string name="clipboard_kept_in_app">Слишком большой объём для системного буфера обмена: вставить можно только в этом приложении.</string>
     <string name="nothing_selected">Ничего не выделено</string>
     <string name="clipboard_label">Содержимое Rnote</string>
     <string name="label_page_width">Ширина (мм)</string>

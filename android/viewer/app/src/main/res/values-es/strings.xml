@@ -110,6 +110,7 @@
     <string name="action_copy">Copiar</string>
     <string name="action_paste">Pegar</string>
     <string name="clipboard_empty">No hay nada para pegar</string>
+    <string name="clipboard_kept_in_app">Es demasiado grande para el portapapeles del sistema: solo se puede pegar en esta app.</string>
     <string name="nothing_selected">No hay nada seleccionado</string>
     <string name="clipboard_label">Contenido de Rnote</string>
     <string name="label_page_width">Ancho (mm)</string>
