@@ -89,7 +89,7 @@ internal class ToolRow(private val context: Context) {
             for ((tool, button) in buttons) {
                 val selected = tool == value
                 button.isSelected = selected
-                val resting = if (selected) Graphite.rounded(context, Graphite.ACCENT, TOOL_RADIUS_DP) else null
+                val resting = if (selected) withOptionsMark(Graphite.rounded(context, Graphite.ACCENT, TOOL_RADIUS_DP)) else null
                 button.background = Graphite.pressable(context, resting, TOOL_RADIUS_DP)
                 button.imageTintList = ColorStateList.valueOf(if (selected) Color.WHITE else Graphite.ICON)
             }
@@ -164,6 +164,18 @@ internal class ToolRow(private val context: Context) {
         }
     }
 
+    /** Marks the corner of the selected tool, whose options open when it is tapped again. */
+    private fun withOptionsMark(background: Drawable): Drawable {
+        val mark = context.getDrawable(R.drawable.ic_tool_options_corner) ?: return background
+        mark.alpha = OPTIONS_MARK_ALPHA
+        val inset = dp(OPTIONS_MARK_INSET_DP)
+        return LayerDrawable(arrayOf(background, mark)).apply {
+            setLayerGravity(1, Gravity.BOTTOM or Gravity.END)
+            setLayerInsetEnd(1, inset)
+            setLayerInsetBottom(1, inset)
+        }
+    }
+
     private fun divider() = View(context).apply { setBackgroundColor(DIVIDER_COLOR) }
 
     private fun dividerParams() = LinearLayout.LayoutParams(dp(1f), dp(28f)).apply { setMargins(dp(8f), 0, dp(8f), 0) }
@@ -186,6 +198,8 @@ internal class ToolRow(private val context: Context) {
         private const val PALETTE_SIZE = 5
         private const val TOOL_DP = 48f
         private const val TOOL_RADIUS_DP = 14f
+        private const val OPTIONS_MARK_ALPHA = 200
+        private const val OPTIONS_MARK_INSET_DP = 6f
         private const val SWATCH_CELL_DP = 40f
 
         /** Colors lighter than this get a dark arrow. */
