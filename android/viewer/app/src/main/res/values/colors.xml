@@ -4,4 +4,6 @@
     <color name="graphite_bar">#FF17181C</color>
     <color name="graphite_desk">#FF26282D</color>
     <color name="graphite_accent">#FF3584E4</color>
+    <!-- The charcoal behind the launcher icon's notebook. -->
+    <color name="ic_launcher_background">#1D1C1C</color>
 </resources>
