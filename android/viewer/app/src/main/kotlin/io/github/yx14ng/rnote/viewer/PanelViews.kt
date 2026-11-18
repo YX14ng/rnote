@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color
+import android.graphics.Point
 import android.view.Gravity
 import android.view.View
 import android.view.ViewTreeObserver
@@ -120,8 +121,16 @@ internal object PanelViews {
             addView(switch)
         }
 
-    /** A menu row: icon, label and an optional keyboard shortcut hint. */
-    fun menuRow(context: Context, icon: Int, label: Int, shortcut: String?, enabled: Boolean, onClick: () -> Unit) =
+    /** A menu row: icon, label and an optional keyboard shortcut hint, in [tint]. */
+    fun menuRow(
+        context: Context,
+        icon: Int,
+        label: Int,
+        shortcut: String?,
+        enabled: Boolean,
+        tint: Int = Graphite.TEXT,
+        onClick: () -> Unit,
+    ) =
         LinearLayout(context).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
@@ -133,11 +142,11 @@ internal object PanelViews {
             alpha = if (enabled) 1f else DISABLED_ALPHA
             isClickable = true
             setOnClickListener { onClick() }
-            addView(icon(context, icon, Graphite.TEXT), LinearLayout.LayoutParams(Graphite.dp(context, 20f), Graphite.dp(context, 20f)))
+            addView(icon(context, icon, tint), LinearLayout.LayoutParams(Graphite.dp(context, 20f), Graphite.dp(context, 20f)))
             addView(TextView(context).apply {
                 setText(label)
                 textSize = 15f
-                setTextColor(Graphite.TEXT)
+                setTextColor(tint)
                 setPadding(Graphite.dp(context, 14f), 0, 0, 0)
             }, LinearLayout.LayoutParams(0, WRAP_CONTENT, 1f))
             if (shortcut != null) {
@@ -201,16 +210,17 @@ internal object PanelViews {
 
 /**
  * Covers the screen with a floating [panel], [panelWidthDp] wide, right below [anchor] (the
- * button that opened it) and kept on screen; a tap outside the panel calls [onDismiss].
- * Tall panels scroll.
+ * button that opened it), or at [point] (window coordinates) when there is no button, and kept
+ * on screen; a tap outside the panel calls [onDismiss]. Tall panels scroll.
  */
 @SuppressLint("ViewConstructor") // Built in code only, with what it shows.
 internal class PanelOverlay(
     context: Context,
     panel: View,
     panelWidthDp: Float,
-    private val anchor: View,
+    private val anchor: View?,
     private val onDismiss: () -> Unit,
+    private val point: Point? = null,
 ) : FrameLayout(context) {
     private val panelWidth = Graphite.dp(context, panelWidthDp)
     private val scroller = ScrollView(context).apply {
@@ -231,13 +241,34 @@ internal class PanelOverlay(
         viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
             override fun onPreDraw(): Boolean {
                 viewTreeObserver.removeOnPreDrawListener(this)
-                placeBelowAnchor()
+                if (point != null) placeAtPoint(point) else placeBelowAnchor()
                 return false
             }
         })
     }
 
+    /** Below [at] when it fits, otherwise above it, centered on it horizontally. */
+    private fun placeAtPoint(at: Point) {
+        val margin = Graphite.dp(context, EDGE_MARGIN_DP)
+        val gap = Graphite.dp(context, GAP_DP)
+        val overlayAt = IntArray(2).also(::getLocationInWindow)
+        val x = (at.x - overlayAt[0] - panelWidth / 2).coerceIn(margin, maxOf(margin, width - panelWidth - margin))
+        val pointY = at.y - overlayAt[1]
+        val panelHeight = scroller.measuredHeight
+        val y = if (pointY + gap + panelHeight <= height - margin) {
+            pointY + gap
+        } else {
+            maxOf(margin, pointY - gap - panelHeight)
+        }
+        scroller.layoutParams = (scroller.layoutParams as LayoutParams).apply {
+            leftMargin = x
+            topMargin = y
+            bottomMargin = margin
+        }
+    }
+
     private fun placeBelowAnchor() {
+        val anchor = anchor ?: return
         val margin = Graphite.dp(context, EDGE_MARGIN_DP)
         val anchorAt = IntArray(2).also(anchor::getLocationInWindow)
         val overlayAt = IntArray(2).also(::getLocationInWindow)

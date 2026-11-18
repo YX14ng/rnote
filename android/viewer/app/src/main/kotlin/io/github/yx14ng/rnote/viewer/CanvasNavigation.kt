@@ -14,7 +14,7 @@ import android.view.ScaleGestureDetector
  *
  * [onMoved] runs after every move; [onFlingStarted] asks for animation frames, which
  * advance the fling; [onTap] gets single taps. Pulling past the end of a document of pages
- * for a moment calls [onAddPage] (see [PagePull]).
+ * for a moment calls [onAddPage] (see [PagePull]). A finger held still calls [onFingerHeld].
  */
 internal class CanvasNavigation(
     context: Context,
@@ -23,6 +23,7 @@ internal class CanvasNavigation(
     private val onFlingStarted: () -> Unit,
     private val onTap: () -> Boolean,
     private val onAddPage: () -> Unit,
+    private val onFingerHeld: (MotionEvent) -> Unit,
 ) {
     private val pull = PagePull()
 
@@ -71,6 +72,10 @@ internal class CanvasNavigation(
             }
 
             override fun onSingleTapConfirmed(e: MotionEvent): Boolean = onTap()
+
+            override fun onLongPress(e: MotionEvent) {
+                if (!scaleDetector.isInProgress) onFingerHeld(e)
+            }
 
             override fun onDoubleTap(e: MotionEvent): Boolean {
                 if (zoomLocked) return true

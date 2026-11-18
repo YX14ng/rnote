@@ -38,8 +38,8 @@ data class ClipContent(val mimeType: String, val data: String) {
  *
  * Strokes go on the clipboard as Rnote stroke content, which only this app and the desktop
  * format understand; text goes as plain text. Pasting also takes plain text and images from
- * other apps. Pasted content is centered in the view; [onToolChanged] gets the tool the
- * engine switched to for it. A copy too big for the system clipboard stays
+ * other apps. Pasted content is centered in the view, or on the point given; [onToolChanged]
+ * gets the tool the engine switched to for it. A copy too big for the system clipboard stays
  * in the app (see [InAppClip]).
  */
 internal class ClipboardActions(
@@ -63,14 +63,15 @@ internal class ClipboardActions(
         }
     }
 
-    fun paste() {
+    /** Pastes centered on [at], in document coordinates, or on the middle of the view. */
+    fun paste(at: Pair<Double, Double>? = null) {
         val clip = clipboard.primaryClip
         if (clip == null || clip.itemCount == 0) {
             Toast.makeText(context, R.string.clipboard_empty, Toast.LENGTH_SHORT).show()
             return
         }
         val item = clip.getItemAt(0)
-        val (x, y) = canvas.documentCenter()
+        val (x, y) = at ?: canvas.documentCenter()
         val isMarker = clip.description.hasMimeType(InAppClip.MARKER_MIME_TYPE)
         InAppClip.shared.lookup(isMarker, item.text?.toString())?.let { kept ->
             when (kept.mimeType) {

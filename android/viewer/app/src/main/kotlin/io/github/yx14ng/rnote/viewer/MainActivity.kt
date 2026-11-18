@@ -3,6 +3,7 @@ package io.github.yx14ng.rnote.viewer
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
+import android.graphics.Point
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -58,6 +59,7 @@ class MainActivity : Activity() {
             onEditState = ::updateEditState
             onTwoFingerTap = ::undoByGesture
             onPenWheel = ::showPenWheel
+            onLongPress = ::showCanvasMenu
             onViewportMoved = ::onViewportMoved
             // Moving the selection or drawing: the selection bar returns after the edit.
             onCanvasTouched = { selectionBar.hide() }
@@ -137,6 +139,7 @@ class MainActivity : Activity() {
                 EditorMenu.Action.Copy -> clipboard.copy()
                 EditorMenu.Action.Cut -> clipboard.cut()
                 EditorMenu.Action.Paste -> clipboard.paste()
+                is EditorMenu.Action.PasteAt -> clipboard.paste(action.x to action.y)
                 EditorMenu.Action.Document -> showDocumentDialog()
                 EditorMenu.Action.New -> newNotebook()
                 EditorMenu.Action.Open ->
@@ -477,6 +480,25 @@ class MainActivity : Activity() {
                 }
                 .onFailure(::showError)
         }
+    }
+
+    /**
+     * Opens the page's menu where a finger held still: at ([x], [y]) on the canvas, and
+     * ([documentX], [documentY]) in the document, where pasting puts things.
+     */
+    private fun showCanvasMenu(x: Float, y: Float, documentX: Double, documentY: Double) {
+        if (!documentOpen) {
+            return
+        }
+        val entries = CanvasMenu.entries(editState.hasSelection, documentX, documentY)
+        val panel = CanvasMenu.build(this, entries, ::perform)
+        val canvasAt = IntArray(2).also(canvasView::getLocationInWindow)
+        val point = Point(canvasAt[0] + x.toInt(), canvasAt[1] + y.toInt())
+        val dismiss = {
+            layout.hideOverlay()
+            refreshSelectionBar()
+        }
+        layout.showOverlay(PanelOverlay(this, panel, CanvasMenu.PANEL_WIDTH_DP, null, dismiss, point))
     }
 
     /** Opens the wheel to pick the brush color and width around the pen at ([x], [y]). */

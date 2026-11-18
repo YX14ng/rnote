@@ -100,6 +100,12 @@ class NoteCanvasView(context: Context) : View(context) {
         onViewportChanged()
     }
 
+    /**
+     * Called when a finger holds still on the page, with where: on screen (view coordinates)
+     * and in the document.
+     */
+    var onLongPress: ((x: Float, y: Float, documentX: Double, documentY: Double) -> Unit)? = null
+
     /** Called on a quick two-finger tap, the undo gesture of other note-taking apps. */
     var onTwoFingerTap: (() -> Unit)? = null
 
@@ -185,6 +191,7 @@ class NoteCanvasView(context: Context) : View(context) {
         onFlingStarted = ::postInvalidateOnAnimation,
         onTap = ::performClick,
         onAddPage = ::addPage,
+        onFingerHeld = ::longPressed,
     )
     private val pullHint = PagePullHint(context)
     private val highlights = MatchHighlights(context)
@@ -382,6 +389,14 @@ class NoteCanvasView(context: Context) : View(context) {
     }
 
     private fun navigate(event: MotionEvent) = navigation.onTouch(event)
+
+    private fun longPressed(event: MotionEvent) {
+        val listener = onLongPress ?: return
+        if (input.penDown) return
+        input.onLongPressed(event)
+        performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+        listener(event.x, event.y, camera.toDocumentX(event.x), camera.toDocumentY(event.y))
+    }
 
     /** Pulled past the last page: one more, shown from its top. Not undoable, like in Rnote. */
     private fun addPage() {

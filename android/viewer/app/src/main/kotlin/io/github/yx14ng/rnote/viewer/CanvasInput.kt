@@ -91,6 +91,18 @@ internal class CanvasInput(
         preview.clear()
     }
 
+    /**
+     * A finger held still opened the page's menu: whatever it was about to do (draw, pan)
+     * doesn't happen, and the rest of the touch is ignored. [event] is the hold's down event.
+     */
+    fun onLongPressed(event: MotionEvent) {
+        if (penDown) return
+        cancelNavigation(event)
+        fingerGesture = FingerGesture.NONE
+        fingerPointerId = NO_POINTER
+        ignoringRest = true
+    }
+
     /** The stroke being drawn became a shape: stop previewing the freehand line. */
     fun onShapeSnapped() {
         previewing = false

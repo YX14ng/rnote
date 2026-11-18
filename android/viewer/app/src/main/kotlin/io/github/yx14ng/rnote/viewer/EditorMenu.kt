@@ -28,6 +28,9 @@ internal object EditorMenu {
         data object Copy : Action
         data object Cut : Action
         data object Paste : Action
+
+        /** Pastes centered on ([x], [y]), in document coordinates. */
+        data class PasteAt(val x: Double, val y: Double) : Action
         data class Emphasis(val emphasis: TextEmphasis) : Action
         data object ColorSelectedText : Action
         data object SelectAllText : Action
