@@ -8,6 +8,11 @@ same library the Android app uses (`crates/rnote-library`), so both read and wri
 It installs as its own Flatpak, `io.github.yx14ng.rnote`, shown as **Rnote (YX14ng)**, beside
 Flathub's Rnote (`com.github.flxzt.rnote`), which stays as it is.
 
+Its icon is the Android app's (an open notebook with a yellow stroke and a pencil, made with
+ChatGPT's image generation through Codex, GPL-3.0-or-later like the rest), so the two apps
+don't look alike in the app grid. The symbolic icon is traced from it with potrace; the
+development build (`.Devel`) keeps upstream's icon.
+
 **Don't open notebooks saved by the fork (or by the Android app) in Rnote 0.14.2.** The fork
 is built on upstream's development branch, which saves the newer `.rnote` format 0.15
 (shapes, images, PDF pages and text keep their position as an `affine` transform). Rnote
