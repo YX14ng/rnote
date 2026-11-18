@@ -293,3 +293,11 @@ FONTCONFIG_FILE=/data/local/tmp/rnote/fonts.conf ./rnote-cli export doc -o note.
   apps.
 - Edge-to-edge insets (enforced on Android 15+) are handled but untested: the test device
   (Waydroid) runs Android 13.
+
+## Icon
+
+The launcher icon (an open notebook with a yellow stroke and a pencil) was made for this app
+with ChatGPT's image generation, through Codex. It is an adaptive icon: the drawing in
+`res/mipmap-*/ic_launcher_foreground.png` over the charcoal `ic_launcher_background` color,
+plus `ic_launcher_monochrome.png` for themed icons, cut from the drawing's light parts. Like
+the rest of the repository, it is under GPL-3.0-or-later.
