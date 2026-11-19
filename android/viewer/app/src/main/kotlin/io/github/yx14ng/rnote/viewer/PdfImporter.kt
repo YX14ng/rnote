@@ -6,8 +6,6 @@ import android.content.pm.ActivityInfo
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
-import android.text.InputType
-import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -30,48 +28,16 @@ internal class PdfImporter(
 
     fun start(uri: Uri, folders: List<String>, folder: String?) {
         val fileName = DocumentFiles.displayName(activity.contentResolver, uri) ?: uri.lastPathSegment.orEmpty()
-        background({ DocumentFiles.read(activity.contentResolver, uri) }) { bytes ->
-            open(bytes, password = null, wrongPassword = false) { password, pages ->
-                creator.defaults(folder) { defaults ->
-                    defaults.onFailure(onError).onSuccess { setup ->
-                        val size = setup.pageSize ?: PageSize.A4
-                        ImportPdfScreen(activity, fileName, bytes.size.toLong(), pages, folders, folder, size) { choice ->
-                            import(bytes, password, setup.withPageSize(choice.pageSize, landscape = false), choice)
-                        }.show()
-                    }
+        PdfPassword(activity, onError).open({ DocumentFiles.read(activity.contentResolver, uri) }) { bytes, password, pages ->
+            creator.defaults(folder) { defaults ->
+                defaults.onFailure(onError).onSuccess { setup ->
+                    val size = setup.pageSize ?: PageSize.A4
+                    ImportPdfScreen(activity, fileName, bytes.size.toLong(), pages, folders, folder, size) { choice ->
+                        import(bytes, password, setup.withPageSize(choice.pageSize, landscape = false), choice)
+                    }.show()
                 }
             }
         }
-    }
-
-    /** Counts the pages, asking for the password until it's right; then [onOpen]. */
-    private fun open(bytes: ByteArray, password: String?, wrongPassword: Boolean, onOpen: (String?, Int) -> Unit) {
-        background({ NativeBridge.pdfPageCount(bytes, password) }) { count ->
-            if (count >= 0) {
-                onOpen(password, count)
-            } else {
-                askPassword(wrongPassword) { typed -> open(bytes, typed, wrongPassword = true, onOpen) }
-            }
-        }
-    }
-
-    private fun askPassword(wrong: Boolean, onPassword: (String) -> Unit) {
-        val field = EditText(activity).apply {
-            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
-            isSingleLine = true
-        }
-        val box = LinearLayout(activity).apply {
-            val pad = dp(activity, 24f)
-            setPadding(pad, dp(activity, 8f), pad, 0)
-            addView(field, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
-        }
-        AlertDialog.Builder(activity)
-            .setTitle(R.string.import_pdf_password)
-            .setMessage(if (wrong) R.string.import_pdf_wrong_password else R.string.import_pdf_password_message)
-            .setView(box)
-            .setPositiveButton(android.R.string.ok) { _, _ -> onPassword(field.text.toString()) }
-            .setNegativeButton(android.R.string.cancel, null)
-            .show()
     }
 
     private fun import(bytes: ByteArray, password: String?, setup: NotebookSetup, choice: PdfChoice) {
@@ -134,17 +100,6 @@ internal class PdfImporter(
                         if (!activity.isDestroyed) saved.onSuccess(onCreated).onFailure(onError)
                     }
                 }
-            }
-        }, "rnote-pdf-import").start()
-    }
-
-    /** Runs [work] on a thread of its own and hands its result to [done] on the main thread. */
-    private fun <T> background(work: () -> T, done: (T) -> Unit) {
-        Thread({
-            val result = runCatching(work)
-            main.post {
-                if (activity.isDestroyed) return@post
-                result.onSuccess(done).onFailure(onError)
             }
         }, "rnote-pdf-import").start()
     }
