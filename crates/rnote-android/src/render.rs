@@ -120,9 +120,12 @@ fn draw_to_surface(
         draw_background(&cx, tiles, &engine.document.config.background, visible, viewport.zoom)?;
         draw_page_borders(engine, &cx, doc_bounds, visible, viewport.zoom)?;
     }
+    // The stroke being written is left to the app, which draws it at once with every
+    // sample; the frame would show it a second time, late and shaped differently.
+    let writing = engine.penholder.brush_stroke_in_progress();
     // Strokes can lie off the pages, e.g. drawn beside a fixed-size page: the content is
     // clipped to the bounds it is extracted for, so take the whole view.
-    engine.extract_content_in_bounds(viewport_bounds).draw_to_cairo(
+    engine.extract_content_in_bounds_except(viewport_bounds, writing).draw_to_cairo(
         &cx,
         /* draw_background */ false,
         /* draw_pattern */ false,
@@ -131,7 +134,9 @@ fn draw_to_surface(
         /* image_scale */ viewport.zoom,
     )?;
     // On top, and also outside the document: e.g. a selection being dragged off it.
-    engine.draw_pen_on_doc_to_cairo(&cx)?;
+    if writing.is_none() {
+        engine.draw_pen_on_doc_to_cairo(&cx)?;
+    }
 
     drop(cx);
     surface.flush();

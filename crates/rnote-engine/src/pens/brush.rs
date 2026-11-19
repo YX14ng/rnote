@@ -356,6 +356,16 @@ impl DrawableOnDoc for Brush {
 impl Brush {
     const INPUT_OVERSHOOT: f64 = 30.0;
 
+    /// The stroke being drawn, if any.
+    pub fn stroke_in_progress(&self) -> Option<StrokeKey> {
+        match &self.state {
+            BrushState::Idle => None,
+            BrushState::Drawing {
+                current_stroke_key, ..
+            } => Some(*current_stroke_key),
+        }
+    }
+
     fn get_preview_style(engine_view: &EngineView) -> Style {
         let mut style = engine_view
             .config

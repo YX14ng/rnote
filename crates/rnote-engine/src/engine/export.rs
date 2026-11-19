@@ -382,6 +382,23 @@ impl Engine {
             .with_bounds(bounds)
     }
 
+    /// Like [`Self::extract_content_in_bounds`], leaving out the stroke `except`, e.g. one
+    /// that an app draws itself while it is being written.
+    pub fn extract_content_in_bounds_except(
+        &self,
+        bounds: Aabb,
+        except: Option<crate::store::StrokeKey>,
+    ) -> StrokeContent {
+        let mut keys = self
+            .store
+            .stroke_keys_as_rendered_intersecting_bounds(bounds);
+        if let Some(except) = except {
+            keys.retain(|&key| key != except);
+        }
+        self.stroke_content_from_sorted_keys(keys)
+            .with_bounds(bounds)
+    }
+
     pub fn extract_selection_content(&self) -> Option<StrokeContent> {
         let selection_keys = self.store.selection_keys_as_rendered();
         if selection_keys.is_empty() {

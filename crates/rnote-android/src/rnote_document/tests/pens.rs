@@ -340,3 +340,24 @@ fn brush_keeps_a_curve_round_when_samples_come_in_batches() {
     let off = farthest_from_circle(&document, 500.0, 500.0, 100.0);
     assert!(off < 1.0, "the stroke strays {off:.2} from the circle");
 }
+
+#[test]
+fn a_brush_stroke_in_progress_is_left_to_the_apps_preview() {
+    let mut document = plain_document();
+    document.set_brush(Color::BLACK, 6.0);
+    let samples: Vec<PenSample> = (0..=20)
+        .map(|i| PenSample {
+            x: 100.0 + 10.0 * f64::from(i),
+            y: 200.0,
+            pressure: 1.0,
+            time_ms: 4.0 * f64::from(i),
+        })
+        .collect();
+
+    document.handle_pen(PenPhase::Down, Tool::Brush, &samples, IDENTITY, VIEW);
+
+    // The app draws the stroke being written itself, sooner; the frame would show it twice.
+    assert_eq!(count_dark_pixels(&mut document, 0.0, 0.0, 1.0, 400), 0);
+    document.handle_pen(PenPhase::Up, Tool::Brush, &samples[20..], IDENTITY, VIEW);
+    assert!(count_dark_pixels(&mut document, 0.0, 0.0, 1.0, 400) > 0);
+}

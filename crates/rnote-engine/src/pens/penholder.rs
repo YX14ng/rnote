@@ -8,6 +8,7 @@ use crate::DrawableOnDoc;
 use crate::camera::NudgeDirection;
 use crate::engine::{EngineView, EngineViewMut};
 use crate::pens::shortcuts::ShortcutAction;
+use crate::store::StrokeKey;
 use crate::widgetflags::WidgetFlags;
 use futures::channel::oneshot;
 use p2d::bounding_volume::Aabb;
@@ -98,6 +99,14 @@ impl PenHolder {
         match &self.current_pen {
             Pen::Typewriter(t) => t.is_handling_text_input(),
             _ => false,
+        }
+    }
+
+    /// The stroke the brush is drawing, if it is drawing one.
+    pub fn brush_stroke_in_progress(&self) -> Option<StrokeKey> {
+        match &self.current_pen {
+            Pen::Brush(brush) => brush.stroke_in_progress(),
+            _ => None,
         }
     }
 

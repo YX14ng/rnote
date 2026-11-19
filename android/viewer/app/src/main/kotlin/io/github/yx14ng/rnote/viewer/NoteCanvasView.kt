@@ -422,7 +422,11 @@ class NoteCanvasView(context: Context) : View(context) {
         val currentViewport = viewport
         val viewWidth = width
         val viewHeight = height
-        submitEdit { document ->
+        // While a brush stroke is written the preview shows it, and frames leave it out:
+        // rendering the whole view for every batch of samples only made the pen lag. The
+        // frame with the finished stroke is asked for when the pen lifts.
+        val render = !(tool == Tool.BRUSH && phase == PenPhase.DOWN && !input.preview.isEmpty)
+        submitEdit(render = render) { document ->
             document.handlePen(phase, tool, samples, currentViewport, viewWidth, viewHeight)
         }
     }
@@ -436,7 +440,11 @@ class NoteCanvasView(context: Context) : View(context) {
     }
 
     /** Runs [operation] on the document; [afterResize] runs once the view follows its new size. */
-    private fun submitEdit(afterResize: (() -> Unit)? = null, operation: (NativeDocument) -> EditState) {
+    private fun submitEdit(
+        afterResize: (() -> Unit)? = null,
+        render: Boolean = true,
+        operation: (NativeDocument) -> EditState,
+    ) {
         val currentRenderer = renderer ?: return
         editSequence++
         val requestGeneration = frames.generation
@@ -460,7 +468,7 @@ class NoteCanvasView(context: Context) : View(context) {
                 }
                 .onFailure { error -> onError?.invoke(error) }
         }
-        frames.request()
+        if (render) frames.request()
     }
 
     /** Redraws with the last frame right away and asks for a sharp render. */
