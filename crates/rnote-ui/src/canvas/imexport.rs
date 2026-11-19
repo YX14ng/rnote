@@ -29,7 +29,18 @@ impl RnCanvas {
     where
         P: AsRef<Path>,
     {
-        let sha256 = file_path.is_some().then(|| rnote_sync::sha256_hex(&bytes));
+        // Off the main thread: hashing a notebook with big PDF pages takes a moment.
+        let (bytes, sha256) = if file_path.is_some() {
+            let (bytes, sha256) = gio::spawn_blocking(move || {
+                let sha256 = rnote_sync::sha256_hex(&bytes);
+                (bytes, sha256)
+            })
+            .await
+            .map_err(|_| anyhow::anyhow!("Hashing the file stopped unexpectedly"))?;
+            (bytes, Some(sha256))
+        } else {
+            (bytes, None)
+        };
         let engine_snapshot = EngineSnapshot::load_from_rnote_bytes(bytes).await?;
         Ok(self.apply_rnote_snapshot(engine_snapshot, sha256, file_path))
     }

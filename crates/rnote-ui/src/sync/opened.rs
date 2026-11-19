@@ -112,7 +112,13 @@ async fn read_snapshot(
         .path()
         .ok_or_else(|| anyhow::anyhow!("The file has no path"))?;
     let (bytes, _) = file.load_bytes_future().await?;
-    let sha256 = Some(rnote_sync::sha256_hex(&bytes));
+    let to_hash = bytes.clone();
+    // Off the main thread, like the reading itself.
+    let sha256 = Some(
+        gio::spawn_blocking(move || rnote_sync::sha256_hex(&to_hash))
+            .await
+            .map_err(|_| anyhow::anyhow!("Hashing the file stopped unexpectedly"))?,
+    );
     let snapshot =
         rnote_engine::engine::EngineSnapshot::load_from_rnote_bytes(bytes.to_vec()).await?;
     Ok((snapshot, sha256, path))
