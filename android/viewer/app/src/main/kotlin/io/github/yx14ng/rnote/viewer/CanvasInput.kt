@@ -44,6 +44,9 @@ internal class CanvasInput(
     /** Immediate feedback for brush strokes, drawn by the view on top of the last frame. */
     val preview = StrokePreview()
 
+    // Lets the preview reach a little past the last sample, where the pen already is.
+    private val prediction = PenPrediction.create(context)
+
     /** Whether a stroke is in progress. */
     val penDown: Boolean
         get() = strokePointerId != NO_POINTER
@@ -126,6 +129,7 @@ internal class CanvasInput(
                 ignoringRest = false
                 camera.stopFling()
                 beginPen(toolFor(event, actionIndex), event.getPointerId(actionIndex), samplesOf(event, actionIndex, false))
+                if (penTool == Tool.BRUSH) prediction?.record(event)
                 trackHold(event.getX(actionIndex), event.getY(actionIndex), restart = true)
             }
             ignoringRest -> if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
@@ -168,6 +172,7 @@ internal class CanvasInput(
         when (event.actionMasked) {
             MotionEvent.ACTION_MOVE -> if (index >= 0) {
                 continuePen(samplesOf(event, index, true))
+                predictTail(event)
                 trackHold(event.getX(index), event.getY(index), restart = false)
             }
             MotionEvent.ACTION_POINTER_UP, MotionEvent.ACTION_UP ->
@@ -295,6 +300,7 @@ internal class CanvasInput(
     private fun continuePen(samples: DoubleArray) = send(PenPhase.DOWN, samples)
 
     private fun endPen(samples: DoubleArray) {
+        preview.predict(NO_SAMPLES)
         strokePointerId = NO_POINTER
         holdHandler.removeCallbacks(holdCheck)
         send(PenPhase.UP, samples)
@@ -302,6 +308,7 @@ internal class CanvasInput(
     }
 
     private fun cancelPen() {
+        preview.predict(NO_SAMPLES)
         strokePointerId = NO_POINTER
         holdHandler.removeCallbacks(holdCheck)
         send(PenPhase.CANCEL, DoubleArray(0))
@@ -315,6 +322,30 @@ internal class CanvasInput(
             }
         }
         sendPen(phase, penTool, samples)
+    }
+
+    /** Shows where the pen is likely heading after [event], past the brush stroke's last sample. */
+    private fun predictTail(event: MotionEvent) {
+        val predictor = prediction ?: return
+        if (penTool != Tool.BRUSH || !previewing) return
+        predictor.record(event)
+        val predicted = predictor.predict(event)
+        if (predicted == null) {
+            preview.predict(NO_SAMPLES)
+            return
+        }
+        try {
+            val pointer = predicted.findPointerIndex(strokePointerId).takeIf { it >= 0 } ?: 0
+            val samples = samplesOf(predicted, pointer, withHistory = true)
+            // The guessed pressure jumps around; the tail keeps the stroke's current width.
+            val pressure = samplesOf(event, event.findPointerIndex(strokePointerId).coerceAtLeast(0), false)[2]
+            val count = samples.size / SAMPLE_VALUES
+            preview.predict(DoubleArray(count * 3) { i ->
+                if (i % 3 == 2) pressure else samples[i / 3 * SAMPLE_VALUES + i % 3]
+            })
+        } finally {
+            predicted.recycle()
+        }
     }
 
     /**
@@ -384,6 +415,7 @@ internal class CanvasInput(
     private companion object {
         const val DEFAULT_PRESSURE = 0.5
         const val NANOS_PER_MILLI = 1_000_000.0
+        val NO_SAMPLES = DoubleArray(0)
 
         /** Values per sample sent to the engine: x, y, pressure and time. */
         const val SAMPLE_VALUES = 4
