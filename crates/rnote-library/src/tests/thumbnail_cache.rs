@@ -37,7 +37,7 @@ fn renders_once_and_then_reads_the_cache() {
 }
 
 #[test]
-fn a_modified_notebook_gets_a_new_thumbnail() {
+fn a_modified_notebook_gets_a_new_thumbnail_instead_of_the_old() {
     let root = tempfile::tempdir().unwrap();
     let cache_dir = tempfile::tempdir().unwrap();
     write(root.path(), "a.rnote", &empty_document_bytes());
@@ -51,7 +51,8 @@ fn a_modified_notebook_gets_a_new_thumbnail() {
 
     assert_ne!(thumbnail_key(&before), thumbnail_key(&after));
     assert!(cache_dir.path().join(format!("{}-64.png", thumbnail_key(&after))).exists());
-    assert_eq!(fs::read_dir(cache_dir.path()).unwrap().count(), 2);
+    // The old one is gone: every save used to leave one behind, forever.
+    assert_eq!(fs::read_dir(cache_dir.path()).unwrap().count(), 1);
 }
 
 #[test]

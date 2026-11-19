@@ -44,9 +44,37 @@ fn thumbnail_of_garbage_is_an_error() {
 fn thumbnail_key_changes_with_mtime() {
     let key = thumbnail_key(&notebook(1));
 
-    assert_eq!(key.len(), 16);
     assert_eq!(key, thumbnail_key(&notebook(1)));
     assert_ne!(key, thumbnail_key(&notebook(2)));
+}
+
+#[test]
+fn thumbnail_key_is_the_same_whatever_rust_built_it() {
+    // FNV-1a of the path, then of the time and size: a new compiler keeps the cache valid.
+    assert_eq!(thumbnail_key(&notebook(1)), "07075dd8540e8c48-6eedd04bbb43316e");
+}
+
+#[test]
+fn thumbnail_looks_like_the_page_drawn_through_svg() {
+    let bytes = include_bytes!("../../../../misc/file-tests/v0-15-0-test.rnote").to_vec();
+
+    let direct =
+        image::load_from_memory(&render_thumbnail(bytes.clone(), 256).unwrap()).unwrap().to_rgba8();
+    let through_svg = image::load_from_memory(
+        &crate::thumbnail::render_thumbnail_through_svg(bytes, 256).unwrap(),
+    )
+    .unwrap()
+    .to_rgba8();
+
+    assert_eq!(direct.dimensions(), through_svg.dimensions());
+    let total: u64 = direct
+        .as_raw()
+        .iter()
+        .zip(through_svg.as_raw())
+        .map(|(a, b)| u64::from(a.abs_diff(*b)))
+        .sum();
+    let mean = total as f64 / direct.as_raw().len() as f64;
+    assert!(mean < 3.0, "mean difference {mean}");
 }
 
 #[test]

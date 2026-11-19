@@ -15,6 +15,7 @@ rnote-compose = { workspace = true }
 rnote-engine = { workspace = true }
 
 anyhow = { workspace = true }
+cairo-rs = { workspace = true }
 futures = { workspace = true }
 image = { workspace = true }
 serde = { workspace = true }

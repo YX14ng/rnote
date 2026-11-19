@@ -4525,6 +4525,7 @@ name = "rnote-library"
 version = "0.15.0"
 dependencies = [
  "anyhow",
+ "cairo-rs",
  "futures",
  "image",
  "rnote-compose",

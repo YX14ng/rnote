@@ -3,9 +3,11 @@
 
 use std::fs;
 use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicU64, Ordering};
 
 use anyhow::{Context, bail};
 
+use crate::thumbnail::path_key;
 use crate::{Notebook, NotebookKind, render_thumbnail, thumbnail_key};
 
 /// Thumbnails kept as `<dir>/<key>-<size>.png`, where the key changes whenever the
@@ -41,15 +43,39 @@ impl ThumbnailCache {
         let bytes = fs::read(&source).with_context(|| format!("Reading {}", source.display()))?;
         let png = render_thumbnail(bytes, size_px)?;
         self.write(&file, &png)?;
+        self.forget_older(&notebook.path, size_px, &file);
         Ok(png)
     }
 
     /// Writes `png` to `file` through a temporary file, so a reader never sees half of it.
     fn write(&self, file: &Path, png: &[u8]) -> anyhow::Result<()> {
+        // Unique per write: two renders of one notebook at once mustn't share a temporary.
+        static WRITES: AtomicU64 = AtomicU64::new(0);
         fs::create_dir_all(&self.dir)
             .with_context(|| format!("Creating {}", self.dir.display()))?;
-        let tmp = file.with_extension(format!("png.{}.tmp", std::process::id()));
+        let write = WRITES.fetch_add(1, Ordering::Relaxed);
+        let tmp = file.with_extension(format!("png.{}.{write}.tmp", std::process::id()));
         fs::write(&tmp, png).with_context(|| format!("Writing {}", tmp.display()))?;
         fs::rename(&tmp, file).with_context(|| format!("Writing {}", file.display()))
+    }
+
+    /// Removes the thumbnails of earlier versions of the notebook at `path` at `size_px`,
+    /// keeping `current`: each save of a notebook used to leave one more behind.
+    fn forget_older(&self, path: &str, size_px: u32, current: &Path) {
+        let prefix = format!("{}-", path_key(path));
+        let suffix = format!("-{size_px}.png");
+        let Ok(entries) = fs::read_dir(&self.dir) else {
+            return;
+        };
+        for entry in entries.flatten() {
+            let name = entry.file_name();
+            let Some(name) = name.to_str() else {
+                continue;
+            };
+            if name.starts_with(&prefix) && name.ends_with(&suffix) && entry.path() != current {
+                // Only a cache: a file that stays is just space.
+                let _ = fs::remove_file(entry.path());
+            }
+        }
     }
 }
