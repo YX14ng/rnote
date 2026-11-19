@@ -317,4 +317,27 @@
         <item quantity="many">%1$d pages · %2$s MB</item>
         <item quantity="other">%1$d pages · %2$s MB</item>
     </plurals>
+
+    <!-- Column of pages -->
+    <string name="pages_menu">Pages</string>
+    <string name="pages_title">Pages</string>
+    <string name="pages_close">Close pages</string>
+    <string name="pages_remove">Remove</string>
+    <string name="page_actions">Page actions</string>
+    <string name="page_insert_blank_after">Insert blank page after</string>
+    <string name="page_insert_pdf_after">Insert PDF after</string>
+    <string name="page_remove">Remove page</string>
+    <string name="pages_remove_confirm_message">What is written on them is removed too. You can undo it.</string>
+    <string name="insert_pdf_title">Insert PDF</string>
+    <string name="insert_pdf_from">From page</string>
+    <string name="insert_pdf_to">To page</string>
+    <string name="insert_pdf_progress">Inserting the PDF</string>
+    <plurals name="pages_selected">
+        <item quantity="one">%d selected</item>
+        <item quantity="other">%d selected</item>
+    </plurals>
+    <plurals name="pages_remove_confirm">
+        <item quantity="one">Remove %d page?</item>
+        <item quantity="other">Remove %d pages?</item>
+    </plurals>
 </resources>

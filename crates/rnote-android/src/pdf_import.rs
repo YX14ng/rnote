@@ -11,6 +11,7 @@ use parry2d_f64::math::Vector2;
 use rnote_compose::Transformable;
 use rnote_compose::shapes::Shapeable;
 use rnote_engine::document::Layout;
+use rnote_engine::document::format::Format;
 use rnote_engine::engine::import::{PdfImportPageSpacing, PdfImportPrefs};
 use rnote_engine::strokes::{BitmapImage, Stroke, VectorImage};
 use rnote_engine::{Engine, WidgetFlags};
@@ -45,26 +46,27 @@ pub(crate) fn pdf_page_count(bytes: &[u8], password: Option<&str>) -> Result<usi
     }
 }
 
-/// A PDF being imported as a new notebook.
-pub(crate) struct PdfImport {
+/// The pages of a PDF made into images one at a time, each as wide as a sheet of `format`
+/// and with its top left at the origin.
+pub(crate) struct PdfPages {
     bytes: Vec<u8>,
     password: Option<String>,
-    engine: Engine,
+    format: Format,
     pages: Range<usize>,
     next: usize,
     vector: bool,
     imported: Vec<Stroke>,
 }
 
-impl PdfImport {
-    /// Starts importing `pages` (0-based) of the PDF `bytes` into a notebook set up as
-    /// `setup` says, as vector images or, if `vector` is false, as bitmaps.
+impl PdfPages {
+    /// Starts reading `pages` (0-based) of the PDF `bytes`, as vector images or, if `vector`
+    /// is false, as bitmaps.
     pub(crate) fn new(
         bytes: Vec<u8>,
         password: Option<String>,
-        setup: &NotebookSetup,
         pages: Range<usize>,
         vector: bool,
+        format: Format,
     ) -> Result<Self, PdfOpenError> {
         let count = pdf_page_count(&bytes, password.as_deref())?;
         if pages.is_empty() || pages.end > count {
@@ -74,23 +76,15 @@ impl PdfImport {
                 pages.end
             )));
         }
-        Ok(Self {
-            bytes,
-            password,
-            engine: engine_with_setup(setup),
-            next: pages.start,
-            pages,
-            vector,
-            imported: Vec::new(),
-        })
+        Ok(Self { bytes, password, format, next: pages.start, pages, vector, imported: Vec::new() })
     }
 
-    /// The number of pages to import.
+    /// The number of pages to read.
     pub(crate) fn total(&self) -> usize {
         self.pages.len()
     }
 
-    /// Imports the next page; `false` once every page is imported.
+    /// Reads the next page; `false` once every page is read.
     pub(crate) fn import_next(&mut self) -> anyhow::Result<bool> {
         if self.next >= self.pages.end {
             return Ok(false);
@@ -102,9 +96,9 @@ impl PdfImport {
             bitmap_scalefactor: BITMAP_SCALE,
             adjust_document: true,
         };
-        let format = &self.engine.document.config.format;
         let range = Some(self.next..self.next + 1);
         let password = self.password.clone();
+        let format = &self.format;
         let mut page: Vec<Stroke> = if self.vector {
             VectorImage::from_pdf_bytes(&self.bytes, prefs, Vector2::ZERO, range, format, password)?
                 .into_iter()
@@ -121,15 +115,58 @@ impl PdfImport {
         Ok(true)
     }
 
+    /// The pages read so far, in order.
+    pub(crate) fn into_pages(self) -> Vec<Stroke> {
+        self.imported
+    }
+
+    fn take_pages(&mut self) -> Vec<Stroke> {
+        std::mem::take(&mut self.imported)
+    }
+}
+
+/// A PDF being imported as a new notebook.
+pub(crate) struct PdfImport {
+    engine: Engine,
+    pages: PdfPages,
+}
+
+impl PdfImport {
+    /// Starts importing `pages` (0-based) of the PDF `bytes` into a notebook set up as
+    /// `setup` says, as vector images or, if `vector` is false, as bitmaps.
+    pub(crate) fn new(
+        bytes: Vec<u8>,
+        password: Option<String>,
+        setup: &NotebookSetup,
+        pages: Range<usize>,
+        vector: bool,
+    ) -> Result<Self, PdfOpenError> {
+        let engine = engine_with_setup(setup);
+        let format = engine.document.config.format;
+        let pages = PdfPages::new(bytes, password, pages, vector, format)?;
+        Ok(Self { engine, pages })
+    }
+
+    /// The number of pages to import.
+    pub(crate) fn total(&self) -> usize {
+        self.pages.total()
+    }
+
+    /// Imports the next page; `false` once every page is imported.
+    pub(crate) fn import_next(&mut self) -> anyhow::Result<bool> {
+        self.pages.import_next()
+    }
+
     /// The `.rnote` bytes of the notebook with the pages imported so far: sheets as tall as
     /// the tallest page, one page on each.
     pub(crate) fn finish(&mut self, file_name: &str) -> anyhow::Result<Vec<u8>> {
-        let height = self.imported.iter().map(|page| page.bounds().extents().y).fold(0.0, f64::max);
+        let imported = self.pages.take_pages();
+        let height = imported.iter().map(|page| page.bounds().extents().y).fold(0.0, f64::max);
         if height > 0.0 {
             self.engine.document.config.format.set_height(height);
         }
         let mut flags: WidgetFlags = self.engine.set_doc_layout(Layout::FixedSize);
-        let pages = std::mem::take(&mut self.imported)
+        let pages = imported
             .into_iter()
             .enumerate()
             .map(|(i, mut page)| {

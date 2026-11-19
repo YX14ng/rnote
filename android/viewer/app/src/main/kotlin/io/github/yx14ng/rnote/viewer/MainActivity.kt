@@ -27,6 +27,7 @@ class MainActivity : Activity() {
     private lateinit var search: InkSearch
     private lateinit var controls: EditorControls
     private lateinit var selectionBar: SelectionBar
+    private lateinit var pages: PagesController
     private var shownZoomPercent = 0
 
     private var documentOpen = false
@@ -84,6 +85,10 @@ class MainActivity : Activity() {
         }, onError = ::showError)
         layout = EditorLayout(this, canvasView, topBar)
         layout.selectionBar = selectionBar
+        pages = PagesController(this, layout, canvasView, renderer, pickPdf = {
+            @Suppress("DEPRECATION")
+            startActivityForResult(DocumentFiles.openIntent(null).setType("application/pdf"), REQUEST_INSERT_PDF)
+        }, onError = ::showError)
         setContentView(layout.root)
         if (!handleIntent(intent) && recovery.exists) {
             restoreRecovery()
@@ -141,6 +146,7 @@ class MainActivity : Activity() {
                 EditorMenu.Action.Paste -> clipboard.paste()
                 is EditorMenu.Action.PasteAt -> clipboard.paste(action.x to action.y)
                 EditorMenu.Action.Document -> showDocumentDialog()
+                EditorMenu.Action.Pages -> pages.toggle()
                 EditorMenu.Action.New -> newNotebook()
                 EditorMenu.Action.Open ->
                     guard.confirmDiscard { startActivityForResult(DocumentFiles.openIntent(saver.currentUri), REQUEST_OPEN) }
@@ -157,7 +163,13 @@ class MainActivity : Activity() {
         topBar.show(saver.documentName.removeSuffix(".rnote"), menuState())
     }
 
-    private fun menuState() = MenuState(documentOpen, editState, controls.settings, canvasView.zoomPercent)
+    private fun menuState() = MenuState(
+        documentOpen,
+        editState,
+        controls.settings,
+        canvasView.zoomPercent,
+        hasPages = documentSettings?.layout == DocumentLayout.FIXED_SIZE,
+    )
 
     private fun showMenu() {
         val panel = MenuPanel.build(this, menuState(), ::perform)
@@ -239,6 +251,7 @@ class MainActivity : Activity() {
                 if (updated.pageWidth != current.pageWidth || updated.layout != current.layout) {
                     canvasView.refit(updated)
                 }
+                pages.onDocumentShown()
             })
         }
     }
@@ -246,6 +259,7 @@ class MainActivity : Activity() {
     /** The view moved: the selection bar follows, and the zoom shown updates. */
     private fun onViewportMoved() {
         selectionBar.follow(canvasView.currentViewport)
+        pages.followView()
         val percent = canvasView.zoomPercent
         if (percent != shownZoomPercent) {
             shownZoomPercent = percent
@@ -275,6 +289,7 @@ class MainActivity : Activity() {
         when (requestCode) {
             REQUEST_OPEN -> openDocument(uri)
             REQUEST_SAVE_AS -> saver.saveAs(uri)
+            REQUEST_INSERT_PDF -> pages.onPdfPicked(uri)
         }
     }
 
@@ -464,6 +479,7 @@ class MainActivity : Activity() {
         controls.applyToDocument()
         updateEditState(info.editState)
         search.close()
+        pages.onDocumentShown()
         // A notebook with no file yet has no index: its text boxes are searched still.
         ink.open((libraryPath ?: saver.currentUri?.toString())?.let { InkIndexer.indexFileFor(this, it) })
     }
@@ -570,6 +586,7 @@ class MainActivity : Activity() {
             search.onEdited()
         }
         editState = state
+        if (state.modified) pages.onEdited()
         refreshSelectionBar()
         refreshBar()
         guard.modified = state.modified
@@ -596,5 +613,6 @@ class MainActivity : Activity() {
 
         private const val REQUEST_OPEN = 1
         private const val REQUEST_SAVE_AS = 2
+        private const val REQUEST_INSERT_PDF = 3
     }
 }

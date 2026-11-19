@@ -307,4 +307,25 @@
     <plurals name="import_pdf_pages_size">
         <item quantity="other">%1$d 页 · %2$s MB</item>
     </plurals>
+
+    <!-- Column of pages -->
+    <string name="pages_menu">页面</string>
+    <string name="pages_title">页面</string>
+    <string name="pages_close">关闭页面</string>
+    <string name="pages_remove">删除</string>
+    <string name="page_actions">页面操作</string>
+    <string name="page_insert_blank_after">在后面插入空白页</string>
+    <string name="page_insert_pdf_after">在后面插入 PDF</string>
+    <string name="page_remove">删除此页</string>
+    <string name="pages_remove_confirm_message">页面上写的内容也会被删除。可以撤销。</string>
+    <string name="insert_pdf_title">插入 PDF</string>
+    <string name="insert_pdf_from">起始页</string>
+    <string name="insert_pdf_to">结束页</string>
+    <string name="insert_pdf_progress">正在插入 PDF</string>
+    <plurals name="pages_selected">
+        <item quantity="other">已选择 %d 页</item>
+    </plurals>
+    <plurals name="pages_remove_confirm">
+        <item quantity="other">删除 %d 页？</item>
+    </plurals>
 </resources>

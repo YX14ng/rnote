@@ -331,4 +331,31 @@
         <item quantity="many">%1$d страниц · %2$s МБ</item>
         <item quantity="other">%1$d страниц · %2$s МБ</item>
     </plurals>
+
+    <!-- Column of pages -->
+    <string name="pages_menu">Страницы</string>
+    <string name="pages_title">Страницы</string>
+    <string name="pages_close">Закрыть страницы</string>
+    <string name="pages_remove">Удалить</string>
+    <string name="page_actions">Действия со страницей</string>
+    <string name="page_insert_blank_after">Вставить пустую страницу после</string>
+    <string name="page_insert_pdf_after">Вставить PDF после</string>
+    <string name="page_remove">Удалить страницу</string>
+    <string name="pages_remove_confirm_message">Написанное на них тоже удалится. Это можно отменить.</string>
+    <string name="insert_pdf_title">Вставить PDF</string>
+    <string name="insert_pdf_from">С страницы</string>
+    <string name="insert_pdf_to">По страницу</string>
+    <string name="insert_pdf_progress">Вставка PDF</string>
+    <plurals name="pages_selected">
+        <item quantity="one">Выбрана %d</item>
+        <item quantity="few">Выбраны %d</item>
+        <item quantity="many">Выбрано %d</item>
+        <item quantity="other">Выбрано %d</item>
+    </plurals>
+    <plurals name="pages_remove_confirm">
+        <item quantity="one">Удалить %d страницу?</item>
+        <item quantity="few">Удалить %d страницы?</item>
+        <item quantity="many">Удалить %d страниц?</item>
+        <item quantity="other">Удалить %d страницы?</item>
+    </plurals>
 </resources>

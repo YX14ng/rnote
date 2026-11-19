@@ -307,4 +307,25 @@
     <plurals name="import_pdf_pages_size">
         <item quantity="other">%1$d ページ · %2$s MB</item>
     </plurals>
+
+    <!-- Column of pages -->
+    <string name="pages_menu">ページ</string>
+    <string name="pages_title">ページ</string>
+    <string name="pages_close">ページを閉じる</string>
+    <string name="pages_remove">削除</string>
+    <string name="page_actions">ページの操作</string>
+    <string name="page_insert_blank_after">後に白紙ページを挿入</string>
+    <string name="page_insert_pdf_after">後に PDF を挿入</string>
+    <string name="page_remove">このページを削除</string>
+    <string name="pages_remove_confirm_message">書かれている内容も削除されます。元に戻せます。</string>
+    <string name="insert_pdf_title">PDF を挿入</string>
+    <string name="insert_pdf_from">開始ページ</string>
+    <string name="insert_pdf_to">終了ページ</string>
+    <string name="insert_pdf_progress">PDF を挿入中</string>
+    <plurals name="pages_selected">
+        <item quantity="other">%d ページを選択</item>
+    </plurals>
+    <plurals name="pages_remove_confirm">
+        <item quantity="other">%d ページを削除しますか？</item>
+    </plurals>
 </resources>

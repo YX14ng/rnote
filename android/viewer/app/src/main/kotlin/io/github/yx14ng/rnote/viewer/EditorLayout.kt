@@ -65,6 +65,17 @@ internal class EditorLayout(activity: Activity, canvas: NoteCanvasView, topBar: 
             value?.let { content.addView(it, 1, FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, Gravity.TOP or Gravity.START)) }
         }
 
+    /** The column of sheets, along the left edge over the canvas. */
+    var sidePanel: View? = null
+        set(value) {
+            field?.let(content::removeView)
+            field = value
+            value?.let {
+                val width = Graphite.dp(content.context, PagesPanel.WIDTH_DP)
+                content.addView(it, FrameLayout.LayoutParams(width, MATCH_PARENT, Gravity.START))
+            }
+        }
+
     private var overlay: View? = null
 
     /** Whether an overlay (a panel, the pen wheel) shows. */

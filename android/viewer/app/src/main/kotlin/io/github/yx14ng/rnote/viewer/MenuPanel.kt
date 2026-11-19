@@ -55,6 +55,9 @@ internal object MenuPanel {
             panel.addView(PanelViews.menuRow(context, R.drawable.ic_page, R.string.page_and_background, null, true) {
                 onAction(EditorMenu.Action.Document)
             })
+            panel.addView(PanelViews.menuRow(context, R.drawable.ic_list, R.string.pages_menu, null, state.hasPages) {
+                onAction(EditorMenu.Action.Pages)
+            })
             panel.addView(PanelViews.menuRow(context, R.drawable.ic_text_format, R.string.action_text_format, null, true) {
                 onAction(EditorMenu.Action.TextFormat)
             })

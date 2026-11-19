@@ -224,6 +224,7 @@ impl RnoteDocument {
 mod clipboard;
 mod editing;
 mod ink;
+mod pages;
 mod recognition;
 mod selection;
 mod settings;

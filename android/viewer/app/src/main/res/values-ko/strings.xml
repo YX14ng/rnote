@@ -307,4 +307,25 @@
     <plurals name="import_pdf_pages_size">
         <item quantity="other">%1$d페이지 · %2$s MB</item>
     </plurals>
+
+    <!-- Column of pages -->
+    <string name="pages_menu">페이지</string>
+    <string name="pages_title">페이지</string>
+    <string name="pages_close">페이지 닫기</string>
+    <string name="pages_remove">삭제</string>
+    <string name="page_actions">페이지 작업</string>
+    <string name="page_insert_blank_after">뒤에 빈 페이지 삽입</string>
+    <string name="page_insert_pdf_after">뒤에 PDF 삽입</string>
+    <string name="page_remove">페이지 삭제</string>
+    <string name="pages_remove_confirm_message">페이지에 쓴 내용도 함께 삭제됩니다. 실행 취소할 수 있습니다.</string>
+    <string name="insert_pdf_title">PDF 삽입</string>
+    <string name="insert_pdf_from">시작 페이지</string>
+    <string name="insert_pdf_to">끝 페이지</string>
+    <string name="insert_pdf_progress">PDF 삽입 중</string>
+    <plurals name="pages_selected">
+        <item quantity="other">%d페이지 선택됨</item>
+    </plurals>
+    <plurals name="pages_remove_confirm">
+        <item quantity="other">%d페이지를 삭제할까요?</item>
+    </plurals>
 </resources>

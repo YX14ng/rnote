@@ -16,6 +16,7 @@ mod document;
 mod editing;
 mod ink;
 mod library;
+mod pages;
 mod pdf;
 mod selection;
 mod settings;

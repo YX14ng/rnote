@@ -315,6 +315,28 @@ internal class NativeDocument private constructor(private var handle: Long) : Au
 
     fun markModified(): EditState = EditState.fromFlags(NativeBridge.markModified(checkOpen()))
 
+    /** The number of sheets, or null for a document without sheets (an infinite note). */
+    fun pageCount(): Int? = NativeBridge.pageCount(checkOpen()).takeIf { it >= 0 }
+
+    /** The width and height of a sheet, in document coordinates. */
+    fun sheetSize(): Pair<Double, Double> = NativeBridge.pageSheet(checkOpen()).let { it[0] to it[1] }
+
+    /** Whether each sheet has something on it. */
+    fun pagesWithContent(): BooleanArray = NativeBridge.pagesWithContent(checkOpen())
+
+    fun removePages(pages: Set<Int>): EditState =
+        EditState.fromFlags(NativeBridge.removePages(checkOpen(), pages.sorted().toIntArray()))
+
+    fun insertBlankPage(at: Int): EditState = EditState.fromFlags(NativeBridge.insertBlankPages(checkOpen(), at, 1))
+
+    /** Starts reading PDF pages fitted to this document's sheets; see [NativeBridge.pdfPagesBegin]. */
+    fun pdfPagesBegin(pdf: ByteArray, password: String?, firstPage: Int, endPage: Int, vector: Boolean): Long =
+        NativeBridge.pdfPagesBegin(checkOpen(), pdf, password, firstPage, endPage, vector)
+
+    /** Inserts the PDF [pages] before sheet [at]; [pages] is freed. */
+    fun insertPdfPages(pages: Long, at: Int): EditState =
+        EditState.fromFlags(NativeBridge.insertPdfPages(checkOpen(), pages, at))
+
     fun undo(): EditState = EditState.fromFlags(NativeBridge.undo(checkOpen()))
 
     fun redo(): EditState = EditState.fromFlags(NativeBridge.redo(checkOpen()))

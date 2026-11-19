@@ -141,7 +141,8 @@ impl RnoteDocument {
     pub fn undo(&mut self) -> EditState {
         let bounds_before = self.bounds();
         let flags = if self.engine.can_undo() {
-            self.engine.undo(Instant::now())
+            // The history keeps the strokes, not the number of sheets they were on.
+            self.engine.undo(Instant::now()) | self.engine.doc_expand_fixed_size_to_content()
         } else {
             WidgetFlags::default()
         };
@@ -152,7 +153,8 @@ impl RnoteDocument {
     pub fn redo(&mut self) -> EditState {
         let bounds_before = self.bounds();
         let flags = if self.engine.can_redo() {
-            self.engine.redo(Instant::now())
+            // The history keeps the strokes, not the number of sheets they were on.
+            self.engine.redo(Instant::now()) | self.engine.doc_expand_fixed_size_to_content()
         } else {
             WidgetFlags::default()
         };

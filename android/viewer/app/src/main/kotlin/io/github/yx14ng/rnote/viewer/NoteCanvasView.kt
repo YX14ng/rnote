@@ -94,6 +94,12 @@ class NoteCanvasView(context: Context) : View(context) {
     val zoomPercent: Int
         get() = camera.zoomPercent
 
+    /** Scrolls so the document line [y] shows near the top of the view, e.g. a sheet's top. */
+    fun showDocumentFromY(y: Double) {
+        camera.showFromY(y)
+        onViewportChanged()
+    }
+
     /** Fits a page to the width again, around the middle of the view. */
     fun zoomToFit() {
         camera.zoomToFit(width / 2f, height / 2f)

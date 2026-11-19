@@ -237,6 +237,44 @@ internal object NativeBridge {
     /** Frees the import at [handle], finished or cancelled. */
     @JvmStatic external fun pdfImportClose(handle: Long)
 
+    /** The number of sheets of the document, or -1 for one without sheets. */
+    @JvmStatic external fun pageCount(handle: Long): Int
+
+    /** `[width, height]` of a sheet, in document coordinates. */
+    @JvmStatic external fun pageSheet(handle: Long): DoubleArray
+
+    /** Whether each sheet has something on it. */
+    @JvmStatic external fun pagesWithContent(handle: Long): BooleanArray
+
+    /** Removes the sheets [pages] (0-based) and what is on them; undoable. */
+    @JvmStatic external fun removePages(handle: Long, pages: IntArray): Int
+
+    /** Inserts [count] blank sheets before sheet [at]; undoable. */
+    @JvmStatic external fun insertBlankPages(handle: Long, at: Int, count: Int): Int
+
+    /**
+     * Starts reading pages [firstPage] (0-based) up to [endPage] (excluded) of [pdf] as wide
+     * as the sheets of the document at [handle]; returns a pages handle that goes to either
+     * [insertPdfPages] or [pdfPagesClose], exactly once. Throws if the PDF can't be read.
+     */
+    @JvmStatic external fun pdfPagesBegin(
+        handle: Long,
+        pdf: ByteArray,
+        password: String?,
+        firstPage: Int,
+        endPage: Int,
+        vector: Boolean,
+    ): Long
+
+    /** Reads the next page; false once every page is read. Blocks while it works. */
+    @JvmStatic external fun pdfPagesNext(pages: Long): Boolean
+
+    /** Inserts the pages read so far before sheet [at] and frees [pages]; undoable. */
+    @JvmStatic external fun insertPdfPages(handle: Long, pages: Long, at: Int): Int
+
+    /** Frees [pages] that won't be inserted. */
+    @JvmStatic external fun pdfPagesClose(pages: Long)
+
     /**
      * Creates the notebook [path] in the library at [root] with [bytes], whole or not at
      * all and never replacing a file, while no sync writes; throws on errors.

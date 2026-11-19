@@ -323,4 +323,29 @@
         <item quantity="many">%1$d páginas · %2$s MB</item>
         <item quantity="other">%1$d páginas · %2$s MB</item>
     </plurals>
+
+    <!-- Column of pages -->
+    <string name="pages_menu">Páginas</string>
+    <string name="pages_title">Páginas</string>
+    <string name="pages_close">Cerrar páginas</string>
+    <string name="pages_remove">Borrar</string>
+    <string name="page_actions">Acciones de la página</string>
+    <string name="page_insert_blank_after">Insertar página en blanco después</string>
+    <string name="page_insert_pdf_after">Insertar PDF después</string>
+    <string name="page_remove">Borrar página</string>
+    <string name="pages_remove_confirm_message">Lo que tienen escrito también se borra. Se puede deshacer.</string>
+    <string name="insert_pdf_title">Insertar PDF</string>
+    <string name="insert_pdf_from">Desde la página</string>
+    <string name="insert_pdf_to">Hasta la página</string>
+    <string name="insert_pdf_progress">Insertando el PDF</string>
+    <plurals name="pages_selected">
+        <item quantity="one">%d seleccionada</item>
+        <item quantity="many">%d seleccionadas</item>
+        <item quantity="other">%d seleccionadas</item>
+    </plurals>
+    <plurals name="pages_remove_confirm">
+        <item quantity="one">¿Borrar %d página?</item>
+        <item quantity="many">¿Borrar %d páginas?</item>
+        <item quantity="other">¿Borrar %d páginas?</item>
+    </plurals>
 </resources>

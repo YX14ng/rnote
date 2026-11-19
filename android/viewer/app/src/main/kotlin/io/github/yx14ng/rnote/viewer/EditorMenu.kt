@@ -7,6 +7,8 @@ data class MenuState(
     val settings: EditorSettings,
     /** The zoom relative to fitting a page to the width, in percent. */
     val zoomPercent: Int,
+    /** Whether the document has sheets, which the column of pages shows. */
+    val hasPages: Boolean = false,
 )
 
 /** What the user can ask the editor for, from the top bar, a panel or a shortcut. */
@@ -40,6 +42,7 @@ internal object EditorMenu {
         data class ShapeRough(val rough: Boolean) : Action
         data object TextFormat : Action
         data object Document : Action
+        data object Pages : Action
         data object New : Action
         data object Open : Action
         data object Save : Action
