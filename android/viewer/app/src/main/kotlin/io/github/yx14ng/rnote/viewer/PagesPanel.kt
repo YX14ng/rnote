@@ -49,9 +49,14 @@ internal class PagesPanel(
     private var current = 0
     private val selected = sortedSetOf<Int>()
 
-    // Thumbnails are redrawn after every change, a few at a time as they scroll into view;
-    // the old one shows until the new one is ready.
-    private var generation = 0
+    // Thumbnails are redrawn after a change to their sheet, a few at a time as they scroll
+    // into view; the old one shows until the new one is ready. Each sheet counts its changes.
+    private var pageGenerations = IntArray(0)
+
+    // Where the canvas is, so an edit only marks the sheets there as changed.
+    private var viewTop = 0.0
+    private var visibleHeight = 0.0
+    private var editedOnly = false
     private val thumbnails = object : LruCache<Int, Thumbnail>(THUMBNAIL_CACHE_BYTES) {
         override fun sizeOf(key: Int, value: Thumbnail): Int = value.bitmap.byteCount
     }
@@ -100,14 +105,21 @@ internal class PagesPanel(
         showTitle()
     }
 
-    /** Reads the sheets again and redraws the thumbnails, e.g. after an edit. */
+    /**
+     * The document was edited: redraws the sheets on the canvas, where the pen was, or all of
+     * them if their number changed.
+     */
     fun refresh() {
+        editedOnly = true
         main.removeCallbacks(refreshNow)
         main.postDelayed(refreshNow, REFRESH_DELAY_MS)
     }
 
-    /** Reads the sheets right away, e.g. when the column opens. */
-    fun refreshNow() = refreshNow.run()
+    /** Reads every sheet again right away, e.g. when the column opens. */
+    fun refreshNow() {
+        editedOnly = false
+        refreshNow.run()
+    }
 
     private val refreshNow = Runnable {
         renderer.query({ document ->
@@ -120,12 +132,21 @@ internal class PagesPanel(
                     listener.closePages()
                     return@onSuccess
                 }
+                val sameSheets = pages == pageCount && sheet.first == sheetWidth && sheet.second == sheetHeight
                 pageCount = pages
                 sheetWidth = sheet.first
                 sheetHeight = sheet.second
                 withContent = content
-                generation++
-                drawing.clear()
+                if (editedOnly && sameSheets) {
+                    for (page in Pages.visible(viewTop, visibleHeight, sheetHeight, pageCount)) {
+                        pageGenerations[page]++
+                        drawing.remove(page)
+                    }
+                } else {
+                    val before = pageGenerations
+                    pageGenerations = IntArray(pageCount) { before.getOrElse(it) { 0 } + 1 }
+                    drawing.clear()
+                }
                 selected.retainAll { it < pageCount }
                 showTitle()
                 adapter.notifyDataSetChanged()
@@ -135,6 +156,8 @@ internal class PagesPanel(
 
     /** Marks the sheet in the middle of [viewport], [visibleHeight] (document units) tall. */
     fun follow(viewport: Viewport, visibleHeight: Double) {
+        viewTop = viewport.y
+        this.visibleHeight = visibleHeight
         if (pageCount == 0) return
         val page = Pages.current(viewport.y, visibleHeight, sheetHeight, pageCount)
         if (page == current) return
@@ -186,13 +209,14 @@ internal class PagesPanel(
     private fun bindThumbnail(view: ImageView, page: Int) {
         val cached = thumbnails.get(page)
         view.setImageBitmap(cached?.bitmap)
-        if ((cached == null || cached.generation != generation) && drawing.add(page)) {
+        val changes = pageGenerations.getOrElse(page) { 0 }
+        if ((cached == null || cached.generation != changes) && drawing.add(page)) {
             draw(page)
         }
     }
 
     private fun draw(page: Int) {
-        val requested = generation
+        val requested = pageGenerations.getOrElse(page) { 0 }
         val width = thumbnailWidth
         val zoom = width / sheetWidth
         val height = (sheetHeight * zoom).toInt().coerceAtLeast(1)
@@ -202,7 +226,7 @@ internal class PagesPanel(
                 document.render(bitmap, Viewport(0.0, top, zoom))
             }
         }) { result ->
-            if (requested != generation) return@query
+            if (requested != pageGenerations.getOrElse(page) { -1 }) return@query
             drawing.remove(page)
             result.onSuccess { bitmap ->
                 thumbnails.put(page, Thumbnail(bitmap, requested))

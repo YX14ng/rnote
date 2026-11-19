@@ -32,4 +32,12 @@ class PagesTest {
     fun theTopOfAPageIsItsIndexTimesTheSheet() {
         assertEquals(3000.0, Pages.top(page = 3, sheetHeight = 1000.0), 1e-9)
     }
+
+    @Test
+    fun theSheetsOnScreenAreTheOnesTheViewCrosses() {
+        // Sheets 1000 tall; the view shows 800 from y = 1700: the end of sheet 1 and sheet 2.
+        assertEquals(1..2, Pages.visible(viewTop = 1700.0, visibleHeight = 800.0, sheetHeight = 1000.0, count = 5))
+        assertEquals(0..0, Pages.visible(viewTop = 100.0, visibleHeight = 800.0, sheetHeight = 1000.0, count = 5))
+        assertEquals(3..4, Pages.visible(viewTop = 3900.0, visibleHeight = 5000.0, sheetHeight = 1000.0, count = 5))
+    }
 }
