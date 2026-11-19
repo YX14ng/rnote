@@ -61,6 +61,8 @@ internal class InkIndexer(
     // Readings not written to the index yet: it's rewritten whole, so they go in batches.
     private var batch: Batch? = null
 
+    private val tickLater = Runnable { tick() }
+
     /** Called whenever [modelState], [pending], [unread] or [language] change. */
     var onChanged: (() -> Unit)? = null
 
@@ -88,7 +90,9 @@ internal class InkIndexer(
     fun onEdited() {
         if (indexFile == null) return
         schedule.edited(SystemClock.uptimeMillis())
-        main.postDelayed(::tick, InkSchedule.DELAY_MS + TICK_SLACK_MS)
+        // One wake-up for the last edit, not one per batch of pen samples.
+        main.removeCallbacks(tickLater)
+        main.postDelayed(tickLater, InkSchedule.DELAY_MS + TICK_SLACK_MS)
     }
 
     /** Reads the notebook in [newLanguage] from now on, all of it again. */
@@ -228,7 +232,7 @@ internal class InkIndexer(
         flush { if (run == generation) onChanged?.invoke() }
         // Edits during the run asked for another one; fragments it couldn't read, for a
         // later one.
-        schedule.dueIn(now)?.let { wait -> main.postDelayed(::tick, wait + TICK_SLACK_MS) }
+        schedule.dueIn(now)?.let { wait -> main.postDelayed(tickLater, wait + TICK_SLACK_MS) }
     }
 
     /** Writes the batch to the index, then calls [then] on the main thread. */

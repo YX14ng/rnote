@@ -585,11 +585,15 @@ class MainActivity : Activity() {
             ink.onEdited()
             search.onEdited()
         }
-        editState = state
         if (state.modified) pages.onEdited()
+        // Every batch of pen samples reports a state, nearly always the one already shown.
+        if (state != editState) {
+            editState = state
+            refreshBar()
+            guard.modified = state.modified
+        }
+        // Even with the same state: a moved selection takes its bar along.
         refreshSelectionBar()
-        refreshBar()
-        guard.modified = state.modified
     }
 
     private fun showError(error: Throwable) {
