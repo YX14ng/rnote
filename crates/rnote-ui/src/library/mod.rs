@@ -301,6 +301,34 @@ impl RnLibraryView {
         value
     }
 
+    /// Like [`Self::modify`] for one operation per item of `items`, showing the library again
+    /// once at the end instead of after each: a batch of a hundred notebooks rebuilt the
+    /// whole grid a hundred times. `None` for the items whose operation failed.
+    fn modify_each<I, T>(
+        &self,
+        items: impl IntoIterator<Item = I>,
+        mut op: impl FnMut(&mut Library, I) -> anyhow::Result<T>,
+    ) -> Vec<Option<T>> {
+        let (values, errors): (Vec<Option<T>>, Vec<anyhow::Error>) = {
+            let mut library = self.imp().library.borrow_mut();
+            let Some(library) = library.as_mut() else {
+                return Vec::new();
+            };
+            let mut errors = Vec::new();
+            let values = items
+                .into_iter()
+                .map(|item| op(library, item).map_err(|e| errors.push(e)).ok())
+                .collect();
+            (values, errors)
+        };
+        for e in &errors {
+            error!("A library operation failed, Err: {e:?}");
+            self.toast_error(&format!("{e:#}"));
+        }
+        self.refresh();
+        values
+    }
+
     /// The `library-dir` setting, empty when unset or without settings.
     fn root_setting(&self) -> String {
         self.appwindow()

@@ -229,8 +229,9 @@ impl RnLibraryView {
         };
         let root = self.root();
         let folder = Some(folder).filter(|folder| !folder.is_empty());
-        for path in paths {
-            if let Some(new_path) = self.modify(|library| library.move_to(path, folder)) {
+        let moved = self.modify_each(paths, |library, path| library.move_to(path, folder));
+        for (path, new_path) in paths.iter().zip(moved) {
+            if let Some(new_path) = new_path {
                 tabs::retarget_open_tabs(&appwindow, &root.join(path), &root.join(new_path));
             }
         }
@@ -242,13 +243,19 @@ impl RnLibraryView {
             return;
         };
         let root = self.root();
-        for path in paths {
-            if let Some(name) = tabs::open_tab_inside(&appwindow, &root.join(path)) {
-                self.toast_error(&close_first(&name));
-                continue;
-            }
-            self.modify(|library| library.trash(path));
-        }
+        let closed: Vec<&String> = paths
+            .iter()
+            .filter(
+                |path| match tabs::open_tab_inside(&appwindow, &root.join(path)) {
+                    Some(name) => {
+                        self.toast_error(&close_first(&name));
+                        false
+                    }
+                    None => true,
+                },
+            )
+            .collect();
+        self.modify_each(closed, |library, path| library.trash(path));
     }
 
     /// Lets the user choose the tags of the notebooks at `paths`.
@@ -278,12 +285,16 @@ impl RnLibraryView {
         if changes.is_empty() {
             return;
         }
-        for (path, tags) in current {
-            let new_tags = tagchoice::apply_tag_choice(&tags, &initially, &checked);
-            if new_tags != tags {
-                self.modify(|library| library.set_tags(&path, &new_tags));
-            }
-        }
+        let changed: Vec<(String, Vec<String>)> = current
+            .into_iter()
+            .filter_map(|(path, tags)| {
+                let new_tags = tagchoice::apply_tag_choice(&tags, &initially, &checked);
+                (new_tags != tags).then_some((path, new_tags))
+            })
+            .collect();
+        self.modify_each(changed, |library, (path, tags)| {
+            library.set_tags(&path, &tags)
+        });
     }
 }
 
