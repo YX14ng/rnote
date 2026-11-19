@@ -142,7 +142,9 @@ mod tests {
 
         assert_eq!(answer["notebooks"][0]["path"], "a.rnote");
         assert_eq!(answer["notebooks"][0]["kind"], "rnote");
-        assert_eq!(answer["notebooks"][0]["key"].as_str().unwrap().len(), 16);
+        // `<path>-<version>`, 16 hex digits each.
+        let key = answer["notebooks"][0]["key"].as_str().unwrap();
+        assert_eq!((key.len(), key.find('-')), (33, Some(16)));
         assert_eq!(answer["folders"], Value::Array(Vec::new()));
         assert_eq!(answer["tags"], Value::Array(Vec::new()));
         assert_eq!(answer["trash"], Value::Array(Vec::new()));
