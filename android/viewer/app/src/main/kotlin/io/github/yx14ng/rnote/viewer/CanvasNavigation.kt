@@ -14,7 +14,7 @@ import android.view.ScaleGestureDetector
  *
  * [onMoved] runs after every move; [onFlingStarted] asks for animation frames, which
  * advance the fling; [onTap] gets single taps. Pulling past the end of a document of pages
- * for a moment calls [onAddPage] (see [PagePull]). A finger held still calls [onFingerHeld].
+ * for a moment calls [onAddPage] (see [PagePull]). A finger held still calls [onFingerHeld]; the end of a pinch, [onPinchEnded].
  */
 internal class CanvasNavigation(
     context: Context,
@@ -24,11 +24,19 @@ internal class CanvasNavigation(
     private val onTap: () -> Boolean,
     private val onAddPage: () -> Unit,
     private val onFingerHeld: (MotionEvent) -> Unit,
+    private val onPinchEnded: () -> Unit,
 ) {
     private val pull = PagePull()
 
     /** When on, pinching, double taps and Ctrl+wheel leave the zoom as it is. */
     var zoomLocked = false
+
+    /**
+     * Whether two fingers are pinching. Meanwhile the last frame is only scaled: a sharp one
+     * for every step would arrive late, each with its own background tile to draw.
+     */
+    val pinching: Boolean
+        get() = scaleDetector.isInProgress
 
     /** How far along pulling to add a page is, from 0 to 1, or null when there is none. */
     val pullProgress: Float?
@@ -42,6 +50,12 @@ internal class CanvasNavigation(
                 camera.zoomAround(camera.viewport.zoom * detector.scaleFactor, detector.focusX, detector.focusY)
                 onMoved()
                 return true
+            }
+
+            override fun onScaleEnd(detector: ScaleGestureDetector) {
+                // Frames were held back while pinching: one sharp frame at the final zoom.
+                // The detector still reports the pinch as in progress during this call.
+                onPinchEnded()
             }
         },
     )

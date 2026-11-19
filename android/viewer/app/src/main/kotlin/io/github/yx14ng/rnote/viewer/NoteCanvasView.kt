@@ -135,7 +135,7 @@ class NoteCanvasView(context: Context) : View(context) {
     private val viewport: Viewport
         get() = camera.viewport
 
-    private val frames = FrameScheduler(
+    private val frames: FrameScheduler = FrameScheduler(
         nextRequest = {
             if (bounds == null || width == 0 || height == 0) {
                 null
@@ -198,6 +198,7 @@ class NoteCanvasView(context: Context) : View(context) {
         onTap = ::performClick,
         onAddPage = ::addPage,
         onFingerHeld = ::longPressed,
+        onPinchEnded = { frames.request() },
     )
     private val pullHint = PagePullHint(context)
     private val highlights = MatchHighlights(context)
@@ -474,7 +475,7 @@ class NoteCanvasView(context: Context) : View(context) {
     /** Redraws with the last frame right away and asks for a sharp render. */
     private fun onViewportChanged() {
         invalidate()
-        frames.request()
+        if (!navigation.pinching) frames.request()
         onViewportMoved?.invoke()
     }
 
