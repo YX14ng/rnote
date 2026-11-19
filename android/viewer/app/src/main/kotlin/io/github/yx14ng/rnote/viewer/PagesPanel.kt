@@ -41,7 +41,8 @@ internal class PagesPanel(
     }
 
     private val main = Handler(Looper.getMainLooper())
-    private var count = 0
+    // Not `count`: inside the adapter that name is BaseAdapter's own getCount().
+    private var pageCount = 0
     private var sheetWidth = 1.0
     private var sheetHeight = 1.0
     private var withContent = BooleanArray(0)
@@ -119,13 +120,13 @@ internal class PagesPanel(
                     listener.closePages()
                     return@onSuccess
                 }
-                count = pages
+                pageCount = pages
                 sheetWidth = sheet.first
                 sheetHeight = sheet.second
                 withContent = content
                 generation++
                 drawing.clear()
-                selected.retainAll { it < count }
+                selected.retainAll { it < pageCount }
                 showTitle()
                 adapter.notifyDataSetChanged()
             }
@@ -134,8 +135,8 @@ internal class PagesPanel(
 
     /** Marks the sheet in the middle of [viewport], [visibleHeight] (document units) tall. */
     fun follow(viewport: Viewport, visibleHeight: Double) {
-        if (count == 0) return
-        val page = Pages.current(viewport.y, visibleHeight, sheetHeight, count)
+        if (pageCount == 0) return
+        val page = Pages.current(viewport.y, visibleHeight, sheetHeight, pageCount)
         if (page == current) return
         current = page
         adapter.notifyDataSetChanged()
@@ -213,7 +214,7 @@ internal class PagesPanel(
     private class Thumbnail(val bitmap: Bitmap, val generation: Int)
 
     private inner class PageAdapter : BaseAdapter() {
-        override fun getCount(): Int = count
+        override fun getCount(): Int = this@PagesPanel.pageCount
 
         override fun getItem(position: Int): Any = position
 
