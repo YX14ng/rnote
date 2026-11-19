@@ -101,6 +101,19 @@ impl Engine {
         widget_flags
     }
 
+    /// Turns the rasterizing of strokes for the GTK frontend on or off. A frontend that draws
+    /// the strokes with cairo itself turns it off, saving that work while writing, undoing or
+    /// opening a document.
+    pub fn set_stroke_rendering_enabled(&mut self, enabled: bool) {
+        self.store.set_rendering_enabled(enabled);
+    }
+
+    /// How many rendered images of strokes the engine keeps, e.g. to check that a frontend
+    /// drawing strokes itself keeps none.
+    pub fn stroke_rendering_images(&self) -> usize {
+        self.store.rendering_images()
+    }
+
     /// Update the content and background rendering for the current viewport.
     ///
     /// If the background pattern or zoom has changed, the background pattern needs to be regenerated first.

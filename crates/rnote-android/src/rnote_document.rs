@@ -84,6 +84,9 @@ impl RnoteDocument {
     }
 
     fn with_engine(mut engine: Engine) -> Self {
+        // Frames are drawn from the strokes' geometry (see `render`): the rasters the engine
+        // makes for the GTK frontend would only cost time while writing, undoing and opening.
+        engine.set_stroke_rendering_enabled(false);
         let config = EngineConfigShared::default();
         {
             let mut config = config.write();

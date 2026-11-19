@@ -151,3 +151,20 @@ fn renders_strokes_drawn_beside_a_fixed_size_page() {
     let pixel = render_pixel(&mut document, left_of_page, 200.0);
     assert!(pixel[1] > 200 && pixel[0] < 100, "got {pixel:?}");
 }
+
+#[test]
+fn the_engine_keeps_no_stroke_rasters_the_app_never_draws() {
+    let mut document = plain_document();
+    document.set_brush(RED, 6.0);
+    for i in 0..5 {
+        draw_line(&mut document, 100.0 + 40.0 * f64::from(i));
+    }
+    count_dark_pixels(&mut document, 0.0, 0.0, 1.0, 400);
+    document.undo();
+    document.redo();
+    // The engine rasterizes on other threads; their results are taken in by the next frame.
+    std::thread::sleep(std::time::Duration::from_millis(300));
+    count_dark_pixels(&mut document, 0.0, 0.0, 1.0, 400);
+
+    assert_eq!(document.engine.stroke_rendering_images(), 0);
+}

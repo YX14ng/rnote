@@ -96,6 +96,9 @@ pub struct StrokeStore {
     /// Needs to be updated with `update_with_key()` when strokes changed their geometry or position!
     #[serde(skip)]
     key_tree: KeyTree,
+    /// Whether strokes are rasterized for a frontend that draws those images (the GTK one).
+    #[serde(skip)]
+    rendering_enabled: bool,
 }
 
 impl Default for StrokeStore {
@@ -114,6 +117,7 @@ impl Default for StrokeStore {
             key_tree: KeyTree::default(),
 
             chrono_counter: 0,
+            rendering_enabled: true,
         }
     }
 }

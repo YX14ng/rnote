@@ -103,12 +103,34 @@ impl StrokeStore {
             .unwrap_or(false)
     }
 
+    /// Turns the rasterizing of strokes on or off; off drops what was rasterized. A frontend
+    /// that draws the strokes itself (with cairo, from their geometry) has no use for it.
+    pub(crate) fn set_rendering_enabled(&mut self, enabled: bool) {
+        self.rendering_enabled = enabled;
+        if !enabled {
+            for render_comp in self.render_components.values_mut() {
+                render_comp.images.clear();
+            }
+        }
+    }
+
+    /// How many rendered images the strokes hold.
+    pub(crate) fn rendering_images(&self) -> usize {
+        self.render_components
+            .values()
+            .map(|render_comp| render_comp.images.len())
+            .sum()
+    }
+
     pub(crate) fn regenerate_rendering_for_stroke(
         &mut self,
         key: StrokeKey,
         viewport: Aabb,
         image_scale: f64,
     ) {
+        if !self.rendering_enabled {
+            return;
+        }
         if let Some(stroke) = self.stroke_components.get(key)
             && let Some(render_comp) = self.render_components.get_mut(key)
         {
@@ -188,6 +210,9 @@ impl StrokeStore {
         viewport: Aabb,
         image_scale: f64,
     ) {
+        if !self.rendering_enabled {
+            return;
+        }
         if let Some(stroke) = self.stroke_components.get(key)
             && let Some(render_comp) = self.render_components.get_mut(key)
         {
@@ -247,6 +272,9 @@ impl StrokeStore {
         viewport: Aabb,
         image_scale: f64,
     ) {
+        if !self.rendering_enabled {
+            return;
+        }
         let keys = self.render_components.keys().collect::<Vec<StrokeKey>>();
 
         for key in keys {
@@ -343,6 +371,9 @@ impl StrokeStore {
         viewport: Aabb,
         image_scale: f64,
     ) {
+        if !self.rendering_enabled {
+            return;
+        }
         if let Some(stroke) = self.stroke_components.get(key)
             && let Some(render_comp) = self.render_components.get_mut(key)
         {
@@ -458,6 +489,9 @@ impl StrokeStore {
         key: StrokeKey,
         images: GeneratedContentImages,
     ) {
+        if !self.rendering_enabled {
+            return;
+        }
         if let Some(render_comp) = self.render_components.get_mut(key) {
             match images {
                 GeneratedContentImages::Partial {
