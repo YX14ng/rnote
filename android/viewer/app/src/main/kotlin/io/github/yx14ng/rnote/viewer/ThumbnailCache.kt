@@ -59,9 +59,14 @@ internal class ThumbnailCache(context: Context, private val store: LibraryStore)
         if (!file.exists()) {
             val png = NativeBridge.libraryThumbnail(store.file(notebook.path).readBytes(), SIZE_PX) ?: return null
             dir.mkdirs()
-            val temporary = File(dir, "${notebook.key}.tmp")
+            // One per thread: two workers may render the same notebook at once.
+            val temporary = File(dir, "${notebook.key}.${Thread.currentThread().id}.tmp")
             temporary.writeBytes(png)
             temporary.renameTo(file)
+            // Each save of a notebook used to leave one more thumbnail behind.
+            dir.list()?.let { names ->
+                ThumbnailFiles.olderVersions(names.toList(), notebook.key).forEach { File(dir, it).delete() }
+            }
         }
         return BitmapFactory.decodeFile(file.path)
     }
@@ -71,5 +76,14 @@ internal class ThumbnailCache(context: Context, private val store: LibraryStore)
         const val SIZE_PX = 360
         const val WORKERS = 2
         const val MEMORY_BYTES = 32 * 1024 * 1024
+    }
+}
+
+/** Names of the thumbnail files, `<path key>-<version key>.png` (see `thumbnail_key`). */
+internal object ThumbnailFiles {
+    /** The thumbnails among [names] of earlier versions of the notebook whose key is [current]. */
+    fun olderVersions(names: List<String>, current: String): List<String> {
+        val notebook = current.substringBefore('-', missingDelimiterValue = "").ifEmpty { return emptyList() }
+        return names.filter { it.startsWith("$notebook-") && it.endsWith(".png") && it != "$current.png" }
     }
 }
