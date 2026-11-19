@@ -7,6 +7,7 @@ use std::path::Path;
 
 use anyhow::Context;
 use rnote_library::{LIBRARY_DIR, META_FILE};
+use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
 /// The extension of notebooks.
@@ -17,6 +18,9 @@ const TRASH_DIR: &str = "trash";
 const TEMPORARY_SUFFIX: &str = ".sync-tmp";
 /// This library's sync identity, inside [`LIBRARY_DIR`]; not synced.
 const LIBRARY_ID_FILE: &str = "sync-id";
+/// The hashes of the synced files, to tell which changed without reading them all, inside
+/// [`LIBRARY_DIR`]; not synced.
+const HASH_CACHE_FILE: &str = "sync-hashes.json";
 /// Where files the sync removes are set aside, inside [`LIBRARY_DIR`]; not synced.
 const REMOVED_DIR: &str = ".sync-removed";
 /// Characters exFAT, FAT and Windows don't allow in names.
@@ -81,12 +85,84 @@ fn visible(name: &str) -> bool {
 /// The synced files under `root`: relative path (with `/`) → SHA-256 of the content, in
 /// hex. Symlinks aren't followed.
 pub(crate) fn scan(root: &Path) -> anyhow::Result<BTreeMap<String, String>> {
-    let mut files = BTreeMap::new();
-    scan_dir(root, "", &mut files)?;
-    Ok(files)
+    Ok(scan_counting(root)?.files)
 }
 
-fn scan_dir(root: &Path, prefix: &str, files: &mut BTreeMap<String, String>) -> anyhow::Result<()> {
+/// What [`scan_counting`] found.
+pub(crate) struct Scan {
+    /// Relative path → SHA-256 of the content, in hex.
+    pub files: BTreeMap<String, String>,
+    /// How many files had to be read: the others hadn't changed since they were hashed.
+    /// Only the tests look at it.
+    #[cfg_attr(not(test), allow(dead_code))]
+    pub hashed: usize,
+}
+
+/// Like [`scan`]. Reading every notebook on every sync is what made it slow, so the hashes
+/// are kept in [`HASH_CACHE_FILE`] with each file's size, times and inode, and a file is
+/// read again only when one of those changed. Saving a notebook replaces the file, which
+/// changes them all.
+pub(crate) fn scan_counting(root: &Path) -> anyhow::Result<Scan> {
+    let cache_path = root.join(LIBRARY_DIR).join(HASH_CACHE_FILE);
+    let known: BTreeMap<String, CachedHash> = fs::read(&cache_path)
+        .ok()
+        .and_then(|bytes| serde_json::from_slice(&bytes).ok())
+        .unwrap_or_default();
+    let mut found = BTreeMap::new();
+    let mut hashed = 0;
+    scan_dir(root, "", &known, &mut found, &mut hashed)?;
+    let files = found.iter().map(|(path, cached)| (path.clone(), cached.sha256.clone())).collect();
+    if found != known && root.join(LIBRARY_DIR).is_dir() {
+        // Only a cache: if it can't be written, the next scan reads the files again.
+        if let Ok(bytes) = serde_json::to_vec(&found) {
+            let _ = write_atomic(root, &format!("{LIBRARY_DIR}/{HASH_CACHE_FILE}"), &bytes);
+        }
+    }
+    Ok(Scan { files, hashed })
+}
+
+/// A file's hash, with what tells whether the file changed since.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+struct CachedHash {
+    len: u64,
+    modified_ns: u128,
+    changed_ns: i128,
+    inode: u64,
+    sha256: String,
+}
+
+impl CachedHash {
+    fn stamp(metadata: &fs::Metadata) -> (u64, u128, i128, u64) {
+        let modified_ns = metadata
+            .modified()
+            .ok()
+            .and_then(|time| time.duration_since(std::time::UNIX_EPOCH).ok())
+            .map_or(0, |since| since.as_nanos());
+        #[cfg(unix)]
+        let (changed_ns, inode) = {
+            use std::os::unix::fs::MetadataExt;
+            (
+                i128::from(metadata.ctime()) * 1_000_000_000 + i128::from(metadata.ctime_nsec()),
+                metadata.ino(),
+            )
+        };
+        #[cfg(not(unix))]
+        let (changed_ns, inode) = (0, 0);
+        (metadata.len(), modified_ns, changed_ns, inode)
+    }
+
+    fn matches(&self, stamp: (u64, u128, i128, u64)) -> bool {
+        (self.len, self.modified_ns, self.changed_ns, self.inode) == stamp
+    }
+}
+
+fn scan_dir(
+    root: &Path,
+    prefix: &str,
+    known: &BTreeMap<String, CachedHash>,
+    found: &mut BTreeMap<String, CachedHash>,
+    hashed: &mut usize,
+) -> anyhow::Result<()> {
     let dir = root.join(prefix);
     let entries = fs::read_dir(&dir).with_context(|| format!("Reading {}", dir.display()))?;
     for entry in entries {
@@ -97,10 +173,22 @@ fn scan_dir(root: &Path, prefix: &str, files: &mut BTreeMap<String, String>) -> 
         let path = if prefix.is_empty() { name.clone() } else { format!("{prefix}/{name}") };
         let kind = entry.file_type()?;
         if kind.is_dir() && (visible(&name) || path == LIBRARY_DIR) {
-            scan_dir(root, &path, files)?;
+            scan_dir(root, &path, known, found, hashed)?;
         } else if kind.is_file() && is_synced(&path) {
+            let stamp = CachedHash::stamp(&entry.metadata()?);
+            if let Some(cached) = known.get(&path).filter(|cached| cached.matches(stamp)) {
+                found.insert(path, cached.clone());
+                continue;
+            }
             let bytes = fs::read(entry.path()).with_context(|| format!("Reading {path}"))?;
-            files.insert(path, sha256_hex(&bytes));
+            *hashed += 1;
+            let sha256 = sha256_hex(&bytes);
+            // Changed while it was read: keep the hash, but don't trust it next time.
+            let settled =
+                fs::metadata(entry.path()).map(|now| CachedHash::stamp(&now)).ok() == Some(stamp);
+            let (len, modified_ns, changed_ns, inode) =
+                if settled { stamp } else { (u64::MAX, 0, 0, 0) };
+            found.insert(path, CachedHash { len, modified_ns, changed_ns, inode, sha256 });
         }
     }
     Ok(())

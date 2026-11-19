@@ -1,7 +1,7 @@
 use chrono::NaiveDate;
 
 use super::write;
-use crate::local::{scan, sha256_hex, write_atomic};
+use crate::local::{scan, scan_counting, sha256_hex, write_atomic};
 use crate::lock::acquire;
 use crate::names::{conflict_name, free_path};
 use crate::state::{Entry, SyncState};
@@ -137,4 +137,36 @@ fn second_lock_is_refused_until_the_first_is_dropped() {
     assert!(acquire(&path).unwrap().is_none());
     drop(first);
     assert!(acquire(&path).unwrap().is_some());
+}
+
+#[test]
+fn a_second_scan_reads_only_what_changed() {
+    let dir = tempfile::tempdir().unwrap();
+    write(dir.path(), "a.rnote", b"a");
+    write(dir.path(), "Orga/b.rnote", b"b");
+    write(dir.path(), ".rnote-library/library.json", b"{}");
+
+    let first = scan_counting(dir.path()).unwrap();
+    let again = scan_counting(dir.path()).unwrap();
+    write_atomic(dir.path(), "a.rnote", b"changed").unwrap();
+    let after_edit = scan_counting(dir.path()).unwrap();
+
+    assert_eq!(first.hashed, 3);
+    assert_eq!(again.hashed, 0);
+    assert_eq!(again.files, first.files);
+    assert_eq!(after_edit.hashed, 1);
+    assert_eq!(after_edit.files["a.rnote"], sha256_hex(b"changed"));
+    assert_eq!(after_edit.files["Orga/b.rnote"], sha256_hex(b"b"));
+}
+
+#[test]
+fn the_hash_cache_is_not_synced() {
+    let dir = tempfile::tempdir().unwrap();
+    write(dir.path(), "a.rnote", b"a");
+    write(dir.path(), ".rnote-library/library.json", b"{}");
+
+    scan(dir.path()).unwrap();
+
+    assert!(dir.path().join(".rnote-library/sync-hashes.json").exists());
+    assert_eq!(scanned_paths(dir.path()), vec![".rnote-library/library.json", "a.rnote"]);
 }
