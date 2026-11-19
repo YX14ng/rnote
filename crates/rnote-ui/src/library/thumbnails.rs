@@ -6,7 +6,7 @@ use std::collections::HashMap;
 use std::path::PathBuf;
 use std::rc::Rc;
 
-use gtk4::{gdk, gio, glib, glib::clone};
+use gtk4::{gdk, gio, glib, prelude::*};
 use rnote_library::{Notebook, ThumbnailCache, thumbnail_key};
 use tracing::debug;
 
@@ -19,7 +19,12 @@ const RENDER_SIZE_PX: u32 = 2 * THUMBNAIL_WIDTH as u32;
 #[derive(Debug, Clone)]
 pub(crate) struct Thumbnails {
     disk: ThumbnailCache,
-    textures: Rc<RefCell<HashMap<String, gdk::Texture>>>,
+    /// By notebook path: the version's key and its texture. A newer version replaces the
+    /// older one, so editing a notebook doesn't pile up textures.
+    textures: Rc<RefCell<HashMap<String, (String, gdk::Texture)>>>,
+    /// The thumbnails being rendered, by key, with the pictures waiting for them: a library
+    /// shown again meanwhile waits for the same render instead of starting another.
+    waiting: Rc<RefCell<HashMap<String, Vec<glib::WeakRef<gtk4::Picture>>>>>,
 }
 
 impl Default for Thumbnails {
@@ -34,6 +39,7 @@ impl Thumbnails {
         Self {
             disk: ThumbnailCache::new(dir),
             textures: Rc::default(),
+            waiting: Rc::default(),
         }
     }
 
@@ -41,41 +47,47 @@ impl Thumbnails {
     /// when known, else once rendered. On failure the picture keeps its plain cover.
     pub(crate) fn load(&self, picture: &gtk4::Picture, root: PathBuf, notebook: &Notebook) {
         let key = thumbnail_key(notebook);
-        if let Some(texture) = self.textures.borrow().get(&key) {
+        if let Some((known, texture)) = self.textures.borrow().get(&notebook.path)
+            && *known == key
+        {
             picture.set_paintable(Some(texture));
             return;
         }
+        if let Some(pictures) = self.waiting.borrow_mut().get_mut(&key) {
+            pictures.push(picture.downgrade());
+            return;
+        }
+        self.waiting
+            .borrow_mut()
+            .insert(key.clone(), vec![picture.downgrade()]);
         let disk = self.disk.clone();
         let notebook = notebook.clone();
         let textures = Rc::clone(&self.textures);
-        glib::spawn_future_local(clone!(
-            #[weak]
-            picture,
-            async move {
-                let path = notebook.path.clone();
-                let rendered = gio::spawn_blocking(move || {
-                    disk.get_or_render(&root, &notebook, RENDER_SIZE_PX)
-                })
-                .await;
-                let png = match rendered {
-                    Ok(Ok(png)) => png,
-                    Ok(Err(e)) => {
-                        debug!("No thumbnail for {path}, Err: {e:?}");
-                        return;
-                    }
-                    Err(_) => {
-                        debug!("Rendering the thumbnail of {path} panicked");
-                        return;
-                    }
-                };
-                match gdk::Texture::from_bytes(&glib::Bytes::from_owned(png)) {
-                    Ok(texture) => {
-                        picture.set_paintable(Some(&texture));
-                        textures.borrow_mut().insert(key, texture);
-                    }
-                    Err(e) => debug!("Decoding the thumbnail of {path} failed, Err: {e:?}"),
+        let waiting = Rc::clone(&self.waiting);
+        glib::spawn_future_local(async move {
+            let path = notebook.path.clone();
+            // Rendered and decoded off the main thread: a library opens with hundreds.
+            let rendered = gio::spawn_blocking(move || {
+                let png = disk.get_or_render(&root, &notebook, RENDER_SIZE_PX)?;
+                Ok::<_, anyhow::Error>(gdk::Texture::from_bytes(&glib::Bytes::from_owned(png))?)
+            })
+            .await;
+            let pictures = waiting.borrow_mut().remove(&key).unwrap_or_default();
+            let texture = match rendered {
+                Ok(Ok(texture)) => texture,
+                Ok(Err(e)) => {
+                    debug!("No thumbnail for {path}, Err: {e:?}");
+                    return;
                 }
+                Err(_) => {
+                    debug!("Rendering the thumbnail of {path} panicked");
+                    return;
+                }
+            };
+            for picture in pictures.iter().filter_map(glib::WeakRef::upgrade) {
+                picture.set_paintable(Some(&texture));
             }
-        ));
+            textures.borrow_mut().insert(path, (key, texture));
+        });
     }
 }
