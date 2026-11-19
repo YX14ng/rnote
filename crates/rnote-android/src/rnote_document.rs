@@ -10,6 +10,7 @@ use rnote_engine::pens::PenStyle;
 use rnote_engine::pens::pensconfig::selectorconfig::SelectorStyle;
 use rnote_engine::{Engine, WidgetFlags};
 
+use crate::image_layer::ImageLayer;
 use crate::pen_input::PenClock;
 use crate::render::{self, BackgroundTiles, PixelLayout, Viewport};
 
@@ -52,6 +53,8 @@ pub struct RnoteDocument {
     // Rendering tasks the engine queues for its own (GTK) image cache.
     tasks: Option<EngineTaskReceiver>,
     tiles: BackgroundTiles,
+    // PDF pages and pictures, rasterized once and reused by later frames.
+    images: ImageLayer,
     // The pen style used for `PenMode::Pen`, kept in sync with the engine's.
     pen_style: PenStyle,
     // Whether the current pen takes keyboard input, as last reported by the engine.
@@ -98,6 +101,7 @@ impl RnoteDocument {
             config,
             tasks,
             tiles: BackgroundTiles::default(),
+            images: ImageLayer::default(),
             pen_style: PenStyle::Brush,
             text_input: false,
             modified: false,
@@ -160,7 +164,15 @@ impl RnoteDocument {
         let flags =
             self.sync_camera(viewport, ViewSize { width: layout.width, height: layout.height });
         self.finish_operation(flags);
-        render::render_rgba(&self.engine, &self.tiles, self.bounds(), viewport, layout, out)
+        render::render_rgba(
+            &self.engine,
+            &self.tiles,
+            &self.images,
+            self.bounds(),
+            viewport,
+            layout,
+            out,
+        )
     }
 
     /// Marks the document as having unsaved changes, e.g. after restoring it from a

@@ -8,7 +8,10 @@ use parry2d_f64::math::Vector2;
 use rnote_compose::SplitOrder;
 use rnote_compose::ext::AabbExt;
 use rnote_engine::document::background::Background;
+use rnote_engine::store::chrono_comp::StrokeLayer;
 use rnote_engine::{Engine, Image};
+
+use crate::image_layer::ImageLayer;
 
 /// Color of the area around the document, as `[r, g, b]` in `0.0..=1.0`.
 pub const DESK_COLOR: [f64; 3] = [0.24, 0.24, 0.26];
@@ -60,6 +63,7 @@ impl PixelLayout {
 pub(crate) fn render_rgba(
     engine: &Engine,
     tiles: &BackgroundTiles,
+    images: &ImageLayer,
     doc_bounds: Aabb,
     viewport: Viewport,
     layout: PixelLayout,
@@ -79,7 +83,7 @@ pub(crate) fn render_rgba(
     }
 
     let mut surface =
-        draw_to_surface(engine, tiles, doc_bounds, viewport, layout.width, layout.height)?;
+        draw_to_surface(engine, tiles, images, doc_bounds, viewport, layout.width, layout.height)?;
     let src_stride = usize::try_from(surface.stride()).context("Negative cairo stride")?;
     let src = surface.data().context("Accessing the cairo surface data failed")?;
     copy_bgra_to_rgba(&src, src_stride, out, layout);
@@ -89,6 +93,7 @@ pub(crate) fn render_rgba(
 fn draw_to_surface(
     engine: &Engine,
     tiles: &BackgroundTiles,
+    images: &ImageLayer,
     doc_bounds: Aabb,
     viewport: Viewport,
     width: u32,
@@ -125,7 +130,18 @@ fn draw_to_surface(
     let writing = engine.penholder.brush_stroke_in_progress();
     // Strokes can lie off the pages, e.g. drawn beside a fixed-size page: the content is
     // clipped to the bounds it is extracted for, so take the whole view.
-    engine.extract_content_in_bounds_except(viewport_bounds, writing).draw_to_cairo(
+    let mut content = engine.extract_content_in_bounds_except(viewport_bounds, writing);
+    // PDF pages and pictures lie on the layers under all the ink: drawn first, from rasters
+    // kept between frames.
+    let (under, ink): (Vec<_>, Vec<_>) = content.strokes.into_iter().partition(|layered| {
+        matches!(layered.layer, StrokeLayer::Document | StrokeLayer::Image)
+            && ImageLayer::takes(&layered.stroke)
+    });
+    for layered in &under {
+        images.draw(&cx, &layered.stroke, viewport.zoom)?;
+    }
+    content.strokes = ink;
+    content.draw_to_cairo(
         &cx,
         /* draw_background */ false,
         /* draw_pattern */ false,
