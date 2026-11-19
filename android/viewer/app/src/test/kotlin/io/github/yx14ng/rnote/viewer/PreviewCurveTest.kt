@@ -41,4 +41,26 @@ class PreviewCurveTest {
         assertEquals(3, PreviewCurve.smooth(points(1.0, 2.0), 3).size)
         assertEquals(6, PreviewCurve.smooth(points(1.0, 2.0, 3.0, 4.0), 6).size)
     }
+
+    @Test
+    fun theCurveBuiltSampleBySampleIsTheSameAsAllAtOnce() {
+        val samples = points(0.0, 0.0, 3.0, 1.0, 7.0, 4.0, 8.0, 9.0, 4.0, 12.0, 1.0, 10.0, 0.0, 6.0)
+        val incremental = SmoothedStroke()
+        val segments = mutableListOf<Double>()
+
+        for (i in samples.indices step 3) {
+            incremental.add(samples[i], samples[i + 1], samples[i + 2])
+            // Drawn after every sample, as frames come.
+            segments.clear()
+            incremental.forEachSegment { x0, y0, x1, y1, _ -> segments += listOf(x0, y0, x1, y1) }
+        }
+
+        val curve = PreviewCurve.smooth(samples, samples.size)
+        val expected = mutableListOf<Double>()
+        for (i in 0 until curve.size - 3 step 3) {
+            expected += listOf(curve[i], curve[i + 1], curve[i + 3], curve[i + 4])
+        }
+        assertEquals(expected.size, segments.size)
+        for (k in expected.indices) assertEquals(expected[k], segments[k], 1e-9)
+    }
 }
