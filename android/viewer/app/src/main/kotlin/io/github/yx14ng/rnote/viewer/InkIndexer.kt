@@ -178,16 +178,32 @@ internal class InkIndexer(
         runReadings.clear()
         val run = generation
         val tag = language.tag
-        // Read and parsed on the renderer's thread: a big notebook has a lot of points.
-        renderer.query({ document -> parse(document.inkPending(file.path, tag)) }) { result ->
-            if (run != generation) return@query
-            result
-                .onSuccess { fragments -> readNext(fragments, 0, run) }
-                .onFailure { error ->
-                    Log.w(TAG, "Listing the writing to read failed", error)
-                    finishRun(run)
+        // Only taking the strokes out needs the document's thread, which also draws the
+        // frames; finding what changed, the index and the JSON go to the writer's thread.
+        renderer.query({ document -> document.inkStrokes() }) { taken ->
+            val strokes = taken.getOrElse { error ->
+                if (run == generation) failedListing(error, run)
+                return@query
+            }
+            val queued = runCatching {
+                writer.execute {
+                    val result = runCatching { parse(NativeBridge.inkPendingOf(strokes, file.path, tag)) }
+                    main.post {
+                        if (run != generation) return@post
+                        result
+                            .onSuccess { fragments -> readNext(fragments, 0, run) }
+                            .onFailure { error -> failedListing(error, run) }
+                    }
                 }
+            }
+            // Closed meanwhile: the strokes go unread and unfreed, a small loss at the end.
+            queued.onFailure { error -> if (run == generation) failedListing(error, run) }
         }
+    }
+
+    private fun failedListing(error: Throwable, run: Int) {
+        Log.w(TAG, "Listing the writing to read failed", error)
+        finishRun(run)
     }
 
     private fun readNext(fragments: List<InkFragment>, at: Int, run: Int) {

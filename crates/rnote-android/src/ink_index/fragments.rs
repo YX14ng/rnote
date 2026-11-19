@@ -240,15 +240,21 @@ fn split_fragments(members: &[usize], boxes: &[(usize, [f64; 4])], height: f64) 
         .collect()
 }
 
+/// `value` in hundredths, rounded; saturates far off the page.
+fn hundredth(value: f64) -> i64 {
+    (value * 100.0).round() as i64
+}
+
 fn fragment(strokes: &[InkStroke], group: &[usize], line: usize) -> Fragment {
     let mut timed = Vec::with_capacity(group.len());
-    let mut key = String::new();
+    // Hundredths as integers: as fine as the reading needs, and far quicker than text.
+    let mut key: Vec<u8> = Vec::new();
     let mut time = 0;
     let mut rect: Option<[f64; 4]> = None;
     for (n, &index) in group.iter().enumerate() {
         if n > 0 {
             time += STROKE_MS - POINT_MS;
-            key.push('|');
+            key.push(b'|');
         }
         let points = &strokes[index].points;
         let mut stroke = Vec::with_capacity(points.len());
@@ -257,7 +263,8 @@ fn fragment(strokes: &[InkStroke], group: &[usize], line: usize) -> Fragment {
                 time += POINT_MS;
             }
             stroke.push((x, y, time));
-            key.push_str(&format!("{x:.2},{y:.2};"));
+            key.extend_from_slice(&hundredth(x).to_le_bytes());
+            key.extend_from_slice(&hundredth(y).to_le_bytes());
         }
         if let Some(bounds) = bounds(points) {
             rect = Some(match rect {
@@ -273,7 +280,7 @@ fn fragment(strokes: &[InkStroke], group: &[usize], line: usize) -> Fragment {
         timed.push(stroke);
     }
     Fragment {
-        hash: rnote_sync::sha256_hex(key.as_bytes()),
+        hash: rnote_sync::sha256_hex(&key),
         rect: rect.unwrap_or_default(),
         line,
         strokes: timed,

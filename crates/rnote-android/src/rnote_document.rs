@@ -15,6 +15,8 @@ use crate::pen_input::PenClock;
 use crate::render::{self, BackgroundTiles, PixelLayout, Viewport};
 
 pub use clipboard::ClipboardEntry;
+#[cfg_attr(not(target_os = "android"), allow(unused_imports))]
+pub(crate) use ink::pending_json;
 pub use text_selection::TextEmphasis;
 
 /// The editing state the UI shows after an operation.

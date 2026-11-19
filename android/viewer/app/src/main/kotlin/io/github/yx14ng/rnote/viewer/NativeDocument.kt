@@ -290,9 +290,8 @@ internal class NativeDocument private constructor(private var handle: Long) : Au
 
     fun setPageBorders(show: Boolean): EditState = EditState.fromFlags(NativeBridge.setPageBorders(checkOpen(), show))
 
-    /** The fragments of writing [indexPath] (in [language]) has no reading of, as JSON. */
-    fun inkPending(indexPath: String, language: String): String =
-        NativeBridge.inkPending(checkOpen(), indexPath, language)
+    /** The pen strokes, taken out for [NativeBridge.inkPendingOf], which must get them exactly once. */
+    fun inkStrokes(): Long = NativeBridge.inkStrokes(checkOpen())
 
     /** Where [query] is in the read writing and the text boxes, as JSON, in reading order. */
     fun inkSearch(indexPath: String, query: String): String =

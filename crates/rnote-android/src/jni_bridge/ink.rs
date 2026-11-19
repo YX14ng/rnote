@@ -9,25 +9,50 @@ use jni::objects::{JClass, JObject, JString};
 use jni::sys::jlong;
 
 use super::common::{BridgeError, document_from_handle};
+use crate::ink_index::fragments::InkStroke;
 use crate::ink_index::store::{self, InkIndex};
+use crate::rnote_document::pending_json;
 
-/// `static native String inkPending(long handle, String indexPath, String language)`: the
-/// fragments with no reading yet, as JSON (see `RnoteDocument::ink_pending_json`).
+/// `static native long inkStrokes(long handle)`: the pen strokes of the document, taken out
+/// on its thread for [`inkPendingOf`], which frees them. Only that call may use the result.
 #[unsafe(no_mangle)]
-pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_inkPending<'caller>(
+pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_inkStrokes<'caller>(
     mut unowned_env: EnvUnowned<'caller>,
     _class: JClass<'caller>,
     handle: jlong,
+) -> jlong {
+    unowned_env
+        .with_env(|_env| -> Result<jlong, BridgeError> {
+            // SAFETY: `handle` comes from `NativeDocument`, which upholds the module invariants.
+            let document = unsafe { document_from_handle(handle) }?;
+            Ok(Box::into_raw(Box::new(document.ink_strokes())) as jlong)
+        })
+        .resolve::<ThrowRuntimeExAndDefault>()
+}
+
+/// `static native String inkPendingOf(long strokes, String indexPath, String language)`:
+/// the fragments with no reading yet, as JSON (see `RnoteDocument::ink_pending_json`), from
+/// strokes taken out with `inkStrokes`, on any thread; frees
+/// `strokes`, which must not be used again.
+#[unsafe(no_mangle)]
+pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_inkPendingOf<'caller>(
+    mut unowned_env: EnvUnowned<'caller>,
+    _class: JClass<'caller>,
+    strokes: jlong,
     index_path: JString<'caller>,
     language: JString<'caller>,
 ) -> JObject<'caller> {
+    if strokes == 0 {
+        return JObject::null();
+    }
+    // SAFETY: Non-zero handles come from `Box::into_raw` in `inkStrokes`, and `InkIndexer`
+    // hands each one to this call exactly once.
+    let strokes = unsafe { Box::from_raw(strokes as *mut Vec<InkStroke>) };
     unowned_env
         .with_env(|env| -> Result<JObject<'caller>, BridgeError> {
-            // SAFETY: `handle` comes from `NativeDocument`, which upholds the module invariants.
-            let document = unsafe { document_from_handle(handle) }?;
             let index_path = index_path.try_to_string(env)?;
             let language = language.try_to_string(env)?;
-            let json = document.ink_pending_json(Path::new(&index_path), &language)?;
+            let json = pending_json(&strokes, Path::new(&index_path), &language)?;
             Ok(env.new_string(json)?.into())
         })
         .resolve::<ThrowRuntimeExAndDefault>()

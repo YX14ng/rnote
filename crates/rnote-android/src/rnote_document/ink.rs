@@ -27,38 +27,13 @@ impl RnoteDocument {
     /// reading of, as JSON: `[{"hash", "rect": [4], "strokes": [[[x, y, t], ...], ...],
     /// "before", "previous"}]`, the last two as [`store::Pending`] has them (or null).
     /// Readings of fragments that are gone are dropped from the index.
+    #[cfg(test)]
     pub(crate) fn ink_pending_json(
         &self,
         index_path: &Path,
         language: &str,
     ) -> anyhow::Result<String> {
-        let current = fragments::fragments(&self.ink_strokes());
-        let todo =
-            store::with_index(index_path, language, |index| store::pending(index, &current))?;
-        let list: Vec<_> = todo
-            .iter()
-            .map(|store::Pending { fragment, before, previous }| {
-                let strokes: Vec<Vec<[f64; 3]>> = fragment
-                    .strokes
-                    .iter()
-                    // A hundredth is finer than the recognizer needs, and keeps the JSON small.
-                    .map(|stroke| {
-                        stroke
-                            .iter()
-                            .map(|&(x, y, t)| [hundredths(x), hundredths(y), t as f64])
-                            .collect()
-                    })
-                    .collect();
-                json!({
-                    "hash": fragment.hash,
-                    "rect": fragment.rect,
-                    "strokes": strokes,
-                    "before": before,
-                    "previous": previous,
-                })
-            })
-            .collect();
-        Ok(serde_json::to_string(&list)?)
+        pending_json(&self.ink_strokes(), index_path, language)
     }
 
     /// Where `query` is in the writing read into the index at `index_path` and in the text
@@ -124,4 +99,40 @@ fn typed_rects(text: &TextStroke, range: std::ops::Range<usize>) -> Option<Vec<[
         })
         .collect();
     (!rects.is_empty()).then_some(rects)
+}
+
+/// What [`RnoteDocument::ink_pending_json`] gives, from the pen `strokes` taken out of the
+/// document: the work after that needs no document, so it can run off the document's thread.
+#[cfg_attr(not(target_os = "android"), allow(dead_code))]
+pub(crate) fn pending_json(
+    strokes: &[InkStroke],
+    index_path: &Path,
+    language: &str,
+) -> anyhow::Result<String> {
+    let current = fragments::fragments(strokes);
+    let todo = store::with_index(index_path, language, |index| store::pending(index, &current))?;
+    let list: Vec<_> = todo
+        .iter()
+        .map(|store::Pending { fragment, before, previous }| {
+            let strokes: Vec<Vec<[f64; 3]>> = fragment
+                .strokes
+                .iter()
+                // A hundredth is finer than the recognizer needs, and keeps the JSON small.
+                .map(|stroke| {
+                    stroke
+                        .iter()
+                        .map(|&(x, y, t)| [hundredths(x), hundredths(y), t as f64])
+                        .collect()
+                })
+                .collect();
+            json!({
+                "hash": fragment.hash,
+                "rect": fragment.rect,
+                "strokes": strokes,
+                "before": before,
+                "previous": previous,
+            })
+        })
+        .collect();
+    Ok(serde_json::to_string(&list)?)
 }

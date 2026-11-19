@@ -61,7 +61,15 @@ internal object NativeBridge {
     @JvmStatic external fun addPage(handle: Long): Int
 
     // Handwriting search: the index is a file per notebook in the app's cache.
-    @JvmStatic external fun inkPending(handle: Long, indexPath: String, language: String): String
+    /** The pen strokes of the document, for [inkPendingOf], which frees them; only it may use the result. */
+    @JvmStatic external fun inkStrokes(handle: Long): Long
+
+    /**
+     * The fragments of writing in [strokes] (from [inkStrokes]) that [indexPath], in
+     * [language], has no reading of, as JSON; on any thread. Frees [strokes].
+     */
+    @JvmStatic external fun inkPendingOf(strokes: Long, indexPath: String, language: String): String
+
     @JvmStatic external fun inkAddAll(indexPath: String, language: String, readingsJson: String)
     @JvmStatic external fun inkSearch(handle: Long, indexPath: String, query: String): String
     @JvmStatic external fun inkLanguage(indexPath: String, fallback: String): String
