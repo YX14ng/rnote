@@ -328,4 +328,11 @@
     <plurals name="pages_remove_confirm">
         <item quantity="other">%d ページを削除しますか？</item>
     </plurals>
+
+    <!-- PDF export -->
+    <string name="action_export_pdf">PDF を書き出す…</string>
+    <string name="action_share_pdf">PDF で共有</string>
+    <string name="pdf_exporting">PDF を書き出し中…</string>
+    <string name="pdf_saved">PDF を保存しました</string>
+    <string name="share_pdf_title">PDF を共有</string>
 </resources>

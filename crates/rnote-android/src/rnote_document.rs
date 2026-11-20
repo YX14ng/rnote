@@ -5,6 +5,7 @@ use futures::FutureExt;
 use parry2d_f64::bounding_volume::Aabb;
 use parry2d_f64::math::Vector2;
 use rnote_compose::Color;
+use rnote_engine::engine::export::{DocExportFormat, DocExportPrefs};
 use rnote_engine::engine::{EngineConfigShared, EngineSnapshot, EngineTaskReceiver};
 use rnote_engine::pens::PenStyle;
 use rnote_engine::pens::pensconfig::selectorconfig::SelectorStyle;
@@ -193,6 +194,22 @@ impl RnoteDocument {
     pub fn save_to_bytes(&self, file_name: &str) -> anyhow::Result<Vec<u8>> {
         futures::executor::block_on(self.engine.save_as_rnote_bytes(file_name.to_owned()))
             .context("The save task was cancelled")?
+    }
+
+    /// The document as a PDF named `title`, as it looks: background, pattern and every
+    /// stroke, a page per sheet (a document without sheets is cut into pages of its format).
+    pub fn export_pdf(&self, title: &str) -> anyhow::Result<Vec<u8>> {
+        let prefs = DocExportPrefs {
+            with_background: true,
+            with_pattern: true,
+            optimize_printing: false,
+            export_format: DocExportFormat::Pdf,
+            // Every sheet, as the column of pages shows them.
+            with_empty_pages: true,
+            ..DocExportPrefs::default()
+        };
+        futures::executor::block_on(self.engine.export_doc(title.to_owned(), Some(prefs)))
+            .context("The export was cancelled")?
     }
 
     /// Marks the current state as saved.

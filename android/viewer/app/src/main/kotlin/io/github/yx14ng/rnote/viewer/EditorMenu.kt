@@ -47,5 +47,7 @@ internal object EditorMenu {
         data object Open : Action
         data object Save : Action
         data object SaveAs : Action
+        data object ExportPdf : Action
+        data object SharePdf : Action
     }
 }

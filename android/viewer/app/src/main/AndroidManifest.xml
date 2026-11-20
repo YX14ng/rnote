@@ -49,5 +49,12 @@
             android:authorities="${applicationId}.camera"
             android:exported="false"
             android:grantUriPermissions="true" />
+
+        <!-- Lends the PDF being shared to the app it goes to; nothing else is served. -->
+        <provider
+            android:name=".ExportFileProvider"
+            android:authorities="${applicationId}.exports"
+            android:exported="false"
+            android:grantUriPermissions="true" />
     </application>
 </manifest>

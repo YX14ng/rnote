@@ -127,3 +127,18 @@ fn adding_a_page_leaves_a_growing_document_alone() {
     assert!(!state.modified && !state.bounds_changed, "got {state:?}");
     assert_eq!(document.bounds(), before);
 }
+
+#[test]
+fn exports_a_pdf_with_a_page_per_sheet() {
+    let mut document = plain_document();
+    document.set_layout(Layout::FixedSize);
+    document.insert_blank_pages(1, 2);
+    document.set_brush(RED, 4.0);
+    draw_line(&mut document, 200.0);
+
+    let pdf = document.export_pdf("Prueba").expect("exports");
+
+    assert!(pdf.starts_with(b"%PDF"), "not a PDF");
+    // Read back by the same reader the PDF import uses.
+    assert_eq!(crate::pdf_import::pdf_page_count(&pdf, None).expect("reads"), 3);
+}

@@ -48,6 +48,12 @@ internal object MenuPanel {
         panel.addView(PanelViews.menuRow(context, R.drawable.ic_save_as, R.string.action_save_as, null, open) {
             onAction(EditorMenu.Action.SaveAs)
         })
+        panel.addView(PanelViews.menuRow(context, R.drawable.ic_page, R.string.action_export_pdf, null, open) {
+            onAction(EditorMenu.Action.ExportPdf)
+        })
+        panel.addView(PanelViews.menuRow(context, R.drawable.ic_share, R.string.action_share_pdf, null, open) {
+            onAction(EditorMenu.Action.SharePdf)
+        })
 
         if (open) {
             panel.addView(PanelViews.divider(context), PanelViews.dividerParams(context))

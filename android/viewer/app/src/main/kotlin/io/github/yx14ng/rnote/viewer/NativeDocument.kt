@@ -347,6 +347,9 @@ internal class NativeDocument private constructor(private var handle: Long) : Au
 
     fun markSaved() = NativeBridge.markSaved(checkOpen())
 
+    /** The document as a PDF titled [title], a page per sheet. */
+    fun exportPdf(title: String): ByteArray = NativeBridge.exportPdf(checkOpen(), title)
+
     override fun close() {
         if (handle != 0L) {
             NativeBridge.close(handle)

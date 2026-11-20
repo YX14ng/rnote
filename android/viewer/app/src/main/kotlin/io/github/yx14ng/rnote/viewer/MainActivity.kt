@@ -28,6 +28,7 @@ class MainActivity : Activity() {
     private lateinit var controls: EditorControls
     private lateinit var selectionBar: SelectionBar
     private lateinit var pages: PagesController
+    private lateinit var pdfExport: PdfExport
     private var shownZoomPercent = 0
 
     private var documentOpen = false
@@ -89,6 +90,7 @@ class MainActivity : Activity() {
             @Suppress("DEPRECATION")
             startActivityForResult(DocumentFiles.openIntent(null).setType("application/pdf"), REQUEST_INSERT_PDF)
         }, onError = ::showError)
+        pdfExport = PdfExport(this, renderer, onError = ::showError)
         setContentView(layout.root)
         if (!handleIntent(intent) && recovery.exists) {
             restoreRecovery()
@@ -152,6 +154,15 @@ class MainActivity : Activity() {
                     guard.confirmDiscard { startActivityForResult(DocumentFiles.openIntent(saver.currentUri), REQUEST_OPEN) }
                 EditorMenu.Action.Save -> saver.save()
                 EditorMenu.Action.SaveAs -> saveAs()
+                EditorMenu.Action.ExportPdf -> {
+                    val pick = Intent(Intent.ACTION_CREATE_DOCUMENT)
+                        .addCategory(Intent.CATEGORY_OPENABLE)
+                        .setType(PdfExport.MIME_TYPE)
+                        .putExtra(Intent.EXTRA_TITLE, PdfExport.fileName(saver.documentName))
+                    @Suppress("DEPRECATION")
+                    startActivityForResult(pick, REQUEST_EXPORT_PDF)
+                }
+                EditorMenu.Action.SharePdf -> pdfExport.share(saver.documentName)
                 else -> {}
             }
         }
@@ -290,6 +301,7 @@ class MainActivity : Activity() {
             REQUEST_OPEN -> openDocument(uri)
             REQUEST_SAVE_AS -> saver.saveAs(uri)
             REQUEST_INSERT_PDF -> pages.onPdfPicked(uri)
+            REQUEST_EXPORT_PDF -> pdfExport.saveTo(uri, saver.documentName)
         }
     }
 
@@ -618,5 +630,6 @@ class MainActivity : Activity() {
         private const val REQUEST_OPEN = 1
         private const val REQUEST_SAVE_AS = 2
         private const val REQUEST_INSERT_PDF = 3
+        private const val REQUEST_EXPORT_PDF = 4
     }
 }

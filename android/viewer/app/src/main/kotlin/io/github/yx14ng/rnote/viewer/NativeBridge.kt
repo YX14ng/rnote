@@ -180,6 +180,9 @@ internal object NativeBridge {
     @JvmStatic external fun save(handle: Long, fileName: String): ByteArray
 
     /** Marks the document as saved, once the bytes from [save] are written. */
+    /** The document as a PDF titled [title], a page per sheet. */
+    @JvmStatic external fun exportPdf(handle: Long, title: String): ByteArray
+
     @JvmStatic external fun markSaved(handle: Long)
 
     /** Frees the document. The handle must not be used afterwards. */

@@ -192,6 +192,26 @@ pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_save<'cal
         .resolve::<ThrowRuntimeExAndDefault>()
 }
 
+/// `static native byte[] exportPdf(long handle, String title)`: the document as a PDF, a page
+/// per sheet.
+#[unsafe(no_mangle)]
+pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_exportPdf<'caller>(
+    mut unowned_env: EnvUnowned<'caller>,
+    _class: JClass<'caller>,
+    handle: jlong,
+    title: JString<'caller>,
+) -> JByteArray<'caller> {
+    unowned_env
+        .with_env(|env| -> Result<JByteArray<'caller>, BridgeError> {
+            // SAFETY: `handle` comes from `NativeDocument`, which upholds the module invariants.
+            let document = unsafe { document_from_handle(handle) }?;
+            let title = title.try_to_string(env)?;
+            let bytes = document.export_pdf(&title)?;
+            Ok(env.byte_array_from_slice(&bytes)?)
+        })
+        .resolve::<ThrowRuntimeExAndDefault>()
+}
+
 /// `static native void markSaved(long handle)`
 #[unsafe(no_mangle)]
 pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_markSaved<'caller>(
