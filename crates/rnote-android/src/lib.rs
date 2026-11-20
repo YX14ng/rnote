@@ -7,6 +7,7 @@
 mod android_bitmap;
 mod android_color;
 mod document_settings;
+mod frame_cache;
 mod image_layer;
 #[cfg(target_os = "android")]
 mod jni_bridge;

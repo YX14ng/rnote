@@ -92,6 +92,9 @@ internal object NativeBridge {
     /** Renders the region at ([x], [y]) in document coordinates into [target]. */
     @JvmStatic external fun render(handle: Long, target: Bitmap, x: Double, y: Double, zoom: Double)
 
+    /** Like [render], drawn whole without touching the frame the canvas keeps, e.g. for page thumbnails. */
+    @JvmStatic external fun renderWhole(handle: Long, target: Bitmap, x: Double, y: Double, zoom: Double)
+
     /**
      * Feeds stylus [samples] (`x, y, pressure, time`: document coordinates and milliseconds
      * since boot) to the engine. Returns the editing state packed as in [EditState.fromFlags].

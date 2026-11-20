@@ -173,6 +173,34 @@ pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_render<'c
         .resolve::<ThrowRuntimeExAndDefault>()
 }
 
+/// `static native void renderWhole(long handle, Bitmap target, double x, double y, double zoom)`:
+/// like `render`, drawn whole without touching the frame the canvas keeps, for other views
+/// of the document such as page thumbnails.
+#[unsafe(no_mangle)]
+pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_renderWhole<'caller>(
+    mut unowned_env: EnvUnowned<'caller>,
+    _class: JClass<'caller>,
+    handle: jlong,
+    target: JObject<'caller>,
+    x: jdouble,
+    y: jdouble,
+    zoom: jdouble,
+) {
+    unowned_env
+        .with_env(|env| -> Result<(), BridgeError> {
+            // SAFETY: `handle` comes from `NativeDocument`, which upholds the module invariants.
+            let document = unsafe { document_from_handle(handle) }?;
+            // SAFETY: `NativeDocument.render` passes a bitmap it allocated for this call and
+            // only hands it to the UI after this function returns, so nothing else touches
+            // its pixels while they are locked.
+            let mut bitmap = unsafe { LockedBitmap::lock(env, &target) }?;
+            let (pixels, layout) = bitmap.pixels_mut();
+            document.render_rgba_whole(Viewport { x, y, zoom }, layout, pixels)?;
+            Ok(())
+        })
+        .resolve::<ThrowRuntimeExAndDefault>()
+}
+
 /// `static native byte[] save(long handle, String fileName)`
 #[unsafe(no_mangle)]
 pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_save<'caller>(

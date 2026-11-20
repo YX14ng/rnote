@@ -120,6 +120,7 @@ pub(super) fn portrait_origin_view(document: &RnoteDocument) -> (Viewport, ViewS
 }
 
 mod documents;
+mod frames;
 mod images;
 mod ink;
 mod pages;

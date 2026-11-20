@@ -11,6 +11,7 @@ use rnote_engine::pens::PenStyle;
 use rnote_engine::pens::pensconfig::selectorconfig::SelectorStyle;
 use rnote_engine::{Engine, WidgetFlags};
 
+use crate::frame_cache::FrameCache;
 use crate::image_layer::ImageLayer;
 use crate::pen_input::PenClock;
 use crate::render::{self, BackgroundTiles, PixelLayout, Viewport};
@@ -60,6 +61,8 @@ pub struct RnoteDocument {
     tiles: BackgroundTiles,
     // PDF pages and pictures, rasterized once and reused by later frames.
     images: ImageLayer,
+    // The last frame, so the next one only redraws where something changed.
+    frames: FrameCache,
     // The pen style used for `PenMode::Pen`, kept in sync with the engine's.
     pen_style: PenStyle,
     // Whether the current pen takes keyboard input, as last reported by the engine.
@@ -110,6 +113,7 @@ impl RnoteDocument {
             tasks,
             tiles: BackgroundTiles::default(),
             images: ImageLayer::default(),
+            frames: FrameCache::default(),
             pen_style: PenStyle::Brush,
             text_input: false,
             modified: false,
@@ -177,6 +181,27 @@ impl RnoteDocument {
             &self.engine,
             &self.tiles,
             &self.images,
+            Some(&self.frames),
+            self.bounds(),
+            viewport,
+            layout,
+            out,
+        )
+    }
+
+    /// Like [`Self::render_rgba`], always drawn whole and without touching the kept frame:
+    /// for other views of the document, e.g. the thumbnails of its pages.
+    pub fn render_rgba_whole(
+        &mut self,
+        viewport: Viewport,
+        layout: PixelLayout,
+        out: &mut [u8],
+    ) -> anyhow::Result<()> {
+        render::render_rgba(
+            &self.engine,
+            &self.tiles,
+            &self.images,
+            None,
             self.bounds(),
             viewport,
             layout,

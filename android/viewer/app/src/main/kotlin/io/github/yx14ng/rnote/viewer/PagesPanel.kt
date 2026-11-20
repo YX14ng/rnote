@@ -223,7 +223,7 @@ internal class PagesPanel(
         val top = Pages.top(page, sheetHeight)
         renderer.query({ document ->
             Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888).also { bitmap ->
-                document.render(bitmap, Viewport(0.0, top, zoom))
+                document.renderThumbnail(bitmap, Viewport(0.0, top, zoom))
             }
         }) { result ->
             if (requested != pageGenerations.getOrElse(page) { -1 }) return@query

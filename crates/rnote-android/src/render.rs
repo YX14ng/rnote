@@ -7,10 +7,14 @@ use parry2d_f64::bounding_volume::{Aabb, BoundingVolume};
 use parry2d_f64::math::Vector2;
 use rnote_compose::SplitOrder;
 use rnote_compose::ext::AabbExt;
+use rnote_compose::shapes::Shapeable;
 use rnote_engine::document::background::Background;
+use rnote_engine::document::{Format, Layout};
+use rnote_engine::engine::strokecontent::{LayeredStroke, StrokeContent};
 use rnote_engine::store::chrono_comp::StrokeLayer;
 use rnote_engine::{Engine, Image};
 
+use crate::frame_cache::FrameCache;
 use crate::image_layer::ImageLayer;
 
 /// Color of the area around the document, as `[r, g, b]` in `0.0..=1.0`.
@@ -59,11 +63,14 @@ impl PixelLayout {
 ///
 /// `out` receives premultiplied RGBA pixels laid out as described by `layout`, which is what
 /// Android's `Bitmap.Config.ARGB_8888` uses. Areas outside of `doc_bounds` are filled with
-/// [`DESK_COLOR`].
+/// [`DESK_COLOR`]. With `frames`, the frame is built from the previous one where nothing
+/// changed (see [`FrameCache`]); without, it is drawn whole.
+#[allow(clippy::too_many_arguments)]
 pub(crate) fn render_rgba(
     engine: &Engine,
     tiles: &BackgroundTiles,
     images: &ImageLayer,
+    frames: Option<&FrameCache>,
     doc_bounds: Aabb,
     viewport: Viewport,
     layout: PixelLayout,
@@ -81,85 +88,148 @@ pub(crate) fn render_rgba(
     if layout.width == 0 || layout.height == 0 {
         return Ok(());
     }
-
-    let mut surface =
-        draw_to_surface(engine, tiles, images, doc_bounds, viewport, layout.width, layout.height)?;
-    let src_stride = usize::try_from(surface.stride()).context("Negative cairo stride")?;
-    let src = surface.data().context("Accessing the cairo surface data failed")?;
-    copy_bgra_to_rgba(&src, src_stride, out, layout);
-    Ok(())
+    let scene = Scene { engine, tiles, images, doc_bounds, viewport, layout };
+    match frames {
+        Some(frames) => frames.render(&scene, out),
+        None => {
+            let mut surface = new_surface(layout.width, layout.height)?;
+            scene.draw_base(&surface, &scene.content().strokes, None)?;
+            scene.draw_pen(&surface)?;
+            copy_surface_to_rgba(&mut surface, out, layout)
+        }
+    }
 }
 
-fn draw_to_surface(
-    engine: &Engine,
-    tiles: &BackgroundTiles,
-    images: &ImageLayer,
-    doc_bounds: Aabb,
-    viewport: Viewport,
-    width: u32,
-    height: u32,
-) -> anyhow::Result<cairo::ImageSurface> {
-    let surface = cairo::ImageSurface::create(
+/// What a frame shows: the document region of `viewport`, `layout` large.
+pub(crate) struct Scene<'a> {
+    engine: &'a Engine,
+    tiles: &'a BackgroundTiles,
+    images: &'a ImageLayer,
+    pub(crate) doc_bounds: Aabb,
+    pub(crate) viewport: Viewport,
+    pub(crate) layout: PixelLayout,
+}
+
+impl Scene<'_> {
+    /// The document region on screen.
+    pub(crate) fn viewport_bounds(&self) -> Aabb {
+        Aabb::new(
+            Vector2::new(self.viewport.x, self.viewport.y),
+            Vector2::new(
+                self.viewport.x + f64::from(self.layout.width) / self.viewport.zoom,
+                self.viewport.y + f64::from(self.layout.height) / self.viewport.zoom,
+            ),
+        )
+    }
+
+    /// What the document's settings make the page look like, for telling frames apart.
+    pub(crate) fn looks(&self) -> (Format, Background, Layout) {
+        let config = &self.engine.document.config;
+        (config.format, config.background, config.layout)
+    }
+
+    /// The strokes on screen, without the one being written: the app draws it itself, at
+    /// once with every sample; the frame would show it a second time, late and shaped
+    /// differently. Strokes can lie off the pages, e.g. beside a fixed-size page, so the
+    /// whole view is taken.
+    pub(crate) fn content(&self) -> StrokeContent {
+        let writing = self.engine.penholder.brush_stroke_in_progress();
+        self.engine.extract_content_in_bounds_except(self.viewport_bounds(), writing)
+    }
+
+    /// Draws the desk, the background, the page borders and `strokes` onto `surface`, all of
+    /// it or only `region` (document coordinates), which is then painted from scratch.
+    pub(crate) fn draw_base(
+        &self,
+        surface: &cairo::ImageSurface,
+        strokes: &[LayeredStroke],
+        region: Option<Aabb>,
+    ) -> anyhow::Result<()> {
+        let cx = cairo::Context::new(surface).context("Creating the cairo context failed")?;
+        let zoom = self.viewport.zoom;
+        cx.scale(zoom, zoom);
+        cx.translate(-self.viewport.x, -self.viewport.y);
+        let area = region.unwrap_or_else(|| self.viewport_bounds());
+        if let Some(region) = region {
+            cx.rectangle(region.mins.x, region.mins.y, region.extents().x, region.extents().y);
+            cx.clip();
+        }
+        let [r, g, b] = DESK_COLOR;
+        cx.set_source_rgb(r, g, b);
+        cx.paint()?;
+        // Same order as the desktop app: background, page borders, then the strokes.
+        if let Some(visible) = area.intersection(&self.doc_bounds) {
+            draw_background(
+                &cx,
+                self.tiles,
+                &self.engine.document.config.background,
+                visible,
+                zoom,
+            )?;
+            draw_page_borders(self.engine, &cx, self.doc_bounds, visible, zoom)?;
+        }
+        let in_area = strokes
+            .iter()
+            .filter(|layered| region.is_none() || layered.stroke.bounds().intersects(&area));
+        // PDF pages and pictures lie on the layers under all the ink: drawn first, from
+        // rasters kept between frames.
+        let (under, ink): (Vec<&LayeredStroke>, Vec<&LayeredStroke>) =
+            in_area.partition(|layered| {
+                matches!(layered.layer, StrokeLayer::Document | StrokeLayer::Image)
+                    && ImageLayer::takes(&layered.stroke)
+            });
+        for layered in under {
+            self.images.draw(&cx, &layered.stroke, zoom)?;
+        }
+        StrokeContent::default()
+            .with_strokes(ink.into_iter().cloned().collect())
+            .with_bounds(self.viewport_bounds())
+            .draw_to_cairo(
+                &cx, /* draw_background */ false, /* draw_pattern */ false,
+                /* optimize_printing */ false, /* margin */ 0.0,
+                /* image_scale */ zoom,
+            )?;
+        Ok(())
+    }
+
+    /// Draws what the current pen shows on top onto `surface`: e.g. a selection being
+    /// dragged, also off the document. The app draws the brush stroke, the eraser and a lasso
+    /// itself while the pen moves.
+    pub(crate) fn draw_pen(&self, surface: &cairo::ImageSurface) -> anyhow::Result<()> {
+        let penholder = &self.engine.penholder;
+        if penholder.brush_stroke_in_progress().is_some()
+            || penholder.eraser_down()
+            || penholder.selector_lassoing()
+        {
+            return Ok(());
+        }
+        let cx = cairo::Context::new(surface).context("Creating the cairo context failed")?;
+        cx.scale(self.viewport.zoom, self.viewport.zoom);
+        cx.translate(-self.viewport.x, -self.viewport.y);
+        self.engine.draw_pen_on_doc_to_cairo(&cx)
+    }
+}
+
+pub(crate) fn new_surface(width: u32, height: u32) -> anyhow::Result<cairo::ImageSurface> {
+    cairo::ImageSurface::create(
         cairo::Format::ARgb32,
         i32::try_from(width).context("Width too large")?,
         i32::try_from(height).context("Height too large")?,
     )
-    .context("Creating the cairo surface failed")?;
-    let cx = cairo::Context::new(&surface).context("Creating the cairo context failed")?;
+    .context("Creating the cairo surface failed")
+}
 
-    let [r, g, b] = DESK_COLOR;
-    cx.set_source_rgb(r, g, b);
-    cx.paint()?;
-
-    let viewport_bounds = Aabb::new(
-        Vector2::new(viewport.x, viewport.y),
-        Vector2::new(
-            viewport.x + f64::from(width) / viewport.zoom,
-            viewport.y + f64::from(height) / viewport.zoom,
-        ),
-    );
-    cx.scale(viewport.zoom, viewport.zoom);
-    cx.translate(-viewport.x, -viewport.y);
-    // Same order as the desktop app: background, page borders, then the strokes.
-    if let Some(visible) = viewport_bounds.intersection(&doc_bounds) {
-        draw_background(&cx, tiles, &engine.document.config.background, visible, viewport.zoom)?;
-        draw_page_borders(engine, &cx, doc_bounds, visible, viewport.zoom)?;
-    }
-    // The stroke being written is left to the app, which draws it at once with every
-    // sample; the frame would show it a second time, late and shaped differently.
-    let writing = engine.penholder.brush_stroke_in_progress();
-    // Strokes can lie off the pages, e.g. drawn beside a fixed-size page: the content is
-    // clipped to the bounds it is extracted for, so take the whole view.
-    let mut content = engine.extract_content_in_bounds_except(viewport_bounds, writing);
-    // PDF pages and pictures lie on the layers under all the ink: drawn first, from rasters
-    // kept between frames.
-    let (under, ink): (Vec<_>, Vec<_>) = content.strokes.into_iter().partition(|layered| {
-        matches!(layered.layer, StrokeLayer::Document | StrokeLayer::Image)
-            && ImageLayer::takes(&layered.stroke)
-    });
-    for layered in &under {
-        images.draw(&cx, &layered.stroke, viewport.zoom)?;
-    }
-    content.strokes = ink;
-    content.draw_to_cairo(
-        &cx,
-        /* draw_background */ false,
-        /* draw_pattern */ false,
-        /* optimize_printing */ false,
-        /* margin */ 0.0,
-        /* image_scale */ viewport.zoom,
-    )?;
-    // On top, and also outside the document: e.g. a selection being dragged off it. The app
-    // draws the eraser and a lasso itself while the pen moves, at once, as with the brush.
-    let drawn_by_app =
-        writing.is_some() || engine.penholder.eraser_down() || engine.penholder.selector_lassoing();
-    if !drawn_by_app {
-        engine.draw_pen_on_doc_to_cairo(&cx)?;
-    }
-
-    drop(cx);
+/// Copies `surface` into the RGBA buffer `out`.
+pub(crate) fn copy_surface_to_rgba(
+    surface: &mut cairo::ImageSurface,
+    out: &mut [u8],
+    layout: PixelLayout,
+) -> anyhow::Result<()> {
     surface.flush();
-    Ok(surface)
+    let src_stride = usize::try_from(surface.stride()).context("Negative cairo stride")?;
+    let src = surface.data().context("Accessing the cairo surface data failed")?;
+    copy_bgra_to_rgba(&src, src_stride, out, layout);
+    Ok(())
 }
 
 /// Caches the rendered background tile, which only changes with the background or the zoom.

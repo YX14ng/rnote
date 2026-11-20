@@ -191,6 +191,11 @@ internal class NativeDocument private constructor(private var handle: Long) : Au
         NativeBridge.render(checkOpen(), target, viewport.x, viewport.y, viewport.zoom)
     }
 
+    /** Renders another view of the document, e.g. a page's thumbnail, without upsetting [render]'s kept frame. */
+    fun renderThumbnail(target: Bitmap, viewport: Viewport) {
+        NativeBridge.renderWhole(checkOpen(), target, viewport.x, viewport.y, viewport.zoom)
+    }
+
     /**
      * Feeds `x, y, pressure, time` samples to the engine: document coordinates, and the
      * milliseconds since boot when the pen was there.
