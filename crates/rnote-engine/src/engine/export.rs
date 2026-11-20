@@ -88,6 +88,10 @@ pub struct DocExportPrefs {
     /// The page order when documents with layouts that expand in horizontal and vertical directions are cut into pages.
     #[serde(rename = "page_order")]
     pub page_order: SplitOrder,
+    /// Whether pages with nothing on them are exported too, so the pages of a document of
+    /// sheets keep their numbers. Only for PDF.
+    #[serde(rename = "with_empty_pages")]
+    pub with_empty_pages: bool,
 }
 
 impl Default for DocExportPrefs {
@@ -98,6 +102,7 @@ impl Default for DocExportPrefs {
             optimize_printing: false,
             export_format: DocExportFormat::default(),
             page_order: SplitOrder::default(),
+            with_empty_pages: false,
         }
     }
 }
@@ -369,6 +374,22 @@ impl Engine {
             .collect()
     }
 
+    /// Like [`Self::extract_pages_content`], with the pages that have nothing on them too.
+    pub fn extract_all_pages_content(&self, page_order: SplitOrder) -> Vec<StrokeContent> {
+        self.document
+            .pages_bounds(page_order)
+            .into_iter()
+            .map(|bounds| {
+                let keys = self
+                    .store
+                    .stroke_keys_as_rendered_intersecting_bounds(bounds);
+
+                self.stroke_content_from_sorted_keys(keys)
+                    .with_bounds(bounds)
+            })
+            .collect()
+    }
+
     /// Extract the content intersecting the given bounds, with the document background.
     ///
     /// The returned content has the given bounds, so drawing it renders exactly that region
@@ -488,7 +509,11 @@ impl Engine {
         let (oneshot_sender, oneshot_receiver) = oneshot::channel::<anyhow::Result<Vec<u8>>>();
         let doc_export_prefs =
             doc_export_prefs_override.unwrap_or(self.config.read().export_prefs.doc_export_prefs);
-        let pages_content = self.extract_pages_content(doc_export_prefs.page_order);
+        let pages_content = if doc_export_prefs.with_empty_pages {
+            self.extract_all_pages_content(doc_export_prefs.page_order)
+        } else {
+            self.extract_pages_content(doc_export_prefs.page_order)
+        };
         let format_size = self.document.config.format.size();
         let format_dpi = self.document.config.format.dpi();
 

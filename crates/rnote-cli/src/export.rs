@@ -316,6 +316,7 @@ pub(crate) fn create_doc_export_prefs_from_args(
         with_pattern: !no_pattern,
         optimize_printing,
         page_order,
+        with_empty_pages: false,
     };
 
     Ok(prefs)
