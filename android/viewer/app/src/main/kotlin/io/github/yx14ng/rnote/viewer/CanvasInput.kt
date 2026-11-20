@@ -44,6 +44,12 @@ internal class CanvasInput(
     /** Immediate feedback for brush strokes, drawn by the view on top of the last frame. */
     val preview = StrokePreview()
 
+    /** The eraser and the lasso while the pen moves, drawn by the view the same way. */
+    val gesture = GesturePreview()
+
+    /** Where the lasso's selection is, if any, in document coordinates: touching it moves it. */
+    var selectionBounds: DocumentBounds? = null
+
     // Lets the preview reach a little past the last sample, where the pen already is.
     private val prediction = PenPrediction.create(context)
 
@@ -92,6 +98,15 @@ internal class CanvasInput(
         ignoringRest = false
         holdHandler.removeCallbacks(holdCheck)
         preview.clear()
+        gesture.clear()
+    }
+
+    /**
+     * The engine said whether the selector's touch draws a lasso: it corrects the guess made
+     * when the pen landed, which only knew where the selection was.
+     */
+    fun onLassoReported(lasso: Boolean) {
+        if (penDown && penTool == Tool.SELECTOR) gesture.lassoing = lasso
     }
 
     /**
@@ -294,6 +309,11 @@ internal class CanvasInput(
         penTool = tool
         previewing = true
         if (tool == Tool.BRUSH) preview.start(brush, brushStyle) else preview.clear()
+        gesture.clear()
+        if (tool == Tool.SELECTOR && samples.size >= 2) {
+            val margin = HANDLE_MARGIN_PX / camera.viewport.zoom
+            gesture.lassoing = GesturePreview.startsLasso(samples[0], samples[1], selectionBounds, margin)
+        }
         send(PenPhase.DOWN, samples)
     }
 
@@ -301,6 +321,7 @@ internal class CanvasInput(
 
     private fun endPen(samples: DoubleArray) {
         preview.predict(NO_SAMPLES)
+        gesture.clear()
         strokePointerId = NO_POINTER
         holdHandler.removeCallbacks(holdCheck)
         send(PenPhase.UP, samples)
@@ -309,6 +330,7 @@ internal class CanvasInput(
 
     private fun cancelPen() {
         preview.predict(NO_SAMPLES)
+        gesture.clear()
         strokePointerId = NO_POINTER
         holdHandler.removeCallbacks(holdCheck)
         send(PenPhase.CANCEL, DoubleArray(0))
@@ -319,6 +341,15 @@ internal class CanvasInput(
         if (penTool == Tool.BRUSH && previewing) {
             for (index in samples.indices step SAMPLE_VALUES) {
                 preview.add(samples[index], samples[index + 1], samples[index + 2])
+            }
+        }
+        if (phase == PenPhase.DOWN && samples.size >= SAMPLE_VALUES) {
+            when (penTool) {
+                Tool.ERASER -> gesture.eraseAt(samples[samples.size - SAMPLE_VALUES], samples[samples.size - SAMPLE_VALUES + 1])
+                Tool.SELECTOR -> for (index in samples.indices step SAMPLE_VALUES) {
+                    gesture.lassoTo(samples[index], samples[index + 1])
+                }
+                else -> {}
             }
         }
         sendPen(phase, penTool, samples)
@@ -415,6 +446,9 @@ internal class CanvasInput(
     private companion object {
         const val DEFAULT_PRESSURE = 0.5
         const val NANOS_PER_MILLI = 1_000_000.0
+
+        /** How far outside the selection its handles reach, on screen. */
+        const val HANDLE_MARGIN_PX = 24.0
         val NO_SAMPLES = DoubleArray(0)
 
         /** Values per sample sent to the engine: x, y, pressure and time. */

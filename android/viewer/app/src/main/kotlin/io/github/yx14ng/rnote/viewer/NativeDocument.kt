@@ -27,6 +27,8 @@ data class EditState(
     val textInput: Boolean,
     /** The brush stroke being drawn just became a shape; the rest of the touch is ignored. */
     val shapeSnapped: Boolean = false,
+    /** The selector is drawing a lasso, which the app draws itself. */
+    val lasso: Boolean = false,
 ) {
     companion object {
         val CLEAN = EditState(
@@ -46,6 +48,7 @@ data class EditState(
         private const val FLAG_HAS_SELECTION = 1 shl 4
         private const val FLAG_TEXT_INPUT = 1 shl 5
         private const val FLAG_SHAPE_SNAPPED = 1 shl 6
+        private const val FLAG_LASSO = 1 shl 7
 
         fun fromFlags(flags: Int) = EditState(
             modified = flags and FLAG_MODIFIED != 0,
@@ -55,6 +58,7 @@ data class EditState(
             hasSelection = flags and FLAG_HAS_SELECTION != 0,
             textInput = flags and FLAG_TEXT_INPUT != 0,
             shapeSnapped = flags and FLAG_SHAPE_SNAPPED != 0,
+            lasso = flags and FLAG_LASSO != 0,
         )
     }
 }

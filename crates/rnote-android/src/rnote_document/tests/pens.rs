@@ -361,3 +361,40 @@ fn a_brush_stroke_in_progress_is_left_to_the_apps_preview() {
     document.handle_pen(PenPhase::Up, Tool::Brush, &samples[20..], IDENTITY, VIEW);
     assert!(count_dark_pixels(&mut document, 0.0, 0.0, 1.0, 400) > 0);
 }
+
+#[test]
+fn the_app_draws_the_lasso_being_drawn_and_hears_about_it() {
+    let mut document = plain_document();
+    document.set_brush(Color::BLACK, 4.0);
+    draw_line(&mut document, 200.0);
+    let corner = |x, y| PenSample { x, y, pressure: 1.0, time_ms: 0.0 };
+    // Away from the line: only the lasso would show.
+    let state = document.handle_pen(
+        PenPhase::Down,
+        Tool::Selector,
+        &[corner(20.0, 300.0), corner(380.0, 300.0), corner(380.0, 380.0), corner(20.0, 380.0)],
+        IDENTITY,
+        VIEW,
+    );
+
+    assert!(state.lasso, "got {state:?}");
+    assert_eq!(count_dark_pixels(&mut document, 0.0, 250.0, 1.0, 150), 0);
+}
+
+#[test]
+fn the_app_draws_the_eraser_while_it_rubs() {
+    let mut document = plain_document();
+    let at = |x, y| PenSample { x, y, pressure: 1.0, time_ms: 0.0 };
+
+    document.handle_pen(
+        PenPhase::Down,
+        Tool::Eraser,
+        &[at(200.0, 300.0), at(210.0, 300.0)],
+        IDENTITY,
+        VIEW,
+    );
+
+    // The engine's red square would be there; nothing else is.
+    let pixel = render_pixel(&mut document, 210.0, 300.0);
+    assert_pixel_near(pixel, [255, 255, 255, 255]);
+}

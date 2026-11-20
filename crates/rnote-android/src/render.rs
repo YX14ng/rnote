@@ -149,8 +149,11 @@ fn draw_to_surface(
         /* margin */ 0.0,
         /* image_scale */ viewport.zoom,
     )?;
-    // On top, and also outside the document: e.g. a selection being dragged off it.
-    if writing.is_none() {
+    // On top, and also outside the document: e.g. a selection being dragged off it. The app
+    // draws the eraser and a lasso itself while the pen moves, at once, as with the brush.
+    let drawn_by_app =
+        writing.is_some() || engine.penholder.eraser_down() || engine.penholder.selector_lassoing();
+    if !drawn_by_app {
         engine.draw_pen_on_doc_to_cairo(&cx)?;
     }
 

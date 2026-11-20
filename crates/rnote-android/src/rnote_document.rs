@@ -38,6 +38,8 @@ pub struct EditState {
     /// The brush stroke being drawn was just replaced by the shape it looks like; the rest
     /// of that touch is ignored.
     pub shape_snapped: bool,
+    /// The selector is drawing a lasso, which the app draws itself; frames leave it out.
+    pub lasso: bool,
 }
 
 /// Size of the view showing the document, in pixels.
@@ -154,6 +156,7 @@ impl RnoteDocument {
                 && self.engine.extract_selection_content().is_some(),
             text_input: self.text_input,
             shape_snapped: false,
+            lasso: self.engine.penholder.selector_lassoing(),
         }
     }
 

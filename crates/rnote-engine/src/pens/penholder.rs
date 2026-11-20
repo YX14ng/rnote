@@ -110,6 +110,23 @@ impl PenHolder {
         }
     }
 
+    /// Whether the eraser is touching the document.
+    pub fn eraser_down(&self) -> bool {
+        matches!(
+            &self.current_pen,
+            Pen::Eraser(eraser) if matches!(eraser.state, super::eraser::EraserState::Down(_))
+        )
+    }
+
+    /// Whether the selector is drawing the lasso (or rectangle) of a new selection.
+    pub fn selector_lassoing(&self) -> bool {
+        matches!(
+            &self.current_pen,
+            Pen::Selector(selector)
+                if matches!(selector.state, super::selector::SelectorState::Selecting { .. })
+        )
+    }
+
     pub fn current_pen_ref(&mut self) -> &Pen {
         &self.current_pen
     }

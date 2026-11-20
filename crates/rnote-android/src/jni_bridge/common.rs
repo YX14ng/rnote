@@ -19,6 +19,7 @@ const FLAG_BOUNDS_CHANGED: jint = 1 << 3;
 const FLAG_HAS_SELECTION: jint = 1 << 4;
 const FLAG_TEXT_INPUT: jint = 1 << 5;
 const FLAG_SHAPE_SNAPPED: jint = 1 << 6;
+const FLAG_LASSO: jint = 1 << 7;
 
 /// Values per sample in the `samples` array of `handlePen`: x, y, pressure and time.
 pub(super) const VALUES_PER_SAMPLE: usize = 4;
@@ -64,6 +65,7 @@ pub(super) fn edit_flags(state: EditState) -> jint {
         (state.has_selection, FLAG_HAS_SELECTION),
         (state.text_input, FLAG_TEXT_INPUT),
         (state.shape_snapped, FLAG_SHAPE_SNAPPED),
+        (state.lasso, FLAG_LASSO),
     ] {
         if set {
             flags |= flag;

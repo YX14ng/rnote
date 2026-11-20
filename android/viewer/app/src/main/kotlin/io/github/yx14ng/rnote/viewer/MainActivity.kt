@@ -282,10 +282,14 @@ class MainActivity : Activity() {
     private fun refreshSelectionBar() {
         if (!documentOpen || !editState.hasSelection || controls.settings.tool != Tool.SELECTOR) {
             selectionBar.hide()
+            canvasView.selectionBounds = null
             return
         }
         renderer.query({ it.selectionBounds() }) { result ->
-            result.onSuccess { bounds -> selectionBar.show(bounds, canvasView.currentViewport) }
+            result.onSuccess { bounds ->
+                canvasView.selectionBounds = bounds
+                selectionBar.show(bounds, canvasView.currentViewport)
+            }
         }
     }
 

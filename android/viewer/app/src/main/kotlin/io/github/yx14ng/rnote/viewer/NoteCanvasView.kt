@@ -94,6 +94,13 @@ class NoteCanvasView(context: Context) : View(context) {
     val zoomPercent: Int
         get() = camera.zoomPercent
 
+    /** Where the lasso's selection is, so a touch on it moves it instead of drawing a lasso. */
+    var selectionBounds: DocumentBounds?
+        get() = input.selectionBounds
+        set(value) {
+            input.selectionBounds = value
+        }
+
     /** Scrolls so the document line [y] shows near the top of the view, e.g. a sheet's top. */
     fun showDocumentFromY(y: Double) {
         camera.showFromY(y)
@@ -392,6 +399,7 @@ class NoteCanvasView(context: Context) : View(context) {
         frames.draw(canvas, viewport)
         highlights.draw(canvas, viewport)
         input.preview.draw(canvas, viewport)
+        input.gesture.draw(canvas, viewport)
         navigation.pullProgress?.let { progress -> pullHint.draw(canvas, width, height, progress) }
     }
 
@@ -426,7 +434,9 @@ class NoteCanvasView(context: Context) : View(context) {
         // While a brush stroke is written the preview shows it, and frames leave it out:
         // rendering the whole view for every batch of samples only made the pen lag. The
         // frame with the finished stroke is asked for when the pen lifts.
-        val render = !(tool == Tool.BRUSH && phase == PenPhase.DOWN && !input.preview.isEmpty)
+        // A lasso being drawn changes nothing on the page either: the app draws it.
+        val drawnLive = (tool == Tool.BRUSH && !input.preview.isEmpty) || (tool == Tool.SELECTOR && input.gesture.lassoing)
+        val render = !(phase == PenPhase.DOWN && drawnLive)
         submitEdit(render = render) { document ->
             document.handlePen(phase, tool, samples, currentViewport, viewWidth, viewHeight)
         }
@@ -464,6 +474,10 @@ class NoteCanvasView(context: Context) : View(context) {
                     if (edit.state.shapeSnapped) {
                         input.onShapeSnapped()
                     }
+                    val wasLassoing = input.gesture.lassoing
+                    input.onLassoReported(edit.state.lasso)
+                    // Guessed a lasso, but the touch moves the selection: it needs frames.
+                    if (wasLassoing && !input.gesture.lassoing) frames.request()
                     updateTextInput(edit.state.textInput)
                     onEditState?.invoke(edit.state)
                 }
