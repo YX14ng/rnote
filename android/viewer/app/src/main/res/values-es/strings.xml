@@ -13,6 +13,8 @@
     <string name="action_open">Abrir</string>
     <string name="action_save">Guardar</string>
     <string name="action_save_as">Guardar como…</string>
+    <string name="action_save_copy">Guardar una copia…</string>
+    <string name="copy_saved">Copia guardada</string>
 
 
     <string name="saved">Guardado</string>

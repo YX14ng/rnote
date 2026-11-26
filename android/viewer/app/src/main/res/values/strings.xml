@@ -14,6 +14,8 @@
     <string name="action_open">Open</string>
     <string name="action_save">Save</string>
     <string name="action_save_as">Save as…</string>
+    <string name="action_save_copy">Save a copy…</string>
+    <string name="copy_saved">Copy saved</string>
 
 
     <string name="saved">Saved</string>

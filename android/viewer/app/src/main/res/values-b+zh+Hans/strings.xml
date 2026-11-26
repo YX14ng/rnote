@@ -13,6 +13,8 @@
     <string name="action_open">打开</string>
     <string name="action_save">保存</string>
     <string name="action_save_as">另存为…</string>
+    <string name="action_save_copy">保存副本…</string>
+    <string name="copy_saved">副本已保存</string>
 
 
     <string name="saved">已保存</string>

@@ -45,7 +45,8 @@ internal object MenuPanel {
         panel.addView(PanelViews.menuRow(context, R.drawable.ic_save, R.string.action_save, "Ctrl+S", open) {
             onAction(EditorMenu.Action.Save)
         })
-        panel.addView(PanelViews.menuRow(context, R.drawable.ic_save_as, R.string.action_save_as, null, open) {
+        val saveAs = if (state.inLibrary) R.string.action_save_copy else R.string.action_save_as
+        panel.addView(PanelViews.menuRow(context, R.drawable.ic_save_as, saveAs, null, open) {
             onAction(EditorMenu.Action.SaveAs)
         })
         panel.addView(PanelViews.menuRow(context, R.drawable.ic_page, R.string.action_export_pdf, null, open) {

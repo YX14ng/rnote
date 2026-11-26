@@ -51,8 +51,15 @@ internal class DocumentSaver(
         }
     }
 
-    /** Saves to the file the user picked with "Save as", which becomes the current one. */
+    /**
+     * Saves to the file the user picked with "Save as", which becomes the current one. A
+     * library notebook stays where it is: the picked file gets a copy of it.
+     */
     fun saveAs(uri: Uri) {
+        if (libraryPath != null) {
+            saveCopyTo(uri)
+            return
+        }
         currentUri = uri
         documentName = DocumentFiles.displayName(context.contentResolver, uri) ?: documentName
         writeTo(uri)
@@ -126,6 +133,20 @@ internal class DocumentSaver(
             currentUri = Uri.fromFile(file)
             documentName = file.name
             onConflictCopy(path)
+        }
+    }
+
+    /** Writes a copy of the document to [uri], leaving the open notebook as it is. */
+    private fun saveCopyTo(uri: Uri) {
+        val name = DocumentFiles.displayName(context.contentResolver, uri) ?: documentName
+        renderer.saveCopy(name, { bytes -> DocumentFiles.write(context.contentResolver, uri, bytes) }) { result ->
+            result
+                .onSuccess { Toast.makeText(context, R.string.copy_saved, Toast.LENGTH_SHORT).show() }
+                .onFailure { error ->
+                    Log.e(TAG, "Saving a copy to $uri failed", error)
+                    val text = context.getString(R.string.save_failed, error.message ?: error.toString())
+                    Toast.makeText(context, text, Toast.LENGTH_LONG).show()
+                }
         }
     }
 

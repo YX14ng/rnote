@@ -180,6 +180,7 @@ class MainActivity : Activity() {
         controls.settings,
         canvasView.zoomPercent,
         hasPages = documentSettings?.layout == DocumentLayout.FIXED_SIZE,
+        inLibrary = libraryPath != null,
     )
 
     private fun showMenu() {

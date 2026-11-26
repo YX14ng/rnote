@@ -13,6 +13,8 @@
     <string name="action_open">開く</string>
     <string name="action_save">保存</string>
     <string name="action_save_as">名前を付けて保存…</string>
+    <string name="action_save_copy">コピーを保存…</string>
+    <string name="copy_saved">コピーを保存しました</string>
 
 
     <string name="saved">保存しました</string>

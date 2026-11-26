@@ -13,6 +13,8 @@
     <string name="action_open">열기</string>
     <string name="action_save">저장</string>
     <string name="action_save_as">다른 이름으로 저장…</string>
+    <string name="action_save_copy">사본 저장…</string>
+    <string name="copy_saved">사본을 저장했습니다</string>
 
 
     <string name="saved">저장됨</string>

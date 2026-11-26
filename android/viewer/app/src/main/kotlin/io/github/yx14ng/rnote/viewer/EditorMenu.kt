@@ -9,6 +9,8 @@ data class MenuState(
     val zoomPercent: Int,
     /** Whether the document has sheets, which the column of pages shows. */
     val hasPages: Boolean = false,
+    /** Whether it is a notebook of the library, which "Save as" copies instead of moving. */
+    val inLibrary: Boolean = false,
 )
 
 /** What the user can ask the editor for, from the top bar, a panel or a shortcut. */
