@@ -94,6 +94,10 @@ class NoteCanvasView(context: Context) : View(context) {
     val zoomPercent: Int
         get() = camera.zoomPercent
 
+    /** Whether the pen is on the screen, drawing or erasing. */
+    val penDown: Boolean
+        get() = input.penDown
+
     /** Where the lasso's selection is, so a touch on it moves it instead of drawing a lasso. */
     var selectionBounds: DocumentBounds?
         get() = input.selectionBounds

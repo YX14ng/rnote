@@ -6,6 +6,9 @@ import android.content.Intent
 import android.graphics.Point
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.os.SystemClock
 import android.util.Log
 import android.view.HapticFeedbackConstants
 import android.view.KeyEvent
@@ -29,6 +32,11 @@ class MainActivity : Activity() {
     private lateinit var selectionBar: SelectionBar
     private lateinit var pages: PagesController
     private lateinit var pdfExport: PdfExport
+
+    // Saves the notebook a few seconds after the writing pauses, so a crash loses little.
+    private val autosave = AutosaveSchedule()
+    private val main = Handler(Looper.getMainLooper())
+    private val autosaveCheck = Runnable { autosaveIfDue() }
     private var shownZoomPercent = 0
 
     private var documentOpen = false
@@ -344,6 +352,7 @@ class MainActivity : Activity() {
     }
 
     override fun onDestroy() {
+        main.removeCallbacks(autosaveCheck)
         // Before the renderer closes: a search waiting to run would use it.
         search.close()
         ink.close()
@@ -486,6 +495,9 @@ class MainActivity : Activity() {
     }
 
     private fun showOpenedDocument(info: DocumentInfo) {
+        // Another document: what was due belonged to the one before.
+        autosave.saved()
+        main.removeCallbacks(autosaveCheck)
         documentOpen = true
         controls.documentOpen = true
         documentSettings = info.settings
@@ -567,6 +579,7 @@ class MainActivity : Activity() {
 
     /** Saved: a library notebook goes to Drive a few seconds later. */
     private fun onSaved(state: EditState) {
+        autosave.saved()
         updateEditState(state)
         if (libraryPath != null) SyncManager.syncSoon(this)
     }
@@ -601,6 +614,8 @@ class MainActivity : Activity() {
         if (documentOpen && state.modified) {
             ink.onEdited()
             search.onEdited()
+            autosave.edited(SystemClock.uptimeMillis())
+            scheduleAutosave()
         }
         if (state.modified) pages.onEdited()
         // Every batch of pen samples reports a state, nearly always the one already shown.
@@ -611,6 +626,32 @@ class MainActivity : Activity() {
         }
         // Even with the same state: a moved selection takes its bar along.
         refreshSelectionBar()
+    }
+
+    private fun scheduleAutosave() {
+        val due = autosave.dueAt() ?: return
+        main.removeCallbacks(autosaveCheck)
+        main.postDelayed(autosaveCheck, (due - SystemClock.uptimeMillis()).coerceAtLeast(0))
+    }
+
+    /** Saves quietly once the schedule says so, never under the pen. */
+    private fun autosaveIfDue() {
+        val due = autosave.dueAt() ?: return
+        if (SystemClock.uptimeMillis() < due) {
+            scheduleAutosave()
+            return
+        }
+        if (!documentOpen || !editState.modified || guard.changesDiscarded) {
+            autosave.saved()
+            return
+        }
+        if (canvasView.penDown) {
+            main.postDelayed(autosaveCheck, PEN_UP_RETRY_MS)
+            return
+        }
+        // Done once asked: a failed write leaves a recovery copy, and the next edit asks again.
+        autosave.saved()
+        saver.autosave()
     }
 
     private fun showError(error: Throwable) {
@@ -636,5 +677,8 @@ class MainActivity : Activity() {
         private const val REQUEST_SAVE_AS = 2
         private const val REQUEST_INSERT_PDF = 3
         private const val REQUEST_EXPORT_PDF = 4
+
+        /** How soon the autosave looks again when the pen was down. */
+        private const val PEN_UP_RETRY_MS = 1_000L
     }
 }
