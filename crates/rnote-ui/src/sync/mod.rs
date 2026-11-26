@@ -30,6 +30,9 @@ pub(crate) use status::SyncStatus;
 
 /// How long after a save [`RnSync::sync_soon`] waits.
 const SOON_DELAY: Duration = Duration::from_secs(5);
+/// How often an open app syncs by itself, so changes from other devices come in while the
+/// user stays in a notebook.
+const PERIODIC_DELAY: Duration = Duration::from_secs(5 * 60);
 /// How long closing the window may keep the app running for a sync to finish.
 const CLOSE_GRACE: Duration = Duration::from_secs(60);
 /// How long the browser gets to come back from Google.
@@ -53,6 +56,7 @@ struct Inner {
     status: RefCell<SyncStatus>,
     scheduler: RefCell<Scheduler>,
     soon: RefCell<Option<glib::SourceId>>,
+    periodic: std::cell::Cell<bool>,
     listeners: RefCell<Vec<Listener>>,
     root: RefCell<Option<RootProvider>>,
     signing_in: RefCell<PendingSignIn>,
@@ -89,6 +93,7 @@ impl RnSync {
                 status: RefCell::new(status),
                 scheduler: RefCell::new(Scheduler::default()),
                 soon: RefCell::new(None),
+                periodic: std::cell::Cell::new(false),
                 listeners: RefCell::new(Vec::new()),
                 root: RefCell::new(None),
                 signing_in: RefCell::new(PendingSignIn::default()),
@@ -96,11 +101,13 @@ impl RnSync {
         }
     }
 
-    /// Reads the keyring and, when signed in, syncs: what opening the app does.
+    /// Reads the keyring and, when signed in, syncs: what opening the app does. From then
+    /// on it also syncs every few minutes.
     pub(crate) fn start_up(&self) {
         if self.status() != SyncStatus::Checking {
             return;
         }
+        self.sync_periodically();
         let store = Arc::clone(&self.inner.store);
         let this = self.clone();
         glib::spawn_future_local(async move {
@@ -151,6 +158,22 @@ impl RnSync {
         if self.status().signed_in() && self.inner.scheduler.borrow_mut().request() {
             self.start();
         }
+    }
+
+    /// Syncs every [`PERIODIC_DELAY`] while signed in, for as long as this sync exists.
+    fn sync_periodically(&self) {
+        if self.inner.periodic.get() {
+            return;
+        }
+        self.inner.periodic.set(true);
+        let weak = Rc::downgrade(&self.inner);
+        glib::timeout_add_local(PERIODIC_DELAY, move || {
+            let Some(inner) = weak.upgrade() else {
+                return glib::ControlFlow::Break;
+            };
+            Self { inner }.sync_now();
+            glib::ControlFlow::Continue
+        });
     }
 
     /// The window is closing: a sync waiting for its few seconds runs now, and the app keeps
