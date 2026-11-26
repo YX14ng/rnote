@@ -19,15 +19,30 @@ internal class Recovery(context: Context) {
     val documentName: String?
         get() = preferences.getString(KEY_DOCUMENT_NAME, null)
 
-    /** Stores [bytes]; safe to call off the main thread. */
-    fun write(bytes: ByteArray, documentName: String) {
+    /** The library notebook the changes belong to, if they belong to one. */
+    val libraryPath: String?
+        get() = preferences.getString(KEY_LIBRARY_PATH, null)
+
+    /** The SHA-256 of that notebook's file as the editor last read or wrote it. */
+    val knownSha256: String?
+        get() = preferences.getString(KEY_KNOWN_SHA256, null)
+
+    /**
+     * Stores [bytes], the unsaved changes of [documentName], which is the library notebook
+     * at [libraryPath] last known as [knownSha256], if any; safe to call off the main thread.
+     */
+    fun write(bytes: ByteArray, documentName: String, libraryPath: String?, knownSha256: String?) {
         // Write next to it and rename, so a crash mid-write never leaves a broken copy.
         val partial = File(file.parentFile, "$FILE_NAME.partial")
         partial.writeBytes(bytes)
         if (!partial.renameTo(file)) {
             throw IOException("Moving the recovery copy into place failed")
         }
-        preferences.edit().putString(KEY_DOCUMENT_NAME, documentName).apply()
+        preferences.edit()
+            .putString(KEY_DOCUMENT_NAME, documentName)
+            .putString(KEY_LIBRARY_PATH, libraryPath)
+            .putString(KEY_KNOWN_SHA256, knownSha256)
+            .apply()
     }
 
     fun read(): ByteArray = file.readBytes()
@@ -41,5 +56,7 @@ internal class Recovery(context: Context) {
         const val FILE_NAME = "recovery.rnote"
         const val PREFERENCES = "recovery"
         const val KEY_DOCUMENT_NAME = "document_name"
+        const val KEY_LIBRARY_PATH = "library_path"
+        const val KEY_KNOWN_SHA256 = "known_sha256"
     }
 }

@@ -356,4 +356,11 @@
     <string name="pdf_exporting">Exportando el PDF…</string>
     <string name="pdf_saved">PDF guardado</string>
     <string name="share_pdf_title">Compartir PDF</string>
+
+    <!-- Recovery -->
+    <string name="recovery_write_failed">No se pudo guardar una copia de los cambios sin guardar: %1$s</string>
+    <string name="recovery_restore_failed_title">No se pudieron recuperar los cambios sin guardar</string>
+    <string name="recovery_restore_failed_message">Quedan guardados para intentar de nuevo la próxima vez. %1$s</string>
+    <string name="recovery_keep">Conservar</string>
+    <string name="recovery_discard">Descartar</string>
 </resources>

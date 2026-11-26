@@ -2,6 +2,7 @@ package io.github.yx14ng.rnote.viewer
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Intent
 import android.graphics.Point
 import android.net.Uri
@@ -379,6 +380,11 @@ class MainActivity : Activity() {
 
     /** Opens the library notebook at [path], or creates it there when [isNew]. */
     private fun openLibraryNotebook(path: String, isNew: Boolean) {
+        // Changes it had when the app stopped unexpectedly come back with it.
+        if (!isNew && recovery.exists && recovery.libraryPath == path) {
+            restoreRecovery()
+            return
+        }
         val file = LibraryStore.forApp(this).notebookFile(path)
         // A new notebook never replaces one, whoever asks.
         if (file == null || (isNew && file.exists())) {
@@ -463,19 +469,37 @@ class MainActivity : Activity() {
         renderer.open({ recovery.read() }, brush = null) { result ->
             result
                 .onSuccess { info ->
-                    saver.currentUri = null
-                    saver.documentName = recovery.documentName ?: getString(R.string.untitled_file_name)
+                    val path = recovery.libraryPath
+                    val file = path?.let { LibraryStore.forApp(this).notebookFile(it) }?.takeIf { it.exists() }
+                    if (path != null && file != null) {
+                        // Back in its place in the library; saving compares with the file as it
+                        // was then, so changes a sync brought meanwhile go to a conflict copy.
+                        libraryPath = path
+                        saver.knownSha256 = recovery.knownSha256
+                        saver.currentUri = Uri.fromFile(file)
+                        saver.documentName = file.name
+                    } else {
+                        libraryPath = null
+                        saver.currentUri = null
+                        saver.documentName = recovery.documentName ?: getString(R.string.untitled_file_name)
+                    }
                     showOpenedDocument(info)
                     canvasView.applyEdit(NativeDocument::markModified)
                     Toast.makeText(this, R.string.recovered, Toast.LENGTH_LONG).show()
                 }
                 .onFailure { error ->
                     Log.e(TAG, "Restoring the recovery copy failed", error)
-                    recovery.clear()
                     endLoading()
                     if (!documentOpen) {
                         layout.showMessage(getString(R.string.empty_hint))
                     }
+                    // The copy is all there is of those changes: never thrown away unasked.
+                    AlertDialog.Builder(this)
+                        .setTitle(R.string.recovery_restore_failed_title)
+                        .setMessage(getString(R.string.recovery_restore_failed_message, error.message ?: error.toString()))
+                        .setPositiveButton(R.string.recovery_keep, null)
+                        .setNegativeButton(R.string.recovery_discard) { _, _ -> recovery.clear() }
+                        .show()
                 }
         }
     }

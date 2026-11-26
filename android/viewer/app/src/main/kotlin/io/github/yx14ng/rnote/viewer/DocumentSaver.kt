@@ -152,8 +152,14 @@ internal class DocumentSaver(
 
     private fun saveRecovery() {
         val name = documentName
-        renderer.saveCopy(name, { bytes -> recovery.write(bytes, name) }) { result ->
-            result.onFailure { error -> Log.e(TAG, "Writing the recovery copy failed", error) }
+        val path = libraryPath
+        val sha256 = knownSha256
+        renderer.saveCopy(name, { bytes -> recovery.write(bytes, name, path, sha256) }) { result ->
+            result.onFailure { error ->
+                Log.e(TAG, "Writing the recovery copy failed", error)
+                val text = context.getString(R.string.recovery_write_failed, error.message ?: error.toString())
+                Toast.makeText(context, text, Toast.LENGTH_LONG).show()
+            }
         }
     }
 

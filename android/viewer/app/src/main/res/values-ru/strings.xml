@@ -366,4 +366,11 @@
     <string name="pdf_exporting">Экспорт в PDF…</string>
     <string name="pdf_saved">PDF сохранён</string>
     <string name="share_pdf_title">Поделиться PDF</string>
+
+    <!-- Recovery -->
+    <string name="recovery_write_failed">Не удалось сохранить копию несохранённых изменений: %1$s</string>
+    <string name="recovery_restore_failed_title">Не удалось восстановить несохранённые изменения</string>
+    <string name="recovery_restore_failed_message">Они сохранены, чтобы попробовать в следующий раз. %1$s</string>
+    <string name="recovery_keep">Сохранить</string>
+    <string name="recovery_discard">Удалить</string>
 </resources>

@@ -336,4 +336,11 @@
     <string name="pdf_exporting">正在匯出 PDF…</string>
     <string name="pdf_saved">PDF 已儲存</string>
     <string name="share_pdf_title">分享 PDF</string>
+
+    <!-- Recovery -->
+    <string name="recovery_write_failed">無法儲存未儲存變更的副本：%1$s</string>
+    <string name="recovery_restore_failed_title">無法復原未儲存的變更</string>
+    <string name="recovery_restore_failed_message">副本會保留，下次再試。%1$s</string>
+    <string name="recovery_keep">保留</string>
+    <string name="recovery_discard">捨棄</string>
 </resources>

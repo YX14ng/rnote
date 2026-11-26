@@ -348,4 +348,11 @@
     <string name="pdf_exporting">Exporting the PDF…</string>
     <string name="pdf_saved">PDF saved</string>
     <string name="share_pdf_title">Share PDF</string>
+
+    <!-- Recovery -->
+    <string name="recovery_write_failed">Could not keep a copy of the unsaved changes: %1$s</string>
+    <string name="recovery_restore_failed_title">The unsaved changes could not be recovered</string>
+    <string name="recovery_restore_failed_message">They stay kept, to try again the next time. %1$s</string>
+    <string name="recovery_keep">Keep</string>
+    <string name="recovery_discard">Discard</string>
 </resources>
