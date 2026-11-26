@@ -81,8 +81,8 @@ enum class BackgroundColor(val color: Int, val label: Int) {
     WHITE(Color.WHITE, R.string.background_white),
     CREAM(Color.rgb(0xFB, 0xF6, 0xE9), R.string.background_cream),
     LIGHT_GRAY(Color.rgb(0xEE, 0xEE, 0xEE), R.string.background_light_gray),
-    DARK(Color.rgb(0x28, 0x2A, 0x36), R.string.background_dark),
-    BLACK(Color.BLACK, R.string.background_black),
+    // StarNote's dark paper: black, with dark gray lines (see `notebook_setup.rs`).
+    DARK(Color.BLACK, R.string.background_dark),
     ;
 
     val patternColor: Int
@@ -90,7 +90,7 @@ enum class BackgroundColor(val color: Int, val label: Int) {
 
     private companion object {
         val LIGHT_PATTERN = Color.rgb(0xC8, 0xCC, 0xD6)
-        val DARK_PATTERN = Color.rgb(0x62, 0x72, 0xA4)
+        val DARK_PATTERN = Color.rgb(0x40, 0x40, 0x40)
     }
 }
 

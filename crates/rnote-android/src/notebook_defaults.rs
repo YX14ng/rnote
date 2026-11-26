@@ -7,7 +7,7 @@ use std::path::Path;
 
 use anyhow::Context;
 
-use crate::notebook_setup::NotebookSetup;
+use crate::notebook_setup::{DARK_LINES, DARK_PAPER, NotebookSetup};
 
 /// The key of the notebooks outside any folder.
 const ROOT_KEY: &str = "";
@@ -15,7 +15,20 @@ const ROOT_KEY: &str = "";
 /// The setup last remembered for `folder` (`None` = outside any folder) in `file`; the
 /// default one if there is none or the file can't be read.
 pub(crate) fn defaults_for(file: &Path, folder: Option<&str>) -> NotebookSetup {
-    read(file).remove(folder.unwrap_or(ROOT_KEY)).unwrap_or_default()
+    let setup = read(file).remove(folder.unwrap_or(ROOT_KEY)).unwrap_or_default();
+    with_current_dark_paper(setup)
+}
+
+/// The dark paper before it became StarNote's (Dracula's background and its comment color).
+const OLD_DARK_PAPER: (u32, u32) = (0xFF28_2A36, 0xFF62_72A4);
+
+/// `setup`, with the old dark paper, remembered before it changed, as the current one.
+fn with_current_dark_paper(setup: NotebookSetup) -> NotebookSetup {
+    if (setup.background_argb, setup.pattern_argb) == OLD_DARK_PAPER {
+        NotebookSetup { background_argb: DARK_PAPER, pattern_argb: DARK_LINES, ..setup }
+    } else {
+        setup
+    }
 }
 
 /// Remembers `setup` for `folder` in `file`, replacing the file at once.

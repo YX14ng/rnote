@@ -95,7 +95,9 @@ fn default_setup_is_a4_dark_grid_5mm() {
     assert_eq!(settings.pattern, PatternStyle::Grid);
     let dpi = settings.page_width / settings.page_width_mm * MM_PER_INCH;
     assert!(close(settings.pattern_size, 5.0 / MM_PER_INCH * dpi, 0.01), "{settings:?}");
-    assert_eq!(crate::android_color::color_to_argb(settings.background_color) as u32, 0xFF28_2A36);
+    // StarNote's dark paper: black, with dark gray lines.
+    assert_eq!(crate::android_color::color_to_argb(settings.background_color) as u32, 0xFF00_0000);
+    assert_eq!(crate::android_color::color_to_argb(settings.pattern_color) as u32, 0xFF40_4040);
 }
 
 #[test]

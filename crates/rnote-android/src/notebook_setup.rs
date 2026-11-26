@@ -70,16 +70,22 @@ pub(crate) struct NotebookSetup {
     pub cover: Option<u32>,
 }
 
+/// The dark paper: black, as StarNote's.
+pub(crate) const DARK_PAPER: u32 = 0xFF00_0000;
+/// The lines on the dark paper: dark gray, as StarNote's.
+pub(crate) const DARK_LINES: u32 = 0xFF40_4040;
+
 impl Default for NotebookSetup {
-    /// A4 portrait sheets, dark paper with a 5 mm grid, no cover.
+    /// A4 portrait sheets, dark paper with a 5 mm grid, no cover. The dark paper is
+    /// StarNote's: black, with dark gray lines.
     fn default() -> Self {
         Self {
             page_width_mm: 210.0,
             page_height_mm: 297.0,
             layout: SetupLayout::FixedSize,
-            background_argb: 0xFF28_2A36,
+            background_argb: DARK_PAPER,
             pattern: SetupPattern::Grid,
-            pattern_argb: 0xFF62_72A4,
+            pattern_argb: DARK_LINES,
             pattern_size_mm: 5.0,
             cover: None,
         }
