@@ -410,6 +410,23 @@ impl RnLibraryView {
             return;
         };
         let Some(path) = folder.path() else { return };
+        // Signed in, the folder starts syncing at once with the notebooks already on Drive,
+        // both ways: a folder picked by mistake would spread to every device.
+        if path != root && appwindow.sync().status().signed_in() {
+            let body = gettext(
+                "Its notebooks will be uploaded to the Rnote folder of your Google Drive, and the notebooks there will be downloaded into it, on every device signed in.",
+            );
+            let confirmed = dialogs::confirm(
+                &appwindow,
+                &gettext("Sync This Folder with Google Drive?"),
+                &body,
+                &gettext("Use This Folder"),
+            )
+            .await;
+            if !confirmed {
+                return;
+            }
+        }
         match appwindow.app().app_settings() {
             Some(settings) => {
                 if let Err(e) = settings.set_string(LIBRARY_DIR_KEY, &path.to_string_lossy()) {

@@ -23,7 +23,9 @@ pub(crate) fn icon_name(status: &SyncStatus) -> &'static str {
         SyncStatus::Checking | SyncStatus::Waiting | SyncStatus::Done { .. } => {
             "sync-cloud-symbolic"
         }
-        SyncStatus::Pending | SyncStatus::Failed(_) => "sync-cloud-alert-symbolic",
+        SyncStatus::Pending | SyncStatus::Failed(_) | SyncStatus::KeyringLocked => {
+            "sync-cloud-alert-symbolic"
+        }
     }
 }
 
@@ -143,6 +145,12 @@ fn fill_popover(popover: &Popover, appwindow: &RnAppWindow) {
                 }
             },
         ));
+    } else if status == SyncStatus::KeyringLocked {
+        // Signing in again would fail to keep the sign-in: unlocking is what's missing.
+        content.append(&action(popover, &gettext("Retry"), true, {
+            let sync = sync.clone();
+            move || sync.retry_keyring()
+        }));
     } else {
         content.append(&action(popover, &gettext("Sign In with Google"), true, {
             let window = appwindow.downgrade();

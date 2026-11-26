@@ -18,7 +18,7 @@ use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 
 use anyhow::anyhow;
-use gtk4::{UriLauncher, Window, gio, glib};
+use gtk4::{UriLauncher, Window, gio, gio::prelude::*, glib};
 use rnote_sync::oauth::{self, AccessTokens, OAuthClient, OAuthError};
 use rnote_sync::{DriveClient, RemoteError, SyncContext};
 use tracing::error;
@@ -30,6 +30,8 @@ pub(crate) use status::SyncStatus;
 
 /// How long after a save [`RnSync::sync_soon`] waits.
 const SOON_DELAY: Duration = Duration::from_secs(5);
+/// How long closing the window may keep the app running for a sync to finish.
+const CLOSE_GRACE: Duration = Duration::from_secs(60);
 /// How long the browser gets to come back from Google.
 const SIGN_IN_TIMEOUT: Duration = Duration::from_secs(5 * 60);
 
@@ -113,6 +115,14 @@ impl RnSync {
         });
     }
 
+    /// Reads the keyring again, e.g. after the user unlocked it.
+    pub(crate) fn retry_keyring(&self) {
+        if self.status() == SyncStatus::KeyringLocked {
+            self.set_status(SyncStatus::Checking);
+            self.start_up();
+        }
+    }
+
     /// Where the library to sync is, asked at the start of every sync.
     pub(crate) fn set_root(&self, root: impl Fn() -> Option<PathBuf> + 'static) {
         *self.inner.root.borrow_mut() = Some(Box::new(root));
@@ -141,6 +151,31 @@ impl RnSync {
         if self.status().signed_in() && self.inner.scheduler.borrow_mut().request() {
             self.start();
         }
+    }
+
+    /// The window is closing: a sync waiting for its few seconds runs now, and the app keeps
+    /// running until it (or one already running) ends, up to [`CLOSE_GRACE`]. Without that, a
+    /// notebook saved just before closing reached the other devices only on the next start.
+    pub(crate) fn finish_before_quitting(&self, app: &impl IsA<gio::Application>) {
+        if let Some(source) = self.inner.soon.borrow_mut().take() {
+            source.remove();
+            self.sync_now();
+        }
+        if self.status() != SyncStatus::Running {
+            return;
+        }
+        let hold = Rc::new(RefCell::new(Some(app.hold())));
+        self.connect_status({
+            let hold = Rc::clone(&hold);
+            move |status| {
+                if *status != SyncStatus::Running {
+                    hold.borrow_mut().take();
+                }
+            }
+        });
+        glib::timeout_add_local_once(CLOSE_GRACE, move || {
+            hold.borrow_mut().take();
+        });
     }
 
     /// Syncs a few seconds from now, e.g. after a save; another call starts the wait over.

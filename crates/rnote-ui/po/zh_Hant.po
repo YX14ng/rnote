@@ -4844,6 +4844,27 @@ msgctxt "part of string representation of a color"
 msgid "white"
 msgstr "白色"
 
+
+#: crates/rnote-ui/src/sync/status.rs
+msgid "The keyring, where the Google Drive sign-in is kept, is locked or not responding. Unlock it, then retry."
+msgstr "保存 Google Drive 登入資訊的鑰匙圈已鎖定或沒有回應。請解鎖後重試。"
+
+#: crates/rnote-ui/src/library/mod.rs
+msgid "Sync This Folder with Google Drive?"
+msgstr "要將此資料夾與 Google Drive 同步嗎？"
+
+#: crates/rnote-ui/src/library/mod.rs
+msgid "Its notebooks will be uploaded to the Rnote folder of your Google Drive, and the notebooks there will be downloaded into it, on every device signed in."
+msgstr "其中的筆記本會上傳到你 Google Drive 的 Rnote 資料夾，那裡的筆記本也會下載到此資料夾，所有已登入的裝置都會如此。"
+
+#: crates/rnote-ui/src/library/mod.rs
+msgid "Use This Folder"
+msgstr "使用此資料夾"
+
+#: crates/rnote-ui/src/sync/button.rs
+msgid "Retry"
+msgstr "重試"
+
 #~ msgid "Brush Style"
 #~ msgstr "筆刷樣式"
 

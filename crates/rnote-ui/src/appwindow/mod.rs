@@ -328,6 +328,8 @@ impl RnAppWindow {
                 .send(EngineTask::Quit);
         }
 
+        // A notebook saved just now reaches Drive before the app goes away.
+        self.sync().finish_before_quitting(&self.app());
         self.destroy();
     }
 

@@ -14,6 +14,8 @@ pub(crate) enum SyncStatus {
     Checking,
     /// Not signed in.
     SignedOut,
+    /// The keyring, where the sign-in is kept, is locked or didn't answer.
+    KeyringLocked,
     /// Signed in before, but Google needs the user again (e.g. access removed).
     SignInNeeded,
     /// Signed in, before the first sync of this run.
@@ -38,7 +40,11 @@ impl SyncStatus {
     pub(crate) fn signed_in(&self) -> bool {
         !matches!(
             self,
-            Self::Unavailable | Self::Checking | Self::SignedOut | Self::SignInNeeded
+            Self::Unavailable
+                | Self::Checking
+                | Self::SignedOut
+                | Self::KeyringLocked
+                | Self::SignInNeeded
         )
     }
 }
@@ -50,7 +56,7 @@ pub(crate) fn status_after_load(token: anyhow::Result<Option<String>>) -> SyncSt
         Ok(None) => SyncStatus::SignedOut,
         Err(error) => {
             tracing::warn!("Reading the Google Drive token from the keyring failed: {error:?}");
-            SyncStatus::SignedOut
+            SyncStatus::KeyringLocked
         }
     }
 }
@@ -85,6 +91,9 @@ pub(crate) fn status_text(status: &SyncStatus, now: SystemTime) -> String {
         }
         SyncStatus::Checking => gettext("Checking the Google Drive sign-in…"),
         SyncStatus::SignedOut => gettext("Not signed in to Google Drive"),
+        SyncStatus::KeyringLocked => gettext(
+            "The keyring, where the Google Drive sign-in is kept, is locked or not responding. Unlock it, then retry.",
+        ),
         SyncStatus::SignInNeeded => gettext("Sign in to Google Drive again to keep syncing"),
         SyncStatus::Waiting => gettext("Waiting to sync"),
         SyncStatus::Running => gettext("Syncing…"),
@@ -148,10 +157,12 @@ mod tests {
             SyncStatus::Waiting
         );
         assert_eq!(status_after_load(Ok(None)), SyncStatus::SignedOut);
+        // A locked keyring is not "signed out": signing in again would fail to keep the token.
         assert_eq!(
             status_after_load(Err(anyhow::anyhow!("locked"))),
-            SyncStatus::SignedOut
+            SyncStatus::KeyringLocked
         );
+        assert!(!SyncStatus::KeyringLocked.signed_in());
         assert!(!SyncStatus::Checking.signed_in());
     }
 

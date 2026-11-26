@@ -5136,6 +5136,27 @@ msgctxt "part of string representation of a color"
 msgid "white"
 msgstr "белый"
 
+
+#: crates/rnote-ui/src/sync/status.rs
+msgid "The keyring, where the Google Drive sign-in is kept, is locked or not responding. Unlock it, then retry."
+msgstr "Связка ключей, в которой хранится вход в Google Drive, заблокирована или не отвечает. Разблокируйте её и повторите попытку."
+
+#: crates/rnote-ui/src/library/mod.rs
+msgid "Sync This Folder with Google Drive?"
+msgstr "Синхронизировать эту папку с Google Drive?"
+
+#: crates/rnote-ui/src/library/mod.rs
+msgid "Its notebooks will be uploaded to the Rnote folder of your Google Drive, and the notebooks there will be downloaded into it, on every device signed in."
+msgstr "Её блокноты будут загружены в папку Rnote на вашем Google Drive, а блокноты оттуда — скачаны в эту папку, на всех устройствах, где выполнен вход."
+
+#: crates/rnote-ui/src/library/mod.rs
+msgid "Use This Folder"
+msgstr "Использовать эту папку"
+
+#: crates/rnote-ui/src/sync/button.rs
+msgid "Retry"
+msgstr "Повторить"
+
 #~ msgid "Brush Style"
 #~ msgstr "Стиль кисти"
 
