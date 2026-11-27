@@ -67,18 +67,18 @@ internal class DocumentRenderer : AutoCloseable {
      * it changed since.
      */
     fun save(fileName: String, write: (ByteArray) -> Unit, onResult: (Result<EditState>) -> Unit) {
-        executor.execute {
+        onDocumentThread(onResult) {
             val begun = runCatching {
                 val current = checkNotNull(document) { "No document is open" }
                 current to current.beginSave(fileName)
             }
             val (saved, pending) = begun.getOrElse { error ->
                 mainHandler.post { onResult(Result.failure(error)) }
-                return@execute
+                return@onDocumentThread
             }
-            writer.execute {
+            writer.executeOrElse({
                 val written = runCatching { write(pending.bytes()) }
-                executor.execute {
+                executor.executeOrElse({
                     val result = written.mapCatching {
                         val current = checkNotNull(document) { "No document is open" }
                         // Another document may be open by now: it isn't the one saved.
@@ -86,8 +86,11 @@ internal class DocumentRenderer : AutoCloseable {
                         current.editState
                     }
                     mainHandler.post { onResult(result) }
+                }) {
+                    // The editor closed meanwhile: a written save is done, a failed one is told.
+                    written.onFailure { error -> mainHandler.post { onResult(Result.failure(error)) } }
                 }
-            }
+            }) { mainHandler.post { onResult(Result.failure(closed())) } }
         }
     }
 
@@ -118,13 +121,17 @@ internal class DocumentRenderer : AutoCloseable {
         Frame(bitmap, viewport, editSequence)
     }
 
+    /**
+     * Closes the document once everything submitted before ran. Saves under way still write
+     * their file: the writer stops taking work only after the document thread handed it all.
+     */
     override fun close() {
-        executor.execute {
+        executor.executeOrElse({
             document?.close()
             document = null
-        }
+            writer.shutdown()
+        }) {}
         executor.shutdown()
-        writer.shutdown()
     }
 
     private fun replaceDocument(
@@ -133,7 +140,7 @@ internal class DocumentRenderer : AutoCloseable {
         brush: Brush?,
         onResult: (Result<DocumentInfo>) -> Unit,
     ) {
-        executor.execute {
+        onDocumentThread(onResult) {
             val result = runCatching {
                 val created = create()
                 document?.close()
@@ -152,9 +159,15 @@ internal class DocumentRenderer : AutoCloseable {
     }
 
     private fun <T> submit(onResult: (Result<T>) -> Unit, task: (NativeDocument) -> T) {
-        executor.execute {
+        onDocumentThread(onResult) {
             val result = runCatching { task(checkNotNull(document) { "No document is open" }) }
             mainHandler.post { onResult(result) }
         }
     }
+
+    /** Runs [task] on the document thread; once closed, [onResult] hears so instead. */
+    private fun <T> onDocumentThread(onResult: (Result<T>) -> Unit, task: () -> Unit) =
+        executor.executeOrElse(task) { mainHandler.post { onResult(Result.failure(closed())) } }
+
+    private fun closed() = IllegalStateException("The document is closed")
 }
