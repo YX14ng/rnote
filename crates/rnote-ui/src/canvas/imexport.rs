@@ -278,19 +278,30 @@ impl RnCanvas {
 
         let file_write_operation = async {
             let bytes = rnote_bytes_receiver.await??;
+            // Renaming or moving the notebook while its bytes were made retargeted this tab:
+            // it is saved there, not at the old place, where it would come back as a copy.
+            let library = if skip_set_output_file {
+                self.output_file()
+                    .and_then(|file| file.path())
+                    .and_then(|path| crate::sync::opened::library_target(self, &path))
+                    .or(library)
+            } else {
+                library
+            };
             // The `output_file_expect_write` should theoretically be reset to `false` by the file watcher later.
             self.set_output_file_expect_write(true);
-            match &library {
+            let written = match &library {
                 Some(target) => crate::sync::opened::write(target, expected, bytes)
                     .await
                     .map(Some),
                 None => crate::utils::atomic_save_to_file_future(&filepath, bytes)
                     .await
                     .map(|()| None),
-            }
+            }?;
+            anyhow::Ok((written, library))
         };
 
-        let written = match file_write_operation.await {
+        let (written, library) = match file_write_operation.await {
             Ok(written) => written,
             Err(e) => {
                 self.set_save_in_progress(false);
