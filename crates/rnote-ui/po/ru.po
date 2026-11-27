@@ -5276,6 +5276,14 @@ msgstr "Горчичная"
 msgid "Graphite"
 msgstr "Графитовая"
 
+#: crates/rnote-ui/data/ui/dialogs/export.ui
+msgid "Include Blank Pages"
+msgstr "Включать пустые страницы"
+
+#: crates/rnote-ui/data/ui/dialogs/export.ui
+msgid "Export the pages with nothing on them too, so the page numbers stay the same. Only for PDF"
+msgstr "Экспортировать и страницы без содержимого, чтобы номера страниц не менялись. Только для PDF"
+
 #~ msgid "Brush Style"
 #~ msgstr "Стиль кисти"
 

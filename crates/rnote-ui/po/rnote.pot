@@ -4889,3 +4889,11 @@ msgstr ""
 #: crates/rnote-ui/src/library/covers.rs
 msgid "Graphite"
 msgstr ""
+
+#: crates/rnote-ui/data/ui/dialogs/export.ui
+msgid "Include Blank Pages"
+msgstr ""
+
+#: crates/rnote-ui/data/ui/dialogs/export.ui
+msgid "Export the pages with nothing on them too, so the page numbers stay the same. Only for PDF"
+msgstr ""

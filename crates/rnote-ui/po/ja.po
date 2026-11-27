@@ -5150,6 +5150,14 @@ msgstr "マスタード"
 msgid "Graphite"
 msgstr "グラファイト"
 
+#: crates/rnote-ui/data/ui/dialogs/export.ui
+msgid "Include Blank Pages"
+msgstr "空白ページを含める"
+
+#: crates/rnote-ui/data/ui/dialogs/export.ui
+msgid "Export the pages with nothing on them too, so the page numbers stay the same. Only for PDF"
+msgstr "何も書かれていないページも書き出して、ページ番号を変えないようにします。PDF のみ"
+
 #~ msgid "Brush Style"
 #~ msgstr "ブラシのスタイル"
 

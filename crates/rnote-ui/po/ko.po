@@ -5098,6 +5098,14 @@ msgstr "겨자색"
 msgid "Graphite"
 msgstr "흑연색"
 
+#: crates/rnote-ui/data/ui/dialogs/export.ui
+msgid "Include Blank Pages"
+msgstr "빈 페이지 포함"
+
+#: crates/rnote-ui/data/ui/dialogs/export.ui
+msgid "Export the pages with nothing on them too, so the page numbers stay the same. Only for PDF"
+msgstr "내용이 없는 페이지도 내보내 페이지 번호가 바뀌지 않게 합니다. PDF 전용"
+
 #~ msgid "Brush Style"
 #~ msgstr "브러시 스타일"
 

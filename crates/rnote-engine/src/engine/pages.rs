@@ -5,6 +5,8 @@
 //! strokes of the pages below, so the content stays on its page.
 
 use crate::document::Layout;
+use crate::engine::StrokeContent;
+use crate::engine::export::DocExportPrefs;
 use crate::store::StrokeKey;
 use crate::store::chrono_comp::StrokeLayer;
 use crate::strokes::Stroke;
@@ -16,6 +18,16 @@ use rnote_compose::shapes::Shapeable;
 use std::time::Instant;
 
 impl Engine {
+    /// The pages a document export with `prefs` has: the ones with something on them, or
+    /// every page when blank pages are exported too.
+    pub fn export_pages_content(&self, prefs: &DocExportPrefs) -> Vec<StrokeContent> {
+        if prefs.with_empty_pages {
+            self.extract_all_pages_content(prefs.page_order)
+        } else {
+            self.extract_pages_content(prefs.page_order)
+        }
+    }
+
     /// The number of pages, when in fixed-size layout.
     pub fn doc_page_count_fixed_size(&self) -> Option<u32> {
         let height = self.document.config.format.height();

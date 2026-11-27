@@ -105,6 +105,8 @@ pub(crate) async fn dialog_export_doc_w_prefs(appwindow: &RnAppWindow, canvas: &
         builder.object("export_doc_optimize_printing_row").unwrap();
     let export_format_row: adw::ComboRow = builder.object("export_doc_export_format_row").unwrap();
     let page_order_row: adw::ComboRow = builder.object("export_doc_page_order_row").unwrap();
+    let with_empty_pages_row: adw::SwitchRow =
+        builder.object("export_doc_with_empty_pages_row").unwrap();
     let export_file_label: Label = builder.object("export_doc_export_file_label").unwrap();
     let export_file_button: Button = builder.object("export_doc_export_file_button").unwrap();
     let preview: RnStrokeContentPreview = builder.object("export_doc_preview").unwrap();
@@ -129,10 +131,13 @@ pub(crate) async fn dialog_export_doc_w_prefs(appwindow: &RnAppWindow, canvas: &
     preview.set_contents(
         canvas
             .engine_ref()
-            .extract_pages_content(initial_doc_export_prefs.page_order),
+            .export_pages_content(&initial_doc_export_prefs),
     );
     export_format_row.set_selected(initial_doc_export_prefs.export_format.to_u32().unwrap());
     page_order_row.set_selected(initial_doc_export_prefs.page_order.to_u32().unwrap());
+    with_empty_pages_row.set_active(initial_doc_export_prefs.with_empty_pages);
+    with_empty_pages_row
+        .set_sensitive(initial_doc_export_prefs.export_format == DocExportFormat::Pdf);
     export_file_label.set_label(&gettext("- no file selected -"));
     page_order_row
         .set_sensitive(doc_layout == Layout::SemiInfinite || doc_layout == Layout::Infinite);
@@ -229,6 +234,23 @@ pub(crate) async fn dialog_export_doc_w_prefs(appwindow: &RnAppWindow, canvas: &
         }
     ));
 
+    with_empty_pages_row.connect_active_notify(clone!(
+        #[weak]
+        preview,
+        #[weak]
+        appwindow,
+        #[weak]
+        canvas,
+        move |row| {
+            let prefs = {
+                let mut config = appwindow.engine_config().write();
+                config.export_prefs.doc_export_prefs.with_empty_pages = row.is_active();
+                config.export_prefs.doc_export_prefs
+            };
+            preview.set_contents(canvas.engine_ref().export_pages_content(&prefs));
+        }
+    ));
+
     export_format_row.connect_selected_notify(clone!(
         #[strong]
         selected_file,
@@ -237,9 +259,12 @@ pub(crate) async fn dialog_export_doc_w_prefs(appwindow: &RnAppWindow, canvas: &
         #[weak]
         button_confirm,
         #[weak]
+        with_empty_pages_row,
+        #[weak]
         appwindow,
         move |row| {
             let export_format = DocExportFormat::try_from(row.selected()).unwrap();
+            with_empty_pages_row.set_sensitive(export_format == DocExportFormat::Pdf);
             appwindow
                 .engine_config()
                 .write()
@@ -264,13 +289,12 @@ pub(crate) async fn dialog_export_doc_w_prefs(appwindow: &RnAppWindow, canvas: &
         move |row| {
             let page_order = SplitOrder::try_from(row.selected()).unwrap();
 
-            appwindow
-                .engine_config()
-                .write()
-                .export_prefs
-                .doc_export_prefs
-                .page_order = page_order;
-            preview.set_contents(canvas.engine_ref().extract_pages_content(page_order));
+            let prefs = {
+                let mut config = appwindow.engine_config().write();
+                config.export_prefs.doc_export_prefs.page_order = page_order;
+                config.export_prefs.doc_export_prefs
+            };
+            preview.set_contents(canvas.engine_ref().export_pages_content(&prefs));
         }
     ));
 

@@ -509,11 +509,7 @@ impl Engine {
         let (oneshot_sender, oneshot_receiver) = oneshot::channel::<anyhow::Result<Vec<u8>>>();
         let doc_export_prefs =
             doc_export_prefs_override.unwrap_or(self.config.read().export_prefs.doc_export_prefs);
-        let pages_content = if doc_export_prefs.with_empty_pages {
-            self.extract_all_pages_content(doc_export_prefs.page_order)
-        } else {
-            self.extract_pages_content(doc_export_prefs.page_order)
-        };
+        let pages_content = self.export_pages_content(&doc_export_prefs);
         let format_size = self.document.config.format.size();
         let format_dpi = self.document.config.format.dpi();
 

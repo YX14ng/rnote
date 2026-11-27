@@ -176,3 +176,13 @@ fn duplicating_a_page_puts_a_copy_right_after_it() {
     assert_eq!(document.page_count(), Some(3));
     assert_middles(&document, height, &[0.5, 1.5, 2.5]);
 }
+
+#[test]
+fn exporting_keeps_the_blank_pages_only_when_asked() {
+    let (document, _) = sheets(3, &[1]);
+    let mut prefs = rnote_engine::engine::export::DocExportPrefs::default();
+
+    assert_eq!(document.engine.export_pages_content(&prefs).len(), 1);
+    prefs.with_empty_pages = true;
+    assert_eq!(document.engine.export_pages_content(&prefs).len(), 3);
+}

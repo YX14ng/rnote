@@ -5361,6 +5361,14 @@ msgstr "Mostaza"
 msgid "Graphite"
 msgstr "Grafito"
 
+#: crates/rnote-ui/data/ui/dialogs/export.ui
+msgid "Include Blank Pages"
+msgstr "Incluir las hojas en blanco"
+
+#: crates/rnote-ui/data/ui/dialogs/export.ui
+msgid "Export the pages with nothing on them too, so the page numbers stay the same. Only for PDF"
+msgstr "Exporta también las hojas sin nada, para que los números de página no cambien. Solo para PDF"
+
 #~ msgid "Brush Style"
 #~ msgstr "Estilo del pincel"
 

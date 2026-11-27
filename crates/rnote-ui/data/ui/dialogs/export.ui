@@ -143,6 +143,12 @@
                               </object>
                             </child>
                             <child>
+                              <object class="AdwSwitchRow" id="export_doc_with_empty_pages_row">
+                                <property name="title" translatable="yes">Include Blank Pages</property>
+                                <property name="subtitle" translatable="yes">Export the pages with nothing on them too, so the page numbers stay the same. Only for PDF</property>
+                              </object>
+                            </child>
+                            <child>
                               <object class="AdwComboRow" id="export_doc_page_order_row">
                                 <property name="title" translatable="yes">Page Order</property>
                                 <property name="subtitle" translatable="yes">The page order when documents with layouts

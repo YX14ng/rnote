@@ -4984,6 +4984,14 @@ msgstr "芥末黃"
 msgid "Graphite"
 msgstr "石墨灰"
 
+#: crates/rnote-ui/data/ui/dialogs/export.ui
+msgid "Include Blank Pages"
+msgstr "包含空白頁"
+
+#: crates/rnote-ui/data/ui/dialogs/export.ui
+msgid "Export the pages with nothing on them too, so the page numbers stay the same. Only for PDF"
+msgstr "也匯出沒有內容的頁面，讓頁碼保持不變。僅適用於 PDF"
+
 #~ msgid "Brush Style"
 #~ msgstr "筆刷樣式"
 
