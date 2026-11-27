@@ -28,6 +28,9 @@ mod style;
 mod tests;
 mod tracker;
 
+/// Samples closer than this share of the size to the previous one are left out: those of a
+/// pen resting at the end, which would otherwise make a straight stroke look long and winding.
+const MIN_STEP: f64 = 0.01;
 /// Fewest samples a stroke needs to be considered.
 const MIN_POINTS: usize = 8;
 /// A line's chord must be at least this share of the stroke's length.
@@ -56,6 +59,10 @@ pub fn recognize(points: &[Vector2], min_size: f64) -> Option<Shape> {
     let (mins, maxs) = bounding_box(points);
     let size = (maxs - mins).max_element();
     if size < min_size || size <= 0.0 {
+        return None;
+    }
+    let points = &thinned(points, MIN_STEP * size)[..];
+    if points.len() < MIN_POINTS {
         return None;
     }
     let first = points[0];
@@ -297,6 +304,20 @@ fn triangle_candidate(points: &[Vector2], hull: &[Vector2]) -> Option<Candidate>
 }
 
 /// A line from `start` to `end`, made horizontal or vertical if almost so.
+/// `points` without those closer than `step` to the previous one kept.
+fn thinned(points: &[Vector2], step: f64) -> Vec<Vector2> {
+    let mut kept: Vec<Vector2> = Vec::with_capacity(points.len());
+    for &point in points {
+        if kept
+            .last()
+            .is_none_or(|&last| (point - last).length() >= step)
+        {
+            kept.push(point);
+        }
+    }
+    kept
+}
+
 fn snapped_line(start: Vector2, end: Vector2) -> Line {
     let delta = end - start;
     let angle = delta.y.atan2(delta.x).rem_euclid(FRAC_PI_2);

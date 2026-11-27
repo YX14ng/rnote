@@ -508,3 +508,25 @@ fn an_angle_bracket_with_a_rounded_corner_is_no_bracket() {
         "{shape:?}"
     );
 }
+
+/// `points` followed by `count` samples of a pen resting on the last one, trembling by a pixel.
+fn resting(mut points: Vec<Vector2>, count: usize) -> Vec<Vector2> {
+    let last = *points.last().unwrap();
+    points.extend((0..count).map(|i| last + Vector2::new((i % 2) as f64, 0.0)));
+    points
+}
+
+#[test]
+fn the_pen_resting_at_the_end_doesnt_change_the_shape() {
+    let line = resting(drawn(80, bowed_line(450.0, 0.03)), 200);
+    assert!(matches!(recognize(&line, 50.0), Some(Shape::Line(_))));
+
+    let bracket = bezier(recognize(
+        &resting(drawn(80, bracket_outline(-45.0)), 200),
+        50.0,
+    ));
+    assert!(
+        ((bracket.cp.x - bracket.start.x).abs() - 2.0 * 45.0).abs() < 10.0,
+        "{bracket:?}"
+    );
+}
