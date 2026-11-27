@@ -88,8 +88,8 @@ internal class SyncButton(private val activity: Activity) {
         when (result) {
             is TokenResult.Token -> SyncManager.signedIn(activity, result.value)
             TokenResult.NotRegistered -> showUnavailable()
-            is TokenResult.Failed -> signInFailed(result.error.message ?: result.error.toString())
-            is TokenResult.Offline -> signInFailed(result.message)
+            is TokenResult.Failed -> signInFailed(ErrorText.reason(activity, result.error))
+            is TokenResult.Offline -> signInFailed(activity.getString(R.string.error_offline))
             // Google's screens never ask for more screens.
             is TokenResult.NeedsUser -> signInFailed(result.toString())
         }

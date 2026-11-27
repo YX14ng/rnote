@@ -2,7 +2,6 @@
 <resources>
     <string name="empty_hint">.rnote ファイルを開くか、メニューから新しく作成してください。</string>
     <string name="loading">読み込み中…</string>
-    <string name="open_failed">ファイルを開けませんでした:\n%1$s</string>
     <string name="untitled_file_name">無題.rnote</string>
 
     <string name="action_undo">元に戻す</string>
@@ -343,4 +342,25 @@
     <string name="recovery_restore_failed_message">次回もう一度試せるよう保持しています。%1$s</string>
     <string name="recovery_keep">保持</string>
     <string name="recovery_discard">破棄</string>
+
+    <!-- Errors -->
+    <string name="error_with_reason">%1$s: %2$s</string>
+    <string name="error_damaged">ファイルが壊れているか、Rnote のノートブックではありません</string>
+    <string name="error_no_space">デバイスの空き容量がありません</string>
+    <string name="error_not_found">ファイルがもう存在しません</string>
+    <string name="error_no_access">アプリにそのファイルを使う権限がありません</string>
+    <string name="error_offline">接続がありません</string>
+    <string name="error_too_big">大きすぎて使えるメモリに収まりません</string>
+    <string name="error_unexpected">予期しないエラーが発生しました</string>
+    <string name="failed_open">ノートブックを開けませんでした</string>
+    <string name="failed_edit">変更を適用できませんでした</string>
+    <string name="failed_paste">貼り付けできませんでした</string>
+    <string name="failed_pages">ページを変更できませんでした</string>
+    <string name="failed_export">PDF を書き出せませんでした</string>
+    <string name="failed_rename">ノートブックの名前を変更できませんでした</string>
+    <string name="failed_create">ノートブックを作成できませんでした</string>
+    <string name="failed_settings">ページ設定を変更できませんでした</string>
+    <string name="failed_import">ファイルを取り込めませんでした</string>
+    <string name="failed_library">ライブラリを変更できませんでした</string>
+    <string name="failed_read_library">ライブラリを読み込めませんでした</string>
 </resources>

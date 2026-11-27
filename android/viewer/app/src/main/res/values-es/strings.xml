@@ -2,7 +2,6 @@
 <resources>
     <string name="empty_hint">Abrí un archivo .rnote o creá uno nuevo desde el menú.</string>
     <string name="loading">Cargando…</string>
-    <string name="open_failed">No se pudo abrir el archivo:\n%1$s</string>
     <string name="untitled_file_name">Sin título.rnote</string>
 
     <string name="action_undo">Deshacer</string>
@@ -363,4 +362,25 @@
     <string name="recovery_restore_failed_message">Quedan guardados para intentar de nuevo la próxima vez. %1$s</string>
     <string name="recovery_keep">Conservar</string>
     <string name="recovery_discard">Descartar</string>
+
+    <!-- Errors -->
+    <string name="error_with_reason">%1$s: %2$s</string>
+    <string name="error_damaged">el archivo está dañado o no es un cuaderno de Rnote</string>
+    <string name="error_no_space">no queda espacio en el dispositivo</string>
+    <string name="error_not_found">el archivo ya no existe</string>
+    <string name="error_no_access">la app no tiene permiso para usar ese archivo</string>
+    <string name="error_offline">no hay conexión</string>
+    <string name="error_too_big">es demasiado grande para la memoria disponible</string>
+    <string name="error_unexpected">ocurrió algo inesperado</string>
+    <string name="failed_open">No se pudo abrir el cuaderno</string>
+    <string name="failed_edit">No se pudo aplicar el cambio</string>
+    <string name="failed_paste">No se pudo pegar</string>
+    <string name="failed_pages">No se pudieron cambiar las páginas</string>
+    <string name="failed_export">No se pudo exportar el PDF</string>
+    <string name="failed_rename">No se pudo cambiar el nombre del cuaderno</string>
+    <string name="failed_create">No se pudo crear el cuaderno</string>
+    <string name="failed_settings">No se pudo cambiar la configuración de la página</string>
+    <string name="failed_import">No se pudo importar el archivo</string>
+    <string name="failed_library">No se pudo cambiar la biblioteca</string>
+    <string name="failed_read_library">No se pudo leer la biblioteca</string>
 </resources>

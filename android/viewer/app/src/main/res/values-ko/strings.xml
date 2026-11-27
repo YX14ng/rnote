@@ -2,7 +2,6 @@
 <resources>
     <string name="empty_hint">메뉴에서 .rnote 파일을 열거나 새로 만드세요.</string>
     <string name="loading">불러오는 중…</string>
-    <string name="open_failed">파일을 열 수 없습니다:\n%1$s</string>
     <string name="untitled_file_name">제목 없음.rnote</string>
 
     <string name="action_undo">실행 취소</string>
@@ -343,4 +342,25 @@
     <string name="recovery_restore_failed_message">다음에 다시 시도할 수 있도록 보관합니다. %1$s</string>
     <string name="recovery_keep">보관</string>
     <string name="recovery_discard">삭제</string>
+
+    <!-- Errors -->
+    <string name="error_with_reason">%1$s: %2$s</string>
+    <string name="error_damaged">파일이 손상되었거나 Rnote 노트북이 아닙니다</string>
+    <string name="error_no_space">기기에 남은 공간이 없습니다</string>
+    <string name="error_not_found">파일이 더 이상 없습니다</string>
+    <string name="error_no_access">앱에 해당 파일을 사용할 권한이 없습니다</string>
+    <string name="error_offline">연결되어 있지 않습니다</string>
+    <string name="error_too_big">사용 가능한 메모리에 비해 너무 큽니다</string>
+    <string name="error_unexpected">예상치 못한 문제가 발생했습니다</string>
+    <string name="failed_open">노트북을 열 수 없습니다</string>
+    <string name="failed_edit">변경 사항을 적용할 수 없습니다</string>
+    <string name="failed_paste">붙여넣을 수 없습니다</string>
+    <string name="failed_pages">페이지를 변경할 수 없습니다</string>
+    <string name="failed_export">PDF를 내보낼 수 없습니다</string>
+    <string name="failed_rename">노트북 이름을 바꿀 수 없습니다</string>
+    <string name="failed_create">노트북을 만들 수 없습니다</string>
+    <string name="failed_settings">페이지 설정을 변경할 수 없습니다</string>
+    <string name="failed_import">파일을 가져올 수 없습니다</string>
+    <string name="failed_library">라이브러리를 변경할 수 없습니다</string>
+    <string name="failed_read_library">라이브러리를 읽을 수 없습니다</string>
 </resources>

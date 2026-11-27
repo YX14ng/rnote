@@ -2,7 +2,6 @@
 <resources>
     <string name="empty_hint">Откройте файл .rnote или создайте новый через меню.</string>
     <string name="loading">Загрузка…</string>
-    <string name="open_failed">Не удалось открыть файл:\n%1$s</string>
     <string name="untitled_file_name">Без названия.rnote</string>
 
     <string name="action_undo">Отменить</string>
@@ -373,4 +372,25 @@
     <string name="recovery_restore_failed_message">Они сохранены, чтобы попробовать в следующий раз. %1$s</string>
     <string name="recovery_keep">Сохранить</string>
     <string name="recovery_discard">Удалить</string>
+
+    <!-- Errors -->
+    <string name="error_with_reason">%1$s: %2$s</string>
+    <string name="error_damaged">файл повреждён или не является блокнотом Rnote</string>
+    <string name="error_no_space">на устройстве не осталось места</string>
+    <string name="error_not_found">файла больше нет</string>
+    <string name="error_no_access">у приложения нет доступа к этому файлу</string>
+    <string name="error_offline">нет подключения</string>
+    <string name="error_too_big">он слишком велик для доступной памяти</string>
+    <string name="error_unexpected">произошла непредвиденная ошибка</string>
+    <string name="failed_open">Не удалось открыть блокнот</string>
+    <string name="failed_edit">Не удалось применить изменение</string>
+    <string name="failed_paste">Не удалось вставить</string>
+    <string name="failed_pages">Не удалось изменить страницы</string>
+    <string name="failed_export">Не удалось экспортировать PDF</string>
+    <string name="failed_rename">Не удалось переименовать блокнот</string>
+    <string name="failed_create">Не удалось создать блокнот</string>
+    <string name="failed_settings">Не удалось изменить настройки страницы</string>
+    <string name="failed_import">Не удалось импортировать файл</string>
+    <string name="failed_library">Не удалось изменить библиотеку</string>
+    <string name="failed_read_library">Не удалось прочитать библиотеку</string>
 </resources>

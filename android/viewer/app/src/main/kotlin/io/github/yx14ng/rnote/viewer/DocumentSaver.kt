@@ -116,8 +116,7 @@ internal class DocumentSaver(
                             requestSaveAs()
                         }
                         else -> {
-                            val message = error.message ?: error.toString()
-                            val text = context.getString(R.string.save_failed, message)
+                            val text = context.getString(R.string.save_failed, ErrorText.reason(context, error))
                             Toast.makeText(context, text, Toast.LENGTH_LONG).show()
                         }
                     }
@@ -144,7 +143,7 @@ internal class DocumentSaver(
                 .onSuccess { Toast.makeText(context, R.string.copy_saved, Toast.LENGTH_SHORT).show() }
                 .onFailure { error ->
                     Log.e(TAG, "Saving a copy to $uri failed", error)
-                    val text = context.getString(R.string.save_failed, error.message ?: error.toString())
+                    val text = context.getString(R.string.save_failed, ErrorText.reason(context, error))
                     Toast.makeText(context, text, Toast.LENGTH_LONG).show()
                 }
         }
@@ -157,7 +156,7 @@ internal class DocumentSaver(
         renderer.saveCopy(name, { bytes -> recovery.write(bytes, name, path, sha256) }) { result ->
             result.onFailure { error ->
                 Log.e(TAG, "Writing the recovery copy failed", error)
-                val text = context.getString(R.string.recovery_write_failed, error.message ?: error.toString())
+                val text = context.getString(R.string.recovery_write_failed, ErrorText.reason(context, error))
                 Toast.makeText(context, text, Toast.LENGTH_LONG).show()
             }
         }

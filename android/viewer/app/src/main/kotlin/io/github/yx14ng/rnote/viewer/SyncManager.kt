@@ -240,5 +240,5 @@ internal object SyncManager {
 
     private fun preferences() = app.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE)
 
-    private fun messageOf(error: Throwable) = error.message ?: error.toString()
+    private fun messageOf(error: Throwable) = ErrorText.reason(app, error)
 }

@@ -15,6 +15,7 @@ import android.view.HapticFeedbackConstants
 import android.view.KeyEvent
 import android.view.View
 import android.widget.Toast
+import androidx.annotation.StringRes
 
 /** Opens, creates, edits and saves `.rnote` documents. */
 class MainActivity : Activity() {
@@ -66,7 +67,7 @@ class MainActivity : Activity() {
         ink = InkIndexer(this, InkRecognizer(applicationContext), renderer)
         canvasView = NoteCanvasView(this).apply {
             renderer = this@MainActivity.renderer
-            onError = ::showError
+            onError = { showError(R.string.failed_edit, it) }
             onEditState = ::updateEditState
             onTwoFingerTap = ::undoByGesture
             onPenWheel = ::showPenWheel
@@ -92,14 +93,14 @@ class MainActivity : Activity() {
         clipboard = ClipboardActions(this, canvasView, renderer, onToolChanged = { tool ->
             // The engine already switched to the tool that shows what was pasted.
             controls.change(controls.settings.copy(tool = tool))
-        }, onError = ::showError)
+        }, onError = { showError(R.string.failed_paste, it) })
         layout = EditorLayout(this, canvasView, topBar)
         layout.selectionBar = selectionBar
         pages = PagesController(this, layout, canvasView, renderer, pickPdf = {
             @Suppress("DEPRECATION")
             startActivityForResult(DocumentFiles.openIntent(null).setType("application/pdf"), REQUEST_INSERT_PDF)
-        }, onError = ::showError)
-        pdfExport = PdfExport(this, renderer, onError = ::showError)
+        }, onError = { showError(R.string.failed_pages, it) })
+        pdfExport = PdfExport(this, renderer, onError = { showError(R.string.failed_export, it) })
         setContentView(layout.root)
         if (!handleIntent(intent) && recovery.exists) {
             restoreRecovery()
@@ -238,7 +239,7 @@ class MainActivity : Activity() {
                         saver.documentName = store.file(renamed).name
                         refreshBar()
                     }
-                    .onFailure(::showError)
+                    .onFailure { showError(R.string.failed_rename, it) }
             }
         }
     }
@@ -252,7 +253,7 @@ class MainActivity : Activity() {
         val folder = libraryPath?.let { path -> if ('/' in path) path.substringBefore('/') else null }
         val create = {
             NotebookCreator(this, LibraryStore.forApp(this)).quick(folder) { result ->
-                result.onSuccess { openLibraryNotebook(it, isNew = false) }.onFailure(::showError)
+                result.onSuccess { openLibraryNotebook(it, isNew = false) }.onFailure { showError(R.string.failed_create, it) }
             }
         }
         when {
@@ -388,7 +389,7 @@ class MainActivity : Activity() {
         val file = LibraryStore.forApp(this).notebookFile(path)
         // A new notebook never replaces one, whoever asks.
         if (file == null || (isNew && file.exists())) {
-            showError(IllegalArgumentException(getString(R.string.library_bad_path, path)))
+            showError(R.string.failed_open, IllegalArgumentException(getString(R.string.library_bad_path, path)))
             return
         }
         val uri = Uri.fromFile(file)
@@ -412,7 +413,7 @@ class MainActivity : Activity() {
                 .onFailure { error ->
                     guard.keepChanges()
                     endLoading()
-                    showError(error)
+                    showError(R.string.failed_open, error)
                 }
             Unit
         }
@@ -440,7 +441,7 @@ class MainActivity : Activity() {
                     // The current document stays open: keep autosaving it.
                     guard.keepChanges()
                     endLoading()
-                    showError(error)
+                    showError(R.string.failed_open, error)
                 }
         }
     }
@@ -458,7 +459,7 @@ class MainActivity : Activity() {
                 }
                 .onFailure { error ->
                     endLoading()
-                    showError(error)
+                    showError(R.string.failed_open, error)
                 }
         }
     }
@@ -496,12 +497,21 @@ class MainActivity : Activity() {
                     // The copy is all there is of those changes: never thrown away unasked.
                     AlertDialog.Builder(this)
                         .setTitle(R.string.recovery_restore_failed_title)
-                        .setMessage(getString(R.string.recovery_restore_failed_message, error.message ?: error.toString()))
-                        .setPositiveButton(R.string.recovery_keep, null)
-                        .setNegativeButton(R.string.recovery_discard) { _, _ -> recovery.clear() }
+                        .setMessage(getString(R.string.recovery_restore_failed_message, ErrorText.reason(this, error)))
+                        .setPositiveButton(R.string.recovery_keep) { _, _ -> leaveIfEmpty() }
+                        .setNegativeButton(R.string.recovery_discard) { _, _ ->
+                            recovery.clear()
+                            leaveIfEmpty()
+                        }
+                        .setCancelable(false)
                         .show()
                 }
         }
+    }
+
+    /** With no document to show, goes back to where the editor was opened from. */
+    private fun leaveIfEmpty() {
+        if (!documentOpen) finish()
     }
 
     /** Shows that a document is loading, and keeps input away from the current one. */
@@ -547,7 +557,7 @@ class MainActivity : Activity() {
                     controls.adaptToBackground(settings.backgroundColor)
                     onRefreshed(settings)
                 }
-                .onFailure(::showError)
+                .onFailure { showError(R.string.failed_settings, it) }
         }
     }
 
@@ -678,9 +688,9 @@ class MainActivity : Activity() {
         saver.autosave()
     }
 
-    private fun showError(error: Throwable) {
-        Log.e(TAG, "Document operation failed", error)
-        val message = getString(R.string.open_failed, error.message ?: error.toString())
+    /** Tells that [action] failed, and why, in words the user can act on. */
+    private fun showError(@StringRes action: Int, error: Throwable) {
+        val message = ErrorText.of(this, action, error)
         if (documentOpen) {
             Toast.makeText(this, message, Toast.LENGTH_LONG).show()
         } else {

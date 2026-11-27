@@ -115,7 +115,7 @@ internal class InkRecognizer(private val context: Context) : AutoCloseable {
         context.getSystemService(ConnectivityManager::class.java)?.activeNetwork != null
 
     private fun failure(error: Exception): ModelState =
-        if (online()) ModelState.Failed(error.message ?: error.toString()) else ModelState.Offline
+        if (online()) ModelState.Failed(ErrorText.reason(context, error)) else ModelState.Offline
 
     private companion object {
         const val CANDIDATES = 3

@@ -2,7 +2,6 @@
 <resources>
     <string name="empty_hint">从菜单中打开 .rnote 文件或新建一个。</string>
     <string name="loading">正在加载…</string>
-    <string name="open_failed">无法打开文件：\n%1$s</string>
     <string name="untitled_file_name">未命名.rnote</string>
 
     <string name="action_undo">撤销</string>
@@ -343,4 +342,25 @@
     <string name="recovery_restore_failed_message">副本会保留，下次再试。%1$s</string>
     <string name="recovery_keep">保留</string>
     <string name="recovery_discard">丢弃</string>
+
+    <!-- Errors -->
+    <string name="error_with_reason">%1$s：%2$s</string>
+    <string name="error_damaged">文件已损坏或不是 Rnote 笔记本</string>
+    <string name="error_no_space">设备存储空间不足</string>
+    <string name="error_not_found">文件已不存在</string>
+    <string name="error_no_access">应用无权使用该文件</string>
+    <string name="error_offline">没有网络连接</string>
+    <string name="error_too_big">文件太大，可用内存不足</string>
+    <string name="error_unexpected">发生了意外错误</string>
+    <string name="failed_open">无法打开笔记本</string>
+    <string name="failed_edit">无法应用更改</string>
+    <string name="failed_paste">无法粘贴</string>
+    <string name="failed_pages">无法更改页面</string>
+    <string name="failed_export">无法导出 PDF</string>
+    <string name="failed_rename">无法重命名笔记本</string>
+    <string name="failed_create">无法创建笔记本</string>
+    <string name="failed_settings">无法更改页面设置</string>
+    <string name="failed_import">无法导入文件</string>
+    <string name="failed_library">无法更改资料库</string>
+    <string name="failed_read_library">无法读取资料库</string>
 </resources>

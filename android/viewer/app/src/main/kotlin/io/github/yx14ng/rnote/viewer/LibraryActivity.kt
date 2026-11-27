@@ -14,6 +14,7 @@ import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.annotation.StringRes
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -44,7 +45,7 @@ class LibraryActivity : Activity() {
         super.onCreate(savedInstanceState)
         store = LibraryStore.forApp(this)
         creator = NotebookCreator(this, store)
-        actions = NotebookActions(this, store, { snapshot }, onChanged = ::onLibraryChanged, onError = ::showError)
+        actions = NotebookActions(this, store, { snapshot }, onChanged = ::onLibraryChanged, onError = { showError(R.string.failed_library, it) })
         listMode = preferences.getBoolean(KEY_LIST_MODE, false)
         sortByName = preferences.getBoolean(KEY_SORT_BY_NAME, false)
         grid = NotebookGrid(this, ThumbnailCache(this, store)).apply {
@@ -97,18 +98,18 @@ class LibraryActivity : Activity() {
         val uri = data?.data
         if (resultCode == RESULT_OK && uri != null) {
             when (requestCode) {
-                REQUEST_PDF -> PdfImporter(this, creator, ::openCreated, ::showError).start(uri, snapshot.folders, currentFolder)
+                REQUEST_PDF -> PdfImporter(this, creator, ::openCreated, { showError(R.string.failed_import, it) }).start(uri, snapshot.folders, currentFolder)
                 REQUEST_IMAGE -> {
                     val name = DocumentFiles.displayName(contentResolver, uri)?.substringBeforeLast('.').orEmpty()
                     creator.fromImage(currentFolder, name, { DocumentFiles.read(contentResolver, uri) }) { result ->
-                        result.onSuccess(::openCreated).onFailure(::showError)
+                        result.onSuccess(::openCreated).onFailure { showError(R.string.failed_import, it) }
                     }
                 }
             }
         }
         if (requestCode == REQUEST_IMPORT && resultCode == RESULT_OK && uri != null) {
             LibraryImport(this, store, folder = (section as? LibrarySection.Folder)?.name).import(uri) { result ->
-                result.onSuccess { reload() }.onFailure(::showError)
+                result.onSuccess { reload() }.onFailure { showError(R.string.failed_import, it) }
             }
         }
     }
@@ -198,7 +199,7 @@ class LibraryActivity : Activity() {
                     if (sectionGone()) section = LibrarySection.All
                     showNotebooks()
                 }
-                .onFailure(::showError)
+                .onFailure { showError(R.string.failed_read_library, it) }
         }
     }
 
@@ -249,7 +250,7 @@ class LibraryActivity : Activity() {
                 // A Xournal++ notebook opens as the .rnote made from it; the .xopp stays.
                 Toast.makeText(this, R.string.library_importing, Toast.LENGTH_SHORT).show()
                 store.call(LibraryStore.request("import_xopp", "path" to notebook.path)) { result ->
-                    result.onSuccess { startEditor(it.getString("path"), isNew = false) }.onFailure(::showError)
+                    result.onSuccess { startEditor(it.getString("path"), isNew = false) }.onFailure { showError(R.string.failed_import, it) }
                 }
             }
         }
@@ -260,7 +261,7 @@ class LibraryActivity : Activity() {
         get() = (section as? LibrarySection.Folder)?.name
 
     private fun showCreateMenu(anchor: View) {
-        val opened = { result: Result<String> -> result.onSuccess(::openCreated).onFailure(::showError); Unit }
+        val opened = { result: Result<String> -> result.onSuccess(::openCreated).onFailure { showError(R.string.failed_create, it) }; Unit }
         CreateMenu.show(this, anchor, listOf(
             CreateMenu.Item(R.drawable.ic_notebook, R.string.create_new_notebook) { showNewNotebook() },
             CreateMenu.Item(R.drawable.ic_quick_note, R.string.create_quick_note, hint = R.string.create_quick_note_hint) {
@@ -298,7 +299,7 @@ class LibraryActivity : Activity() {
         val folder = preferences.getString(KEY_PHOTO_FOLDER, null)
         creator.fromImage(folder, name, { photo }) { result ->
             PhotoCapture.clear(this)
-            result.onSuccess(::openCreated).onFailure(::showError)
+            result.onSuccess(::openCreated).onFailure { showError(R.string.failed_create, it) }
         }
     }
 
@@ -309,11 +310,11 @@ class LibraryActivity : Activity() {
                 .onSuccess { setup ->
                     NewNotebookScreen(this, snapshot, folder, setup) { chosenFolder, title, chosen, tags ->
                         creator.create(chosenFolder, title, chosen, tags) { created ->
-                            created.onSuccess(::openCreated).onFailure(::showError)
+                            created.onSuccess(::openCreated).onFailure { showError(R.string.failed_create, it) }
                         }
                     }.show()
                 }
-                .onFailure(::showError)
+                .onFailure { showError(R.string.failed_create, it) }
         }
     }
 
@@ -402,8 +403,9 @@ class LibraryActivity : Activity() {
             layoutParams = LinearLayout.LayoutParams(dp(48f), dp(48f))
         }
 
-    private fun showError(error: Throwable) {
-        Toast.makeText(this, error.message ?: error.toString(), Toast.LENGTH_LONG).show()
+    /** Tells that [action] failed, and why, in words the user can act on. */
+    private fun showError(@StringRes action: Int, error: Throwable) {
+        Toast.makeText(this, ErrorText.of(this, action, error), Toast.LENGTH_LONG).show()
     }
 
     private fun dp(value: Float): Int = Graphite.dp(this, value)
