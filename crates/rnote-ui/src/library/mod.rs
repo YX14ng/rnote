@@ -23,6 +23,7 @@ mod tabs;
 mod tagchoice;
 mod thumbnails;
 mod trash_undo;
+mod watch;
 
 use std::cell::{Cell, RefCell};
 use std::collections::BTreeSet;
@@ -66,6 +67,10 @@ mod imp {
         pub(crate) thumbnails: Thumbnails,
         pub(crate) busy: busy::Busy,
         pub(crate) actions: gio::SimpleActionGroup,
+        /// The folders watched for changes on disk.
+        pub(crate) monitors: RefCell<Vec<gio::FileMonitor>>,
+        /// Whether a refresh after changes on disk is waiting.
+        pub(crate) refresh_pending: Cell<bool>,
         /// The notice offering to undo the last trashing.
         pub(crate) trash_toast: glib::WeakRef<adw::Toast>,
 
@@ -406,6 +411,7 @@ impl RnLibraryView {
         imp.title.set_subtitle(&root.to_string_lossy());
         match open_library(&root, self.root_setting().is_empty()) {
             Ok(library) => {
+                self.watch(&library.folders().unwrap_or_default());
                 *imp.library.borrow_mut() = Some(library);
                 imp.stack.set_visible_child_name("content");
                 self.show_notebooks();
