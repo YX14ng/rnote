@@ -8,6 +8,7 @@ use p2d::math::Vector2;
 use rnote_compose::penevent::PenState;
 use rnote_engine::pens::{PenMode, PenStyle};
 use rnote_engine::shape_recognition::StrokeTracker;
+use tracing::debug;
 
 use super::RnCanvas;
 use crate::RnAppWindow;
@@ -123,6 +124,7 @@ impl RnCanvas {
             hold.tracker
                 .snap(&mut engine, MIN_SIZE_PX / zoom, Instant::now())
         };
+        debug!(snapped = flags.is_some(), zoom, "the pen held still");
         if let Some(flags) = flags {
             self.emit_handle_widget_flags(flags);
         }

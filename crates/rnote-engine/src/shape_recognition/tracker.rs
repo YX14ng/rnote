@@ -75,7 +75,14 @@ impl StrokeTracker {
             return None;
         }
         let last = *self.points.last()?;
-        let shape = super::recognize(&self.points, min_size)?;
+        let shape = super::recognize(&self.points, min_size);
+        tracing::debug!(
+            points = self.points.len(),
+            min_size,
+            ?shape,
+            "recognizing the held stroke"
+        );
+        let shape = shape?;
         // End the stroke where the pen rests, then swap it for the shape: undoing removes the
         // freehand stroke, and recording the shape also drops it from the redo history.
         let up = PenEvent::Up {
