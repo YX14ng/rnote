@@ -106,6 +106,8 @@ fn after_sync(appwindow: &RnAppWindow, report: &SyncReport) {
     }
     let root = appwindow.library_view().root();
     crate::library::tabs::follow_sync_moves(appwindow, &root, &report.moved_here);
+    // The file watcher misses a sync's replace (a hidden file renamed over the notebook).
+    crate::library::tabs::reload_synced(appwindow, &root, &report.changed_here);
     if changed_library(report) && appwindow.library_shown() {
         appwindow.library_view().refresh();
     }

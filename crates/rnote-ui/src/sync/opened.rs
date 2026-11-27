@@ -124,6 +124,12 @@ async fn read_snapshot(
     Ok((snapshot, sha256, path))
 }
 
+/// Whether `file`, open in a tab, is one of the notebooks of the library at `root` that a
+/// sync just wrote (`changed`, relative paths with `/`).
+pub(crate) fn changed_by_sync(root: &Path, file: &Path, changed: &[String]) -> bool {
+    library_path(root, file).is_some_and(|path| changed.contains(&path))
+}
+
 /// Reloads `canvas` when its library notebook changed on disk and it has nothing unsaved;
 /// returns whether it did, else the caller offers to reload as before.
 pub(crate) fn reload_if_clean(appwindow: &RnAppWindow, canvas: &RnCanvas) -> bool {
@@ -155,8 +161,22 @@ pub(crate) fn reload_if_clean(appwindow: &RnAppWindow, canvas: &RnCanvas) -> boo
                         None,
                     );
                 }
+                // Already what the tab shows, e.g. told both by the sync and the file watcher.
+                Ok((_, sha256, _)) if sha256.is_some() && sha256 == canvas.library_sha256() => {}
                 Ok((snapshot, sha256, path)) => {
-                    let widget_flags = canvas.apply_rnote_snapshot(snapshot, sha256, Some(path));
+                    // The file also holds the view of the device that wrote it: this one's
+                    // stays, as on Android.
+                    let (offset, zoom) = {
+                        let engine = canvas.engine_ref();
+                        (engine.camera.offset(), engine.camera.zoom())
+                    };
+                    let mut widget_flags =
+                        canvas.apply_rnote_snapshot(snapshot, sha256, Some(path));
+                    {
+                        let mut engine = canvas.engine_mut();
+                        widget_flags |= engine.camera.zoom_to(zoom);
+                        widget_flags |= engine.camera_set_offset_expand(offset);
+                    }
                     canvas.emit_handle_widget_flags(widget_flags);
                     canvas.emit_invalidate_thumbnail();
                     appwindow.overlays().dispatch_toast_text(
@@ -222,7 +242,9 @@ pub(crate) fn on_changed_on_disk(unsaved: bool, in_library: bool) -> Reaction {
 mod tests {
     use std::path::Path;
 
-    use super::{Expected, Reaction, library_path, on_changed_on_disk, write_blocking};
+    use super::{
+        Expected, Reaction, changed_by_sync, library_path, on_changed_on_disk, write_blocking,
+    };
 
     #[test]
     fn library_path_inside() {
@@ -320,5 +342,23 @@ mod tests {
         assert_eq!(on_changed_on_disk(true, true), Reaction::AskAsBefore);
         assert_eq!(on_changed_on_disk(false, false), Reaction::AskAsBefore);
         assert_eq!(on_changed_on_disk(true, false), Reaction::AskAsBefore);
+    }
+
+    #[test]
+    fn only_tabs_of_notebooks_the_sync_wrote_are_reloaded() {
+        let root = Path::new("/mnt/Storage/HandNotes");
+        let changed = vec!["Algebra/a.rnote".to_owned()];
+
+        assert!(changed_by_sync(
+            root,
+            &root.join("Algebra/a.rnote"),
+            &changed
+        ));
+        assert!(!changed_by_sync(root, &root.join("b.rnote"), &changed));
+        assert!(!changed_by_sync(
+            root,
+            Path::new("/tmp/Algebra/a.rnote"),
+            &changed
+        ));
     }
 }

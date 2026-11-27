@@ -80,6 +80,24 @@ pub(crate) fn follow_sync_moves(appwindow: &RnAppWindow, root: &Path, moves: &[(
     }
 }
 
+/// A sync wrote the library notebooks at `changed`: the tabs showing them load the new
+/// version if they have nothing unsaved; with unsaved changes, saving keeps both versions.
+pub(crate) fn reload_synced(appwindow: &RnAppWindow, root: &Path, changed: &[String]) {
+    if changed.is_empty() {
+        return;
+    }
+    for wrapper in all_tabs(appwindow) {
+        let canvas = wrapper.canvas();
+        let synced = canvas
+            .output_file()
+            .and_then(|file| file.path())
+            .is_some_and(|path| crate::sync::opened::changed_by_sync(root, &path, changed));
+        if synced {
+            crate::sync::opened::reload_if_clean(appwindow, &canvas);
+        }
+    }
+}
+
 /// The name of a tab with `path`, or a file inside the folder `path`, if one is open.
 pub(crate) fn open_tab_inside(appwindow: &RnAppWindow, path: &Path) -> Option<String> {
     all_tabs(appwindow).into_iter().find_map(|wrapper| {
