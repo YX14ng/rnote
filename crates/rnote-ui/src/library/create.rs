@@ -4,7 +4,7 @@
 use std::path::PathBuf;
 
 use gettextrs::gettext;
-use gtk4::{glib, subclass::prelude::*};
+use gtk4::{gio, glib, subclass::prelude::*};
 use rnote_library::creation::{self, NotebookSetup, SetupChoice};
 use rnote_library::{Library, Section};
 use tracing::error;
@@ -23,23 +23,29 @@ pub(super) fn defaults_for(folder: Option<&str>) -> NotebookSetup {
     creation::defaults_for(&defaults_file(), folder)
 }
 
-/// Writes a notebook titled `title` (`untitled` if empty) in `folder` of `library`, with
-/// the bytes `make` gives for its file name, all at once and never over another file.
-/// Returns its path.
-pub(super) fn write_notebook(
+/// A free path for a notebook titled `title` (`untitled` if empty) in `folder` of
+/// `library`.
+pub(super) fn notebook_path(
     library: &Library,
     folder: Option<&str>,
     title: &str,
     untitled: &str,
-    make: impl FnOnce(&str) -> anyhow::Result<Vec<u8>>,
 ) -> anyhow::Result<String> {
     let title = title.trim();
     let stem = if title.is_empty() { untitled } else { title };
-    let path = library.new_notebook_path(folder, stem)?;
-    let file_name = path.rsplit('/').next().unwrap_or(&path);
-    let bytes = make(file_name)?;
-    rnote_sync::create_notebook(library.root(), &path, &bytes)?;
-    Ok(path)
+    library.new_notebook_path(folder, stem)
+}
+
+/// The bytes `make` gives for `file_name`, made on a thread of their own: making them can
+/// take a while, and the engine's saving runs an executor that can't run inside the main
+/// loop's.
+async fn make_off_main<F>(make: F, file_name: String) -> anyhow::Result<Vec<u8>>
+where
+    F: FnOnce(&str) -> anyhow::Result<Vec<u8>> + Send + 'static,
+{
+    gio::spawn_blocking(move || make(&file_name))
+        .await
+        .map_err(|_| anyhow::anyhow!("Making the notebook panicked"))?
 }
 
 impl RnLibraryView {
@@ -72,9 +78,11 @@ impl RnLibraryView {
         };
         let setup = chosen.choice.setup();
         let folder = chosen.folder.as_deref();
-        let made = self.make_notebook(folder, &chosen.title, setup.cover, |file_name| {
-            creation::new_notebook_bytes(&setup, file_name)
-        });
+        let made = self
+            .make_notebook(folder, &chosen.title, setup.cover, move |file_name| {
+                creation::new_notebook_bytes(&setup, file_name)
+            })
+            .await;
         if made.is_some()
             && let Err(e) = remember_defaults(folder, &setup)
         {
@@ -84,18 +92,30 @@ impl RnLibraryView {
 
     /// Writes a notebook with the bytes of `make` in `folder`, gives it `cover` and opens
     /// it. Its path, or `None` after telling what went wrong.
-    pub(super) fn make_notebook(
+    pub(super) async fn make_notebook<F>(
         &self,
         folder: Option<&str>,
         title: &str,
         cover: Option<u32>,
-        make: impl FnOnce(&str) -> anyhow::Result<Vec<u8>>,
-    ) -> Option<String> {
-        let written = {
+        make: F,
+    ) -> Option<String>
+    where
+        F: FnOnce(&str) -> anyhow::Result<Vec<u8>> + Send + 'static,
+    {
+        let path = {
             let library = self.imp().library.borrow();
-            let library = library.as_ref()?;
-            write_notebook(library, folder, title, &gettext("Untitled"), make)
+            notebook_path(library.as_ref()?, folder, title, &gettext("Untitled"))
         };
+        let root = self.root();
+        let written = async {
+            let path = path?;
+            let file_name = path.rsplit('/').next().unwrap_or(&path).to_owned();
+            let bytes = make_off_main(make, file_name).await?;
+            // All at once and never over another file, even one made meanwhile.
+            rnote_sync::create_notebook(&root, &path, &bytes)?;
+            anyhow::Ok(path)
+        }
+        .await;
         let path = match written {
             Ok(path) => path,
             Err(e) => {
@@ -149,29 +169,18 @@ mod tests {
 
     use rnote_library::Library;
 
-    use super::write_notebook;
+    use super::notebook_path;
 
     #[test]
-    fn writes_the_bytes_under_a_free_name() {
+    fn a_taken_title_gets_a_free_name() {
         let dir = tempfile::tempdir().unwrap();
         fs::create_dir(dir.path().join("F")).unwrap();
         fs::write(dir.path().join("F/Álgebra.rnote"), b"old").unwrap();
         let library = Library::open(dir.path()).unwrap();
 
-        let path = write_notebook(&library, Some("F"), "Álgebra", "Untitled", |file_name| {
-            Ok(file_name.as_bytes().to_vec())
-        })
-        .unwrap();
+        let path = notebook_path(&library, Some("F"), " Álgebra ", "Untitled").unwrap();
 
         assert_eq!(path, "F/Álgebra (2).rnote");
-        assert_eq!(
-            fs::read(dir.path().join(&path)).unwrap(),
-            b"\xc3\x81lgebra (2).rnote"
-        );
-        assert_eq!(
-            fs::read(dir.path().join("F/Álgebra.rnote")).unwrap(),
-            b"old"
-        );
     }
 
     #[test]
@@ -179,8 +188,9 @@ mod tests {
         let dir = tempfile::tempdir().unwrap();
         let library = Library::open(dir.path()).unwrap();
 
-        let path = write_notebook(&library, None, "  ", "Untitled", |_| Ok(Vec::new())).unwrap();
-
-        assert_eq!(path, "Untitled.rnote");
+        assert_eq!(
+            notebook_path(&library, None, "  ", "Untitled").unwrap(),
+            "Untitled.rnote"
+        );
     }
 }

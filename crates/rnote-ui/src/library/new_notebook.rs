@@ -97,8 +97,11 @@ pub(crate) async fn ask_new_notebook(
     preview.show(&initial);
 
     let page = adw::PreferencesPage::new();
+    // A group of its own: a group shows its rows before any other widget.
+    let pictured = adw::PreferencesGroup::new();
+    pictured.add(preview.widget());
+    page.add(&pictured);
     let top = adw::PreferencesGroup::new();
-    top.add(preview.widget());
     top.add(&rows.title);
     top.add(&rows.folder);
     page.add(&top);
@@ -131,7 +134,7 @@ pub(crate) async fn ask_new_notebook(
     let dialog = adw::Dialog::builder()
         .title(gettext("New Notebook"))
         .content_width(440)
-        .content_height(720)
+        .content_height(640)
         .child(&toolbar)
         .default_widget(&create)
         .focus_widget(&rows.title)
