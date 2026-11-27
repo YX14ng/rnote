@@ -95,7 +95,11 @@ internal class EditorControls(
             }
             EditorMenu.Action.ToggleZoomLock -> change(current.copy(zoomLocked = !current.zoomLocked))
             is EditorMenu.Action.SelectBrushStyle -> {
-                change(current.copy(brushStyle = action.style))
+                val (brushes, brush) = BrushMemory.switch(current.brushes, current.brushStyle, current.brush, action.style)
+                // The highlighter's yellow is a choice: the background doesn't recolor it.
+                val colorChosen = current.colorChosen || action.style == BrushStyle.MARKER
+                change(current.copy(brushStyle = action.style, brushes = brushes))
+                changeBrush(brush, colorChosen)
                 canvas.applyEdit { it.setBrushStyle(action.style) }
             }
             is EditorMenu.Action.SelectEraserStyle -> {

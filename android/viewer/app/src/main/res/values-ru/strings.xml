@@ -35,7 +35,7 @@
     <string name="shape_ellipse">Эллипс</string>
     <string name="shape_grid">Сетка</string>
     <string name="shape_coordinate_system">Система координат</string>
-    <string name="brush_style_marker">Маркер</string>
+    <string name="brush_style_marker">Текстовыделитель</string>
     <string name="brush_style_solid">Перьевая ручка</string>
     <string name="brush_style_ballpoint">Шариковая ручка</string>
     <string name="brush_style_textured">Текстурированная</string>

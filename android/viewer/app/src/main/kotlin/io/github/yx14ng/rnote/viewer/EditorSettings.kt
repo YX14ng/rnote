@@ -23,6 +23,8 @@ data class EditorSettings(
     val palette: List<Int> = BrushPalette.DEFAULT_SIDEBAR_COLORS,
     /** Colors kept in the color menu, to reuse in any palette slot. */
     val savedColors: List<Int> = DEFAULT_SAVED_COLORS,
+    /** The brush each style had when the user last left it; see [BrushMemory]. */
+    val brushes: Map<BrushStyle, Brush> = emptyMap(),
 ) {
     fun save(context: Context) {
         context.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE).edit()
@@ -46,6 +48,7 @@ data class EditorSettings(
             .putBoolean(KEY_ROUGH, shapeStyle.rough)
             .putBoolean(KEY_FILLED, shapeStyle.fill != null)
             .putInt(KEY_FILL, shapeStyle.fill ?: 0)
+            .putString(KEY_BRUSHES, brushes.entries.joinToString(";") { (style, brush) -> "${style.name},${brush.color},${brush.width}" })
             .apply()
     }
 
@@ -76,6 +79,7 @@ data class EditorSettings(
         private const val KEY_ROUGH = "rough"
         private const val KEY_FILLED = "filled"
         private const val KEY_FILL = "fill"
+        private const val KEY_BRUSHES = "brushes"
 
         /** The saved settings, falling back to the defaults for anything missing or unknown. */
         fun load(context: Context): EditorSettings {
@@ -113,8 +117,19 @@ data class EditorSettings(
                 ),
                 palette = parsePalette(preferences.getString(KEY_PALETTE, null)) ?: defaults.palette,
                 savedColors = preferences.getString(KEY_SAVED_COLORS, null)?.let(::parseColors) ?: defaults.savedColors,
+                brushes = parseBrushes(preferences.getString(KEY_BRUSHES, null)),
             )
         }
+
+        /** Brushes saved as `STYLE,color,width` separated by `;`, skipping what doesn't parse. */
+        private fun parseBrushes(saved: String?): Map<BrushStyle, Brush> =
+            saved.orEmpty().split(";").mapNotNull { entry ->
+                val parts = entry.split(",")
+                val style = BrushStyle.entries.firstOrNull { it.name == parts.getOrNull(0) } ?: return@mapNotNull null
+                val color = parts.getOrNull(1)?.toIntOrNull() ?: return@mapNotNull null
+                val width = parts.getOrNull(2)?.toDoubleOrNull() ?: return@mapNotNull null
+                style to Brush(color, width)
+            }.toMap()
 
         /** Colors saved as comma-separated ints; empty when none were kept. */
         private fun parseColors(saved: String): List<Int>? =

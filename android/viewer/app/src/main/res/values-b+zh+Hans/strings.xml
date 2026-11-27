@@ -35,7 +35,7 @@
     <string name="shape_ellipse">椭圆</string>
     <string name="shape_grid">网格</string>
     <string name="shape_coordinate_system">坐标系</string>
-    <string name="brush_style_marker">记号笔</string>
+    <string name="brush_style_marker">荧光笔</string>
     <string name="brush_style_solid">钢笔</string>
     <string name="brush_style_ballpoint">圆珠笔</string>
     <string name="brush_style_textured">纹理</string>

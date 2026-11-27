@@ -35,7 +35,7 @@
     <string name="shape_ellipse">楕円</string>
     <string name="shape_grid">方眼</string>
     <string name="shape_coordinate_system">座標</string>
-    <string name="brush_style_marker">マーカー</string>
+    <string name="brush_style_marker">蛍光ペン</string>
     <string name="brush_style_solid">万年筆</string>
     <string name="brush_style_ballpoint">ボールペン</string>
     <string name="brush_style_textured">テクスチャ</string>

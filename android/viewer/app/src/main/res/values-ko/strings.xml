@@ -35,7 +35,7 @@
     <string name="shape_ellipse">타원</string>
     <string name="shape_grid">격자</string>
     <string name="shape_coordinate_system">좌표계</string>
-    <string name="brush_style_marker">마커</string>
+    <string name="brush_style_marker">형광펜</string>
     <string name="brush_style_solid">만년필</string>
     <string name="brush_style_ballpoint">볼펜</string>
     <string name="brush_style_textured">질감</string>
