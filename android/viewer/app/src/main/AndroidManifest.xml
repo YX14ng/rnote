@@ -43,6 +43,13 @@
             </intent-filter>
         </activity>
 
+        <!-- Takes saved notebooks to Google Drive once there's a connection, also after the
+             app is closed; only the system may start it. -->
+        <service
+            android:name=".SyncJob"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+
         <!-- Lends the system camera the file a photo goes to; nothing else is shared. -->
         <provider
             android:name=".CameraFileProvider"

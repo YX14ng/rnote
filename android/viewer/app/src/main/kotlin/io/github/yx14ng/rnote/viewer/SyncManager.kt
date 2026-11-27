@@ -131,11 +131,15 @@ internal object SyncManager {
         }
     }
 
-    /** Syncs a few seconds after the last call: after saving a notebook. */
+    /**
+     * Syncs a few seconds after the last call: after saving a notebook. A job does it too if
+     * the app is closed or killed before then, or once there's a connection.
+     */
     fun syncSoon(context: Context) {
         init(context)
         main.removeCallbacks(soon)
         main.postDelayed(soon, SOON_DELAY_MS)
+        if (enabled()) SyncJob.schedule(app, SOON_DELAY_MS)
     }
 
     /** The user signed in from the sync button and Google gave [token]: syncs with it. */
@@ -170,6 +174,7 @@ internal object SyncManager {
                     val finish = {
                         preferences().edit().putBoolean(KEY_ENABLED, false).apply()
                         main.removeCallbacks(soon)
+                        SyncJob.cancel(app)
                         setStatus(SyncStatus.SignedOut)
                         done(revoked)
                     }
@@ -242,6 +247,8 @@ internal object SyncManager {
     }
 
     private fun finish(result: SyncStatus) {
+        // What was saved is in Drive: the job has nothing left to do.
+        if (result is SyncStatus.Done && !again) SyncJob.cancel(app)
         // Signed out while it ran: whatever it did, the button shows signed out.
         setStatus(if (enabled() || result == SyncStatus.Unavailable) result else SyncStatus.SignedOut)
         if (again) {
