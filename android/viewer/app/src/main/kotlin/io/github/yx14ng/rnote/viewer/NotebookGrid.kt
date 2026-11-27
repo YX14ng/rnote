@@ -35,6 +35,9 @@ internal class NotebookGrid(context: Context, private val thumbnails: ThumbnailC
     var onNew: ((View) -> Unit)? = null
     var onMenu: ((Notebook, View) -> Unit)? = null
 
+    /** A card was held. */
+    var onHold: ((Notebook) -> Unit)? = null
+
     /** Paths of the selected notebooks while selecting several; null when not selecting. */
     var selection: Set<String>? = null
         set(value) {
@@ -175,6 +178,7 @@ internal class NotebookGrid(context: Context, private val thumbnails: ThumbnailC
             foreground = Graphite.pressable(context, null, 12f)
             isClickable = true
             setOnClickListener { card -> notebook?.let { onOpen?.invoke(it, card) } }
+            setOnLongClickListener { notebook?.let { onHold?.invoke(it) } != null }
             menu.setOnClickListener { view -> notebook?.let { onMenu?.invoke(it, view) } }
             val texts = LinearLayout(context).apply {
                 orientation = VERTICAL
@@ -204,7 +208,13 @@ internal class NotebookGrid(context: Context, private val thumbnails: ThumbnailC
                 detail.setText(R.string.library_xopp_import)
                 detail.setTextColor(Graphite.ACCENT)
             } else {
-                detail.text = DateFormat.getDateFormat(context).format(Date(notebook.modifiedMs))
+                // With the time: two classes on the same day are told apart.
+                val modified = Date(notebook.modifiedMs)
+                detail.text = context.getString(
+                    R.string.library_modified_at,
+                    DateFormat.getDateFormat(context).format(modified),
+                    DateFormat.getTimeFormat(context).format(modified),
+                )
                 detail.setTextColor(Graphite.TEXT_SECONDARY)
             }
             contentDescription = notebook.name

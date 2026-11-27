@@ -143,6 +143,7 @@
     <string name="library_new">새로 만들기</string>
     <string name="library_notebook_menu">노트 옵션</string>
     <string name="library_xopp_import">Xournal++ · 가져오기</string>
+    <string name="library_modified_at">%1$s %2$s</string>
     <string name="library_importing">가져오는 중…</string>
     <string name="library_view_grid">격자로 보기</string>
     <string name="library_view_list">목록으로 보기</string>

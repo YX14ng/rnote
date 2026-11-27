@@ -143,6 +143,7 @@
     <string name="library_new">新增</string>
     <string name="library_notebook_menu">筆記本選項</string>
     <string name="library_xopp_import">Xournal++ · 匯入</string>
+    <string name="library_modified_at">%1$s %2$s</string>
     <string name="library_importing">正在匯入…</string>
     <string name="library_view_grid">以格狀顯示</string>
     <string name="library_view_list">以清單顯示</string>

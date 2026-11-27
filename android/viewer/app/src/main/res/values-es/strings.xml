@@ -143,6 +143,7 @@
     <string name="library_new">Nuevo</string>
     <string name="library_notebook_menu">Opciones del cuaderno</string>
     <string name="library_xopp_import">Xournal++ · importar</string>
+    <string name="library_modified_at">%1$s, %2$s</string>
     <string name="library_importing">Importando…</string>
     <string name="library_view_grid">Ver como grilla</string>
     <string name="library_view_list">Ver como lista</string>

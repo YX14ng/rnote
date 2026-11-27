@@ -143,6 +143,7 @@
     <string name="library_new">新規</string>
     <string name="library_notebook_menu">ノートのオプション</string>
     <string name="library_xopp_import">Xournal++ · インポート</string>
+    <string name="library_modified_at">%1$s %2$s</string>
     <string name="library_importing">インポート中…</string>
     <string name="library_view_grid">グリッド表示</string>
     <string name="library_view_list">リスト表示</string>

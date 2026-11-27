@@ -63,6 +63,7 @@ class LibraryActivity : Activity() {
         sortByName = preferences.getBoolean(KEY_SORT_BY_NAME, false)
         grid = NotebookGrid(this, ThumbnailCache(this, store)).apply {
             onOpen = ::onNotebookTapped
+            onHold = ::onNotebookHeld
             onNew = ::showCreateMenu
             onMenu = { notebook, anchor -> actions.notebookMenu(notebook, anchor, section == LibrarySection.Trash) }
         }
@@ -418,6 +419,14 @@ class LibraryActivity : Activity() {
                 .putExtra(MainActivity.EXTRA_LIBRARY_PATH, path)
                 .putExtra(MainActivity.EXTRA_NEW, isNew),
         )
+    }
+
+    /** Holding a card selects it; the trash has no selection. */
+    private fun onNotebookHeld(notebook: Notebook) {
+        if (section == LibrarySection.Trash) return
+        grid.selection = CardSelection.held(grid.selection, notebook.path)
+        updateBar()
+        updateSelectionBar()
     }
 
     private fun startSelecting() {

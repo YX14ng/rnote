@@ -144,6 +144,7 @@
     <string name="library_new">New</string>
     <string name="library_notebook_menu">Notebook options</string>
     <string name="library_xopp_import">Xournal++ · import</string>
+    <string name="library_modified_at">%1$s, %2$s</string>
     <string name="library_importing">Importing…</string>
     <string name="library_view_grid">Show as grid</string>
     <string name="library_view_list">Show as list</string>
