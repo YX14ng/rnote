@@ -40,6 +40,7 @@ class LibraryActivity : Activity() {
     private lateinit var selectionBar: LinearLayout
     private lateinit var syncButton: SyncButton
     private lateinit var creator: NotebookCreator
+    private val editorLaunch = LaunchGuard()
     private val preferences by lazy { getSharedPreferences(PREFERENCES, MODE_PRIVATE) }
 
     private var snapshot = LibrarySnapshot(emptyList(), emptyList(), emptyList(), emptyList())
@@ -94,6 +95,7 @@ class LibraryActivity : Activity() {
 
     override fun onResume() {
         super.onResume()
+        editorLaunch.resumed()
         // Back from the editor: the notebook changed, and so did its thumbnail's key.
         reload()
         syncButton.attach()
@@ -410,6 +412,7 @@ class LibraryActivity : Activity() {
     private fun openCreated(path: String) = startEditor(path, isNew = false)
 
     private fun startEditor(path: String, isNew: Boolean) {
+        if (!editorLaunch.tryStart()) return
         startActivity(
             Intent(this, MainActivity::class.java)
                 .putExtra(MainActivity.EXTRA_LIBRARY_PATH, path)
