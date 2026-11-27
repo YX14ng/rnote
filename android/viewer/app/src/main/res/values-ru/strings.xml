@@ -363,6 +363,7 @@
     <string name="action_export_pdf">Экспорт в PDF…</string>
     <string name="action_share_pdf">Поделиться в PDF</string>
     <string name="pdf_exporting">Экспорт в PDF…</string>
+    <string name="pdf_export_progress">Страница %1$d из %2$d</string>
     <string name="pdf_saved">PDF сохранён</string>
     <string name="share_pdf_title">Поделиться PDF</string>
 

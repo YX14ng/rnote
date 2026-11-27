@@ -18,6 +18,7 @@ mod ink;
 mod library;
 mod pages;
 mod pdf;
+mod pdf_export;
 mod selection;
 mod settings;
 mod sync;

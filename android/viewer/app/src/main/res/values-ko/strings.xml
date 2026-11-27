@@ -333,6 +333,7 @@
     <string name="action_export_pdf">PDF 내보내기…</string>
     <string name="action_share_pdf">PDF로 공유</string>
     <string name="pdf_exporting">PDF 내보내는 중…</string>
+    <string name="pdf_export_progress">%2$d쪽 중 %1$d쪽</string>
     <string name="pdf_saved">PDF 저장됨</string>
     <string name="share_pdf_title">PDF 공유</string>
 

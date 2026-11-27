@@ -142,3 +142,24 @@ fn exports_a_pdf_with_a_page_per_sheet() {
     // Read back by the same reader the PDF import uses.
     assert_eq!(crate::pdf_import::pdf_page_count(&pdf, None).expect("reads"), 3);
 }
+
+#[test]
+fn a_pdf_export_draws_one_sheet_per_step_so_it_can_show_progress() {
+    let mut document = plain_document();
+    document.set_layout(Layout::FixedSize);
+    document.insert_blank_pages(1, 2);
+    document.set_brush(RED, 4.0);
+    draw_line(&mut document, 200.0);
+
+    let mut job = document.pdf_export_job("Prueba");
+    assert_eq!((job.done(), job.total()), (0, 3));
+    let mut steps = Vec::new();
+    while job.done() < job.total() {
+        job.draw_next().expect("draws");
+        steps.push(job.done());
+    }
+    let pdf = job.finish().expect("finishes");
+
+    assert_eq!(steps, [1, 2, 3]);
+    assert_eq!(crate::pdf_import::pdf_page_count(&pdf, None).expect("reads"), 3);
+}

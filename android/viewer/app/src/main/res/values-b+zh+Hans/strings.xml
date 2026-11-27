@@ -333,6 +333,7 @@
     <string name="action_export_pdf">导出 PDF…</string>
     <string name="action_share_pdf">以 PDF 分享</string>
     <string name="pdf_exporting">正在导出 PDF…</string>
+    <string name="pdf_export_progress">第 %1$d 页，共 %2$d 页</string>
     <string name="pdf_saved">PDF 已保存</string>
     <string name="share_pdf_title">分享 PDF</string>
 

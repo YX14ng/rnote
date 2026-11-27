@@ -183,8 +183,23 @@ internal object NativeBridge {
     @JvmStatic external fun save(handle: Long, fileName: String): ByteArray
 
     /** Marks the document as saved, once the bytes from [save] are written. */
-    /** The document as a PDF titled [title], a page per sheet. */
-    @JvmStatic external fun exportPdf(handle: Long, title: String): ByteArray
+    /**
+     * Starts exporting the document as a PDF titled [title], a page per sheet; on the
+     * document's thread. The export handle goes to [pdfExportFinish] or [pdfExportCancel].
+     */
+    @JvmStatic external fun pdfExportBegin(handle: Long, title: String): Long
+
+    /** How many sheets the export has. */
+    @JvmStatic external fun pdfExportTotal(job: Long): Int
+
+    /** Draws the export's next sheet; returns how many are drawn. */
+    @JvmStatic external fun pdfExportDrawNext(job: Long): Int
+
+    /** The export's PDF; closes it. */
+    @JvmStatic external fun pdfExportFinish(job: Long): ByteArray
+
+    /** Drops the export; closes it. */
+    @JvmStatic external fun pdfExportCancel(job: Long)
 
     @JvmStatic external fun markSaved(handle: Long)
 

@@ -1,18 +1,23 @@
 package io.github.yx14ng.rnote.viewer
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.ClipData
 import android.content.Intent
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
+import android.widget.LinearLayout
+import android.widget.ProgressBar
+import android.widget.TextView
 import android.widget.Toast
 import java.io.File
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * Exports the open notebook as a PDF, a page per sheet: saved where the user chooses, or
- * handed to another app through Android's share sheet. The PDF is made on the document's
- * thread and written on a thread of its own.
+ * handed to another app through Android's share sheet. The document's thread only takes
+ * what to draw; the sheets are drawn, and the PDF written, on a thread of its own.
  */
 internal class PdfExport(
     private val activity: Activity,
@@ -56,17 +61,58 @@ internal class PdfExport(
         }
     }
 
+    /**
+     * Exports the notebook named [title] a sheet at a time behind a dialog that shows how
+     * far it got and can stop it, then hands the PDF to [deliver] off the main thread.
+     */
     private fun export(title: String, deliver: (ByteArray) -> Unit) {
-        Toast.makeText(activity, R.string.pdf_exporting, Toast.LENGTH_SHORT).show()
-        renderer.query({ document -> document.exportPdf(title.removeSuffix(".rnote")) }) { result ->
-            result
-                .onSuccess { pdf ->
+        val cancelled = AtomicBoolean(false)
+        val progress = ProgressBar(activity, null, android.R.attr.progressBarStyleHorizontal).apply { isIndeterminate = true }
+        val pages = TextView(activity).apply { setText(R.string.pdf_exporting) }
+        val padding = Graphite.dp(activity, 24f)
+        val content = LinearLayout(activity).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(padding, padding / 2, padding, 0)
+            addView(pages)
+            addView(progress)
+        }
+        val dialog = AlertDialog.Builder(activity)
+            .setTitle(R.string.pdf_exporting)
+            .setView(content)
+            .setNegativeButton(android.R.string.cancel) { _, _ -> cancelled.set(true) }
+            .setCancelable(false)
+            .show()
+        val close = { if (!activity.isDestroyed && dialog.isShowing) dialog.dismiss() }
+        renderer.query({ document -> document.beginPdfExport(title.removeSuffix(".rnote")) }) { begun ->
+            begun
+                .onSuccess { job ->
                     Thread({
-                        runCatching { deliver(pdf) }.onFailure { error -> main.post { onError(error) } }
+                        runCatching {
+                            val pdf = PdfExportSteps.run(job, cancelled::get) { done, total ->
+                                main.post { showProgress(progress, pages, done, total) }
+                            }
+                            main.post { close() }
+                            if (pdf != null) deliver(pdf)
+                        }.onFailure { error ->
+                            main.post {
+                                close()
+                                onError(error)
+                            }
+                        }
                     }, "rnote-pdf-export").start()
                 }
-                .onFailure(onError)
+                .onFailure { error ->
+                    close()
+                    onError(error)
+                }
         }
+    }
+
+    private fun showProgress(progress: ProgressBar, pages: TextView, done: Int, total: Int) {
+        progress.isIndeterminate = false
+        progress.max = total.coerceAtLeast(1)
+        progress.progress = done
+        pages.text = activity.getString(R.string.pdf_export_progress, done, total)
     }
 
     companion object {
