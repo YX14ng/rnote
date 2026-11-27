@@ -466,3 +466,45 @@ fn a_small_parenthesis_is_left_alone() {
 
     assert!(recognize(&points, 50.0).is_none());
 }
+
+/// A horizontal line `length` long from (100, 300), bowed by `bow` of its length.
+fn bowed_line(length: f64, bow: f64) -> impl Fn(f64) -> Vector2 {
+    move |t| Vector2::new(100.0 + length * t, 300.0 + bow * length * (PI * t).sin())
+}
+
+#[test]
+fn short_slightly_bent_lines_stay_lines() {
+    for (length, bow) in [(100.0, 0.04), (100.0, 0.05), (200.0, 0.05), (400.0, 0.05)] {
+        let shape = recognize(&drawn(80, bowed_line(length, bow)), 50.0);
+
+        assert!(
+            matches!(shape, Some(Shape::Line(_))),
+            "{length} {bow}: {shape:?}"
+        );
+    }
+}
+
+#[test]
+fn an_angle_bracket_with_a_rounded_corner_is_no_bracket() {
+    // The 120° "<" again, its corner rounded over 6 % of each side.
+    let apex = Vector2::new(100.0, 300.0);
+    let (top, bottom) = (Vector2::new(200.0, 127.0), Vector2::new(200.0, 473.0));
+    let (into, out_of) = (top + (apex - top) * 0.94, apex + (bottom - apex) * 0.06);
+    let points = drawn(80, |t| {
+        if t < 0.47 {
+            top + (into - top) * (t / 0.47)
+        } else if t < 0.53 {
+            // A quadratic turn through the corner.
+            let s = (t - 0.47) / 0.06;
+            into * (1.0 - s).powi(2) + apex * (2.0 * s * (1.0 - s)) + out_of * s.powi(2)
+        } else {
+            out_of + (bottom - out_of) * ((t - 0.53) / 0.47)
+        }
+    });
+
+    let shape = recognize(&points, 50.0);
+    assert!(
+        !matches!(shape, Some(Shape::QuadraticBezier(_))),
+        "{shape:?}"
+    );
+}

@@ -10,7 +10,7 @@ use p2d::math::Vector2;
 use rnote_compose::PenEvent;
 use rnote_compose::penpath::Element;
 
-use crate::pens::PenMode;
+use crate::pens::{Pen, PenMode};
 use crate::{Engine, WidgetFlags};
 
 /// The points of the brush stroke being drawn, and whether it already became a shape.
@@ -67,6 +67,11 @@ impl StrokeTracker {
         now: Instant,
     ) -> Option<WidgetFlags> {
         if self.snapped {
+            return None;
+        }
+        // Without ink there is nothing to swap, and undoing would take back an earlier
+        // action instead: the brush starts no stroke off the page, for one.
+        if !matches!(engine.penholder.current_pen_ref(), Pen::Brush(brush) if brush.is_drawing()) {
             return None;
         }
         let last = *self.points.last()?;

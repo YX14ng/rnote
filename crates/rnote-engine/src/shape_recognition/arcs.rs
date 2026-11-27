@@ -6,7 +6,7 @@ use std::f64::consts::FRAC_PI_2;
 use parry2d_f64::math::Vector2;
 use rnote_compose::shapes::QuadraticBezier;
 
-use super::{MAX_FIT_ERROR, SNAP_ANGLE, polygons};
+use super::{SNAP_ANGLE, polygons};
 
 /// The least a bracket bends: its bulge over the length between its ends. Less is a line.
 const MIN_BULGE: f64 = 0.06;
@@ -14,6 +14,17 @@ const MIN_BULGE: f64 = 0.06;
 const MAX_BULGE: f64 = 0.35;
 /// How far, relative to the length between the ends, the hand may stray to the other side.
 const OTHER_SIDE_TOLERANCE: f64 = 0.02;
+/// The largest mean distance from the stroke to the arc, relative to the size. Tighter than
+/// for other shapes: a parenthesis follows its arc closely, a rounded "<" doesn't.
+const MAX_FIT_ERROR: f64 = 0.02;
+/// The bulge of a bow is this many times its mean offset from the line between its ends
+/// (exactly so for a parabola). Unlike the largest offset, the mean barely grows with the
+/// tremor of the hand.
+const BULGE_PER_MEAN_OFFSET: f64 = 1.5;
+/// Each half of an arc bows out too, by about a sixth of the whole bulge on average; the
+/// halves of a "<", even with a rounded corner, are straight. Below this share of the bulge,
+/// a half counts as straight.
+const MIN_HALF_BOW: f64 = 0.08;
 /// Samples of the arc that distances to it are measured against.
 const ARC_SAMPLES: usize = 64;
 
@@ -28,22 +39,37 @@ pub(super) fn bracket(points: &[Vector2], size: f64) -> Option<QuadraticBezier> 
         return None;
     }
     let normal = Vector2::new(-chord.y, chord.x) / length;
-    let offsets = points.iter().map(|&point| (point - first).dot(normal));
-    let (low, high) = offsets.fold((0.0_f64, 0.0_f64), |(low, high), offset| {
-        (low.min(offset), high.max(offset))
-    });
+    let offsets: Vec<f64> = points
+        .iter()
+        .map(|&point| (point - first).dot(normal))
+        .collect();
+    let mean = offsets.iter().sum::<f64>() / offsets.len() as f64;
     // Which side it bulges to, and how far the hand strayed to the other one.
-    let (bulge, stray, side) = if high >= -low {
-        (high, -low, 1.0)
-    } else {
-        (-low, high, -1.0)
-    };
+    let side = if mean >= 0.0 { 1.0 } else { -1.0 };
+    let stray = offsets
+        .iter()
+        .map(|offset| -offset * side)
+        .fold(0.0_f64, f64::max);
+    let bulge = mean.abs() * BULGE_PER_MEAN_OFFSET;
     let bends = (MIN_BULGE..=MAX_BULGE).contains(&(bulge / length));
     if !bends || stray > OTHER_SIDE_TOLERANCE * length {
         return None;
     }
     // A "<" bulges like a bracket too, but turns at a corner.
     if polygons::open_vertices(points, size).is_some() {
+        return None;
+    }
+    let apex = offsets
+        .iter()
+        .enumerate()
+        .max_by(|(_, a), (_, b)| (*a * side).total_cmp(&(*b * side)))
+        .map(|(index, _)| index)?;
+    let middle = (first + last) / 2.0;
+    let halves = [&points[..=apex], &points[apex..]];
+    if halves
+        .iter()
+        .any(|half| outward_bow(half, middle) < MIN_HALF_BOW * bulge)
+    {
         return None;
     }
     let (start, end) = straightened(first, last);
@@ -74,6 +100,27 @@ fn straightened(first: Vector2, last: Vector2) -> (Vector2, Vector2) {
         Vector2::new(0.0, delta.y.signum() * half)
     };
     (middle - along, middle + along)
+}
+
+/// How far `half` (a stretch of the stroke) bows out on average from the line between its
+/// ends, away from `middle`, the middle of the whole stroke's ends. Negative when it bows in.
+fn outward_bow(half: &[Vector2], middle: Vector2) -> f64 {
+    let (Some(&first), Some(&last)) = (half.first(), half.last()) else {
+        return 0.0;
+    };
+    let chord = last - first;
+    let length = chord.length();
+    if length <= 0.0 || half.len() < 3 {
+        return 0.0;
+    }
+    let mut normal = Vector2::new(-chord.y, chord.x) / length;
+    if normal.dot((first + last) / 2.0 - middle) < 0.0 {
+        normal = -normal;
+    }
+    half.iter()
+        .map(|&point| (point - first).dot(normal))
+        .sum::<f64>()
+        / half.len() as f64
 }
 
 /// The mean distance from `points` to `curve`.

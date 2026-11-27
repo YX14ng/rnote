@@ -199,3 +199,26 @@ fn recognized_shapes_take_the_brush_color_and_width() {
     assert_eq!(options.stroke_color, Some(blue));
     assert_eq!(options.fill_color, None);
 }
+
+#[test]
+fn a_stroke_the_brush_never_started_is_left_alone() {
+    let mut engine = Engine::default();
+    let mut tracker = StrokeTracker::default();
+    let earlier = circle(50.0);
+    draw(&mut engine, &mut tracker, &earlier);
+    lift(&mut engine, &mut tracker, earlier[80]);
+
+    // Samples the brush never saw, e.g. off the page: no ink, so nothing to swap, and the
+    // earlier stroke must not be undone.
+    let _ = tracker.follow(true, false, circle(100.0));
+    assert!(
+        tracker
+            .snap(&mut engine, MIN_SIZE, Instant::now())
+            .is_none()
+    );
+
+    assert!(matches!(
+        strokes(&engine).as_slice(),
+        [Stroke::BrushStroke(_)]
+    ));
+}

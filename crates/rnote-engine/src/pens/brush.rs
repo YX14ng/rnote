@@ -35,6 +35,13 @@ pub struct Brush {
     state: BrushState,
 }
 
+impl Brush {
+    /// Whether a stroke is being drawn.
+    pub(crate) fn is_drawing(&self) -> bool {
+        matches!(self.state, BrushState::Drawing { .. })
+    }
+}
+
 impl Default for Brush {
     fn default() -> Self {
         Self {
