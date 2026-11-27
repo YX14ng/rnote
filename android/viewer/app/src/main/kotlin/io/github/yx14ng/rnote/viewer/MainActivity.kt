@@ -250,6 +250,7 @@ class MainActivity : Activity() {
                 result
                     .onSuccess { answer ->
                         val renamed = answer.getString("path")
+                        InkIndexFiles.move(this, path, renamed)
                         libraryPath = renamed
                         saver.currentUri = Uri.fromFile(store.file(renamed))
                         saver.documentName = store.file(renamed).name
@@ -680,6 +681,7 @@ class MainActivity : Activity() {
      */
     private fun followMove(path: String) {
         val file = LibraryStore.forApp(this).notebookFile(path) ?: return
+        libraryPath?.let { InkIndexFiles.move(this, it, path) }
         libraryPath = path
         saver.currentUri = Uri.fromFile(file)
         saver.documentName = file.name

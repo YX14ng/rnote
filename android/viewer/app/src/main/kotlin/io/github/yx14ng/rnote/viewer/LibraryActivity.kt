@@ -256,6 +256,9 @@ class LibraryActivity : Activity() {
             result
                 .onSuccess {
                     snapshot = it
+                    ThumbnailCache.forApp(this).forgetOthers(it.notebooks)
+                    val paths = it.notebooks.map(Notebook::path)
+                    Thread({ InkIndexFiles.sweep(applicationContext, paths) }, "rnote-ink-sweep").start()
                     // The folder or tag shown may be gone, e.g. deleted on this screen.
                     if (sectionGone()) section = LibrarySection.All
                     showNotebooks()

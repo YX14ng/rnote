@@ -48,6 +48,28 @@ impl ThumbnailCache {
     }
 
     /// Writes `png` to `file` through a temporary file, so a reader never sees half of it.
+    /// Deletes the thumbnails of notebooks other than `notebooks`, e.g. of those renamed,
+    /// moved or sent to the trash, which would otherwise stay in the cache for good.
+    pub fn forget_others(&self, notebooks: &[Notebook]) {
+        let live: std::collections::HashSet<String> =
+            notebooks.iter().map(|notebook| path_key(&notebook.path)).collect();
+        let Ok(entries) = fs::read_dir(&self.dir) else {
+            return;
+        };
+        for entry in entries.flatten() {
+            let name = entry.file_name();
+            let Some(name) = name.to_str() else {
+                continue;
+            };
+            let Some((key, _)) = name.split_once('-') else {
+                continue;
+            };
+            if name.ends_with(".png") && !live.contains(key) {
+                let _ = fs::remove_file(entry.path());
+            }
+        }
+    }
+
     fn write(&self, file: &Path, png: &[u8]) -> anyhow::Result<()> {
         // Unique per write: two renders of one notebook at once mustn't share a temporary.
         static WRITES: AtomicU64 = AtomicU64::new(0);

@@ -19,4 +19,18 @@ class ThumbnailFilesTest {
             ThumbnailFiles.olderVersions(names, current = "aaaaaaaaaaaaaaaa-0000000000000002"),
         )
     }
+
+    @Test
+    fun thumbnailsOfNotebooksNoLongerThereAreOrphans() {
+        val names = listOf(
+            "aaaaaaaaaaaaaaaa-0000000000000001.png",
+            "bbbbbbbbbbbbbbbb-0000000000000001.png",
+            "cccccccccccccccc-0000000000000001.tmp",
+        )
+
+        assertEquals(
+            listOf("bbbbbbbbbbbbbbbb-0000000000000001.png"),
+            ThumbnailFiles.orphans(names, liveKeys = listOf("aaaaaaaaaaaaaaaa-0000000000000009")),
+        )
+    }
 }

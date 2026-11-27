@@ -77,7 +77,14 @@ internal class NotebookActions(
 
     fun rename(notebook: Notebook) =
         tags.askName(R.string.library_rename, notebook.name) { name ->
-            run(LibraryStore.request("rename", "path" to notebook.path, "new_name" to name))
+            store.call(LibraryStore.request("rename", "path" to notebook.path, "new_name" to name)) { result ->
+                result
+                    .onSuccess { answer ->
+                        InkIndexFiles.move(context, notebook.path, answer.getString("path"))
+                        onChanged()
+                    }
+                    .onFailure(::fail)
+            }
         }
 
     /** Moves the notebooks at [paths] to a folder chosen from a list, or out of folders. */
@@ -88,7 +95,13 @@ internal class NotebookActions(
             .setTitle(R.string.library_move)
             .setItems(choices.toTypedArray()) { _, which ->
                 val folder = if (which == 0) null else folders[which - 1]
-                runAll(paths.map { LibraryStore.request("move_to", "path" to it, "folder" to folder) })
+                store.run({
+                    for (path in paths) {
+                        val request = LibraryStore.request("move_to", "path" to path, "folder" to folder)
+                        val moved = JSONObject(NativeBridge.libraryCall(store.root.path, request.toString()))
+                        InkIndexFiles.move(context, path, moved.getString("path"))
+                    }
+                }) { result -> result.onSuccess { onChanged() }.onFailure(::fail) }
             }
             .setNegativeButton(android.R.string.cancel, null)
             .show()

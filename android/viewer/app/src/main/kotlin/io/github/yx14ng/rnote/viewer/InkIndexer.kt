@@ -309,7 +309,6 @@ internal class InkIndexer(
         }
 
         /** The index file of the notebook known as [key] (its library path or its URI). */
-        fun indexFileFor(context: Context, key: String): File =
-            File(File(context.cacheDir, "ink"), DocumentSaver.sha256Hex(key.toByteArray()).take(16) + ".json")
+        fun indexFileFor(context: Context, key: String): File = InkIndexFiles.fileFor(context, key)
     }
 }

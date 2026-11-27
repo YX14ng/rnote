@@ -43,6 +43,21 @@ impl Thumbnails {
         }
     }
 
+    /// Forgets the thumbnails of notebooks other than `notebooks`, in memory and, off the
+    /// main loop, on disk: those of notebooks renamed, moved or sent to the trash.
+    pub(crate) fn forget_others(&self, notebooks: &[Notebook]) {
+        let paths: std::collections::HashSet<&str> = notebooks
+            .iter()
+            .map(|notebook| notebook.path.as_str())
+            .collect();
+        self.textures
+            .borrow_mut()
+            .retain(|path, _| paths.contains(path.as_str()));
+        let disk = self.disk.clone();
+        let notebooks = notebooks.to_vec();
+        gio::spawn_blocking(move || disk.forget_others(&notebooks));
+    }
+
     /// Shows the thumbnail of `notebook` of the library at `root` in `picture`: right away
     /// when known, else once rendered. On failure the picture keeps its plain cover.
     pub(crate) fn load(&self, picture: &gtk4::Picture, root: PathBuf, notebook: &Notebook) {

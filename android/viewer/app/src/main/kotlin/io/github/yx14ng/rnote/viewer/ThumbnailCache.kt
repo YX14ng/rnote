@@ -27,6 +27,15 @@ internal class ThumbnailCache private constructor(context: Context, private val 
     /** Rendering failed for these keys; they aren't tried again until the notebook changes. */
     private val failed = mutableSetOf<String>()
 
+    /** Deletes the thumbnails of notebooks other than [notebooks]: renamed, moved or trashed. */
+    fun forgetOthers(notebooks: List<Notebook>) {
+        val keys = notebooks.map { it.key }
+        workers.execute {
+            val names = dir.list()?.toList().orEmpty()
+            for (name in ThumbnailFiles.orphans(names, keys)) File(dir, name).delete()
+        }
+    }
+
     /** Shows [notebook]'s thumbnail in [into] when it is ready; until then, nothing. */
     fun load(notebook: Notebook, into: ImageView) {
         val key = notebook.key
@@ -90,6 +99,12 @@ internal class ThumbnailCache private constructor(context: Context, private val 
 
 /** Names of the thumbnail files, `<path key>-<version key>.png` (see `thumbnail_key`). */
 internal object ThumbnailFiles {
+    /** The thumbnails among [names] of notebooks other than those with [liveKeys]. */
+    fun orphans(names: List<String>, liveKeys: List<String>): List<String> {
+        val notebooks = liveKeys.map { it.substringBefore('-') }.toSet()
+        return names.filter { it.endsWith(".png") && it.substringBefore('-') !in notebooks }
+    }
+
     /** The thumbnails among [names] of earlier versions of the notebook whose key is [current]. */
     fun olderVersions(names: List<String>, current: String): List<String> {
         val notebook = current.substringBefore('-', missingDelimiterValue = "").ifEmpty { return emptyList() }

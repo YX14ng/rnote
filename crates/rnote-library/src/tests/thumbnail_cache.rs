@@ -94,3 +94,25 @@ fn a_missing_cache_folder_is_created() {
 
     assert!(cache.get_or_render(root.path(), &notebook, 32).is_ok());
 }
+
+#[test]
+fn thumbnails_of_notebooks_no_longer_there_are_forgotten() {
+    let root = tempfile::tempdir().unwrap();
+    let cache_dir = tempfile::tempdir().unwrap();
+    write(root.path(), "a.rnote", &empty_document_bytes());
+    write(root.path(), "b.rnote", &empty_document_bytes());
+    let cache = ThumbnailCache::new(cache_dir.path().to_owned());
+    let a = scanned(root.path(), "a.rnote");
+    let b = scanned(root.path(), "b.rnote");
+    cache.get_or_render(root.path(), &a, 64).unwrap();
+    cache.get_or_render(root.path(), &b, 64).unwrap();
+
+    // b went to the trash.
+    cache.forget_others(std::slice::from_ref(&a));
+
+    let names: Vec<String> = fs::read_dir(cache_dir.path())
+        .unwrap()
+        .map(|entry| entry.unwrap().file_name().to_string_lossy().into_owned())
+        .collect();
+    assert_eq!(names, [format!("{}-64.png", thumbnail_key(&a))]);
+}

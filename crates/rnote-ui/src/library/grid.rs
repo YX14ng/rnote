@@ -64,6 +64,7 @@ impl RnLibraryView {
             return;
         }
         *imp.shown_state.borrow_mut() = Some(shown);
+        imp.thumbnails.forget_others(&notebooks);
         let counts = rnote_library::counts(&notebooks, &folders, trash.len());
 
         imp.filling_sidebar.set(true);
