@@ -369,6 +369,8 @@ impl Engine {
     pub fn undo(&mut self, now: Instant) -> WidgetFlags {
         self.store.undo(now)
             | self.doc_resize_autoexpand()
+            // The history keeps strokes, not the pages they were on.
+            | self.doc_expand_fixed_size_to_content()
             | self.current_pen_update_state()
             | self.update_rendering_current_viewport()
     }
@@ -377,6 +379,8 @@ impl Engine {
     pub fn redo(&mut self, now: Instant) -> WidgetFlags {
         self.store.redo(now)
             | self.doc_resize_autoexpand()
+            // The history keeps strokes, not the pages they were on.
+            | self.doc_expand_fixed_size_to_content()
             | self.current_pen_update_state()
             | self.update_rendering_current_viewport()
     }

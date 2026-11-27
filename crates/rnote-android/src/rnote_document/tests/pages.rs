@@ -186,3 +186,14 @@ fn exporting_keeps_the_blank_pages_only_when_asked() {
     prefs.with_empty_pages = true;
     assert_eq!(document.engine.export_pages_content(&prefs).len(), 3);
 }
+
+#[test]
+fn the_engines_own_undo_brings_back_the_sheet_of_a_removed_page() {
+    let (mut document, _) = sheets(3, &[2]);
+    let _ = document.engine.doc_remove_pages_fixed_size(&[2]);
+    assert_eq!(document.page_count(), Some(2));
+
+    let _ = document.engine.undo(std::time::Instant::now());
+
+    assert_eq!(document.page_count(), Some(3));
+}
