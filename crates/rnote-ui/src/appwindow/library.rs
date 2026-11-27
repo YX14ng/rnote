@@ -50,15 +50,34 @@ impl RnAppWindow {
         self.imp().library_view.get()
     }
 
-    /// The Google Drive sync of the library.
+    /// The Google Drive sync of the library: one for the whole app, shared by its windows,
+    /// so two windows never sync (and lock the library) against each other, and signing out
+    /// in one signs out everywhere.
     pub(crate) fn sync(&self) -> RnSync {
+        thread_local! {
+            static SHARED: std::cell::RefCell<Option<RnSync>> = const { std::cell::RefCell::new(None) };
+        }
         self.imp()
             .sync
             .get_or_init(|| {
-                let sync = RnSync::new(crate::config::APP_ID);
-                let window = self.downgrade();
-                sync.set_root(move || window.upgrade().map(|window| window.library_view().root()));
-                sync
+                SHARED.with(|shared| {
+                    shared
+                        .borrow_mut()
+                        .get_or_insert_with(|| {
+                            let sync = RnSync::new(crate::config::APP_ID);
+                            // Every window shows the same library; any open one tells where.
+                            sync.set_root(|| {
+                                gio::Application::default()
+                                    .and_downcast::<gtk4::Application>()?
+                                    .windows()
+                                    .into_iter()
+                                    .find_map(|window| window.downcast::<RnAppWindow>().ok())
+                                    .map(|window| window.library_view().root())
+                            });
+                            sync
+                        })
+                        .clone()
+                })
             })
             .clone()
     }
