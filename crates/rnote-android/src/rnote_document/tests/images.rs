@@ -82,3 +82,17 @@ fn bitmap_pages_stay_cached_however_far_one_zooms_in() {
     assert!(first > 0, "the bitmap page was drawn from its source");
     assert_eq!(document.images.rasterizations(), first);
 }
+
+/// A 40 × 20 photo whose EXIF data says to turn it a quarter: upright it is 20 × 40.
+const TURNED_PHOTO: &[u8] = include_bytes!("../../tests/fixtures/girada.jpg");
+
+#[test]
+fn a_pasted_photo_stands_as_its_camera_says() {
+    let mut document = plain_document();
+
+    document.paste_image(TURNED_PHOTO.to_vec(), Vector2::new(300.0, 300.0)).expect("pastes");
+
+    let bounds = document.selection_bounds().expect("the photo is selected");
+    let size = bounds.extents();
+    assert!(size[1] > size[0], "lies on its side: {size:?}");
+}

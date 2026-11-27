@@ -142,7 +142,7 @@ pub(crate) fn image_notebook_bytes(
 
 /// `image` decoded, turned upright, scaled down to [`MAX_IMAGE_SIDE`] and encoded as PNG,
 /// with its size in pixels.
-fn upright_png(image: &[u8]) -> anyhow::Result<(Vec<u8>, (u32, u32))> {
+pub(crate) fn upright_png(image: &[u8]) -> anyhow::Result<(Vec<u8>, (u32, u32))> {
     let mut decoder = ImageReader::new(Cursor::new(image))
         .with_guessed_format()?
         .into_decoder()

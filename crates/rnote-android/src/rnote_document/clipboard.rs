@@ -82,9 +82,11 @@ impl RnoteDocument {
 
     /// Pastes an image (PNG, JPEG, ...) centered at `center`, selected.
     pub fn paste_image(&mut self, bytes: Vec<u8>, center: Vector2) -> anyhow::Result<EditState> {
+        // Upright as the camera says, and no bigger than a page needs.
+        let (png, _) = crate::notebook_setup::upright_png(&bytes)?;
         let mut image = futures::executor::block_on(
             self.engine
-                .generate_bitmapimage_from_bytes(center, bytes, /* respect_borders */ true),
+                .generate_bitmapimage_from_bytes(center, png, /* respect_borders */ true),
         )
         .context("The image import task was cancelled")?
         .context("The clipboard image could not be read")?;
