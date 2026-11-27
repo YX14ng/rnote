@@ -44,7 +44,7 @@ class LibraryActivity : Activity() {
         super.onCreate(savedInstanceState)
         store = LibraryStore.forApp(this)
         creator = NotebookCreator(this, store)
-        actions = NotebookActions(this, store, { snapshot }, onChanged = ::reload, onError = ::showError)
+        actions = NotebookActions(this, store, { snapshot }, onChanged = ::onLibraryChanged, onError = ::showError)
         listMode = preferences.getBoolean(KEY_LIST_MODE, false)
         sortByName = preferences.getBoolean(KEY_SORT_BY_NAME, false)
         grid = NotebookGrid(this, ThumbnailCache(this, store)).apply {
@@ -178,6 +178,15 @@ class LibraryActivity : Activity() {
         barButtons.addView(barButton(R.drawable.ic_check, R.string.library_select) { startSelecting() })
         barButtons.addView(viewButton)
         barButtons.addView(barButton(R.drawable.ic_sort, R.string.library_sort) { toggleSort() })
+    }
+
+    /**
+     * A notebook was renamed, moved, tagged or trashed here: shows it, and syncs soon so the
+     * change reaches Drive while the library stays open, not only when the editor saves.
+     */
+    private fun onLibraryChanged() {
+        reload()
+        SyncManager.syncSoon(this)
     }
 
     private fun reload() {
