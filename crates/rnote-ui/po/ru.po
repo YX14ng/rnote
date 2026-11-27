@@ -5526,6 +5526,57 @@ msgstr[0] "{n} страница"
 msgstr[1] "{n} страницы"
 msgstr[2] "{n} страниц"
 
+#: crates/rnote-ui/src/sync/messages.rs
+msgid "Your Google Drive is full"
+msgstr "Ваш Google Диск заполнен"
+
+#: crates/rnote-ui/src/sync/messages.rs
+msgid "Google Drive refused a change"
+msgstr "Google Диск отклонил изменение"
+
+#: crates/rnote-ui/src/sync/messages.rs
+msgid "A notebook changed while it was syncing; the next sync takes it"
+msgstr "Блокнот изменился во время синхронизации; его заберёт следующая синхронизация"
+
+#: crates/rnote-ui/src/sync/messages.rs
+msgid "Access to Google Drive wasn't allowed"
+msgstr "Доступ к Google Диску не был разрешён"
+
+#: crates/rnote-ui/src/sync/messages.rs
+msgid "Google answered another sign-in: try again"
+msgstr "Google ответил на другой вход: попробуйте ещё раз"
+
+#: crates/rnote-ui/src/sync/messages.rs
+msgid "Signing in took too long"
+msgstr "Вход занял слишком много времени"
+
+#: crates/rnote-ui/src/sync/messages.rs
+msgid "The browser couldn't be opened"
+msgstr "Не удалось открыть браузер"
+
+#: crates/rnote-ui/src/sync/messages.rs
+msgid "The access to Google Drive was removed"
+msgstr "Доступ к Google Диску был отозван"
+
+#: crates/rnote-ui/src/sync/messages.rs
+msgid "Google can't be reached"
+msgstr "Не удаётся связаться с Google"
+
+#: crates/rnote-ui/src/sync/mod.rs
+msgid "The sync stopped unexpectedly"
+msgstr "Синхронизация неожиданно остановилась"
+
+#: crates/rnote-ui/src/sync/mod.rs
+msgid "Signing out stopped unexpectedly"
+msgstr "Выход неожиданно прервался"
+
+#: crates/rnote-ui/src/sync/messages.rs
+msgid "{n} notebook couldn't be synced this time: {names}. It tries again on the next sync."
+msgid_plural "{n} notebooks couldn't be synced this time: {names}. They try again on the next sync."
+msgstr[0] "{n} блокнот не удалось синхронизировать: {names}. Попытка повторится при следующей синхронизации."
+msgstr[1] "{n} блокнота не удалось синхронизировать: {names}. Попытка повторится при следующей синхронизации."
+msgstr[2] "{n} блокнотов не удалось синхронизировать: {names}. Попытка повторится при следующей синхронизации."
+
 #~ msgid "Brush Style"
 #~ msgstr "Стиль кисти"
 

@@ -40,12 +40,26 @@ pub(crate) fn run_sync(
         Err(SyncError::Busy) => json!({ "status": "busy" }),
         Err(SyncError::Unauthorized) => json!({ "status": "unauthorized" }),
         Err(SyncError::Offline(message)) => json!({ "status": "offline", "message": message }),
-        // `{:#}` keeps the whole context chain in a single line.
-        Err(SyncError::Failed(error)) => {
-            json!({ "status": "failed", "message": format!("{error:#}") })
-        }
+        // The app says the kind in the user's language; `{:#}` keeps the whole context
+        // chain in a single line, for the log.
+        Err(SyncError::Failed(error)) => json!({
+            "status": "failed",
+            "kind": failure_kind_name(rnote_sync::failure_kind(&error)),
+            "message": format!("{error:#}"),
+        }),
     };
     answer.to_string()
+}
+
+/// The name of `kind` the app knows (`SyncFailure.kt`).
+fn failure_kind_name(kind: rnote_sync::FailureKind) -> &'static str {
+    match kind {
+        rnote_sync::FailureKind::DriveFull => "drive_full",
+        rnote_sync::FailureKind::DriveRefused => "drive_refused",
+        rnote_sync::FailureKind::ChangedMeanwhile => "changed_meanwhile",
+        rnote_sync::FailureKind::LocalFiles => "local_files",
+        rnote_sync::FailureKind::Unexpected => "unexpected",
+    }
 }
 
 #[cfg(test)]

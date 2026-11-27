@@ -5,6 +5,7 @@ import android.content.Context
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
@@ -88,6 +89,7 @@ internal sealed interface SyncStatus {
 // It only keeps the application context, which lives as long as the process.
 @SuppressLint("StaticFieldLeak")
 internal object SyncManager {
+    private const val TAG = "RnoteViewer"
     private const val PREFERENCES = "sync"
     private const val KEY_ENABLED = "enabled"
     private const val KEY_LAST_DONE_MS = "last_done_ms"
@@ -242,7 +244,13 @@ internal object SyncManager {
             "offline" -> finish(SyncStatus.Pending(json.optString("message")))
             // Only another process could hold the lock; the next trigger tries again.
             "busy" -> finish(SyncStatus.Pending(""))
-            else -> finish(SyncStatus.Failed(json.optString("message")))
+            else -> {
+                val kind = json.optString("kind")
+                Log.w(TAG, "The sync failed: ${json.optString("message")}")
+                // A notebook that changed meanwhile syncs fine on the next try.
+                if (SyncFailure.retrySoon(kind)) syncSoon(app)
+                finish(SyncStatus.Failed(app.getString(SyncFailure.reason(kind))))
+            }
         }
     }
 

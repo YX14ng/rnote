@@ -6,6 +6,7 @@ mod basic;
 mod conflicts;
 mod devices;
 mod drive;
+mod failures;
 mod fake;
 mod local;
 mod moves;

@@ -28,6 +28,7 @@ internal class SyncButton(private val activity: Activity) {
 
     /** The failure last told in a toast, until a sync works again. */
     private var toastedFailure: String? = null
+    private var toastedSkipped: List<String> = emptyList()
 
     fun attach() {
         shown = null
@@ -67,6 +68,7 @@ internal class SyncButton(private val activity: Activity) {
                 if (report.conflicts.isNotEmpty() && !activity.isFinishing) {
                     ConflictCopies.show(activity, report.conflicts, onOpenNotebook)
                 }
+                showSkipped(report.skipped)
             }
             // Once per failure, not once per attempt.
             is SyncStatus.Failed -> if (status.message != toastedFailure) {
@@ -93,8 +95,17 @@ internal class SyncButton(private val activity: Activity) {
             is TokenResult.Failed -> signInFailed(ErrorText.reason(activity, result.error))
             is TokenResult.Offline -> signInFailed(activity.getString(R.string.error_offline))
             // Google's screens never ask for more screens.
-            is TokenResult.NeedsUser -> signInFailed(result.toString())
+            is TokenResult.NeedsUser -> signInFailed(activity.getString(R.string.sync_reason_not_allowed))
         }
+    }
+
+    /** Tells, once per set, which notebooks this sync couldn't take; the next one tries again. */
+    private fun showSkipped(skipped: List<String>) {
+        if (skipped.isEmpty() || skipped == toastedSkipped) return
+        toastedSkipped = skipped
+        val names = SyncFailure.skippedNotebooks(skipped)
+        val text = activity.resources.getQuantityString(R.plurals.sync_skipped, names.size, names.size, names.joinToString(", "))
+        Toast.makeText(activity, text, Toast.LENGTH_LONG).show()
     }
 
     private fun signInFailed(message: String) {

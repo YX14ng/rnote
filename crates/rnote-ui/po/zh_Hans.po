@@ -5224,6 +5224,55 @@ msgid "{n} page"
 msgid_plural "{n} pages"
 msgstr[0] "{n} 页"
 
+#: crates/rnote-ui/src/sync/messages.rs
+msgid "Your Google Drive is full"
+msgstr "你的 Google 云端硬盘已满"
+
+#: crates/rnote-ui/src/sync/messages.rs
+msgid "Google Drive refused a change"
+msgstr "Google 云端硬盘拒绝了一项更改"
+
+#: crates/rnote-ui/src/sync/messages.rs
+msgid "A notebook changed while it was syncing; the next sync takes it"
+msgstr "同步时有笔记本发生了变化，下次同步会带上它"
+
+#: crates/rnote-ui/src/sync/messages.rs
+msgid "Access to Google Drive wasn't allowed"
+msgstr "未获准访问 Google 云端硬盘"
+
+#: crates/rnote-ui/src/sync/messages.rs
+msgid "Google answered another sign-in: try again"
+msgstr "Google 回复的是另一次登录，请重试"
+
+#: crates/rnote-ui/src/sync/messages.rs
+msgid "Signing in took too long"
+msgstr "登录耗时过长"
+
+#: crates/rnote-ui/src/sync/messages.rs
+msgid "The browser couldn't be opened"
+msgstr "无法打开浏览器"
+
+#: crates/rnote-ui/src/sync/messages.rs
+msgid "The access to Google Drive was removed"
+msgstr "对 Google 云端硬盘的访问权限已被移除"
+
+#: crates/rnote-ui/src/sync/messages.rs
+msgid "Google can't be reached"
+msgstr "无法连接到 Google"
+
+#: crates/rnote-ui/src/sync/mod.rs
+msgid "The sync stopped unexpectedly"
+msgstr "同步意外停止"
+
+#: crates/rnote-ui/src/sync/mod.rs
+msgid "Signing out stopped unexpectedly"
+msgstr "退出登录意外中止"
+
+#: crates/rnote-ui/src/sync/messages.rs
+msgid "{n} notebook couldn't be synced this time: {names}. It tries again on the next sync."
+msgid_plural "{n} notebooks couldn't be synced this time: {names}. They try again on the next sync."
+msgstr[0] "这次有 {n} 个笔记本未能同步：{names}。下次同步时会再试。"
+
 #~ msgid "Brush Style"
 #~ msgstr "笔刷样式"
 

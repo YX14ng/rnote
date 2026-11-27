@@ -3,12 +3,14 @@
 
 pub(crate) mod button;
 pub(crate) mod credentials;
+mod messages;
 pub(crate) mod opened;
 pub(crate) mod run;
 pub(crate) mod schedule;
 pub(crate) mod sign_in;
 pub(crate) mod status;
 
+use gettextrs::gettext;
 use std::cell::RefCell;
 use std::net::TcpListener;
 use std::path::PathBuf;
@@ -247,7 +249,7 @@ impl RnSync {
                 })
             })
             .await
-            .unwrap_or_else(|_| SyncStatus::Failed("The sync stopped unexpectedly".to_owned()));
+            .unwrap_or_else(|_| SyncStatus::Failed(gettext("The sync stopped unexpectedly")));
             this.finish(Some(status));
         });
     }
@@ -313,13 +315,8 @@ impl RnSync {
         let this = self.clone();
         glib::spawn_future_local(async move {
             let signed_in = gio::spawn_blocking(move || -> Result<(), OAuthError> {
-                let code = oauth::wait_for_redirect(&listener, &state, SIGN_IN_TIMEOUT, &cancelled)
-                    .map_err(|error| match error {
-                        OAuthError::Cancelled => {
-                            OAuthError::Failed(anyhow!("The browser couldn't be opened"))
-                        }
-                        other => other,
-                    })?;
+                let code =
+                    oauth::wait_for_redirect(&listener, &state, SIGN_IN_TIMEOUT, &cancelled)?;
                 let tokens = oauth::exchange_code(&client, &code, &pkce, &redirect_uri)?;
                 let refresh_token = tokens
                     .refresh_token
@@ -343,7 +340,7 @@ impl RnSync {
                     this.sync_now();
                     done(Ok(()));
                 }
-                Err(error) => done(Err(error.to_string())),
+                Err(error) => done(Err(messages::sign_in_message(&error))),
             }
         });
     }
@@ -366,7 +363,7 @@ impl RnSync {
                 revoked
             })
             .await
-            .unwrap_or_else(|_| Err("Signing out stopped unexpectedly".to_owned()));
+            .unwrap_or_else(|_| Err(gettext("Signing out stopped unexpectedly")));
             if let Some(source) = this.inner.soon.borrow_mut().take() {
                 source.remove();
             }

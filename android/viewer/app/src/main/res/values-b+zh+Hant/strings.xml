@@ -202,6 +202,14 @@
     <string name="sync_ago_on">%s</string>
     <string name="sync_status_running">正在同步…</string>
     <string name="sync_status_failed">同步失敗：%s</string>
+    <string name="sync_reason_drive_full">你的 Google 雲端硬碟已滿</string>
+    <string name="sync_reason_drive_refused">Google 雲端硬碟拒絕了一項變更</string>
+    <string name="sync_reason_changed">同步時有筆記本發生了變化，稍後會自動重試</string>
+    <string name="sync_reason_local">無法讀取或寫入此裝置上的筆記本</string>
+    <string name="sync_reason_not_allowed">未獲准存取 Google 雲端硬碟</string>
+    <plurals name="sync_skipped">
+        <item quantity="other">這次有 %d 本筆記本未能同步：%s。下次同步時會再試。</item>
+    </plurals>
     <string name="sync_now">立即同步</string>
     <string name="sync_sign_out">登出 Google Drive</string>
     <string name="sync_sign_out_message">筆記本會保留在這部裝置和你的 Google Drive 中。在你重新登入之前，同步會暫停。</string>

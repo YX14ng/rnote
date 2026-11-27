@@ -207,6 +207,15 @@
     <string name="sync_ago_on">on %s</string>
     <string name="sync_status_running">Syncing…</string>
     <string name="sync_status_failed">Sync failed: %s</string>
+    <string name="sync_reason_drive_full">your Google Drive is full</string>
+    <string name="sync_reason_drive_refused">Google Drive refused a change</string>
+    <string name="sync_reason_changed">a notebook changed while it was syncing; it tries again in a moment</string>
+    <string name="sync_reason_local">the notebooks on this device can\'t be read or written</string>
+    <string name="sync_reason_not_allowed">the access to Google Drive wasn\'t allowed</string>
+    <plurals name="sync_skipped">
+        <item quantity="one">%d notebook couldn\'t be synced this time: %s. It tries again on the next sync.</item>
+        <item quantity="other">%d notebooks couldn\'t be synced this time: %s. They try again on the next sync.</item>
+    </plurals>
     <string name="sync_now">Sync now</string>
     <string name="sync_sign_out">Sign out of Google Drive</string>
     <string name="sync_sign_out_message">The notebooks stay on this device and in your Drive. The sync stops until you sign in again.</string>

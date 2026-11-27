@@ -5609,6 +5609,56 @@ msgid_plural "{n} pages"
 msgstr[0] "{n} página"
 msgstr[1] "{n} páginas"
 
+#: crates/rnote-ui/src/sync/messages.rs
+msgid "Your Google Drive is full"
+msgstr "Tu Google Drive está lleno"
+
+#: crates/rnote-ui/src/sync/messages.rs
+msgid "Google Drive refused a change"
+msgstr "Google Drive rechazó un cambio"
+
+#: crates/rnote-ui/src/sync/messages.rs
+msgid "A notebook changed while it was syncing; the next sync takes it"
+msgstr "Un cuaderno cambió mientras se sincronizaba; la próxima sincronización lo lleva"
+
+#: crates/rnote-ui/src/sync/messages.rs
+msgid "Access to Google Drive wasn't allowed"
+msgstr "No se dio permiso para usar Google Drive"
+
+#: crates/rnote-ui/src/sync/messages.rs
+msgid "Google answered another sign-in: try again"
+msgstr "Google respondió a otro inicio de sesión: probá de nuevo"
+
+#: crates/rnote-ui/src/sync/messages.rs
+msgid "Signing in took too long"
+msgstr "Iniciar sesión tardó demasiado"
+
+#: crates/rnote-ui/src/sync/messages.rs
+msgid "The browser couldn't be opened"
+msgstr "No se pudo abrir el navegador"
+
+#: crates/rnote-ui/src/sync/messages.rs
+msgid "The access to Google Drive was removed"
+msgstr "Se quitó el acceso a Google Drive"
+
+#: crates/rnote-ui/src/sync/messages.rs
+msgid "Google can't be reached"
+msgstr "No se puede llegar a Google"
+
+#: crates/rnote-ui/src/sync/mod.rs
+msgid "The sync stopped unexpectedly"
+msgstr "La sincronización se detuvo de forma inesperada"
+
+#: crates/rnote-ui/src/sync/mod.rs
+msgid "Signing out stopped unexpectedly"
+msgstr "Cerrar sesión se detuvo de forma inesperada"
+
+#: crates/rnote-ui/src/sync/messages.rs
+msgid "{n} notebook couldn't be synced this time: {names}. It tries again on the next sync."
+msgid_plural "{n} notebooks couldn't be synced this time: {names}. They try again on the next sync."
+msgstr[0] "{n} cuaderno no se pudo sincronizar esta vez: {names}. Se vuelve a intentar en la próxima sincronización."
+msgstr[1] "{n} cuadernos no se pudieron sincronizar esta vez: {names}. Se vuelve a intentar en la próxima sincronización."
+
 #~ msgid "Brush Style"
 #~ msgstr "Estilo del pincel"
 

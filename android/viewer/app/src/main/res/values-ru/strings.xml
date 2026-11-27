@@ -214,6 +214,17 @@
     <string name="sync_ago_on">%s</string>
     <string name="sync_status_running">Синхронизация…</string>
     <string name="sync_status_failed">Ошибка синхронизации: %s</string>
+    <string name="sync_reason_drive_full">ваш Google Диск заполнен</string>
+    <string name="sync_reason_drive_refused">Google Диск отклонил изменение</string>
+    <string name="sync_reason_changed">блокнот изменился во время синхронизации; скоро будет новая попытка</string>
+    <string name="sync_reason_local">не удаётся прочитать или записать блокноты на этом устройстве</string>
+    <string name="sync_reason_not_allowed">доступ к Google Диску не был разрешён</string>
+    <plurals name="sync_skipped">
+        <item quantity="one">%d блокнот не удалось синхронизировать: %s. Попытка повторится при следующей синхронизации.</item>
+        <item quantity="few">%d блокнота не удалось синхронизировать: %s. Попытка повторится при следующей синхронизации.</item>
+        <item quantity="many">%d блокнотов не удалось синхронизировать: %s. Попытка повторится при следующей синхронизации.</item>
+        <item quantity="other">%d блокнотов не удалось синхронизировать: %s. Попытка повторится при следующей синхронизации.</item>
+    </plurals>
     <string name="sync_now">Синхронизировать сейчас</string>
     <string name="sync_sign_out">Выйти из Google Drive</string>
     <string name="sync_sign_out_message">Блокноты останутся на этом устройстве и на вашем Google Drive. Синхронизация остановится, пока вы снова не войдёте.</string>

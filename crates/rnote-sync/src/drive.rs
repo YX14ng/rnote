@@ -201,8 +201,9 @@ impl DriveClient {
                     (self.sleep)(Duration::from_secs(wait));
                 }
                 _ => {
-                    let text = String::from_utf8_lossy(&text);
-                    return Err(RemoteError::Failed(anyhow!("Drive answered {status}: {text}")));
+                    return Err(RemoteError::Failed(
+                        crate::DriveRefusal::new(status, &text).into(),
+                    ));
                 }
             }
         }

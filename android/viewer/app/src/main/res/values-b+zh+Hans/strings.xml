@@ -202,6 +202,14 @@
     <string name="sync_ago_on">%s</string>
     <string name="sync_status_running">正在同步…</string>
     <string name="sync_status_failed">同步失败：%s</string>
+    <string name="sync_reason_drive_full">你的 Google 云端硬盘已满</string>
+    <string name="sync_reason_drive_refused">Google 云端硬盘拒绝了一项更改</string>
+    <string name="sync_reason_changed">同步时有笔记本发生了变化，稍后会自动重试</string>
+    <string name="sync_reason_local">无法读取或写入此设备上的笔记本</string>
+    <string name="sync_reason_not_allowed">未获准访问 Google 云端硬盘</string>
+    <plurals name="sync_skipped">
+        <item quantity="other">这次有 %d 个笔记本未能同步：%s。下次同步时会再试。</item>
+    </plurals>
     <string name="sync_now">立即同步</string>
     <string name="sync_sign_out">退出 Google Drive</string>
     <string name="sync_sign_out_message">笔记本会保留在此设备和你的 Drive 中。重新登录前，同步将暂停。</string>

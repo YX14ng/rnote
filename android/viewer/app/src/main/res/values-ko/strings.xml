@@ -202,6 +202,14 @@
     <string name="sync_ago_on">%s</string>
     <string name="sync_status_running">동기화 중…</string>
     <string name="sync_status_failed">동기화 실패: %s</string>
+    <string name="sync_reason_drive_full">Google 드라이브 저장용량이 가득 찼습니다</string>
+    <string name="sync_reason_drive_refused">Google 드라이브가 변경을 거부했습니다</string>
+    <string name="sync_reason_changed">동기화 중에 노트가 바뀌었습니다. 잠시 후 다시 시도합니다</string>
+    <string name="sync_reason_local">이 기기의 노트를 읽거나 쓸 수 없습니다</string>
+    <string name="sync_reason_not_allowed">Google 드라이브 접근이 허용되지 않았습니다</string>
+    <plurals name="sync_skipped">
+        <item quantity="other">이번에 노트 %d개를 동기화하지 못했습니다: %s. 다음 동기화 때 다시 시도합니다.</item>
+    </plurals>
     <string name="sync_now">지금 동기화</string>
     <string name="sync_sign_out">Google Drive에서 로그아웃</string>
     <string name="sync_sign_out_message">노트는 이 기기와 Drive에 그대로 남습니다. 다시 로그인할 때까지 동기화가 중지됩니다.</string>

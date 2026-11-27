@@ -5344,6 +5344,55 @@ msgid "{n} page"
 msgid_plural "{n} pages"
 msgstr[0] "{n}페이지"
 
+#: crates/rnote-ui/src/sync/messages.rs
+msgid "Your Google Drive is full"
+msgstr "Google 드라이브 저장용량이 가득 찼습니다"
+
+#: crates/rnote-ui/src/sync/messages.rs
+msgid "Google Drive refused a change"
+msgstr "Google 드라이브가 변경을 거부했습니다"
+
+#: crates/rnote-ui/src/sync/messages.rs
+msgid "A notebook changed while it was syncing; the next sync takes it"
+msgstr "동기화 중에 노트가 바뀌었습니다. 다음 동기화 때 반영됩니다"
+
+#: crates/rnote-ui/src/sync/messages.rs
+msgid "Access to Google Drive wasn't allowed"
+msgstr "Google 드라이브 접근이 허용되지 않았습니다"
+
+#: crates/rnote-ui/src/sync/messages.rs
+msgid "Google answered another sign-in: try again"
+msgstr "Google가 다른 로그인에 응답했습니다. 다시 시도하세요"
+
+#: crates/rnote-ui/src/sync/messages.rs
+msgid "Signing in took too long"
+msgstr "로그인이 너무 오래 걸렸습니다"
+
+#: crates/rnote-ui/src/sync/messages.rs
+msgid "The browser couldn't be opened"
+msgstr "브라우저를 열 수 없습니다"
+
+#: crates/rnote-ui/src/sync/messages.rs
+msgid "The access to Google Drive was removed"
+msgstr "Google 드라이브 접근 권한이 삭제되었습니다"
+
+#: crates/rnote-ui/src/sync/messages.rs
+msgid "Google can't be reached"
+msgstr "Google에 연결할 수 없습니다"
+
+#: crates/rnote-ui/src/sync/mod.rs
+msgid "The sync stopped unexpectedly"
+msgstr "동기화가 예기치 않게 멈췄습니다"
+
+#: crates/rnote-ui/src/sync/mod.rs
+msgid "Signing out stopped unexpectedly"
+msgstr "로그아웃이 예기치 않게 멈췄습니다"
+
+#: crates/rnote-ui/src/sync/messages.rs
+msgid "{n} notebook couldn't be synced this time: {names}. It tries again on the next sync."
+msgid_plural "{n} notebooks couldn't be synced this time: {names}. They try again on the next sync."
+msgstr[0] "이번에 노트 {n}개를 동기화하지 못했습니다: {names}. 다음 동기화 때 다시 시도합니다."
+
 #~ msgid "Brush Style"
 #~ msgstr "브러시 스타일"
 

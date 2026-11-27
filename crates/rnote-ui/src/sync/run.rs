@@ -1,4 +1,5 @@
-//! One sync, with one more try when Drive refuses the access token.
+//! One sync, with one more try when Drive refuses the access token or a file changed while
+//! it ran.
 
 use std::sync::{Arc, Mutex};
 use std::time::SystemTime;
@@ -28,6 +29,12 @@ pub(crate) fn run_with_retry(
         }
         outcome = attempt();
     }
+    // A file changed while the sync worked on it: taken as it is now on one more try.
+    if let Err(SyncError::Failed(error)) = &outcome
+        && rnote_sync::failure_kind(error) == rnote_sync::FailureKind::ChangedMeanwhile
+    {
+        outcome = attempt();
+    }
     match outcome {
         Ok(report) => SyncStatus::Done {
             at: SystemTime::now(),
@@ -47,7 +54,7 @@ pub(crate) fn run_with_retry(
         // `{:#}` keeps the whole context chain in a single line.
         Err(SyncError::Failed(error)) => {
             warn!("Syncing failed: {error:?}");
-            SyncStatus::Failed(crate::library::error_text::user_message(&error))
+            SyncStatus::Failed(super::messages::failure_message(&error))
         }
     }
 }
@@ -139,6 +146,44 @@ mod tests {
         assert_eq!(
             failed,
             SyncStatus::Failed("Something unexpected went wrong (disk full)".to_owned())
+        );
+    }
+
+    #[test]
+    fn a_file_that_changed_meanwhile_is_synced_on_one_more_try() {
+        let store = MemoryStore::default();
+        let mut attempts = 0;
+
+        let status = run_with_retry(&tokens(), &store, || {
+            attempts += 1;
+            if attempts == 1 {
+                Err(SyncError::Failed(
+                    rnote_sync::ChangedDuringSync("a.rnote changed here during the sync".into())
+                        .into(),
+                ))
+            } else {
+                Ok(rnote_sync::SyncReport::default())
+            }
+        });
+
+        assert_eq!(attempts, 2);
+        assert!(matches!(status, SyncStatus::Done { .. }));
+    }
+
+    #[test]
+    fn a_full_drive_is_said_plainly() {
+        let store = MemoryStore::default();
+        let body = br#"{"error": {"errors": [{"reason": "storageQuotaExceeded"}]}}"#;
+
+        let status = run_with_retry(&tokens(), &store, || {
+            Err(SyncError::Failed(
+                rnote_sync::DriveRefusal::new(403, body).into(),
+            ))
+        });
+
+        assert_eq!(
+            status,
+            SyncStatus::Failed("Your Google Drive is full".to_owned())
         );
     }
 }

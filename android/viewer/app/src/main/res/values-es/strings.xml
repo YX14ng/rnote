@@ -210,6 +210,16 @@
     <string name="sync_ago_on">el %s</string>
     <string name="sync_status_running">Sincronizando…</string>
     <string name="sync_status_failed">Falló la sincronización: %s</string>
+    <string name="sync_reason_drive_full">tu Google Drive está lleno</string>
+    <string name="sync_reason_drive_refused">Google Drive rechazó un cambio</string>
+    <string name="sync_reason_changed">un cuaderno cambió mientras se sincronizaba; se vuelve a intentar en un momento</string>
+    <string name="sync_reason_local">no se pueden leer o escribir los cuadernos de este dispositivo</string>
+    <string name="sync_reason_not_allowed">no se dio permiso para usar Google Drive</string>
+    <plurals name="sync_skipped">
+        <item quantity="one">%d cuaderno no se pudo sincronizar esta vez: %s. Se vuelve a intentar en la próxima sincronización.</item>
+        <item quantity="other">%d cuadernos no se pudieron sincronizar esta vez: %s. Se vuelve a intentar en la próxima sincronización.</item>
+        <item quantity="many">%d cuadernos no se pudieron sincronizar esta vez: %s. Se vuelve a intentar en la próxima sincronización.</item>
+    </plurals>
     <string name="sync_now">Sincronizar ahora</string>
     <string name="sync_sign_out">Cerrar sesión de Google Drive</string>
     <string name="sync_sign_out_message">Los cuadernos quedan en este dispositivo y en tu Drive. La sincronización se detiene hasta que vuelvas a iniciar sesión.</string>

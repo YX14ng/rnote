@@ -89,8 +89,21 @@ fn show_status(button: &MenuButton, status: &SyncStatus) {
     button.set_sensitive(*status != SyncStatus::Unavailable);
 }
 
+thread_local! {
+    /// The notebooks the last sync skipped, told once.
+    static LAST_SKIPPED: std::cell::RefCell<Vec<String>> = const { std::cell::RefCell::new(Vec::new()) };
+}
+
 /// Reloads the library after a sync that changed it, and tells about conflict copies.
 fn after_sync(appwindow: &RnAppWindow, report: &SyncReport) {
+    // Once per set of skipped notebooks, not on every periodic sync.
+    let new_skipped =
+        LAST_SKIPPED.with(|last| last.replace(report.skipped.clone()) != report.skipped);
+    if new_skipped && let Some(text) = super::messages::skipped_message(&report.skipped) {
+        appwindow
+            .overlays()
+            .dispatch_toast_text(&text, crate::overlays::TEXT_TOAST_TIMEOUT_DEFAULT);
+    }
     let root = appwindow.library_view().root();
     crate::library::tabs::follow_sync_moves(appwindow, &root, &report.moved_here);
     if changed_library(report) && appwindow.library_shown() {

@@ -202,6 +202,14 @@
     <string name="sync_ago_on">%s</string>
     <string name="sync_status_running">同期中…</string>
     <string name="sync_status_failed">同期に失敗しました: %s</string>
+    <string name="sync_reason_drive_full">Google ドライブの容量がいっぱいです</string>
+    <string name="sync_reason_drive_refused">Google ドライブが変更を拒否しました</string>
+    <string name="sync_reason_changed">同期中にノートが変更されました。まもなく再試行します</string>
+    <string name="sync_reason_local">この端末のノートを読み書きできません</string>
+    <string name="sync_reason_not_allowed">Google ドライブへのアクセスが許可されませんでした</string>
+    <plurals name="sync_skipped">
+        <item quantity="other">今回 %d 冊のノートを同期できませんでした：%s。次の同期で再試行します。</item>
+    </plurals>
     <string name="sync_now">今すぐ同期</string>
     <string name="sync_sign_out">Google Drive からログアウト</string>
     <string name="sync_sign_out_message">ノートはこのデバイスとドライブに残ります。再度ログインするまで同期は停止します。</string>

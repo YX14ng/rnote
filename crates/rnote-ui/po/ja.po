@@ -5396,6 +5396,55 @@ msgid "{n} page"
 msgid_plural "{n} pages"
 msgstr[0] "{n} ページ"
 
+#: crates/rnote-ui/src/sync/messages.rs
+msgid "Your Google Drive is full"
+msgstr "Google ドライブの容量がいっぱいです"
+
+#: crates/rnote-ui/src/sync/messages.rs
+msgid "Google Drive refused a change"
+msgstr "Google ドライブが変更を拒否しました"
+
+#: crates/rnote-ui/src/sync/messages.rs
+msgid "A notebook changed while it was syncing; the next sync takes it"
+msgstr "同期中にノートが変更されました。次の同期で反映されます"
+
+#: crates/rnote-ui/src/sync/messages.rs
+msgid "Access to Google Drive wasn't allowed"
+msgstr "Google ドライブへのアクセスが許可されませんでした"
+
+#: crates/rnote-ui/src/sync/messages.rs
+msgid "Google answered another sign-in: try again"
+msgstr "Google の応答は別のサインインのものでした。もう一度お試しください"
+
+#: crates/rnote-ui/src/sync/messages.rs
+msgid "Signing in took too long"
+msgstr "サインインに時間がかかりすぎました"
+
+#: crates/rnote-ui/src/sync/messages.rs
+msgid "The browser couldn't be opened"
+msgstr "ブラウザーを開けませんでした"
+
+#: crates/rnote-ui/src/sync/messages.rs
+msgid "The access to Google Drive was removed"
+msgstr "Google ドライブへのアクセスが取り消されました"
+
+#: crates/rnote-ui/src/sync/messages.rs
+msgid "Google can't be reached"
+msgstr "Google に接続できません"
+
+#: crates/rnote-ui/src/sync/mod.rs
+msgid "The sync stopped unexpectedly"
+msgstr "同期が予期せず停止しました"
+
+#: crates/rnote-ui/src/sync/mod.rs
+msgid "Signing out stopped unexpectedly"
+msgstr "サインアウトが予期せず停止しました"
+
+#: crates/rnote-ui/src/sync/messages.rs
+msgid "{n} notebook couldn't be synced this time: {names}. It tries again on the next sync."
+msgid_plural "{n} notebooks couldn't be synced this time: {names}. They try again on the next sync."
+msgstr[0] "今回 {n} 冊のノートを同期できませんでした：{names}。次の同期で再試行します。"
+
 #~ msgid "Brush Style"
 #~ msgstr "ブラシのスタイル"
 

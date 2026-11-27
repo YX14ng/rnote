@@ -6,7 +6,7 @@
 use std::collections::{BTreeMap, BTreeSet};
 use std::fs;
 
-use anyhow::{Context, anyhow};
+use anyhow::Context;
 
 use crate::local::{hash_now, set_aside, sha256_hex, write_atomic};
 use crate::remote::{Remote, RemoteFile};
@@ -84,7 +84,9 @@ impl<'a> Run<'a> {
         if hash_now(self.ctx.library_root, path)?.as_ref() == self.local.get(path) {
             Ok(())
         } else {
-            Err(SyncError::Failed(anyhow!("{path} changed here during the sync")))
+            Err(SyncError::Failed(
+                crate::ChangedDuringSync(format!("{path} changed here during the sync")).into(),
+            ))
         }
     }
 
@@ -107,9 +109,10 @@ impl<'a> Run<'a> {
         let listed = self.tree.file(id).map(|(_, file)| file.md5.clone());
         let now = self.remote.get(id)?;
         match (&now, listed) {
-            (Some(file), Some(md5)) if file.md5 != md5 => {
-                Err(SyncError::Failed(anyhow!("{} changed in Drive during the sync", file.name)))
-            }
+            (Some(file), Some(md5)) if file.md5 != md5 => Err(SyncError::Failed(
+                crate::ChangedDuringSync(format!("{} changed in Drive during the sync", file.name))
+                    .into(),
+            )),
             _ => Ok(now),
         }
     }
@@ -135,7 +138,10 @@ impl<'a> Run<'a> {
     ) -> Result<Option<Vec<u8>>, SyncError> {
         let expected = self.tree.file(id).map(|(_, file)| file.md5.clone());
         if self.expect_remote(id)?.is_none() {
-            return Err(SyncError::Failed(anyhow!("{path} was removed in Drive during the sync")));
+            return Err(SyncError::Failed(
+                crate::ChangedDuringSync(format!("{path} was removed in Drive during the sync"))
+                    .into(),
+            ));
         }
         let bytes = self.read_local(path)?;
         let file = self.remote.update_file(id, &bytes)?;

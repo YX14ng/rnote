@@ -7,6 +7,7 @@
 mod conflicts;
 mod content;
 mod drive;
+mod failures;
 #[cfg(any(test, feature = "fake"))]
 pub mod fake;
 mod local;
@@ -29,6 +30,7 @@ use std::path::Path;
 use chrono::NaiveDateTime;
 
 pub use crate::drive::DriveClient;
+pub use crate::failures::{ChangedDuringSync, DriveRefusal, FailureKind, failure_kind};
 pub use crate::names::conflict_copy_path;
 pub use crate::notebooks::{WrittenNotebook, create_notebook, sha256_hex, write_notebook};
 pub use crate::remote::{
