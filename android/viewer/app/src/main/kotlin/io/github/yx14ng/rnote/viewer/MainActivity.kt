@@ -115,6 +115,9 @@ class MainActivity : Activity() {
     override fun onResume() {
         super.onResume()
         SyncManager.addListener(this, syncListener)
+        // Back from another app or the recents screen: the notebook may have changed on another
+        // device meanwhile, and writing on the old version would end in a conflict copy.
+        if (libraryPath != null) SyncManager.syncNow(this)
     }
 
     override fun onPause() {
