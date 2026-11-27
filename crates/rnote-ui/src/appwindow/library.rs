@@ -1,7 +1,12 @@
 //! The window's two views: the library (home screen) and the editor with the tabs.
 
+use std::path::Path;
+
 use adw::prelude::*;
 use gtk4::{gio, glib, glib::clone, subclass::prelude::*};
+
+use gettextrs::gettext;
+use tracing::error;
 
 use crate::RnAppWindow;
 use crate::library::RnLibraryView;
@@ -58,12 +63,41 @@ impl RnAppWindow {
             .clone()
     }
 
-    /// Reads the library again and shows it, and syncs it. The tabs stay open.
+    /// Reads the library again and shows it, and syncs it. The tabs stay open; those of
+    /// notebooks of the library are saved first, as Android saves on leaving the editor, so
+    /// the sync takes what was just written.
     pub(crate) fn show_library(&self) {
         self.library_view().refresh();
         self.imp().main_stack.set_visible_child_name(LIBRARY_PAGE);
         self.set_document_actions_enabled(false);
-        self.sync().sync_now();
+        glib::spawn_future_local(clone!(
+            #[weak(rename_to = appwindow)]
+            self,
+            async move {
+                appwindow.save_library_tabs().await;
+                appwindow.sync().sync_now();
+            }
+        ));
+    }
+
+    /// Saves the tabs of notebooks of the library that have unsaved changes. The library
+    /// shows them again by itself once their files change.
+    async fn save_library_tabs(&self) {
+        let root = self.library_view().root();
+        for wrapper in self.get_all_tabs() {
+            let canvas = wrapper.canvas();
+            let Some(file) = canvas.output_file() else {
+                continue;
+            };
+            if !saves_on_leaving(file.path().as_deref(), canvas.unsaved_changes(), &root) {
+                continue;
+            }
+            if let Err(e) = canvas.save_document_to_file(&file).await {
+                error!("Saving a notebook on going to the library failed, Err: {e:?}");
+                self.overlays()
+                    .dispatch_toast_error(&gettext("Saving document failed"));
+            }
+        }
     }
 
     /// Whether the library is on screen, not the editor.
@@ -129,5 +163,51 @@ impl RnAppWindow {
             self,
             move |_, _, _| appwindow.show_editor()
         ));
+    }
+}
+
+/// Whether a tab with the file at `path` (`None`: never saved) and `unsaved` changes is saved
+/// on going to the library at `root`: only notebooks of the library are.
+fn saves_on_leaving(path: Option<&Path>, unsaved: bool, root: &Path) -> bool {
+    unsaved && path.is_some_and(|path| path.starts_with(root))
+}
+
+#[cfg(test)]
+mod tests {
+    use std::path::Path;
+
+    use super::saves_on_leaving;
+
+    #[test]
+    fn unsaved_notebooks_of_the_library_are_saved() {
+        let root = Path::new("/notes");
+
+        assert!(saves_on_leaving(
+            Some(Path::new("/notes/Álgebra/Parcial.rnote")),
+            true,
+            root
+        ));
+        assert!(!saves_on_leaving(
+            Some(Path::new("/notes/Álgebra/Parcial.rnote")),
+            false,
+            root
+        ));
+    }
+
+    #[test]
+    fn other_files_and_new_documents_are_left_alone() {
+        let root = Path::new("/notes");
+
+        assert!(!saves_on_leaving(
+            Some(Path::new("/home/me/suelto.rnote")),
+            true,
+            root
+        ));
+        assert!(!saves_on_leaving(
+            Some(Path::new("/notes-old/x.rnote")),
+            true,
+            root
+        ));
+        assert!(!saves_on_leaving(None, true, root));
     }
 }
