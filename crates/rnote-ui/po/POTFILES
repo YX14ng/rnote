@@ -34,7 +34,6 @@ crates/rnote-ui/data/ui/strokecontentpreview.ui
 crates/rnote-ui/data/ui/strokewidthpicker.ui
 crates/rnote-ui/data/ui/unitentry.ui
 crates/rnote-ui/data/ui/workspacebrowser.ui
-
 crates/rnote-ui/src/app/mod.rs
 crates/rnote-ui/src/appwindow/actions.rs
 crates/rnote-ui/src/appwindow/imp.rs
@@ -77,3 +76,8 @@ crates/rnote-ui/src/workspacebrowser/mod.rs
 crates/rnote-ui/src/workspacebrowser/widgethelper.rs
 crates/rnote-ui/src/overlays.rs
 crates/rnote-ui/src/utils.rs
+crates/rnote-ui/src/library/progress.rs
+crates/rnote-ui/src/pages/mod.rs
+crates/rnote-ui/src/pages/actions.rs
+crates/rnote-ui/src/pages/insert_pdf.rs
+crates/rnote-ui/src/sidebar.rs

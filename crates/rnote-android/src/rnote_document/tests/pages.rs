@@ -197,3 +197,15 @@ fn the_engines_own_undo_brings_back_the_sheet_of_a_removed_page() {
 
     assert_eq!(document.page_count(), Some(3));
 }
+
+#[test]
+fn tells_the_page_at_a_height() {
+    let (document, height) = sheets(3, &[]);
+    let engine = &document.engine;
+
+    assert_eq!(engine.doc_page_at_fixed_size(0.0), Some(0));
+    assert_eq!(engine.doc_page_at_fixed_size(1.5 * height), Some(1));
+    assert_eq!(engine.doc_page_at_fixed_size(99.0 * height), Some(2));
+    assert_eq!(engine.doc_page_at_fixed_size(-5.0), Some(0));
+    assert_eq!(engine.doc_page_top_fixed_size(2), Some(2.0 * height));
+}

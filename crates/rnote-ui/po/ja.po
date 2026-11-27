@@ -5331,6 +5331,71 @@ msgstr "PDF をノートとして…"
 msgid "Image as a Notebook…"
 msgstr "画像をノートとして…"
 
+#: crates/rnote-ui/src/pages/mod.rs
+msgid "Add a Page at the End"
+msgstr "最後にページを追加"
+
+#: crates/rnote-ui/src/pages/mod.rs
+msgid "No Pages"
+msgstr "ページなし"
+
+#: crates/rnote-ui/src/pages/mod.rs
+msgid "Only notebooks of sheets have pages. Choose “Fixed Size” as the layout in the document settings."
+msgstr "ページがあるのは用紙のノートだけです。ドキュメントの設定でレイアウトを「固定サイズ」にしてください。"
+
+#: crates/rnote-ui/src/pages/mod.rs
+msgid "Page Menu"
+msgstr "ページメニュー"
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Insert Blank Page After"
+msgstr "後に白紙ページを挿入"
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Insert PDF After…"
+msgstr "後に PDF を挿入…"
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Move Up"
+msgstr "上へ移動"
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Move Down"
+msgstr "下へ移動"
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Remove Page"
+msgstr "このページを削除"
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Remove the Page?"
+msgstr "ページを削除しますか？"
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "What is written on it is removed too. You can undo it."
+msgstr "書き込んだ内容も削除されます。元に戻せます。"
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Remove"
+msgstr "削除"
+
+#: crates/rnote-ui/src/pages/insert_pdf.rs
+msgid "Insert PDF"
+msgstr "PDF を挿入"
+
+#: crates/rnote-ui/src/pages/insert_pdf.rs
+msgid "Inserting the PDF"
+msgstr "PDF を挿入しています"
+
+#: crates/rnote-ui/src/pages/insert_pdf.rs
+msgid "Insert"
+msgstr "挿入"
+
+#: crates/rnote-ui/src/pages/mod.rs
+msgid "{n} page"
+msgid_plural "{n} pages"
+msgstr[0] "{n} ページ"
+
 #~ msgid "Brush Style"
 #~ msgstr "ブラシのスタイル"
 

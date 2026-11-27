@@ -5459,6 +5459,73 @@ msgstr "PDF как блокнот…"
 msgid "Image as a Notebook…"
 msgstr "Изображение как блокнот…"
 
+#: crates/rnote-ui/src/pages/mod.rs
+msgid "Add a Page at the End"
+msgstr "Добавить страницу в конец"
+
+#: crates/rnote-ui/src/pages/mod.rs
+msgid "No Pages"
+msgstr "Нет страниц"
+
+#: crates/rnote-ui/src/pages/mod.rs
+msgid "Only notebooks of sheets have pages. Choose “Fixed Size” as the layout in the document settings."
+msgstr "Страницы есть только у блокнотов из листов. Выберите макет «Фиксированный размер» в настройках документа."
+
+#: crates/rnote-ui/src/pages/mod.rs
+msgid "Page Menu"
+msgstr "Меню страницы"
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Insert Blank Page After"
+msgstr "Вставить пустую страницу после"
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Insert PDF After…"
+msgstr "Вставить PDF после…"
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Move Up"
+msgstr "Переместить вверх"
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Move Down"
+msgstr "Переместить вниз"
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Remove Page"
+msgstr "Удалить страницу"
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Remove the Page?"
+msgstr "Удалить страницу?"
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "What is written on it is removed too. You can undo it."
+msgstr "Написанное на ней тоже удалится. Это можно отменить."
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Remove"
+msgstr "Удалить"
+
+#: crates/rnote-ui/src/pages/insert_pdf.rs
+msgid "Insert PDF"
+msgstr "Вставить PDF"
+
+#: crates/rnote-ui/src/pages/insert_pdf.rs
+msgid "Inserting the PDF"
+msgstr "Вставка PDF"
+
+#: crates/rnote-ui/src/pages/insert_pdf.rs
+msgid "Insert"
+msgstr "Вставить"
+
+#: crates/rnote-ui/src/pages/mod.rs
+msgid "{n} page"
+msgid_plural "{n} pages"
+msgstr[0] "{n} страница"
+msgstr[1] "{n} страницы"
+msgstr[2] "{n} страниц"
+
 #~ msgid "Brush Style"
 #~ msgstr "Стиль кисти"
 
@@ -5520,8 +5587,6 @@ msgstr "Изображение как блокнот…"
 #~ msgid "Close the Folded Flap"
 #~ msgstr "Закрыть боковую панель"
 
-#~ msgid "Remove Page"
-#~ msgstr "Удалить страницу"
 
 #~ msgid "Add Page"
 #~ msgstr "Добавить страницу"

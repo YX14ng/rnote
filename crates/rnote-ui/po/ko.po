@@ -5279,6 +5279,71 @@ msgstr "PDF를 노트로…"
 msgid "Image as a Notebook…"
 msgstr "이미지를 노트로…"
 
+#: crates/rnote-ui/src/pages/mod.rs
+msgid "Add a Page at the End"
+msgstr "끝에 페이지 추가"
+
+#: crates/rnote-ui/src/pages/mod.rs
+msgid "No Pages"
+msgstr "페이지 없음"
+
+#: crates/rnote-ui/src/pages/mod.rs
+msgid "Only notebooks of sheets have pages. Choose “Fixed Size” as the layout in the document settings."
+msgstr "페이지는 낱장 노트에만 있습니다. 문서 설정에서 레이아웃을 ‘고정 크기’로 선택하세요."
+
+#: crates/rnote-ui/src/pages/mod.rs
+msgid "Page Menu"
+msgstr "페이지 메뉴"
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Insert Blank Page After"
+msgstr "뒤에 빈 페이지 삽입"
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Insert PDF After…"
+msgstr "뒤에 PDF 삽입…"
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Move Up"
+msgstr "위로 이동"
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Move Down"
+msgstr "아래로 이동"
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Remove Page"
+msgstr "페이지 삭제"
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Remove the Page?"
+msgstr "페이지를 삭제할까요?"
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "What is written on it is removed too. You can undo it."
+msgstr "그 위에 쓴 내용도 함께 삭제됩니다. 실행 취소할 수 있습니다."
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Remove"
+msgstr "삭제"
+
+#: crates/rnote-ui/src/pages/insert_pdf.rs
+msgid "Insert PDF"
+msgstr "PDF 삽입"
+
+#: crates/rnote-ui/src/pages/insert_pdf.rs
+msgid "Inserting the PDF"
+msgstr "PDF 삽입 중"
+
+#: crates/rnote-ui/src/pages/insert_pdf.rs
+msgid "Insert"
+msgstr "삽입"
+
+#: crates/rnote-ui/src/pages/mod.rs
+msgid "{n} page"
+msgid_plural "{n} pages"
+msgstr[0] "{n}페이지"
+
 #~ msgid "Brush Style"
 #~ msgstr "브러시 스타일"
 

@@ -37,6 +37,22 @@ impl Engine {
         Some(((self.document.height / height).round() as u32).max(1))
     }
 
+    /// The page (0-based) at the height `y`, when in fixed-size layout; heights above or
+    /// below the document give the first or the last page.
+    pub fn doc_page_at_fixed_size(&self, y: f64) -> Option<u32> {
+        let count = self.doc_page_count_fixed_size()?;
+        let height = self.document.config.format.height();
+        let page = ((y - self.document.y) / height).floor().max(0.0) as u32;
+        Some(page.min(count - 1))
+    }
+
+    /// The height of the top of `page` (0-based), when in fixed-size layout.
+    pub fn doc_page_top_fixed_size(&self, page: u32) -> Option<f64> {
+        let count = self.doc_page_count_fixed_size()?;
+        let height = self.document.config.format.height();
+        (page < count).then(|| self.document.y + f64::from(page) * height)
+    }
+
     /// Whether each page has strokes on it, when in fixed-size layout.
     pub fn doc_pages_with_content_fixed_size(&self) -> Vec<bool> {
         let Some(count) = self.doc_page_count_fixed_size() else {

@@ -1,5 +1,6 @@
 // Imports
 use crate::{RnAppMenu, RnAppWindow, RnSettingsPanel, RnWorkspaceBrowser};
+use gettextrs::gettext;
 use gtk4::{
     Button, CompositeTemplate, Widget, glib, glib::clone, prelude::*, subclass::prelude::*,
 };
@@ -24,6 +25,7 @@ mod imp {
         pub(crate) workspacebrowser: TemplateChild<RnWorkspaceBrowser>,
         #[template_child]
         pub(crate) settings_panel: TemplateChild<RnSettingsPanel>,
+        pub(crate) pages_panel: crate::pages::RnPagesPanel,
     }
 
     #[glib::object_subclass]
@@ -98,6 +100,10 @@ impl RnSidebar {
         self.imp().workspacebrowser.get()
     }
 
+    pub(crate) fn pages_panel(&self) -> crate::pages::RnPagesPanel {
+        self.imp().pages_panel.clone()
+    }
+
     pub(crate) fn settings_panel(&self) -> RnSettingsPanel {
         self.imp().settings_panel.get()
     }
@@ -108,6 +114,13 @@ impl RnSidebar {
         imp.appmenu.get().init(appwindow);
         imp.workspacebrowser.get().init(appwindow);
         imp.settings_panel.get().init(appwindow);
+        imp.pages_panel.init(appwindow);
+        imp.sidebar_stack.add_titled_with_icon(
+            &imp.pages_panel,
+            Some("pages_page"),
+            &gettext("Pages"),
+            "document-page-setup-symbolic",
+        );
 
         imp.left_close_button.connect_clicked(clone!(
             #[weak]

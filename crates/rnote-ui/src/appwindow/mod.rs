@@ -350,8 +350,12 @@ impl RnAppWindow {
             canvas.set_unsaved_changes(true);
             canvas.set_empty(false);
         }
+        if widget_flags.store_modified || widget_flags.resize {
+            self.sidebar().pages_panel().changed();
+        }
         if widget_flags.view_modified {
             canvas.queue_allocate();
+            self.sidebar().pages_panel().follow();
         }
         if widget_flags.zoomed_temporarily {
             let total_zoom = canvas.engine_ref().camera.total_zoom();
@@ -782,6 +786,7 @@ impl RnAppWindow {
             .refresh_ui(self);
         self.overlays().penssidebar().tools_page().refresh_ui(self);
         self.sidebar().settings_panel().refresh_ui(self);
+        self.sidebar().pages_panel().changed();
 
         if let Some(canvas) = canvas {
             self.refresh_titles(&canvas);

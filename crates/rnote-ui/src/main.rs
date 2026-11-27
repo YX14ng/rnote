@@ -26,6 +26,7 @@ pub(crate) mod iconpicker;
 pub(crate) mod library;
 pub(crate) mod mainheader;
 pub(crate) mod overlays;
+pub(crate) mod pages;
 pub(crate) mod penpicker;
 pub(crate) mod penssidebar;
 pub(crate) mod settingspanel;

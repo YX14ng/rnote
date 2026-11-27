@@ -5165,6 +5165,71 @@ msgstr "將 PDF 作為筆記本…"
 msgid "Image as a Notebook…"
 msgstr "將圖片作為筆記本…"
 
+#: crates/rnote-ui/src/pages/mod.rs
+msgid "Add a Page at the End"
+msgstr "在最後新增一頁"
+
+#: crates/rnote-ui/src/pages/mod.rs
+msgid "No Pages"
+msgstr "沒有頁面"
+
+#: crates/rnote-ui/src/pages/mod.rs
+msgid "Only notebooks of sheets have pages. Choose “Fixed Size” as the layout in the document settings."
+msgstr "只有分頁的筆記本才有頁面。請在文件設定中將版面設為「固定尺寸」。"
+
+#: crates/rnote-ui/src/pages/mod.rs
+msgid "Page Menu"
+msgstr "頁面選單"
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Insert Blank Page After"
+msgstr "在後面插入空白頁"
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Insert PDF After…"
+msgstr "在後面插入 PDF…"
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Move Up"
+msgstr "上移"
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Move Down"
+msgstr "下移"
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Remove Page"
+msgstr "刪除此頁"
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Remove the Page?"
+msgstr "移除此頁？"
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "What is written on it is removed too. You can undo it."
+msgstr "上面寫的內容也會被移除。可以復原。"
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Remove"
+msgstr "刪除"
+
+#: crates/rnote-ui/src/pages/insert_pdf.rs
+msgid "Insert PDF"
+msgstr "插入 PDF"
+
+#: crates/rnote-ui/src/pages/insert_pdf.rs
+msgid "Inserting the PDF"
+msgstr "正在插入 PDF"
+
+#: crates/rnote-ui/src/pages/insert_pdf.rs
+msgid "Insert"
+msgstr "插入"
+
+#: crates/rnote-ui/src/pages/mod.rs
+msgid "{n} page"
+msgid_plural "{n} pages"
+msgstr[0] "{n} 頁"
+
 #~ msgid "Brush Style"
 #~ msgstr "筆刷樣式"
 
@@ -5235,8 +5300,6 @@ msgstr "將圖片作為筆記本…"
 #~ msgid "Close the Folded Flap"
 #~ msgstr "關閉摺疊"
 
-#~ msgid "Remove Page"
-#~ msgstr "刪除頁面"
 
 #~ msgid "Add Page"
 #~ msgstr "新建頁面"

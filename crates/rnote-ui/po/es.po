@@ -5543,6 +5543,72 @@ msgstr "PDF como cuaderno…"
 msgid "Image as a Notebook…"
 msgstr "Imagen como cuaderno…"
 
+#: crates/rnote-ui/src/pages/mod.rs
+msgid "Add a Page at the End"
+msgstr "Agregar una página al final"
+
+#: crates/rnote-ui/src/pages/mod.rs
+msgid "No Pages"
+msgstr "Sin páginas"
+
+#: crates/rnote-ui/src/pages/mod.rs
+msgid "Only notebooks of sheets have pages. Choose “Fixed Size” as the layout in the document settings."
+msgstr "Solo los cuadernos de hojas tienen páginas. Elegí «Tamaño fijo» como diseño en los ajustes del documento."
+
+#: crates/rnote-ui/src/pages/mod.rs
+msgid "Page Menu"
+msgstr "Menú de la página"
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Insert Blank Page After"
+msgstr "Insertar página en blanco después"
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Insert PDF After…"
+msgstr "Insertar PDF después…"
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Move Up"
+msgstr "Subir"
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Move Down"
+msgstr "Bajar"
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Remove Page"
+msgstr "Borrar página"
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Remove the Page?"
+msgstr "¿Borrar la página?"
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "What is written on it is removed too. You can undo it."
+msgstr "Lo que tiene escrito también se borra. Podés deshacerlo."
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Remove"
+msgstr "Borrar"
+
+#: crates/rnote-ui/src/pages/insert_pdf.rs
+msgid "Insert PDF"
+msgstr "Insertar PDF"
+
+#: crates/rnote-ui/src/pages/insert_pdf.rs
+msgid "Inserting the PDF"
+msgstr "Insertando el PDF"
+
+#: crates/rnote-ui/src/pages/insert_pdf.rs
+msgid "Insert"
+msgstr "Insertar"
+
+#: crates/rnote-ui/src/pages/mod.rs
+msgid "{n} page"
+msgid_plural "{n} pages"
+msgstr[0] "{n} página"
+msgstr[1] "{n} páginas"
+
 #~ msgid "Brush Style"
 #~ msgstr "Estilo del pincel"
 
@@ -5607,8 +5673,6 @@ msgstr "Imagen como cuaderno…"
 #~ msgid "Close the Folded Flap"
 #~ msgstr "Cerrar la solapa plegada"
 
-#~ msgid "Remove Page"
-#~ msgstr "Quitar página"
 
 #~ msgid "Add Page"
 #~ msgstr "Añadir página"

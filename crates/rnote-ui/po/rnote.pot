@@ -5071,3 +5071,69 @@ msgstr ""
 #: crates/rnote-ui/data/ui/library/libraryview.ui
 msgid "Image as a Notebook…"
 msgstr ""
+
+#: crates/rnote-ui/src/pages/mod.rs
+msgid "Add a Page at the End"
+msgstr ""
+
+#: crates/rnote-ui/src/pages/mod.rs
+msgid "No Pages"
+msgstr ""
+
+#: crates/rnote-ui/src/pages/mod.rs
+msgid "Only notebooks of sheets have pages. Choose “Fixed Size” as the layout in the document settings."
+msgstr ""
+
+#: crates/rnote-ui/src/pages/mod.rs
+msgid "Page Menu"
+msgstr ""
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Insert Blank Page After"
+msgstr ""
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Insert PDF After…"
+msgstr ""
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Move Up"
+msgstr ""
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Move Down"
+msgstr ""
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Remove Page"
+msgstr ""
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Remove the Page?"
+msgstr ""
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "What is written on it is removed too. You can undo it."
+msgstr ""
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Remove"
+msgstr ""
+
+#: crates/rnote-ui/src/pages/insert_pdf.rs
+msgid "Insert PDF"
+msgstr ""
+
+#: crates/rnote-ui/src/pages/insert_pdf.rs
+msgid "Inserting the PDF"
+msgstr ""
+
+#: crates/rnote-ui/src/pages/insert_pdf.rs
+msgid "Insert"
+msgstr ""
+
+#: crates/rnote-ui/src/pages/mod.rs
+msgid "{n} page"
+msgid_plural "{n} pages"
+msgstr[0] ""
+msgstr[1] ""
