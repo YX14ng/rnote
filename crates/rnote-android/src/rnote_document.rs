@@ -68,6 +68,8 @@ pub struct RnoteDocument {
     // Whether the current pen takes keyboard input, as last reported by the engine.
     text_input: bool,
     modified: bool,
+    // How many changes the document has had, so a save marks saved only what it took.
+    edits: u64,
     recognition: recognition::Recognition,
     // When the samples of the stroke being drawn were taken, for the engine's smoothing.
     pen_clock: PenClock,
@@ -117,6 +119,7 @@ impl RnoteDocument {
             pen_style: PenStyle::Brush,
             text_input: false,
             modified: false,
+            edits: 0,
             recognition: recognition::Recognition::default(),
             pen_clock: PenClock::default(),
         };
@@ -212,7 +215,13 @@ impl RnoteDocument {
     /// Marks the document as having unsaved changes, e.g. after restoring it from a
     /// recovery copy.
     pub fn mark_modified(&mut self) {
+        self.touch();
+    }
+
+    /// Records a change: the document has unsaved changes.
+    fn touch(&mut self) {
         self.modified = true;
+        self.edits = self.edits.wrapping_add(1);
     }
 
     /// Serializes the document as an `.rnote` file. `file_name` is stored in its metadata.
@@ -220,8 +229,7 @@ impl RnoteDocument {
     /// The document stays modified until [`Self::mark_saved`] is called, which the caller
     /// does once the bytes are actually written.
     pub fn save_to_bytes(&self, file_name: &str) -> anyhow::Result<Vec<u8>> {
-        futures::executor::block_on(self.engine.save_as_rnote_bytes(file_name.to_owned()))
-            .context("The save task was cancelled")?
+        self.begin_save(file_name).wait()
     }
 
     /// The document as a PDF named `title`, as it looks: background, pattern and every
@@ -260,7 +268,7 @@ impl RnoteDocument {
 
     fn finish_operation(&mut self, flags: WidgetFlags) {
         if flags.store_modified {
-            self.modified = true;
+            self.touch();
         }
         if let Some(text_input) = flags.enable_text_input {
             self.text_input = text_input;
@@ -284,6 +292,9 @@ mod editing;
 mod ink;
 mod pages;
 mod recognition;
+mod saving;
+#[cfg_attr(not(target_os = "android"), allow(unused_imports))]
+pub(crate) use saving::PendingSave;
 mod selection;
 mod settings;
 #[cfg(test)]

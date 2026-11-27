@@ -33,6 +33,10 @@ internal class DocumentRenderer : AutoCloseable {
         Executors.newSingleThreadExecutor { runnable -> Thread(runnable, "rnote-document") }
     private val mainHandler = Handler(Looper.getMainLooper())
 
+    /** Makes and writes the bytes of saves, so drawing goes on meanwhile. */
+    private val writer: ExecutorService =
+        Executors.newSingleThreadExecutor { runnable -> Thread(runnable, "rnote-save") }
+
     // Only accessed on the executor thread.
     private var document: NativeDocument? = null
 
@@ -58,15 +62,34 @@ internal class DocumentRenderer : AutoCloseable {
     fun setBrush(brush: Brush) = submit<Unit>({}) { current -> current.setBrush(brush) }
 
     /**
-     * Serializes the document, hands the bytes to [write] (still off the main thread) and
-     * marks the document as saved once that succeeds.
+     * Saves the document: takes it as it is now on its thread, makes the bytes and hands them
+     * to [write] on another one, so drawing goes on meanwhile, then marks it as saved unless
+     * it changed since.
      */
-    fun save(fileName: String, write: (ByteArray) -> Unit, onResult: (Result<EditState>) -> Unit) =
-        submit(onResult) { current ->
-            write(current.save(fileName))
-            current.markSaved()
-            current.editState
+    fun save(fileName: String, write: (ByteArray) -> Unit, onResult: (Result<EditState>) -> Unit) {
+        executor.execute {
+            val begun = runCatching {
+                val current = checkNotNull(document) { "No document is open" }
+                current to current.beginSave(fileName)
+            }
+            val (saved, pending) = begun.getOrElse { error ->
+                mainHandler.post { onResult(Result.failure(error)) }
+                return@execute
+            }
+            writer.execute {
+                val written = runCatching { write(pending.bytes()) }
+                executor.execute {
+                    val result = written.mapCatching {
+                        val current = checkNotNull(document) { "No document is open" }
+                        // Another document may be open by now: it isn't the one saved.
+                        if (current === saved) current.markSavedAsOf(pending)
+                        current.editState
+                    }
+                    mainHandler.post { onResult(result) }
+                }
+            }
         }
+    }
 
     /**
      * Serializes the document and hands the bytes to [write] without marking it as saved,
@@ -101,6 +124,7 @@ internal class DocumentRenderer : AutoCloseable {
             document = null
         }
         executor.shutdown()
+        writer.shutdown()
     }
 
     private fun replaceDocument(

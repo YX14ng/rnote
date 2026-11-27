@@ -119,14 +119,14 @@ impl RnoteDocument {
         let bounds_before = self.bounds();
         let flags = self.engine.doc_add_page_fixed_size();
         if flags.resize {
-            self.modified = true;
+            self.touch();
         }
         self.finish_edit(flags, bounds_before)
     }
 
     /// Document settings are saved with the document but don't go through the history.
     fn finish_settings_change(&mut self, flags: WidgetFlags, bounds_before: Aabb) -> EditState {
-        self.modified = true;
+        self.touch();
         self.finish_edit(flags, bounds_before)
     }
 }

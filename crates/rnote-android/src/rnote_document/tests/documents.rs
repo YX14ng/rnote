@@ -163,3 +163,23 @@ fn a_pdf_export_draws_one_sheet_per_step_so_it_can_show_progress() {
     assert_eq!(steps, [1, 2, 3]);
     assert_eq!(rnote_library::creation::pdf_page_count(&pdf, None).expect("reads"), 3);
 }
+
+#[test]
+fn a_save_marks_saved_only_what_it_took() {
+    let mut document = plain_document();
+    draw_line(&mut document, 100.0);
+    let pending = document.begin_save("x.rnote");
+    // Drawn while the save writes: still unsaved afterwards.
+    draw_line(&mut document, 200.0);
+    let edits = pending.edits();
+    assert!(!pending.wait().expect("saves").is_empty());
+
+    document.mark_saved_as_of(edits);
+    assert!(document.edit_state().modified);
+
+    let pending = document.begin_save("x.rnote");
+    let edits = pending.edits();
+    pending.wait().expect("saves");
+    document.mark_saved_as_of(edits);
+    assert!(!document.edit_state().modified);
+}

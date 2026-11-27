@@ -201,7 +201,17 @@ internal object NativeBridge {
     /** Drops the export; closes it. */
     @JvmStatic external fun pdfExportCancel(job: Long)
 
-    @JvmStatic external fun markSaved(handle: Long)
+    /** Takes the document as it is now to save it; returns the save, for [saveWait]. */
+    @JvmStatic external fun saveBegin(handle: Long, fileName: String): Long
+
+    /** How many changes the document had when [save] began, for [markSavedAsOf]. */
+    @JvmStatic external fun saveEditsOf(save: Long): Long
+
+    /** The `.rnote` bytes of [save], once made, on any thread; [save] is done afterwards. */
+    @JvmStatic external fun saveWait(save: Long): ByteArray
+
+    /** Marks the document as saved unless it changed after the save that saw [edits] began. */
+    @JvmStatic external fun markSavedAsOf(handle: Long, edits: Long)
 
     /** Frees the document. The handle must not be used afterwards. */
     @JvmStatic external fun close(handle: Long)

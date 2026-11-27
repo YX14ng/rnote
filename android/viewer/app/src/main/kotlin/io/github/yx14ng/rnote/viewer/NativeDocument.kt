@@ -358,7 +358,14 @@ internal class NativeDocument private constructor(private var handle: Long) : Au
     /** Serializes the document; call [markSaved] once the bytes are written. */
     fun save(fileName: String): ByteArray = NativeBridge.save(checkOpen(), fileName)
 
-    fun markSaved() = NativeBridge.markSaved(checkOpen())
+    /** Takes the document as it is now to save it; the bytes are made off its thread. */
+    fun beginSave(fileName: String): PendingSave {
+        val save = NativeBridge.saveBegin(checkOpen(), fileName)
+        return PendingSave(save, NativeBridge.saveEditsOf(save))
+    }
+
+    /** Marks the document as saved, unless it changed after [save] began. */
+    fun markSavedAsOf(save: PendingSave) = NativeBridge.markSavedAsOf(checkOpen(), save.edits)
 
     /** Starts the export of the document as a PDF titled [title]; see [PdfExportSteps]. */
     fun beginPdfExport(title: String): NativePdfExport =
@@ -383,4 +390,9 @@ internal class NativeDocument private constructor(private var handle: Long) : Au
         /** Creates an empty document. */
         fun createEmpty(): NativeDocument = NativeDocument(NativeBridge.newDocument())
     }
+}
+
+/** A save under way; [bytes] may only be called once, on any thread. */
+class PendingSave internal constructor(private val handle: Long, val edits: Long) {
+    fun bytes(): ByteArray = NativeBridge.saveWait(handle)
 }

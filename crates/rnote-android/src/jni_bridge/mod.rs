@@ -19,6 +19,7 @@ mod library;
 mod pages;
 mod pdf;
 mod pdf_export;
+mod saving;
 mod selection;
 mod settings;
 mod sync;

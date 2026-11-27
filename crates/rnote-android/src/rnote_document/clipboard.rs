@@ -66,7 +66,7 @@ impl RnoteDocument {
         );
         self.pen_style = PenStyle::Selector;
         // The engine doesn't flag insertions as store modifications.
-        self.modified = true;
+        self.touch();
         Ok(self.finish_edit(flags, bounds_before))
     }
 
@@ -76,7 +76,7 @@ impl RnoteDocument {
         let mut flags = self.ensure_pen_mode();
         flags |= self.engine.insert_text(text.to_owned(), Some(pos));
         self.pen_style = PenStyle::Typewriter;
-        self.modified = true;
+        self.touch();
         self.finish_edit(flags, bounds_before)
     }
 
@@ -99,7 +99,7 @@ impl RnoteDocument {
         );
         // Imported content ends up selected, with the selector.
         self.pen_style = PenStyle::Selector;
-        self.modified = true;
+        self.touch();
         Ok(self.finish_edit(flags, bounds_before))
     }
 }
