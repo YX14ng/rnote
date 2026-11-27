@@ -7,6 +7,7 @@ mod pages;
 pub mod rendering;
 pub mod snapshot;
 pub mod strokecontent;
+mod view;
 pub mod visual_debug;
 
 // Re-exports

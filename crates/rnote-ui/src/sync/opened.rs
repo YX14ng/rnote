@@ -172,11 +172,7 @@ pub(crate) fn reload_if_clean(appwindow: &RnAppWindow, canvas: &RnCanvas) -> boo
                     };
                     let mut widget_flags =
                         canvas.apply_rnote_snapshot(snapshot, sha256, Some(path));
-                    {
-                        let mut engine = canvas.engine_mut();
-                        widget_flags |= engine.camera.zoom_to(zoom);
-                        widget_flags |= engine.camera_set_offset_expand(offset);
-                    }
+                    widget_flags |= canvas.engine_mut().restore_view(offset, zoom);
                     canvas.emit_handle_widget_flags(widget_flags);
                     canvas.emit_invalidate_thumbnail();
                     appwindow.overlays().dispatch_toast_text(
