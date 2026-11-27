@@ -383,6 +383,16 @@
     <string name="pdf_exporting">Экспорт в PDF…</string>
     <string name="pdf_export_progress">Страница %1$d из %2$d</string>
     <string name="pdf_saved">PDF сохранён</string>
+    <string name="pdf_options_title">PDF</string>
+    <string name="pdf_white_paper">Белая бумага, для печати</string>
+    <string name="pdf_sheets">Страницы</string>
+    <string name="pdf_sheets_all">Все</string>
+    <string name="pdf_sheets_current">Текущая (%1$d)</string>
+    <string name="pdf_sheets_range">Выбрать…</string>
+    <string name="pdf_sheets_from">С</string>
+    <string name="pdf_sheets_to">по</string>
+    <string name="pdf_export_action">Экспортировать</string>
+    <string name="pdf_share_action">Поделиться</string>
     <string name="share_pdf_title">Поделиться PDF</string>
 
     <!-- Recovery -->

@@ -27,14 +27,36 @@ internal class PdfExport(
 ) {
     private val main = Handler(Looper.getMainLooper())
 
+    /** The options chosen for the export whose file is being picked. */
+    var pending = PdfOptions()
+        private set
+
+    /**
+     * Asks how to export (see [PdfOptionsDialog]), with the view showing the document from
+     * [viewTop] down [visibleHeight] to tell the current sheet; [then] gets the options.
+     * [action] names the dialog's button.
+     */
+    fun askThen(action: Int, viewTop: Double, visibleHeight: Double, then: (PdfOptions) -> Unit) {
+        renderer.query({ document ->
+            document.pageCount()?.let { count -> count to document.sheetSize().second }
+        }) { result ->
+            val sheets = result.getOrNull()
+            val current = sheets?.let { (count, height) -> Pages.current(viewTop, visibleHeight, height, count) }
+            PdfOptionsDialog.ask(activity, sheets?.first, current, action) { options ->
+                pending = options
+                then(options)
+            }
+        }
+    }
+
     /** Writes the PDF of the notebook named [title] to [uri], picked by the user. */
-    fun saveTo(uri: Uri, title: String) {
+    fun saveTo(uri: Uri, title: String, options: PdfOptions) {
         // The picker made the file already: an export that doesn't finish leaves no empty one.
         val dropFile = {
             runCatching { DocumentsContract.deleteDocument(activity.contentResolver, uri) }
             Unit
         }
-        export(title, onAbandoned = dropFile) { pdf ->
+        export(title, options, onAbandoned = dropFile) { pdf ->
             activity.contentResolver.openOutputStream(uri, "wt")?.use { it.write(pdf) }
                 ?: error("The chosen file can't be written")
             main.post { Toast.makeText(activity, R.string.pdf_saved, Toast.LENGTH_SHORT).show() }
@@ -42,8 +64,8 @@ internal class PdfExport(
     }
 
     /** Opens the share sheet with the PDF of the notebook named [title]. */
-    fun share(title: String) {
-        export(title) { pdf ->
+    fun share(title: String, options: PdfOptions) {
+        export(title, options) { pdf ->
             val file = ExportFileProvider.fileFor(activity, fileName(title))
             file.parentFile?.let { dir ->
                 dir.mkdirs()
@@ -72,7 +94,12 @@ internal class PdfExport(
      * far it got and can stop it, then hands the PDF to [deliver] off the main thread.
      */
     /** [onAbandoned] runs off the main thread when the export is cancelled or fails. */
-    private fun export(title: String, onAbandoned: () -> Unit = {}, deliver: (ByteArray) -> Unit) {
+    private fun export(
+        title: String,
+        options: PdfOptions,
+        onAbandoned: () -> Unit = {},
+        deliver: (ByteArray) -> Unit,
+    ) {
         val cancelled = AtomicBoolean(false)
         val progress = ProgressBar(activity, null, android.R.attr.progressBarStyleHorizontal).apply { isIndeterminate = true }
         val pages = TextView(activity).apply { setText(R.string.pdf_exporting) }
@@ -90,7 +117,7 @@ internal class PdfExport(
             .setCancelable(false)
             .show()
         val close = { if (!activity.isDestroyed && dialog.isShowing) dialog.dismiss() }
-        renderer.query({ document -> document.beginPdfExport(title.removeSuffix(".rnote")) }) { begun ->
+        renderer.query({ document -> document.beginPdfExport(title.removeSuffix(".rnote"), options) }) { begun ->
             begun
                 .onSuccess { job ->
                     Thread({

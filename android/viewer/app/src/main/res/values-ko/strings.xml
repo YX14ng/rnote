@@ -350,6 +350,16 @@
     <string name="pdf_exporting">PDF 내보내는 중…</string>
     <string name="pdf_export_progress">%2$d쪽 중 %1$d쪽</string>
     <string name="pdf_saved">PDF 저장됨</string>
+    <string name="pdf_options_title">PDF</string>
+    <string name="pdf_white_paper">흰 종이 (인쇄용)</string>
+    <string name="pdf_sheets">페이지</string>
+    <string name="pdf_sheets_all">전체</string>
+    <string name="pdf_sheets_current">현재 페이지 (%1$d)</string>
+    <string name="pdf_sheets_range">선택…</string>
+    <string name="pdf_sheets_from">시작</string>
+    <string name="pdf_sheets_to">끝</string>
+    <string name="pdf_export_action">내보내기</string>
+    <string name="pdf_share_action">공유</string>
     <string name="share_pdf_title">PDF 공유</string>
 
     <!-- Recovery -->

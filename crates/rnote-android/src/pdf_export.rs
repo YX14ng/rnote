@@ -13,10 +13,30 @@ const PT_IN_INCH: f64 = 72.0;
 /// The margin around each sheet: `DocExportPrefs::MARGIN`, which the engine keeps private.
 const MARGIN: f64 = 0.0;
 
+/// How the PDF comes out.
+#[derive(Debug, Clone, Default)]
+pub struct PdfExportOptions {
+    /// White paper and dark ink, e.g. to print a notebook written in white on dark paper:
+    /// the background turns white, a dark paper's lines are inverted and light ink darkens.
+    pub on_white_paper: bool,
+    /// Only the sheets from the first to the last of these (0-based), not every sheet.
+    pub sheets: Option<(usize, usize)>,
+}
+
+/// Draws `page` onto `cx` as a sheet of the PDF, `on_white_paper` or as it is.
+pub fn draw_sheet(
+    page: &StrokeContent,
+    cx: &cairo::Context,
+    on_white_paper: bool,
+) -> anyhow::Result<()> {
+    page.draw_to_cairo(cx, true, true, on_white_paper, MARGIN, Engine::STROKE_EXPORT_IMAGE_SCALE)
+}
+
 /// A PDF being made, a page per sheet. Taken from the document on its thread (quick), then
 /// drawn on another one, step by step; dropping it midway cancels the export.
 pub struct PdfExportJob {
     title: String,
+    on_white_paper: bool,
     page_size: (f64, f64),
     scale: f64,
     pages: VecDeque<StrokeContent>,
@@ -30,16 +50,25 @@ pub struct PdfExportJob {
 unsafe impl Send for PdfExportJob {}
 
 impl PdfExportJob {
-    /// The export of `engine`'s document titled `title`: every sheet, with its background
-    /// and pattern, as the column of pages shows them.
-    pub fn new(engine: &Engine, title: &str) -> Self {
+    /// The export of `engine`'s document titled `title`: its sheets (all of them, or those
+    /// `options` asks for), with their background and pattern, as the column of pages shows
+    /// them.
+    pub fn new(engine: &Engine, title: &str, options: &PdfExportOptions) -> Self {
         let order = DocExportPrefs::default().page_order;
-        let pages: VecDeque<StrokeContent> = engine.extract_all_pages_content(order).into();
+        let mut all = engine.extract_all_pages_content(order);
+        if let Some((first, last)) = options.sheets {
+            let last = last.min(all.len().saturating_sub(1));
+            let first = first.min(last);
+            all.truncate(last + 1);
+            all.drain(..first);
+        }
+        let pages: VecDeque<StrokeContent> = all.into();
         let format = &engine.document.config.format;
         let scale = PT_IN_INCH / format.dpi();
         let size = format.size();
         Self {
             title: title.to_owned(),
+            on_white_paper: options.on_white_paper,
             page_size: (size[0] * scale, size[1] * scale),
             scale,
             total: pages.len(),
@@ -64,12 +93,13 @@ impl PdfExportJob {
         let Some(page) = self.pages.pop_front() else {
             return Ok(());
         };
+        let on_white_paper = self.on_white_paper;
         let (_, cx) = self.output()?;
         // A sheet without bounds has nothing to draw, as in the engine's export.
         if let Some(bounds) = page.bounds() {
             cx.save()?;
             cx.translate(-bounds.mins[0], -bounds.mins[1]);
-            page.draw_to_cairo(cx, true, true, false, MARGIN, Engine::STROKE_EXPORT_IMAGE_SCALE)?;
+            draw_sheet(&page, cx, on_white_paper)?;
             cx.show_page().context("Showing a page of the PDF failed")?;
             cx.restore()?;
         }

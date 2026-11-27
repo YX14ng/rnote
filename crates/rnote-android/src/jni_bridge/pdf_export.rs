@@ -11,7 +11,7 @@ use jni::objects::{JByteArray, JClass, JString};
 use jni::sys::{jint, jlong};
 
 use super::common::{BridgeError, document_from_handle};
-use crate::pdf_export::PdfExportJob;
+use crate::pdf_export::{PdfExportJob, PdfExportOptions};
 
 /// Resolves an export handle.
 ///
@@ -37,21 +37,28 @@ unsafe fn take_job(handle: jlong) -> Option<Box<PdfExportJob>> {
     (!job.is_null()).then(|| unsafe { Box::from_raw(job) })
 }
 
-/// `static native long pdfExportBegin(long document, String title)`: starts the export of
-/// the document; called on the document's thread.
+/// `static native long pdfExportBegin(long document, String title, boolean onWhitePaper,
+/// int firstSheet, int lastSheet)`: starts the export of the document, on white paper or as
+/// it is, of the sheets from `firstSheet` to `lastSheet` (0-based; -1 for every sheet);
+/// called on the document's thread.
 #[unsafe(no_mangle)]
 pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_pdfExportBegin<'caller>(
     mut unowned_env: EnvUnowned<'caller>,
     _class: JClass<'caller>,
     document: jlong,
     title: JString<'caller>,
+    on_white_paper: jni::sys::jboolean,
+    first_sheet: jint,
+    last_sheet: jint,
 ) -> jlong {
     unowned_env
         .with_env(|env| -> Result<jlong, BridgeError> {
             // SAFETY: `document` comes from `NativeDocument`, which upholds the invariants.
             let document = unsafe { document_from_handle(document) }?;
             let title = title.try_to_string(env)?;
-            let job = Box::new(document.pdf_export_job(&title));
+            let sheets = usize::try_from(first_sheet).ok().zip(usize::try_from(last_sheet).ok());
+            let options = PdfExportOptions { on_white_paper, sheets };
+            let job = Box::new(document.pdf_export_job(&title, &options));
             Ok(Box::into_raw(job) as jlong)
         })
         .resolve::<ThrowRuntimeExAndDefault>()

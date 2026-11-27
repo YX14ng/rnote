@@ -368,8 +368,15 @@ internal class NativeDocument private constructor(private var handle: Long) : Au
     fun markSavedAsOf(save: PendingSave) = NativeBridge.markSavedAsOf(checkOpen(), save.edits)
 
     /** Starts the export of the document as a PDF titled [title]; see [PdfExportSteps]. */
-    fun beginPdfExport(title: String): NativePdfExport =
-        NativePdfExport(NativeBridge.pdfExportBegin(checkOpen(), title))
+    fun beginPdfExport(title: String, options: PdfOptions): NativePdfExport = NativePdfExport(
+        NativeBridge.pdfExportBegin(
+            checkOpen(),
+            title,
+            options.onWhitePaper,
+            options.sheets?.first ?: -1,
+            options.sheets?.last ?: -1,
+        ),
+    )
 
     override fun close() {
         if (handle != 0L) {

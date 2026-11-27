@@ -350,6 +350,16 @@
     <string name="pdf_exporting">PDF を書き出し中…</string>
     <string name="pdf_export_progress">%2$d ページ中 %1$d ページ</string>
     <string name="pdf_saved">PDF を保存しました</string>
+    <string name="pdf_options_title">PDF</string>
+    <string name="pdf_white_paper">白い紙（印刷用）</string>
+    <string name="pdf_sheets">ページ</string>
+    <string name="pdf_sheets_all">すべて</string>
+    <string name="pdf_sheets_current">このページ（%1$d）</string>
+    <string name="pdf_sheets_range">選択…</string>
+    <string name="pdf_sheets_from">開始</string>
+    <string name="pdf_sheets_to">終了</string>
+    <string name="pdf_export_action">書き出す</string>
+    <string name="pdf_share_action">共有</string>
     <string name="share_pdf_title">PDF を共有</string>
 
     <!-- Recovery -->

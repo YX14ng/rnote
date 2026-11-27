@@ -12,7 +12,7 @@ use rnote_engine::{Engine, WidgetFlags};
 
 use crate::frame_cache::FrameCache;
 use crate::image_layer::ImageLayer;
-use crate::pdf_export::PdfExportJob;
+use crate::pdf_export::{PdfExportJob, PdfExportOptions};
 use crate::pen_input::PenClock;
 use crate::render::{self, BackgroundTiles, PixelLayout, Viewport};
 
@@ -236,12 +236,12 @@ impl RnoteDocument {
     /// stroke, a page per sheet (a document without sheets is cut into pages of its format).
     #[cfg(test)]
     pub fn export_pdf(&self, title: &str) -> anyhow::Result<Vec<u8>> {
-        self.pdf_export_job(title).finish()
+        self.pdf_export_job(title, &PdfExportOptions::default()).finish()
     }
 
     /// The export of the document as a PDF, to draw a sheet at a time; see [`PdfExportJob`].
-    pub fn pdf_export_job(&self, title: &str) -> PdfExportJob {
-        PdfExportJob::new(&self.engine, title)
+    pub fn pdf_export_job(&self, title: &str, options: &PdfExportOptions) -> PdfExportJob {
+        PdfExportJob::new(&self.engine, title, options)
     }
 
     /// Marks the current state as saved.

@@ -187,7 +187,13 @@ internal object NativeBridge {
      * Starts exporting the document as a PDF titled [title], a page per sheet; on the
      * document's thread. The export handle goes to [pdfExportFinish] or [pdfExportCancel].
      */
-    @JvmStatic external fun pdfExportBegin(handle: Long, title: String): Long
+    @JvmStatic external fun pdfExportBegin(
+        handle: Long,
+        title: String,
+        onWhitePaper: Boolean,
+        firstSheet: Int,
+        lastSheet: Int,
+    ): Long
 
     /** How many sheets the export has. */
     @JvmStatic external fun pdfExportTotal(job: Long): Int

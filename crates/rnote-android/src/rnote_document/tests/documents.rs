@@ -151,7 +151,7 @@ fn a_pdf_export_draws_one_sheet_per_step_so_it_can_show_progress() {
     document.set_brush(RED, 4.0);
     draw_line(&mut document, 200.0);
 
-    let mut job = document.pdf_export_job("Prueba");
+    let mut job = document.pdf_export_job("Prueba", &Default::default());
     assert_eq!((job.done(), job.total()), (0, 3));
     let mut steps = Vec::new();
     while job.done() < job.total() {
@@ -182,4 +182,56 @@ fn a_save_marks_saved_only_what_it_took() {
     pending.wait().expect("saves");
     document.mark_saved_as_of(edits);
     assert!(!document.edit_state().modified);
+}
+
+fn three_sheets() -> RnoteDocument {
+    let mut document = plain_document();
+    document.set_layout(Layout::FixedSize);
+    document.insert_blank_pages(1, 2);
+    document.set_brush(RED, 4.0);
+    draw_line(&mut document, 200.0);
+    document
+}
+
+#[test]
+fn a_pdf_export_of_some_sheets_has_only_those() {
+    let document = three_sheets();
+    let only = |first, last| crate::pdf_export::PdfExportOptions {
+        sheets: Some((first, last)),
+        ..Default::default()
+    };
+
+    let job = document.pdf_export_job("Prueba", &only(1, 1));
+    assert_eq!(job.total(), 1);
+    let pdf = job.finish().expect("finishes");
+    assert_eq!(rnote_library::creation::pdf_page_count(&pdf, None).expect("reads"), 1);
+    // A range past the last sheet stops there.
+    assert_eq!(document.pdf_export_job("Prueba", &only(1, 9)).total(), 2);
+}
+
+/// The color of the paper near the top-left corner of the first sheet, drawn as the PDF
+/// export draws it with `on_white_paper`.
+fn exported_paper(document: &RnoteDocument, on_white_paper: bool) -> [u8; 4] {
+    use rnote_compose::SplitOrder;
+    let page = document.engine.extract_all_pages_content(SplitOrder::default()).remove(0);
+    let bounds = page.bounds().expect("a sheet has bounds");
+    let mut surface =
+        cairo::ImageSurface::create(cairo::Format::ARgb32, 20, 20).expect("an image surface");
+    {
+        let cx = cairo::Context::new(&surface).expect("a context");
+        cx.translate(-bounds.mins[0] - 10.0, -bounds.mins[1] - 10.0);
+        crate::pdf_export::draw_sheet(&page, &cx, on_white_paper).expect("draws");
+    }
+    surface.flush();
+    let data = surface.data().expect("the pixels");
+    [data[10 * 80 + 40], data[10 * 80 + 41], data[10 * 80 + 42], data[10 * 80 + 43]]
+}
+
+#[test]
+fn a_pdf_export_on_white_paper_whitens_dark_paper() {
+    let mut document = three_sheets();
+    document.engine.document.config.background.color = Color { r: 0.0, g: 0.0, b: 0.0, a: 1.0 };
+
+    assert_eq!(exported_paper(&document, true), [255, 255, 255, 255]);
+    assert_eq!(exported_paper(&document, false), [0, 0, 0, 255]);
 }

@@ -197,7 +197,7 @@ class MainActivity : Activity() {
                     guard.confirmDiscard { startActivityForResult(DocumentFiles.openIntent(saver.currentUri), REQUEST_OPEN) }
                 EditorMenu.Action.Save -> saver.save()
                 EditorMenu.Action.SaveAs -> saveAs()
-                EditorMenu.Action.ExportPdf -> {
+                EditorMenu.Action.ExportPdf -> askPdfOptions(R.string.pdf_export_action) {
                     val pick = Intent(Intent.ACTION_CREATE_DOCUMENT)
                         .addCategory(Intent.CATEGORY_OPENABLE)
                         .setType(PdfExport.MIME_TYPE)
@@ -205,7 +205,9 @@ class MainActivity : Activity() {
                     @Suppress("DEPRECATION")
                     startActivityForResult(pick, REQUEST_EXPORT_PDF)
                 }
-                EditorMenu.Action.SharePdf -> pdfExport.share(saver.documentName)
+                EditorMenu.Action.SharePdf -> askPdfOptions(R.string.pdf_share_action) { options ->
+                    pdfExport.share(saver.documentName, options)
+                }
                 else -> {}
             }
         }
@@ -359,7 +361,7 @@ class MainActivity : Activity() {
             when (requestCode) {
                 REQUEST_SAVE_AS -> saver.saveAs(uri)
                 REQUEST_INSERT_PDF -> pages.onPdfPicked(uri)
-                REQUEST_EXPORT_PDF -> pdfExport.saveTo(uri, saver.documentName)
+                REQUEST_EXPORT_PDF -> pdfExport.saveTo(uri, saver.documentName, pdfExport.pending)
                 REQUEST_INSERT_IMAGE -> {
                     val resolver = contentResolver
                     clipboard.insertImage(insertAt) {
@@ -677,6 +679,12 @@ class MainActivity : Activity() {
             canvasView.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             canvasView.applyEdit(NativeDocument::redo)
         }
+    }
+
+    /** Asks how to export the PDF, telling the dialog which sheet the view shows. */
+    private fun askPdfOptions(action: Int, then: (PdfOptions) -> Unit) {
+        val viewport = canvasView.currentViewport
+        pdfExport.askThen(action, viewport.y, canvasView.height / viewport.zoom, then)
     }
 
     private fun saveAs() {

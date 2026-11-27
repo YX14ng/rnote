@@ -350,6 +350,16 @@
     <string name="pdf_exporting">正在匯出 PDF…</string>
     <string name="pdf_export_progress">第 %1$d 頁，共 %2$d 頁</string>
     <string name="pdf_saved">PDF 已儲存</string>
+    <string name="pdf_options_title">PDF</string>
+    <string name="pdf_white_paper">白紙（便於列印）</string>
+    <string name="pdf_sheets">頁面</string>
+    <string name="pdf_sheets_all">全部</string>
+    <string name="pdf_sheets_current">目前頁面（%1$d）</string>
+    <string name="pdf_sheets_range">選擇…</string>
+    <string name="pdf_sheets_from">從</string>
+    <string name="pdf_sheets_to">到</string>
+    <string name="pdf_export_action">匯出</string>
+    <string name="pdf_share_action">分享</string>
     <string name="share_pdf_title">分享 PDF</string>
 
     <!-- Recovery -->

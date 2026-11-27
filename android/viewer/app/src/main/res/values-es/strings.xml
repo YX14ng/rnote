@@ -372,6 +372,16 @@
     <string name="pdf_exporting">Exportando el PDF…</string>
     <string name="pdf_export_progress">Página %1$d de %2$d</string>
     <string name="pdf_saved">PDF guardado</string>
+    <string name="pdf_options_title">PDF</string>
+    <string name="pdf_white_paper">Papel blanco, para imprimir</string>
+    <string name="pdf_sheets">Hojas</string>
+    <string name="pdf_sheets_all">Todas</string>
+    <string name="pdf_sheets_current">Esta (%1$d)</string>
+    <string name="pdf_sheets_range">Elegir…</string>
+    <string name="pdf_sheets_from">Desde</string>
+    <string name="pdf_sheets_to">hasta</string>
+    <string name="pdf_export_action">Exportar</string>
+    <string name="pdf_share_action">Compartir</string>
     <string name="share_pdf_title">Compartir PDF</string>
 
     <!-- Recovery -->
