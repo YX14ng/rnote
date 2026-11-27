@@ -333,3 +333,6 @@ impl Engine {
         widget_flags
     }
 }
+
+#[cfg(test)]
+mod tests;
