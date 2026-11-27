@@ -169,12 +169,24 @@ impl RnSync {
         }
         self.inner.periodic.set(true);
         let weak = Rc::downgrade(&self.inner);
-        glib::timeout_add_local(PERIODIC_DELAY, move || {
-            let Some(inner) = weak.upgrade() else {
-                return glib::ControlFlow::Break;
-            };
-            Self { inner }.sync_now();
-            glib::ControlFlow::Continue
+        glib::timeout_add_local(PERIODIC_DELAY, {
+            let weak = weak.clone();
+            move || {
+                let Some(inner) = weak.upgrade() else {
+                    return glib::ControlFlow::Break;
+                };
+                Self { inner }.sync_now();
+                glib::ControlFlow::Continue
+            }
+        });
+        // Back online: what waited for Google goes now, not at the next periodic sync.
+        gio::NetworkMonitor::default().connect_network_changed(move |_, available| {
+            if let Some(inner) = weak.upgrade() {
+                let sync = Self { inner };
+                if retries_on_network(&sync.status(), available) {
+                    sync.sync_now();
+                }
+            }
         });
     }
 
@@ -404,4 +416,22 @@ fn access_token(tokens: &Mutex<AccessTokens>) -> Result<String, RemoteError> {
         OAuthError::Offline(message) => RemoteError::Offline(message),
         other => RemoteError::Failed(anyhow!(other)),
     })
+}
+
+/// Whether the network becoming `available` should run a sync now: one waits for Google.
+fn retries_on_network(status: &SyncStatus, available: bool) -> bool {
+    available && *status == SyncStatus::Pending
+}
+
+#[cfg(test)]
+mod tests {
+    use super::retries_on_network;
+    use super::status::SyncStatus;
+
+    #[test]
+    fn a_sync_waiting_for_google_runs_when_the_network_comes_back() {
+        assert!(retries_on_network(&SyncStatus::Pending, true));
+        assert!(!retries_on_network(&SyncStatus::Pending, false));
+        assert!(!retries_on_network(&SyncStatus::SignedOut, true));
+    }
 }
