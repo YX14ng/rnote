@@ -21,6 +21,13 @@ internal class EditorControls(
     /** Whether a document is open, so brush changes reach it. */
     var documentOpen = false
 
+    /** The paper of the open document: black and white inks follow it. */
+    private var paper = WHITE_PAPER
+
+    /** The palette as inks on the open notebook's paper. */
+    val paletteOnPaper: List<Int>
+        get() = settings.palette.map { BrushPalette.onPaper(it, paper) }
+
     init {
         applyToView()
     }
@@ -48,7 +55,7 @@ internal class EditorControls(
 
     /** Draws with the palette color in [slot]; the eraser or lasso give way to the pen. */
     fun selectPaletteColor(slot: Int) {
-        val color = settings.palette.getOrNull(slot) ?: return
+        val color = paletteOnPaper.getOrNull(slot) ?: return
         changeBrush(settings.brush.copy(color = color), colorChosen = true)
         if (settings.tool == Tool.ERASER || settings.tool == Tool.SELECTOR) {
             selectTool(Tool.BRUSH)
@@ -150,9 +157,17 @@ internal class EditorControls(
      * white, whichever stands out.
      */
     fun adaptToBackground(backgroundColor: Int) {
-        if (!settings.colorChosen) {
-            val contrasting = BrushPalette.contrastingColor(backgroundColor)
-            changeBrush(settings.brush.copy(color = contrasting), colorChosen = false)
+        paper = backgroundColor
+        val color = if (settings.colorChosen) {
+            // Black or white ink chosen on another paper turns into the one that shows here.
+            BrushPalette.onPaper(settings.brush.color, paper)
+        } else {
+            BrushPalette.contrastingColor(backgroundColor)
+        }
+        if (color != settings.brush.color) {
+            changeBrush(settings.brush.copy(color = color), colorChosen = settings.colorChosen)
+        } else {
+            applyToView()
         }
     }
 
@@ -178,7 +193,7 @@ internal class EditorControls(
 
     private fun applyToView() {
         sidebar.selectedTool = settings.tool
-        sidebar.showPalette(settings.palette, settings.brush.color)
+        sidebar.showPalette(paletteOnPaper, settings.brush.color)
         sidebar.showWidth(settings.brush.width)
         canvas.tool = settings.tool
         canvas.brush = settings.brush
@@ -193,6 +208,8 @@ internal class EditorControls(
     private fun shapeMinSizePx(): Double = SHAPE_MIN_SIZE_DP * context.resources.displayMetrics.density.toDouble()
 
     private companion object {
+        const val WHITE_PAPER = 0xFFFF_FFFF.toInt()
+
         // Holding the pen still is what asks for a shape, so small ones are fine too.
         const val SHAPE_MIN_SIZE_DP = 24.0
     }

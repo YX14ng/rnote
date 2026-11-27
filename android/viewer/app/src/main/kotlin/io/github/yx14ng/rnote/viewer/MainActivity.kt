@@ -89,7 +89,7 @@ class MainActivity : Activity() {
             onSearch = { search.open() },
         )
         search = InkSearch(this, canvasView, renderer, ink, topBar)
-        selectionBar = SelectionBar(this, palette = { controls.settings.palette }, onAction = ::perform)
+        selectionBar = SelectionBar(this, palette = { controls.paletteOnPaper }, onAction = ::perform)
         clipboard = ClipboardActions(this, canvasView, renderer, onToolChanged = { tool ->
             // The engine already switched to the tool that shows what was pasted.
             controls.change(controls.settings.copy(tool = tool))
@@ -624,7 +624,7 @@ class MainActivity : Activity() {
         val settings = controls.settings
         val wheel = PenWheel(
             this,
-            colors = settings.palette,
+            colors = controls.paletteOnPaper,
             presets = ToolOptionsPanel.PRESET_WIDTHS,
             color = settings.brush.color,
             brushWidth = settings.brush.width,
