@@ -297,7 +297,7 @@ impl RnLibraryView {
             }
             None => None,
         };
-        self.refresh();
+        self.changed();
         value
     }
 
@@ -325,8 +325,18 @@ impl RnLibraryView {
             error!("A library operation failed, Err: {e:?}");
             self.toast_error(&format!("{e:#}"));
         }
-        self.refresh();
+        self.changed();
         values
+    }
+
+    /// After an operation on the library: shows it again from disk, and syncs soon, so a
+    /// notebook renamed, moved, tagged or trashed reaches Drive (and the other devices)
+    /// without waiting for the next periodic sync or start.
+    fn changed(&self) {
+        self.refresh();
+        if let Some(appwindow) = self.appwindow() {
+            appwindow.sync().sync_soon();
+        }
     }
 
     /// The `library-dir` setting, empty when unset or without settings.
