@@ -6,7 +6,6 @@ import android.net.Uri
 import android.provider.DocumentsContract
 import android.provider.OpenableColumns
 import java.io.File
-import java.io.FileOutputStream
 import java.io.IOException
 
 /** Reading and writing documents through the Storage Access Framework. */
@@ -58,15 +57,7 @@ internal object DocumentFiles {
         val path = uri.path
         if (uri.scheme == "file" && path != null) {
             val target = File(path)
-            val temporary = File(target.parentFile, ".${target.name}.saving")
-            FileOutputStream(temporary).use { output ->
-                output.write(bytes)
-                output.fd.sync()
-            }
-            if (!temporary.renameTo(target)) {
-                temporary.delete()
-                throw IOException("Cannot replace $target")
-            }
+            DurableFiles.replace(target, bytes, ".${target.name}.saving")
             return
         }
         val output = resolver.openOutputStream(uri, "wt") ?: throw IOException("Cannot write $uri")

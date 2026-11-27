@@ -2,7 +2,6 @@ package io.github.yx14ng.rnote.viewer
 
 import android.content.Context
 import java.io.File
-import java.io.IOException
 
 /**
  * A copy of unsaved changes that have no file to go to, e.g. a new document, written when the
@@ -32,12 +31,8 @@ internal class Recovery(context: Context) {
      * at [libraryPath] last known as [knownSha256], if any; safe to call off the main thread.
      */
     fun write(bytes: ByteArray, documentName: String, libraryPath: String?, knownSha256: String?) {
-        // Write next to it and rename, so a crash mid-write never leaves a broken copy.
-        val partial = File(file.parentFile, "$FILE_NAME.partial")
-        partial.writeBytes(bytes)
-        if (!partial.renameTo(file)) {
-            throw IOException("Moving the recovery copy into place failed")
-        }
+        // Written next to it and renamed, so a crash mid-write never leaves a broken copy.
+        DurableFiles.replace(file, bytes, "$FILE_NAME.partial")
         preferences.edit()
             .putString(KEY_DOCUMENT_NAME, documentName)
             .putString(KEY_LIBRARY_PATH, libraryPath)
