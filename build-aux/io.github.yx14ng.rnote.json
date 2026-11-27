@@ -38,7 +38,9 @@
         "-Dprofile=default",
         "-Dcli=false",
         "-Dapp-id=io.github.yx14ng.rnote",
-        "-Dapp-name=Rnote (YX14ng)"
+        "-Dapp-name=Rnote (YX14ng)",
+        "-Dfork-version=0.4.0",
+        "-Drepo-url=https://github.com/YX14ng/rnote"
       ],
       "sources": [
         {

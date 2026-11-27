@@ -64,6 +64,17 @@ endif
 if get_option('app-name') != ''
     app_name_capitalized = get_option('app-name')
 endif
+# A fork shows its own version, and sends its issues to its own repository.
+shown_version = version
+if get_option('fork-version') != ''
+    shown_version = get_option('fork-version') + ' (Rnote ' + version + ')'
+endif
+if get_option('repo-url') != ''
+    app_website = get_option('repo-url')
+    app_repo_url = get_option('repo-url')
+    app_issues_url = app_repo_url + '/issues'
+    app_support_url = app_repo_url + '/issues'
+endif
 
 # Dependencies
 dependency('glib-2.0', version: '>= 2.88')

@@ -47,3 +47,15 @@ option(
   value: '',
   description: 'The name shown to the user, to tell a fork apart from Rnote. Empty: "Rnote".',
 )
+option(
+  'fork-version',
+  type: 'string',
+  value: '',
+  description: 'The version of a fork, shown with the Rnote version it is based on. Empty: the Rnote version.',
+)
+option(
+  'repo-url',
+  type: 'string',
+  value: '',
+  description: 'The repository of a fork, shown as its website and where to report issues. Empty: Rnote\'s.',
+)
