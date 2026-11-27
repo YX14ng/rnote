@@ -140,3 +140,62 @@ fn small_strokes_are_left_alone() {
             .is_none()
     );
 }
+
+/// The shape of the only stroke, as inserted.
+fn only_shape(engine: &Engine) -> crate::strokes::ShapeStroke {
+    match strokes(engine).as_slice() {
+        [Stroke::ShapeStroke(shape)] => shape.clone(),
+        other => panic!("expected one shape, got {other:?}"),
+    }
+}
+
+#[test]
+fn recognized_shapes_take_the_brush_color_and_width() {
+    use rnote_compose::shapes::{QuadraticBezier, Rectangle, Shape};
+    use rnote_compose::{Color, Style};
+
+    let blue = Color::new(0.0, 0.0, 1.0, 1.0);
+    let red = Color::new(1.0, 0.0, 0.0, 1.0);
+    let green = Color::new(0.0, 1.0, 0.0, 1.0);
+    let make_engine = || {
+        let engine = Engine::default();
+        {
+            let mut config = engine.config.write();
+            let brush = &mut config.pens_config.brush_config;
+            brush.style = crate::pens::pensconfig::brushconfig::BrushStyle::Solid;
+            brush.solid_options.stroke_color = Some(blue);
+            brush.solid_options.stroke_width = 3.0;
+            let shaper = &mut config.pens_config.shaper_config;
+            shaper.smooth_options.stroke_color = Some(red);
+            shaper.smooth_options.stroke_width = 9.0;
+            shaper.smooth_options.fill_color = Some(green);
+        }
+        engine
+    };
+    let rectangle = Shape::Rectangle(Rectangle::from_corners(
+        Vector2::new(0.0, 0.0),
+        Vector2::new(100.0, 50.0),
+    ));
+    let bracket = Shape::QuadraticBezier(QuadraticBezier {
+        start: Vector2::new(0.0, 0.0),
+        cp: Vector2::new(-30.0, 100.0),
+        end: Vector2::new(0.0, 200.0),
+    });
+
+    let mut engine = make_engine();
+    let _ = engine.insert_recognized_shape(rectangle);
+    let Style::Smooth(options) = only_shape(&engine).style else {
+        panic!("expected a smooth style");
+    };
+    assert_eq!(options.stroke_color, Some(blue));
+    assert_eq!(options.stroke_width, 3.0);
+    assert_eq!(options.fill_color, Some(green));
+
+    let mut engine = make_engine();
+    let _ = engine.insert_recognized_shape(bracket);
+    let Style::Smooth(options) = only_shape(&engine).style else {
+        panic!("expected a smooth style");
+    };
+    assert_eq!(options.stroke_color, Some(blue));
+    assert_eq!(options.fill_color, None);
+}

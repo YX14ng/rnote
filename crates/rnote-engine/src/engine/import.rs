@@ -339,31 +339,21 @@ impl Engine {
         widget_flags
     }
 
-    /// Insert shapes styled like the shaper currently draws them, as if they had just been
-    /// drawn: unselected, keeping the current pen, and recorded as one change.
-    pub fn insert_shapes(&mut self, shapes: Vec<Shape>) -> WidgetFlags {
+    /// Insert a recognized shape as if it had just been drawn: unselected, keeping the
+    /// current pen, and recorded as one change. It takes the brush's color and width, and the
+    /// rest of its style from the shaper (see [`crate::shape_recognition::recognized_style`]).
+    pub fn insert_recognized_shape(&mut self, shape: Shape) -> WidgetFlags {
         let mut widget_flags = WidgetFlags::default();
-        if shapes.is_empty() {
-            return widget_flags;
-        }
-        let mut style = self
-            .config
-            .read()
-            .pens_config
-            .shaper_config
-            .gen_style_for_current_options();
-        for shape in shapes {
-            let key = self.store.insert_stroke(
-                Stroke::ShapeStroke(ShapeStroke::new(shape, style.clone())),
-                None,
-            );
-            style.advance_seed();
-            self.store.regenerate_rendering_for_stroke(
-                key,
-                self.camera.viewport(),
-                self.camera.image_scale(),
-            );
-        }
+        let style =
+            crate::shape_recognition::recognized_style(&self.config.read().pens_config, &shape);
+        let key = self
+            .store
+            .insert_stroke(Stroke::ShapeStroke(ShapeStroke::new(shape, style)), None);
+        self.store.regenerate_rendering_for_stroke(
+            key,
+            self.camera.viewport(),
+            self.camera.image_scale(),
+        );
         widget_flags |= self.doc_resize_autoexpand() | self.store.record(Instant::now());
         widget_flags.store_modified = true;
         widget_flags.resize = true;

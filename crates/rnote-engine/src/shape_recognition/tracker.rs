@@ -79,7 +79,7 @@ impl StrokeTracker {
         };
         let (_propagation, mut flags) = engine.handle_pen_event(up, Some(PenMode::Pen), now);
         flags |= engine.undo(now);
-        flags |= engine.insert_shapes(vec![shape]);
+        flags |= engine.insert_recognized_shape(shape);
         self.points.clear();
         self.snapped = true;
         Some(flags)

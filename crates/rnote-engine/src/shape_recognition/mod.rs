@@ -14,15 +14,17 @@ use parry2d_f64::math::Vector2;
 use parry2d_f64::shape::Cuboid;
 use rnote_compose::shapes::{Arrow, Ellipse, Line, Polygon, Polyline, Rectangle, Shape};
 
+pub use self::style::recognized_style;
 pub use self::tracker::StrokeTracker;
 
 use self::geometry::{bounding_box, convex_hull, rotated_area, rotated_bounds};
 
 mod geometry;
 mod polygons;
-mod tracker;
+mod style;
 #[cfg(test)]
 mod tests;
+mod tracker;
 
 /// Fewest samples a stroke needs to be considered.
 const MIN_POINTS: usize = 8;
