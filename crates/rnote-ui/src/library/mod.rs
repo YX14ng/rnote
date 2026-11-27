@@ -3,6 +3,7 @@
 mod actions;
 mod busy;
 mod card;
+mod covers;
 pub(crate) mod dialogs;
 pub(crate) mod error_text;
 mod search;

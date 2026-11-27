@@ -4944,6 +4944,46 @@ msgstr "「{name}」在兩台裝置上被修改：兩個版本都已保留"
 msgid "Show Library"
 msgstr "顯示資料庫"
 
+#: crates/rnote-ui/src/library/actions.rs
+msgid "Cover"
+msgstr "封面"
+
+#: crates/rnote-ui/src/library/covers.rs
+msgid "No Cover"
+msgstr "無封面"
+
+#: crates/rnote-ui/src/library/covers.rs
+msgid "Blue"
+msgstr "藍色"
+
+#: crates/rnote-ui/src/library/covers.rs
+msgid "Green"
+msgstr "綠色"
+
+#: crates/rnote-ui/src/library/covers.rs
+msgid "Orange"
+msgstr "橘色"
+
+#: crates/rnote-ui/src/library/covers.rs
+msgid "Red"
+msgstr "紅色"
+
+#: crates/rnote-ui/src/library/covers.rs
+msgid "Violet"
+msgstr "紫色"
+
+#: crates/rnote-ui/src/library/covers.rs
+msgid "Turquoise"
+msgstr "土耳其藍"
+
+#: crates/rnote-ui/src/library/covers.rs
+msgid "Mustard"
+msgstr "芥末黃"
+
+#: crates/rnote-ui/src/library/covers.rs
+msgid "Graphite"
+msgstr "石墨灰"
+
 #~ msgid "Brush Style"
 #~ msgstr "筆刷樣式"
 

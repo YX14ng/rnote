@@ -94,3 +94,20 @@ fn delete_forever_leaves_a_tombstone() {
     assert!(!covers.is_empty());
     assert!(covers.values().all(|record| record["deleted"] == true), "{covers:?}");
 }
+
+#[test]
+fn the_cover_palette_matches_the_android_app() {
+    assert_eq!(
+        crate::COVER_COLORS,
+        [
+            0xFF3D_6FB6,
+            0xFF3F_8F6B,
+            0xFFC9_773A,
+            0xFFB5_524E,
+            0xFF7A_5BB0,
+            0xFF2F_8C93,
+            0xFFB8_922E,
+            0xFF5E_6470,
+        ]
+    );
+}

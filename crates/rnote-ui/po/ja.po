@@ -5110,6 +5110,46 @@ msgstr "「{name}」は 2 台のデバイスで変更されました。両方の
 msgid "Show Library"
 msgstr "ライブラリを表示"
 
+#: crates/rnote-ui/src/library/actions.rs
+msgid "Cover"
+msgstr "表紙"
+
+#: crates/rnote-ui/src/library/covers.rs
+msgid "No Cover"
+msgstr "表紙なし"
+
+#: crates/rnote-ui/src/library/covers.rs
+msgid "Blue"
+msgstr "青"
+
+#: crates/rnote-ui/src/library/covers.rs
+msgid "Green"
+msgstr "緑"
+
+#: crates/rnote-ui/src/library/covers.rs
+msgid "Orange"
+msgstr "オレンジ"
+
+#: crates/rnote-ui/src/library/covers.rs
+msgid "Red"
+msgstr "赤"
+
+#: crates/rnote-ui/src/library/covers.rs
+msgid "Violet"
+msgstr "紫"
+
+#: crates/rnote-ui/src/library/covers.rs
+msgid "Turquoise"
+msgstr "ターコイズ"
+
+#: crates/rnote-ui/src/library/covers.rs
+msgid "Mustard"
+msgstr "マスタード"
+
+#: crates/rnote-ui/src/library/covers.rs
+msgid "Graphite"
+msgstr "グラファイト"
+
 #~ msgid "Brush Style"
 #~ msgstr "ブラシのスタイル"
 

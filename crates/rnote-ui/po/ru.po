@@ -5236,6 +5236,46 @@ msgstr "«{name}» изменён на двух устройствах: сохр
 msgid "Show Library"
 msgstr "Показать библиотеку"
 
+#: crates/rnote-ui/src/library/actions.rs
+msgid "Cover"
+msgstr "Обложка"
+
+#: crates/rnote-ui/src/library/covers.rs
+msgid "No Cover"
+msgstr "Без обложки"
+
+#: crates/rnote-ui/src/library/covers.rs
+msgid "Blue"
+msgstr "Синяя"
+
+#: crates/rnote-ui/src/library/covers.rs
+msgid "Green"
+msgstr "Зелёная"
+
+#: crates/rnote-ui/src/library/covers.rs
+msgid "Orange"
+msgstr "Оранжевая"
+
+#: crates/rnote-ui/src/library/covers.rs
+msgid "Red"
+msgstr "Красная"
+
+#: crates/rnote-ui/src/library/covers.rs
+msgid "Violet"
+msgstr "Фиолетовая"
+
+#: crates/rnote-ui/src/library/covers.rs
+msgid "Turquoise"
+msgstr "Бирюзовая"
+
+#: crates/rnote-ui/src/library/covers.rs
+msgid "Mustard"
+msgstr "Горчичная"
+
+#: crates/rnote-ui/src/library/covers.rs
+msgid "Graphite"
+msgstr "Графитовая"
+
 #~ msgid "Brush Style"
 #~ msgstr "Стиль кисти"
 

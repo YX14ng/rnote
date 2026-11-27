@@ -5058,6 +5058,46 @@ msgstr "“{name}”이(가) 두 기기에서 변경되었습니다. 두 버전�
 msgid "Show Library"
 msgstr "라이브러리 보기"
 
+#: crates/rnote-ui/src/library/actions.rs
+msgid "Cover"
+msgstr "표지"
+
+#: crates/rnote-ui/src/library/covers.rs
+msgid "No Cover"
+msgstr "표지 없음"
+
+#: crates/rnote-ui/src/library/covers.rs
+msgid "Blue"
+msgstr "파란색"
+
+#: crates/rnote-ui/src/library/covers.rs
+msgid "Green"
+msgstr "초록색"
+
+#: crates/rnote-ui/src/library/covers.rs
+msgid "Orange"
+msgstr "주황색"
+
+#: crates/rnote-ui/src/library/covers.rs
+msgid "Red"
+msgstr "빨간색"
+
+#: crates/rnote-ui/src/library/covers.rs
+msgid "Violet"
+msgstr "보라색"
+
+#: crates/rnote-ui/src/library/covers.rs
+msgid "Turquoise"
+msgstr "청록색"
+
+#: crates/rnote-ui/src/library/covers.rs
+msgid "Mustard"
+msgstr "겨자색"
+
+#: crates/rnote-ui/src/library/covers.rs
+msgid "Graphite"
+msgstr "흑연색"
+
 #~ msgid "Brush Style"
 #~ msgstr "브러시 스타일"
 

@@ -7,7 +7,7 @@ use gettextrs::gettext;
 use gtk4::{gio, glib, glib::clone, prelude::*, subclass::prelude::*};
 use rnote_library::{Notebook, Section, TrashEntry};
 
-use super::{RnLibraryView, dialogs, tabs, tagchoice};
+use super::{RnLibraryView, covers, dialogs, tabs, tagchoice};
 
 /// The menu of a notebook's card.
 pub(super) fn notebook_menu(notebook: &Notebook, folders: &[String]) -> gio::Menu {
@@ -16,6 +16,7 @@ pub(super) fn notebook_menu(notebook: &Notebook, folders: &[String]) -> gio::Men
     let edit = gio::Menu::new();
     edit.append_item(&item(&gettext("Rename…"), "library.rename", &path));
     edit.append_item(&item(&gettext("Tags…"), "library.tags", &path));
+    edit.append_submenu(Some(&gettext("Cover")), &covers::cover_menu(&notebook.path));
     edit.append_item(&item(&gettext("Duplicate"), "library.duplicate", &path));
     menu.append_section(None, &edit);
     let moves = gio::Menu::new();
@@ -110,6 +111,18 @@ impl RnLibraryView {
                 view.move_notebooks(&[path], &folder);
             }
         });
+        let path_and_cover = Some(glib::VariantTy::new("(sx)").expect("a valid type"));
+        self.add_async(
+            actions,
+            "set-cover",
+            path_and_cover,
+            |view, arg| async move {
+                if let Some((path, cover)) = arg.and_then(|arg| arg.get::<(String, i64)>()) {
+                    let cover = covers::cover_from_target(cover);
+                    view.modify(|library| library.set_cover(&path, cover));
+                }
+            },
+        );
         self.add_async(actions, "duplicate", string, |view, arg| async move {
             if let Some(path) = arg.and_then(|arg| arg.get::<String>()) {
                 view.modify(|library| library.duplicate(&path));

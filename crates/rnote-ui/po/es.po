@@ -5321,6 +5321,46 @@ msgstr "«{name}» se cambió en dos dispositivos: se guardaron las dos versione
 msgid "Show Library"
 msgstr "Mostrar la biblioteca"
 
+#: crates/rnote-ui/src/library/actions.rs
+msgid "Cover"
+msgstr "Portada"
+
+#: crates/rnote-ui/src/library/covers.rs
+msgid "No Cover"
+msgstr "Sin portada"
+
+#: crates/rnote-ui/src/library/covers.rs
+msgid "Blue"
+msgstr "Azul"
+
+#: crates/rnote-ui/src/library/covers.rs
+msgid "Green"
+msgstr "Verde"
+
+#: crates/rnote-ui/src/library/covers.rs
+msgid "Orange"
+msgstr "Naranja"
+
+#: crates/rnote-ui/src/library/covers.rs
+msgid "Red"
+msgstr "Rojo"
+
+#: crates/rnote-ui/src/library/covers.rs
+msgid "Violet"
+msgstr "Violeta"
+
+#: crates/rnote-ui/src/library/covers.rs
+msgid "Turquoise"
+msgstr "Turquesa"
+
+#: crates/rnote-ui/src/library/covers.rs
+msgid "Mustard"
+msgstr "Mostaza"
+
+#: crates/rnote-ui/src/library/covers.rs
+msgid "Graphite"
+msgstr "Grafito"
+
 #~ msgid "Brush Style"
 #~ msgstr "Estilo del pincel"
 
