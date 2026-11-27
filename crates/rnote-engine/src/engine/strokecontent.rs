@@ -165,6 +165,54 @@ impl StrokeContent {
         margin: f64,
         image_scale: f64,
     ) -> anyhow::Result<()> {
+        let paper = if draw_background {
+            self.background.map(|background| background.color)
+        } else {
+            None
+        };
+        self.draw_on_paper(
+            cairo_cx,
+            draw_background,
+            draw_pattern,
+            paper,
+            optimize_printing,
+            margin,
+            image_scale,
+        )
+    }
+
+    /// Draws the strokes, without a background, onto paper of color `paper` that is drawn
+    /// already: highlighters blend with it as with a background drawn here.
+    pub fn draw_onto_paper_to_cairo(
+        &self,
+        cairo_cx: &cairo::Context,
+        paper: rnote_compose::Color,
+        optimize_printing: bool,
+        margin: f64,
+        image_scale: f64,
+    ) -> anyhow::Result<()> {
+        self.draw_on_paper(
+            cairo_cx,
+            false,
+            false,
+            Some(paper),
+            optimize_printing,
+            margin,
+            image_scale,
+        )
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    fn draw_on_paper(
+        &self,
+        cairo_cx: &cairo::Context,
+        draw_background: bool,
+        draw_pattern: bool,
+        paper: Option<rnote_compose::Color>,
+        optimize_printing: bool,
+        margin: f64,
+        image_scale: f64,
+    ) -> anyhow::Result<()> {
         let Some(bounds) = self.bounds() else {
             return Ok(());
         };
@@ -180,7 +228,14 @@ impl StrokeContent {
 
         cairo_cx.save()?;
         cairo_clip_bounds(cairo_cx, bounds);
-        cairo_cx.set_operator(cairo::Operator::Multiply);
+        // Multiplying shows a highlighter on light paper but leaves nothing on dark paper:
+        // there it lightens instead (screen), which keeps the ink over it readable.
+        let dark_paper = paper.is_some_and(|paper| paper.luma() < 0.5);
+        cairo_cx.set_operator(if dark_paper {
+            cairo::Operator::Screen
+        } else {
+            cairo::Operator::Multiply
+        });
 
         let image_bounds = self.image_bounds();
         for stroke in self

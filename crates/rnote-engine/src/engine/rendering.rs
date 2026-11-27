@@ -213,9 +213,15 @@ impl Engine {
         // push clip
         snapshot.push_clip(&graphene::Rect::from_p2d_aabb(doc_bounds));
 
-        // push blend mode for each highlighter stroke
+        // push blend mode for each highlighter stroke: multiplying on light paper, lightening
+        // (screen) on dark paper, where multiplying would leave nothing
+        let highlighter_blend = if self.document.config.background.color.luma() < 0.5 {
+            gtk4::gsk::BlendMode::Screen
+        } else {
+            gtk4::gsk::BlendMode::Multiply
+        };
         for _ in highlighter_keys.iter() {
-            snapshot.push_blend(gtk4::gsk::BlendMode::Multiply);
+            snapshot.push_blend(highlighter_blend);
         }
 
         self.draw_background_to_gtk_snapshot(snapshot)?;

@@ -168,3 +168,28 @@ fn the_engine_keeps_no_stroke_rasters_the_app_never_draws() {
 
     assert_eq!(document.engine.stroke_rendering_images(), 0);
 }
+
+/// The color a yellow highlighter line leaves on paper of `paper` color.
+fn highlighted(paper: Color) -> [u8; 4] {
+    let mut document = plain_document();
+    document.engine.document.config.background.color = paper;
+    document.set_brush_style(rnote_engine::pens::pensconfig::brushconfig::BrushStyle::Marker);
+    document.set_brush(Color { r: 1.0, g: 0.84, b: 0.0, a: 0.4 }, 12.0);
+    draw_line(&mut document, 200.0);
+    render_pixel(&mut document, 200.0, 200.0)
+}
+
+#[test]
+fn a_highlighter_darkens_light_paper() {
+    let [r, g, b, _] = highlighted(Color { r: 1.0, g: 1.0, b: 1.0, a: 1.0 });
+
+    assert!(r > 230 && g < 250 && b < 200, "got {:?}", [r, g, b]);
+}
+
+#[test]
+fn a_highlighter_shows_on_dark_paper() {
+    let [r, g, b, _] = highlighted(Color { r: 0.0, g: 0.0, b: 0.0, a: 1.0 });
+
+    // Lighter than the black paper, and yellow: more red and green than blue.
+    assert!(r > 60 && g > 50 && b < 30, "got {:?}", [r, g, b]);
+}

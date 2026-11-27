@@ -184,9 +184,12 @@ impl Scene<'_> {
         StrokeContent::default()
             .with_strokes(ink.into_iter().cloned().collect())
             .with_bounds(self.viewport_bounds())
-            .draw_to_cairo(
-                &cx, /* draw_background */ false, /* draw_pattern */ false,
-                /* optimize_printing */ false, /* margin */ 0.0,
+            // Onto the background drawn above, so highlighters blend with its color.
+            .draw_onto_paper_to_cairo(
+                &cx,
+                self.engine.document.config.background.color,
+                /* optimize_printing */ false,
+                /* margin */ 0.0,
                 /* image_scale */ zoom,
             )?;
         Ok(())
