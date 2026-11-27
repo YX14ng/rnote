@@ -5679,6 +5679,24 @@ msgstr "Mantené el lápiz quieto al terminar un trazo para convertirlo en una f
 msgid "Unlock the keyring to sign out: until then, this computer stays signed in"
 msgstr "Desbloqueá el llavero para cerrar sesión: hasta entonces, esta computadora sigue con la sesión iniciada"
 
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Remove Pages…"
+msgstr "Quitar varias páginas…"
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Remove Pages"
+msgstr "Quitar páginas"
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Remove {n} Page?"
+msgid_plural "Remove {n} Pages?"
+msgstr[0] "¿Quitar {n} página?"
+msgstr[1] "¿Quitar {n} páginas?"
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "What is written on them is removed too. You can undo it."
+msgstr "Lo que está escrito en ellas también se quita. Podés deshacerlo."
+
 #~ msgid "Brush Style"
 #~ msgstr "Estilo del pincel"
 

@@ -1,8 +1,9 @@
 //! What the page menus do: insert, duplicate, move and remove pages. Each is one step to
 //! undo.
 
-use gettextrs::gettext;
-use gtk4::{gio, glib, glib::clone, prelude::*, subclass::prelude::*};
+use adw::prelude::*;
+use gettextrs::{gettext, ngettext};
+use gtk4::{gio, glib, glib::clone, subclass::prelude::*};
 use rnote_engine::{Engine, WidgetFlags};
 
 use super::RnPagesPanel;
@@ -30,6 +31,9 @@ pub(super) fn page_menu(page: u32, count: u32) -> gio::Menu {
     }
     let remove = gio::Menu::new();
     remove.append_item(&item(&gettext("Remove Page"), "pages.remove"));
+    if count > 1 {
+        remove.append_item(&item(&gettext("Remove Pages…"), "pages.remove-several"));
+    }
     let menu = gio::Menu::new();
     menu.append_section(None, &insert);
     menu.append_section(None, &arrange);
@@ -73,6 +77,13 @@ impl RnPagesPanel {
                 async move { panel.remove(page).await }
             ));
         });
+        add("remove-several", |panel, page| {
+            glib::spawn_future_local(clone!(
+                #[weak]
+                panel,
+                async move { panel.remove_several(page).await }
+            ));
+        });
         add("insert-pdf", |panel, page| {
             glib::spawn_future_local(clone!(
                 #[weak]
@@ -104,6 +115,37 @@ impl RnPagesPanel {
         self.refresh();
     }
 
+    /// Asks which pages to remove, starting from `page`, then removes them, asking first if
+    /// something is written on them; one step to undo, as on Android.
+    async fn remove_several(&self, page: u32) {
+        let (Some(appwindow), Some(canvas)) = (self.appwindow(), self.canvas()) else {
+            return;
+        };
+        let count = canvas.engine_ref().doc_page_count_fixed_size().unwrap_or(0);
+        let Some((from, to)) = ask_pages_to_remove(&appwindow, page + 1, count).await else {
+            return;
+        };
+        let pages = pages_between(from, to, count);
+        let with_content = canvas.engine_ref().doc_pages_with_content_fixed_size();
+        let written = pages
+            .iter()
+            .any(|&page| with_content.get(page as usize).copied().unwrap_or(false));
+        let n = pages.len() as u32;
+        if written
+            && !crate::library::dialogs::confirm(
+                &appwindow,
+                &ngettext("Remove {n} Page?", "Remove {n} Pages?", n)
+                    .replace("{n}", &n.to_string()),
+                &gettext("What is written on them is removed too. You can undo it."),
+                &gettext("Remove"),
+            )
+            .await
+        {
+            return;
+        }
+        self.edit(|engine| engine.doc_remove_pages_fixed_size(&pages));
+    }
+
     /// Removes `page`, asking first if something is written on it.
     async fn remove(&self, page: u32) {
         let (Some(appwindow), Some(canvas)) = (self.appwindow(), self.canvas()) else {
@@ -127,5 +169,63 @@ impl RnPagesPanel {
             return;
         }
         self.edit(|engine| engine.doc_remove_pages_fixed_size(&[page]));
+    }
+}
+
+/// The pages (from 0) of a notebook of `count` pages between the numbers `from` and `to`
+/// (as shown, from 1), in either order.
+fn pages_between(from: u32, to: u32, count: u32) -> Vec<u32> {
+    let last = count.max(1);
+    let (first, end) = (from.min(to).clamp(1, last), from.max(to).clamp(1, last));
+    (first - 1..end).collect()
+}
+
+/// Asks from which page to which (numbers as shown) to remove, in a notebook of `count`
+/// pages, starting at `page`. `None` when cancelled.
+async fn ask_pages_to_remove(
+    appwindow: &crate::RnAppWindow,
+    page: u32,
+    count: u32,
+) -> Option<(u32, u32)> {
+    const REMOVE: &str = "remove";
+    const CANCEL: &str = "cancel";
+    let count_f = f64::from(count);
+    let first_row = adw::SpinRow::with_range(1.0, count_f, 1.0);
+    first_row.set_title(&gettext("From Page"));
+    first_row.set_value(f64::from(page));
+    let last_row = adw::SpinRow::with_range(1.0, count_f, 1.0);
+    last_row.set_title(&gettext("To Page"));
+    last_row.set_value(f64::from(page));
+    let list = gtk4::ListBox::builder()
+        .selection_mode(gtk4::SelectionMode::None)
+        .css_classes(["boxed-list"])
+        .build();
+    list.append(&first_row);
+    list.append(&last_row);
+    let dialog = adw::AlertDialog::builder()
+        .heading(gettext("Remove Pages"))
+        .extra_child(&list)
+        .default_response(REMOVE)
+        .close_response(CANCEL)
+        .build();
+    dialog.add_responses(&[(CANCEL, &gettext("Cancel")), (REMOVE, &gettext("Remove"))]);
+    dialog.set_response_appearance(REMOVE, adw::ResponseAppearance::Destructive);
+    if dialog.choose_future(Some(appwindow)).await != REMOVE {
+        return None;
+    }
+    Some((first_row.value() as u32, last_row.value() as u32))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::pages_between;
+
+    #[test]
+    fn the_pages_between_two_numbers_in_either_order_inside_the_notebook() {
+        // Numbers as shown (from 1), pages from 0.
+        assert_eq!(pages_between(2, 4, 5), vec![1, 2, 3]);
+        assert_eq!(pages_between(4, 2, 5), vec![1, 2, 3]);
+        assert_eq!(pages_between(3, 9, 5), vec![2, 3, 4]);
+        assert_eq!(pages_between(0, 1, 5), vec![0]);
     }
 }

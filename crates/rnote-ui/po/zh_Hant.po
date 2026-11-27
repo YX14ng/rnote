@@ -5299,6 +5299,23 @@ msgstr "畫完一筆後讓筆停住，即可將其變為形狀"
 msgid "Unlock the keyring to sign out: until then, this computer stays signed in"
 msgstr "請先解鎖金鑰圈再登出：在此之前，這台電腦仍保持登入"
 
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Remove Pages…"
+msgstr "移除多頁…"
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Remove Pages"
+msgstr "移除頁面"
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Remove {n} Page?"
+msgid_plural "Remove {n} Pages?"
+msgstr[0] "要移除 {n} 頁嗎？"
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "What is written on them is removed too. You can undo it."
+msgstr "其中寫下的內容也會一併移除。可以復原。"
+
 #~ msgid "Brush Style"
 #~ msgstr "筆刷樣式"
 

@@ -5465,6 +5465,23 @@ msgstr "線を描き終えたところでペンを止めると、図形に変わ
 msgid "Unlock the keyring to sign out: until then, this computer stays signed in"
 msgstr "サインアウトするにはキーリングのロックを解除してください。それまでこのコンピューターはサインインしたままです"
 
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Remove Pages…"
+msgstr "複数のページを削除…"
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Remove Pages"
+msgstr "ページを削除"
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Remove {n} Page?"
+msgid_plural "Remove {n} Pages?"
+msgstr[0] "{n} ページを削除しますか？"
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "What is written on them is removed too. You can undo it."
+msgstr "書かれている内容も削除されます。元に戻せます。"
+
 #~ msgid "Brush Style"
 #~ msgstr "ブラシのスタイル"
 

@@ -5207,3 +5207,21 @@ msgstr ""
 #: crates/rnote-ui/src/sync/mod.rs
 msgid "Unlock the keyring to sign out: until then, this computer stays signed in"
 msgstr ""
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Remove Pages…"
+msgstr ""
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Remove Pages"
+msgstr ""
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Remove {n} Page?"
+msgid_plural "Remove {n} Pages?"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "What is written on them is removed too. You can undo it."
+msgstr ""

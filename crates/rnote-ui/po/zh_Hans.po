@@ -5293,6 +5293,23 @@ msgstr "画完一笔后让笔停住，即可将其变为形状"
 msgid "Unlock the keyring to sign out: until then, this computer stays signed in"
 msgstr "请先解锁密钥环再退出登录：在此之前，这台电脑仍保持登录"
 
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Remove Pages…"
+msgstr "移除多页…"
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Remove Pages"
+msgstr "移除页面"
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Remove {n} Page?"
+msgid_plural "Remove {n} Pages?"
+msgstr[0] "要移除 {n} 页吗？"
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "What is written on them is removed too. You can undo it."
+msgstr "其中写下的内容也会一并移除。可以撤销。"
+
 #~ msgid "Brush Style"
 #~ msgstr "笔刷样式"
 

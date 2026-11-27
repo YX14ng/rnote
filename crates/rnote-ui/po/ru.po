@@ -5597,6 +5597,25 @@ msgstr "Задержите перо в конце штриха, чтобы пр�
 msgid "Unlock the keyring to sign out: until then, this computer stays signed in"
 msgstr "Разблокируйте связку ключей, чтобы выйти: до тех пор этот компьютер остаётся в системе"
 
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Remove Pages…"
+msgstr "Удалить несколько страниц…"
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Remove Pages"
+msgstr "Удалить страницы"
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Remove {n} Page?"
+msgid_plural "Remove {n} Pages?"
+msgstr[0] "Удалить {n} страницу?"
+msgstr[1] "Удалить {n} страницы?"
+msgstr[2] "Удалить {n} страниц?"
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "What is written on them is removed too. You can undo it."
+msgstr "Написанное на них тоже удалится. Это можно отменить."
+
 #~ msgid "Brush Style"
 #~ msgstr "Стиль кисти"
 

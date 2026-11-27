@@ -5413,6 +5413,23 @@ msgstr "획을 그은 끝에서 펜을 멈추면 도형으로 바뀝니다"
 msgid "Unlock the keyring to sign out: until then, this computer stays signed in"
 msgstr "로그아웃하려면 키링 잠금을 해제하세요. 그때까지 이 컴퓨터는 로그인 상태로 유지됩니다"
 
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Remove Pages…"
+msgstr "여러 페이지 제거…"
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Remove Pages"
+msgstr "페이지 제거"
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "Remove {n} Page?"
+msgid_plural "Remove {n} Pages?"
+msgstr[0] "{n}개 페이지를 제거할까요?"
+
+#: crates/rnote-ui/src/pages/actions.rs
+msgid "What is written on them is removed too. You can undo it."
+msgstr "적힌 내용도 함께 제거됩니다. 실행 취소할 수 있습니다."
+
 #~ msgid "Brush Style"
 #~ msgstr "브러시 스타일"
 
