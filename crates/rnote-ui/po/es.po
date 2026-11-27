@@ -5287,6 +5287,31 @@ msgstr "Rnote no tiene permiso para usar ese archivo o carpeta"
 msgid "The file or folder no longer exists"
 msgstr "El archivo o la carpeta ya no existe"
 
+
+#: crates/rnote-ui/data/ui/library/libraryview.ui
+msgid "Search Notebooks"
+msgstr "Buscar cuadernos"
+
+#: crates/rnote-ui/data/ui/library/libraryview.ui
+msgid "Search notebooks"
+msgstr "Buscar cuadernos"
+
+#: crates/rnote-ui/src/library/search.rs
+msgid "No notebook is named like “{name}”"
+msgstr "Ningún cuaderno se llama como «{name}»"
+
+#: crates/rnote-ui/src/library/search.rs
+msgid "The trash is empty"
+msgstr "La papelera está vacía"
+
+#: crates/rnote-ui/src/library/search.rs
+msgid "This folder has no notebooks yet"
+msgstr "Esta carpeta todavía no tiene cuadernos"
+
+#: crates/rnote-ui/src/library/search.rs
+msgid "No notebook has this tag yet"
+msgstr "Ningún cuaderno tiene esta etiqueta todavía"
+
 #~ msgid "Brush Style"
 #~ msgstr "Estilo del pincel"
 

@@ -6,7 +6,9 @@ use rnote_library::{Library, Notebook, Section, SortOrder};
 use tracing::error;
 
 use super::card::{self, Card};
-use super::{LIST_VIEW_KEY, RnLibraryView, SELECTION_MODE, SORT_BY_NAME_KEY, actions, sidebar};
+use super::{
+    LIST_VIEW_KEY, RnLibraryView, SELECTION_MODE, SORT_BY_NAME_KEY, actions, search, sidebar,
+};
 
 impl RnLibraryView {
     /// Fills the sidebar, the header and the cards from the open library.
@@ -50,27 +52,43 @@ impl RnLibraryView {
         imp.title
             .set_title(&sidebar::section_title(&section, &tags));
 
+        let query = self.query();
+        let searching = !query.is_empty();
         let selecting = self.flag(SELECTION_MODE) && section != Section::Trash;
         self.show_header_for(&section, &folders, selecting);
         let list = self.flag(LIST_VIEW_KEY);
         imp.flowbox
             .set_max_children_per_line(if list { 1 } else { 12 });
         imp.flowbox.remove_all();
-        if section == Section::Trash {
+        if section == Section::Trash && !searching {
+            let empty = library.trash_entries().is_empty();
+            self.show_empty(empty.then(|| search::empty_message(&section, "")).flatten());
             self.show_trash(library, list);
             imp.new_card_shown.set(false);
             imp.shown.borrow_mut().clear();
             return;
         }
 
-        let mut shown = rnote_library::filter(&notebooks, &section);
+        // A search looks through every notebook, whatever the section.
+        let mut shown = if searching {
+            rnote_library::search(&notebooks, &query)
+        } else {
+            rnote_library::filter(&notebooks, &section)
+        };
         let order = if self.flag(SORT_BY_NAME_KEY) {
             SortOrder::Name
         } else {
             SortOrder::Modified
         };
         rnote_library::sort(&mut shown, order);
-        let new_card_shown = !selecting;
+        let new_card_shown = !selecting && !searching;
+        let empty_query = if searching { query.as_str() } else { "" };
+        self.show_empty(
+            shown
+                .is_empty()
+                .then(|| search::empty_message(&section, empty_query))
+                .flatten(),
+        );
         if new_card_shown {
             self.append_card(&card::new_card(list), 0);
         }

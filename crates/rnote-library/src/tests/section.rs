@@ -107,3 +107,21 @@ fn counts_count_a_notebook_once_per_tag() {
     assert_eq!(counts.tags["t2"], 1);
     assert_eq!(counts.tags.len(), 2);
 }
+
+#[test]
+fn a_search_finds_names_with_every_word_ignoring_case_and_accents() {
+    let notebooks = vec![
+        notebook("Álgebra Lineal - Parcial 2.rnote", 1, &[]),
+        notebook("Orga/Física II.rnote", 2, &[]),
+        notebook("Otro.rnote", 3, &[]),
+    ];
+
+    let found = |query: &str| -> Vec<String> {
+        crate::search(&notebooks, query).into_iter().map(|n| n.path).collect()
+    };
+
+    assert_eq!(found("parcial algebra"), ["Álgebra Lineal - Parcial 2.rnote"]);
+    assert_eq!(found("FISICA"), ["Orga/Física II.rnote"]);
+    assert!(found("algebra orga").is_empty());
+    assert_eq!(found("  ").len(), 3, "an empty search finds everything");
+}

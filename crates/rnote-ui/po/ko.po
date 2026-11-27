@@ -5024,6 +5024,31 @@ msgstr "Rnote에 해당 파일이나 폴더를 사용할 권한이 없습니다"
 msgid "The file or folder no longer exists"
 msgstr "파일이나 폴더가 더 이상 없습니다"
 
+
+#: crates/rnote-ui/data/ui/library/libraryview.ui
+msgid "Search Notebooks"
+msgstr "노트북 검색"
+
+#: crates/rnote-ui/data/ui/library/libraryview.ui
+msgid "Search notebooks"
+msgstr "노트북 검색"
+
+#: crates/rnote-ui/src/library/search.rs
+msgid "No notebook is named like “{name}”"
+msgstr "이름에 “{name}”이(가) 들어간 노트북이 없습니다"
+
+#: crates/rnote-ui/src/library/search.rs
+msgid "The trash is empty"
+msgstr "휴지통이 비어 있습니다"
+
+#: crates/rnote-ui/src/library/search.rs
+msgid "This folder has no notebooks yet"
+msgstr "이 폴더에는 아직 노트북이 없습니다"
+
+#: crates/rnote-ui/src/library/search.rs
+msgid "No notebook has this tag yet"
+msgstr "아직 이 태그가 붙은 노트북이 없습니다"
+
 #~ msgid "Brush Style"
 #~ msgstr "브러시 스타일"
 

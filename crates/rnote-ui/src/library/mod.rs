@@ -5,6 +5,7 @@ mod busy;
 mod card;
 pub(crate) mod dialogs;
 pub(crate) mod error_text;
+mod search;
 mod grid;
 mod location;
 mod manage;
@@ -83,6 +84,12 @@ mod imp {
         pub(crate) selection_label: TemplateChild<gtk4::Label>,
         #[template_child]
         pub(crate) selection_move_button: TemplateChild<gtk4::MenuButton>,
+        #[template_child]
+        pub(crate) search_bar: TemplateChild<gtk4::SearchBar>,
+        #[template_child]
+        pub(crate) search_entry: TemplateChild<gtk4::SearchEntry>,
+        #[template_child]
+        pub(crate) empty_label: TemplateChild<gtk4::Label>,
     }
 
     #[glib::object_subclass]
@@ -106,6 +113,7 @@ mod imp {
             // Before anything looks up its actions: GTK doesn't point the action lookup of
             // widgets made earlier at a group inserted later.
             self.obj().setup_actions();
+            self.obj().setup_search();
         }
 
         fn dispose(&self) {

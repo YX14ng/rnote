@@ -59,6 +59,13 @@
               </object>
             </child>
             <child type="start">
+              <object class="GtkToggleButton" id="search_button">
+                <property name="icon-name">system-search-symbolic</property>
+                <property name="tooltip-text" translatable="yes">Search Notebooks</property>
+                <property name="active" bind-source="search_bar" bind-property="search-mode-enabled" bind-flags="sync-create|bidirectional" />
+              </object>
+            </child>
+            <child type="start">
               <object class="GtkButton">
                 <property name="icon-name">view-grid-symbolic</property>
                 <property name="action-name">win.show-editor</property>
@@ -108,6 +115,20 @@
                 <property name="tooltip-text" translatable="yes">List View</property>
               </object>
             </child>
+          </object>
+        </child>
+        <child type="top">
+          <object class="GtkSearchBar" id="search_bar">
+            <property name="child">
+              <object class="AdwClamp">
+                <property name="child">
+                  <object class="GtkSearchEntry" id="search_entry">
+                    <property name="placeholder-text" translatable="yes">Search notebooks</property>
+                    <property name="hexpand">true</property>
+                  </object>
+                </property>
+              </object>
+            </property>
           </object>
         </child>
         <child type="bottom">
@@ -162,6 +183,23 @@
                       </object>
                     </property>
                     <property name="content">
+                      <object class="GtkOverlay">
+                        <child type="overlay">
+                          <object class="GtkLabel" id="empty_label">
+                            <property name="visible">false</property>
+                            <property name="wrap">true</property>
+                            <property name="justify">center</property>
+                            <property name="halign">center</property>
+                            <property name="valign">center</property>
+                            <property name="margin-start">24</property>
+                            <property name="margin-end">24</property>
+                            <style>
+                              <class name="dim-label" />
+                              <class name="title-4" />
+                            </style>
+                          </object>
+                        </child>
+                        <property name="child">
                       <object class="GtkScrolledWindow">
                         <property name="hscrollbar-policy">never</property>
                         <property name="child">
@@ -177,6 +215,8 @@
                             <property name="margin-bottom">18</property>
                             <property name="max-children-per-line">12</property>
                           </object>
+                        </property>
+                      </object>
                         </property>
                       </object>
                     </property>

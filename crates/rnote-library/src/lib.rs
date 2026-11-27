@@ -30,7 +30,7 @@ use crate::meta::Meta;
 
 pub use crate::errors::LibraryError;
 pub use crate::meta::{META_FILE, merge_meta};
-pub use crate::section::{Section, SectionCounts, SortOrder, counts, filter, sort};
+pub use crate::section::{Section, SectionCounts, SortOrder, counts, filter, search, sort};
 pub use crate::tags::Tag;
 pub use crate::thumbnail::{render_thumbnail, thumbnail_key};
 pub use crate::thumbnail_cache::ThumbnailCache;

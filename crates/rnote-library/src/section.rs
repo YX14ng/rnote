@@ -4,6 +4,8 @@
 use std::cmp::Ordering;
 use std::collections::BTreeMap;
 
+use unicode_normalization::UnicodeNormalization;
+
 use crate::Notebook;
 
 /// A section of the library, as picked in its sidebar.
@@ -60,6 +62,30 @@ fn in_section(notebook: &Notebook, section: &Section) -> bool {
         Section::Tag(tag) => notebook.tags.contains(tag),
         Section::Trash => false,
     }
+}
+
+/// The notebooks whose names have every word of `query`, ignoring case and accents, in
+/// their order; all of them for an empty query.
+#[must_use]
+pub fn search(notebooks: &[Notebook], query: &str) -> Vec<Notebook> {
+    let query = fold(query);
+    let words: Vec<&str> = query.split_whitespace().collect();
+    notebooks
+        .iter()
+        .filter(|notebook| {
+            let name = fold(&notebook.name);
+            words.iter().all(|word| name.contains(word))
+        })
+        .cloned()
+        .collect()
+}
+
+/// `text` lower-cased and without accents, for comparing as people read.
+fn fold(text: &str) -> String {
+    text.to_lowercase()
+        .nfd()
+        .filter(|c| !unicode_normalization::char::is_combining_mark(*c))
+        .collect()
 }
 
 /// Orders `notebooks` by `order`.

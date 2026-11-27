@@ -4910,6 +4910,31 @@ msgstr "Rnote 無權使用該檔案或資料夾"
 msgid "The file or folder no longer exists"
 msgstr "檔案或資料夾已不存在"
 
+
+#: crates/rnote-ui/data/ui/library/libraryview.ui
+msgid "Search Notebooks"
+msgstr "搜尋筆記本"
+
+#: crates/rnote-ui/data/ui/library/libraryview.ui
+msgid "Search notebooks"
+msgstr "搜尋筆記本"
+
+#: crates/rnote-ui/src/library/search.rs
+msgid "No notebook is named like “{name}”"
+msgstr "沒有名稱包含「{name}」的筆記本"
+
+#: crates/rnote-ui/src/library/search.rs
+msgid "The trash is empty"
+msgstr "資源回收筒是空的"
+
+#: crates/rnote-ui/src/library/search.rs
+msgid "This folder has no notebooks yet"
+msgstr "此資料夾還沒有筆記本"
+
+#: crates/rnote-ui/src/library/search.rs
+msgid "No notebook has this tag yet"
+msgstr "還沒有筆記本使用此標籤"
+
 #~ msgid "Brush Style"
 #~ msgstr "筆刷樣式"
 

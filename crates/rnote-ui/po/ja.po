@@ -5076,6 +5076,31 @@ msgstr "Rnote にはそのファイルまたはフォルダーを使う権限が
 msgid "The file or folder no longer exists"
 msgstr "ファイルまたはフォルダーはもう存在しません"
 
+
+#: crates/rnote-ui/data/ui/library/libraryview.ui
+msgid "Search Notebooks"
+msgstr "ノートブックを検索"
+
+#: crates/rnote-ui/data/ui/library/libraryview.ui
+msgid "Search notebooks"
+msgstr "ノートブックを検索"
+
+#: crates/rnote-ui/src/library/search.rs
+msgid "No notebook is named like “{name}”"
+msgstr "「{name}」という名前のノートブックはありません"
+
+#: crates/rnote-ui/src/library/search.rs
+msgid "The trash is empty"
+msgstr "ゴミ箱は空です"
+
+#: crates/rnote-ui/src/library/search.rs
+msgid "This folder has no notebooks yet"
+msgstr "このフォルダーにはまだノートブックがありません"
+
+#: crates/rnote-ui/src/library/search.rs
+msgid "No notebook has this tag yet"
+msgstr "このタグが付いたノートブックはまだありません"
+
 #~ msgid "Brush Style"
 #~ msgstr "ブラシのスタイル"
 
