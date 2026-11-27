@@ -56,6 +56,31 @@ Run the same commands to update after pulling.
 - Opening a file directly (`rnote file.rnote`, the file manager, "Open") goes straight to
   the editor, as before. The house button in the editor goes back to the library; the
   tabs stay open.
+- "New" opens the new notebook dialog, as on Android: title, folder, page size and
+  orientation, sheets, continuous or infinite, paper (white, cream, light gray or
+  StarNote's black), template and spacing, and cover. What it chose stays for the next
+  notebook of that folder (kept outside the library, never synced).
+- Each notebook's menu sets its cover color, the same eight as on Android.
+- The import button brings in `.rnote` and `.xopp` notebooks as they are, a PDF as a new
+  notebook (password, pages, vector or images, with progress and Cancel) or an image as a
+  new notebook. Dropping those files on the library does the same, into the folder shown.
+- Dragging a notebook's card onto a folder of the sidebar, or onto "Uncategorized", moves
+  it there.
+- Sending notebooks to the trash shows a notice with Undo.
+- Keyboard: Ctrl+F searches, F2 renames the notebook in focus, Delete sends it to the trash
+  (the selected ones in selection mode), Ctrl+A selects all in selection mode, Escape
+  leaves it and F5 reads the folder again.
+- The library follows its folder: notebooks and folders that change on disk (a sync,
+  another program) show up without refreshing.
+
+## The editor
+
+- The sidebar's "Pages" tab shows the sheets of a notebook of fixed-size pages: click a
+  page to go to it, and its menu inserts a blank page or a PDF after it, duplicates,
+  moves it up or down, or removes it (asking first if something is written on it). Each
+  of those is one step to undo.
+- Exporting a document to PDF can include the blank pages, so page numbers stay the same.
+- "About" shows the fork's version and sends issues to this repository.
 
 ## Google Drive sync
 

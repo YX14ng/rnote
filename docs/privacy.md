@@ -16,9 +16,19 @@ your Drive.
 
 Your notebooks travel only between your devices and your own Google Drive, directly. There
 is no server of ours in between: nothing is sent to the developers or to anyone else, and
-the apps have no analytics, ads or tracking.
+the apps have no analytics, ads or tracking of their own.
 
 The sign-in that lets an app reach your Drive is kept only on the device that signed in.
+
+## Handwriting search (Android)
+
+Searching the handwriting uses Google's ML Kit Digital Ink Recognition, which reads the
+handwriting on the device: the strokes are not sent anywhere. The first time a search
+language is chosen, the app downloads that language's recognition model from Google's
+servers. As with any app using ML Kit, ML Kit may also contact Google to get model
+updates and sends Google metrics about how its recognition performs, without the
+handwriting itself; see
+<https://developers.google.com/ml-kit/android-data-disclosure>.
 
 ## Removing access
 

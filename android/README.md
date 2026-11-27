@@ -1,19 +1,29 @@
 # Rnote on Android
 
-Work in progress: building `rnote-engine` (without the GTK `ui` feature) for Android, as
-the base for a native Android frontend.
+A native Android app for handwritten notes built on `rnote-engine`, the engine of the
+Rnote desktop app: the same `.rnote` files, the same tools, and a notebook library that
+syncs with the fork's desktop app (`io.github.yx14ng.rnote`, see `docs/fork-desktop.md`)
+through the user's own Google Drive. Releases (a signed APK and the desktop Flatpak) are
+on the repository's releases page, tagged `android-v*`.
 
 ## Status
 
-- The C libraries the engine links against are cross-compiled from pinned sources:
-  glib/gio, cairo, pango/pangocairo, libxml2 and their dependencies.
-- `rnote-engine` and `rnote-cli` build for `aarch64-linux-android` and `x86_64-linux-android`
-  (API 28). Everything is linked statically: the binaries only need `libc`, `libm` and `libdl`.
-- `rnote-cli` exports real `.rnote` documents to PDF on Android. The output is
-  pixel-identical to the Linux build.
-- `crates/rnote-android` is a JNI bridge over the engine, and `android/viewer` is an app built
-  on it: open, create, edit and save documents. Files saved on Android open in the desktop
-  app.
+- A notebook library with folders, tags, covers, search and a trash, synced with Google
+  Drive (`drive.file`), shared with the desktop app as plain files (`crates/rnote-library`,
+  `crates/rnote-sync`).
+- An editor with pen (pressure pen, ballpoint, highlighter), shapes and shape recognition,
+  text, lasso and eraser, a pen wheel, a column of pages (insert blank pages or a PDF,
+  duplicate, move, remove), images and photos, and search in the handwriting (ML Kit).
+- Notebooks are saved a few seconds after the last stroke; unsaved changes that can't be
+  written are kept as a recovery copy and restored on the next start.
+- PDF import as a new notebook or between pages, and PDF export with progress and Cancel.
+- English, Spanish, Simplified and Traditional Chinese, Japanese, Korean and Russian.
+- Tested on a Galaxy Tab S10 Ultra (Android 16) and in Waydroid (Android 13).
+
+The C libraries the engine links against (glib/gio, cairo, pango/pangocairo, libxml2 and
+their dependencies) are cross-compiled from pinned sources and linked statically, so the
+native library only needs `libc`, `libm` and `libdl`. `rnote-cli` builds too, and its PDF
+export on Android is pixel-identical to the Linux build.
 
 ## Prerequisites
 
@@ -103,8 +113,12 @@ What it does:
   (`filesDir/library`), like other note-taking apps: on the left all notes, uncategorized,
   folders and tags (each with a `+` to create one, long-press to rename or delete) and the
   trash, with counts; on the right a grid or list of the section's notebooks with a
-  thumbnail of the first page with content, name and date, sorted by date or name. A
-  "New" card creates "Untitled" in the folder shown. Each notebook's menu renames, moves to
+  thumbnail of the first page with content (or the notebook's cover color), name and date,
+  sorted by date or name, and a search by name. A "New" card opens the new notebook screen:
+  title, folder, tags, cover, page size and orientation, sheets, continuous or infinite,
+  paper (white, cream, light gray or StarNote's black) and template, remembered per folder;
+  it also offers a quick note like the last one, an infinite note, a PDF or an image as a
+  new notebook, and a photo. Each notebook's menu renames, moves to
   a folder, sets tags, duplicates or sends it to the trash; the trash restores (with a
   suffix if the name was taken) or deletes for good, and empties. "Select" acts on several
   notebooks at once. "Import" copies an `.rnote` or Xournal++ `.xopp` from the system
@@ -212,9 +226,11 @@ What it does:
   and Save as go through the system file picker, which starts in the folder of the open
   file or else in the shared Documents folder; leaving or replacing a file opened that way
   with unsaved changes asks first.
-- Autosave: when the app goes to the background with unsaved changes, it saves to the open
-  file, or keeps a recovery copy (in the app's private storage) for documents without one
-  or that are read-only. The copy is restored on the next start.
+- Autosave: a library notebook is saved four seconds after the last stroke (at most a
+  minute apart while writing, never with the pen down), and when the app goes to the
+  background. Documents without a file, read-only ones, or ones that fail to save keep a
+  recovery copy in the app's private storage, restored on the next start, back in their
+  notebook of the library.
 
 How it fits together:
 
@@ -291,8 +307,6 @@ FONTCONFIG_FILE=/data/local/tmp/rnote/fonts.conf ./rnote-cli export doc -o note.
   later attempts, three of them from a clean install.
 - The clipboard keeps one format per copy: strokes don't also go out as an image for other
   apps.
-- Edge-to-edge insets (enforced on Android 15+) are handled but untested: the test device
-  (Waydroid) runs Android 13.
 
 ## Icon
 
