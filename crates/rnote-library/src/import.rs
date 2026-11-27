@@ -2,7 +2,7 @@
 
 use std::fs;
 
-use anyhow::Context;
+use anyhow::{Context, bail};
 use futures::executor::block_on;
 use rnote_engine::Engine;
 use rnote_engine::engine::EngineSnapshot;
@@ -30,11 +30,28 @@ impl Library {
             .context("The conversion was cancelled")??;
         let dir = self.folder_dir(folder)?;
         let new_path = relative_path(folder, &unique_file_name(&dir, stem, "rnote"));
-        fs::write(self.root.join(&new_path), rnote_bytes)
-            .with_context(|| format!("Writing {new_path}"))?;
+        crate::write_new_file(&self.root.join(&new_path), &rnote_bytes)?;
         self.meta.copy_notebook(path, &new_path, self.now());
         self.save_meta()?;
         Ok(new_path)
+    }
+
+    /// Copies a notebook from outside the library (an `.rnote` or a Xournal++ `.xopp`,
+    /// named `file_name`, with `bytes`) into `folder`, with a suffix if the name is taken.
+    /// Returns its path.
+    pub fn import_notebook(
+        &mut self,
+        folder: Option<&str>,
+        file_name: &str,
+        bytes: &[u8],
+    ) -> anyhow::Result<String> {
+        let (_, extension) = split_extension(file_name);
+        if !["rnote", "xopp"].contains(&extension.to_lowercase().as_str()) {
+            bail!("{file_name:?} isn't an Rnote or Xournal++ notebook");
+        }
+        let path = self.free_path(folder, file_name)?;
+        crate::write_new_file(&self.root.join(&path), bytes)?;
+        Ok(path)
     }
 
     /// The `.rnote` an import of the `.xopp` at `path` would have made, if it exists: the

@@ -4,6 +4,7 @@
 
 mod covers;
 mod errors;
+mod files;
 mod meta;
 mod ops;
 mod scan;

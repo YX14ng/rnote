@@ -58,25 +58,7 @@ pub fn write_notebook(
 /// shows up whole or not at all, never replaces a file, and never while a sync writes.
 pub fn create_notebook(root: &Path, path: &str, bytes: &[u8]) -> anyhow::Result<()> {
     check_notebook_path(path)?;
-    let _guard = rnote_library::write_guard();
-    let target = root.join(path);
-    let dir = target.parent().context("A notebook has a folder")?;
-    let name = target.file_name().context("A notebook has a name")?.to_string_lossy();
-    fs::create_dir_all(dir).with_context(|| format!("Creating {}", dir.display()))?;
-    // Hidden, so neither the library nor the sync sees it until it is complete.
-    let temporary = dir.join(format!(".{name}.create-tmp"));
-    // Android keeps apps from making hard links, so the target is checked instead: this
-    // process writes the library only under the write guard held here.
-    if fs::symlink_metadata(&target).is_ok() {
-        bail!("{path} exists already");
-    }
-    let written = fs::write(&temporary, bytes)
-        .with_context(|| format!("Writing {}", temporary.display()))
-        .and_then(|()| fs::rename(&temporary, &target).with_context(|| format!("Creating {path}")));
-    if written.is_err() {
-        let _ = fs::remove_file(&temporary);
-    }
-    written
+    rnote_library::write_new_file(&root.join(path), bytes)
 }
 
 /// Fails unless `path` names a notebook inside the library: relative, without `..`, and

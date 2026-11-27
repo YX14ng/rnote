@@ -130,8 +130,8 @@ impl Library {
         let (stem, extension) = split_extension(file_name);
         let dir = self.folder_dir(folder)?;
         let copy = relative_path(folder, &unique_file_name(&dir, stem, extension));
-        fs::copy(&from, self.root.join(&copy))
-            .with_context(|| format!("Copying {}", from.display()))?;
+        let bytes = fs::read(&from).with_context(|| format!("Reading {}", from.display()))?;
+        crate::write_new_file(&self.root.join(&copy), &bytes)?;
         self.meta.copy_notebook(path, &copy, self.now());
         self.save_meta()?;
         Ok(copy)

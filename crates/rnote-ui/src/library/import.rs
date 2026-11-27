@@ -167,14 +167,11 @@ impl RnLibraryView {
     async fn copy_notebook(&self, file: &gio::File, folder: Option<&str>, name: &str) {
         let copied = async {
             let bytes = load(file).await?;
-            let path = {
-                let library = self.imp().library.borrow();
-                let library = library
-                    .as_ref()
-                    .ok_or_else(|| anyhow::anyhow!("No library is open"))?;
-                library.free_path(folder, name)?
-            };
-            rnote_sync::create_notebook(&self.root(), &path, &bytes)?;
+            let mut library = self.imp().library.borrow_mut();
+            let library = library
+                .as_mut()
+                .ok_or_else(|| anyhow::anyhow!("No library is open"))?;
+            library.import_notebook(folder, name, &bytes)?;
             anyhow::Ok(())
         }
         .await;
