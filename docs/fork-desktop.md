@@ -94,8 +94,10 @@ only gets access to the files it creates (`drive.file`), nothing else of the Dri
   and "Sign Out of Google Drive". Signing out tells Google to forget the app's access and
   removes the token from this computer.
 - It syncs when the app opens, when you go back to the library, a few seconds after saving
-  a notebook of the library, and with "Sync Now". Without a connection it waits for the next
-  of those.
+  a notebook of the library or renaming, moving, tagging or trashing one, every five minutes
+  while signed in, and with "Sync Now". Without a connection it waits until the connection
+  is back. Closing the window finishes a sync about to start or under way first, for up to
+  a minute.
 - A notebook changed on two devices is never overwritten: both versions stay, one named
   `Name (conflicto, <device>, <date>).rnote`. A notebook open in a tab that a sync updates
   reloads by itself if it has no unsaved changes; with unsaved changes, saving puts them in
