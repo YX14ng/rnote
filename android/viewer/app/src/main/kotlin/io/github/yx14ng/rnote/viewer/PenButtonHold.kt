@@ -8,7 +8,8 @@ import android.view.MotionEvent
  * without touching the screen: the gesture that opens the pen wheel. [onRelease] gets where
  * the pen hovered last, in view coordinates.
  *
- * Touching the screen with the button held erases instead, so it cancels the gesture.
+ * Touching the screen with the button held uses the button's tool instead (see
+ * [PenButton]), so it cancels the gesture.
  */
 internal class PenButtonHold(private val onRelease: (x: Float, y: Float) -> Unit) {
     private var pressedAt = NOT_PRESSED

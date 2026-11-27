@@ -25,6 +25,8 @@ data class EditorSettings(
     val savedColors: List<Int> = DEFAULT_SAVED_COLORS,
     /** The brush each style had when the user last left it; see [BrushMemory]. */
     val brushes: Map<BrushStyle, Brush> = emptyMap(),
+    /** What the stylus button does. */
+    val penButton: PenButton = PenButton.ERASER,
 ) {
     fun save(context: Context) {
         context.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE).edit()
@@ -48,6 +50,7 @@ data class EditorSettings(
             .putBoolean(KEY_ROUGH, shapeStyle.rough)
             .putBoolean(KEY_FILLED, shapeStyle.fill != null)
             .putInt(KEY_FILL, shapeStyle.fill ?: 0)
+            .putString(KEY_PEN_BUTTON, penButton.name)
             .putString(KEY_BRUSHES, brushes.entries.joinToString(";") { (style, brush) -> "${style.name},${brush.color},${brush.width}" })
             .apply()
     }
@@ -80,6 +83,7 @@ data class EditorSettings(
         private const val KEY_FILLED = "filled"
         private const val KEY_FILL = "fill"
         private const val KEY_BRUSHES = "brushes"
+        private const val KEY_PEN_BUTTON = "pen_button"
 
         /** The saved settings, falling back to the defaults for anything missing or unknown. */
         fun load(context: Context): EditorSettings {
@@ -118,6 +122,7 @@ data class EditorSettings(
                 palette = parsePalette(preferences.getString(KEY_PALETTE, null)) ?: defaults.palette,
                 savedColors = preferences.getString(KEY_SAVED_COLORS, null)?.let(::parseColors) ?: defaults.savedColors,
                 brushes = parseBrushes(preferences.getString(KEY_BRUSHES, null)),
+                penButton = enumOrDefault(preferences.getString(KEY_PEN_BUTTON, null), defaults.penButton),
             )
         }
 

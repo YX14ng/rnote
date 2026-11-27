@@ -52,6 +52,9 @@ internal object EditorMenu {
         data object SelectAllText : Action
         data object ToggleFingerDrawing : Action
         data object ToggleShapeRecognition : Action
+
+        /** Moves the stylus button's setting to its next choice. */
+        data object NextPenButton : Action
         data class ShapeFill(val filled: Boolean) : Action
         data class ShapeRough(val rough: Boolean) : Action
         data object TextFormat : Action

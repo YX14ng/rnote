@@ -411,4 +411,8 @@
     <string name="library_search_hint">Поиск блокнотов</string>
     <string name="library_search">Поиск</string>
     <string name="library_search_close">Закрыть поиск</string>
+    <string name="pen_button">Кнопка пера</string>
+    <string name="pen_button_eraser">Ластик</string>
+    <string name="pen_button_lasso">Лассо</string>
+    <string name="pen_button_nothing">Ничего</string>
 </resources>

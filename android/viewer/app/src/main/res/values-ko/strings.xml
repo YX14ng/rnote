@@ -381,4 +381,8 @@
     <string name="library_search_hint">노트북 검색</string>
     <string name="library_search">검색</string>
     <string name="library_search_close">검색 닫기</string>
+    <string name="pen_button">펜 버튼</string>
+    <string name="pen_button_eraser">지우개</string>
+    <string name="pen_button_lasso">올가미</string>
+    <string name="pen_button_nothing">없음</string>
 </resources>

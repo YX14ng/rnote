@@ -127,6 +127,7 @@ internal class EditorControls(
             }
             EditorMenu.Action.ToggleFingerDrawing -> change(current.copy(fingerDrawing = !current.fingerDrawing))
             EditorMenu.Action.ToggleShapeRecognition -> toggleShapeRecognition()
+            EditorMenu.Action.NextPenButton -> change(current.copy(penButton = current.penButton.next()))
             else -> return false
         }
         return true
@@ -182,6 +183,7 @@ internal class EditorControls(
         canvas.tool = settings.tool
         canvas.brush = settings.brush
         canvas.brushStyle = settings.brushStyle
+        canvas.penButton = settings.penButton
         canvas.fingerDrawing = settings.fingerDrawing
         canvas.zoomLocked = settings.zoomLocked
         canvas.holdToSnap = settings.shapeRecognition

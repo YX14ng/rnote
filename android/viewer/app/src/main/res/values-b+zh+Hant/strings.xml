@@ -381,4 +381,8 @@
     <string name="library_search_hint">搜尋筆記本</string>
     <string name="library_search">搜尋</string>
     <string name="library_search_close">關閉搜尋</string>
+    <string name="pen_button">筆側鍵</string>
+    <string name="pen_button_eraser">橡皮擦</string>
+    <string name="pen_button_lasso">套索</string>
+    <string name="pen_button_nothing">無</string>
 </resources>

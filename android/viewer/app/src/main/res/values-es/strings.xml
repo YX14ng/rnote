@@ -401,4 +401,8 @@
     <string name="library_search_hint">Buscar cuadernos</string>
     <string name="library_search">Buscar</string>
     <string name="library_search_close">Cerrar la búsqueda</string>
+    <string name="pen_button">Botón del lápiz</string>
+    <string name="pen_button_eraser">Borra</string>
+    <string name="pen_button_lasso">Lazo</string>
+    <string name="pen_button_nothing">Nada</string>
 </resources>

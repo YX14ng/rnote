@@ -381,4 +381,8 @@
     <string name="library_search_hint">ノートブックを検索</string>
     <string name="library_search">検索</string>
     <string name="library_search_close">検索を閉じる</string>
+    <string name="pen_button">ペンのボタン</string>
+    <string name="pen_button_eraser">消しゴム</string>
+    <string name="pen_button_lasso">なげなわ</string>
+    <string name="pen_button_nothing">なし</string>
 </resources>

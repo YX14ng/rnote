@@ -82,6 +82,11 @@ internal object MenuPanel {
             })
             panel.addView(PanelViews.switchRow(context, R.string.shape_recognition_short, R.string.shape_recognition_hint,
                 state.settings.shapeRecognition) { onAction(EditorMenu.Action.ToggleShapeRecognition) })
+            // The choice shows where shortcuts go; each tap moves to the next one.
+            val penButton = context.getString(state.settings.penButton.label)
+            panel.addView(PanelViews.menuRow(context, R.drawable.ic_pen_brush, R.string.pen_button, penButton, true) {
+                onAction(EditorMenu.Action.NextPenButton)
+            })
         }
         return panel
     }

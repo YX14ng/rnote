@@ -381,4 +381,8 @@
     <string name="library_search_hint">搜索笔记本</string>
     <string name="library_search">搜索</string>
     <string name="library_search_close">关闭搜索</string>
+    <string name="pen_button">笔侧键</string>
+    <string name="pen_button_eraser">橡皮</string>
+    <string name="pen_button_lasso">套索</string>
+    <string name="pen_button_nothing">无</string>
 </resources>

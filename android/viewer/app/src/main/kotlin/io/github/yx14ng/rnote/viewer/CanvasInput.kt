@@ -38,6 +38,9 @@ internal class CanvasInput(
     var brush = Brush(Color.BLACK, BrushPalette.DEFAULT_WIDTH)
     /** The look of brush strokes, so the preview is as wide as the stroke left on the page. */
     var brushStyle = BrushStyle.SOLID
+
+    /** What the stylus button does when the pen touches with it held. */
+    var penButton = PenButton.ERASER
     var fingerDrawing = false
     var holdToSnap = false
 
@@ -293,11 +296,11 @@ internal class CanvasInput(
         cancel.recycle()
     }
 
-    /** The stylus eraser end and its primary button erase; otherwise the selected tool. */
+    /** The stylus eraser end erases, its primary button does what [penButton] says. */
     private fun toolFor(event: MotionEvent, index: Int): Tool {
         val eraserEnd = event.getToolType(index) == MotionEvent.TOOL_TYPE_ERASER
-        val eraserButton = event.buttonState and MotionEvent.BUTTON_STYLUS_PRIMARY != 0
-        return if (eraserEnd || eraserButton) Tool.ERASER else tool
+        val buttonHeld = event.buttonState and MotionEvent.BUTTON_STYLUS_PRIMARY != 0
+        return penButton.toolFor(eraserEnd, buttonHeld, tool)
     }
 
     private fun beginPen(tool: Tool, pointerId: Int, samples: DoubleArray) {

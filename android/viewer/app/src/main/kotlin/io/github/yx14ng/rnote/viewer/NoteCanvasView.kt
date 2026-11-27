@@ -54,6 +54,12 @@ class NoteCanvasView(context: Context) : View(context) {
             input.brushStyle = value
         }
 
+    var penButton: PenButton
+        get() = input.penButton
+        set(value) {
+            input.penButton = value
+        }
+
     /** When on, holding the pen still for a moment turns the brush stroke into a shape. */
     var holdToSnap: Boolean
         get() = input.holdToSnap
@@ -78,7 +84,7 @@ class NoteCanvasView(context: Context) : View(context) {
      * screen, with where the pen was: opens the pen wheel.
      */
     var onPenWheel: ((x: Float, y: Float) -> Unit)? = null
-    private val penButton = PenButtonHold { x, y -> onPenWheel?.invoke(x, y) }
+    private val penButtonHold = PenButtonHold { x, y -> onPenWheel?.invoke(x, y) }
 
     /** Called whenever the view pans or zooms. */
     var onViewportMoved: (() -> Unit)? = null
@@ -297,7 +303,7 @@ class NoteCanvasView(context: Context) : View(context) {
 
     override fun onHoverEvent(event: MotionEvent): Boolean {
         if (acceptsInput) {
-            penButton.onHover(event)
+            penButtonHold.onHover(event)
         }
         if (acceptsInput && input.onHover(event)) {
             return true
@@ -354,7 +360,7 @@ class NoteCanvasView(context: Context) : View(context) {
         if (event.actionMasked == MotionEvent.ACTION_DOWN) {
             onCanvasTouched?.invoke()
         }
-        penButton.onTouch()
+        penButtonHold.onTouch()
         twoFingerTap.onTouch(event)
         input.onTouch(event)
         invalidate()
@@ -364,7 +370,7 @@ class NoteCanvasView(context: Context) : View(context) {
     override fun onGenericMotionEvent(event: MotionEvent): Boolean {
         val action = event.actionMasked
         if (acceptsInput && (action == MotionEvent.ACTION_BUTTON_PRESS || action == MotionEvent.ACTION_BUTTON_RELEASE)) {
-            penButton.onButtonEvent(event)
+            penButtonHold.onButtonEvent(event)
         }
         if (acceptsInput && navigation.onWheel(event)) {
             return true

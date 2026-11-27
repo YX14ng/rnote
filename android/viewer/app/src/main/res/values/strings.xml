@@ -393,4 +393,8 @@
     <string name="library_search_hint">Search notebooks</string>
     <string name="library_search">Search</string>
     <string name="library_search_close">Close search</string>
+    <string name="pen_button">Pen button</string>
+    <string name="pen_button_eraser">Erases</string>
+    <string name="pen_button_lasso">Lasso</string>
+    <string name="pen_button_nothing">Nothing</string>
 </resources>
