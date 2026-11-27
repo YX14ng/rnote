@@ -345,6 +345,7 @@
 
     <!-- Recovery -->
     <string name="recovery_write_failed">未保存の変更のコピーを保存できませんでした: %1$s</string>
+    <string name="recovery_taken">別のドキュメントの復元用コピーがまだ残っています</string>
     <string name="recovery_restore_failed_title">未保存の変更を復元できませんでした</string>
     <string name="recovery_restore_failed_message">次回もう一度試せるよう保持しています。%1$s</string>
     <string name="recovery_keep">保持</string>

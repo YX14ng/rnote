@@ -357,6 +357,7 @@
 
     <!-- Recovery -->
     <string name="recovery_write_failed">Could not keep a copy of the unsaved changes: %1$s</string>
+    <string name="recovery_taken">the recovery copy of another document is still kept</string>
     <string name="recovery_restore_failed_title">The unsaved changes could not be recovered</string>
     <string name="recovery_restore_failed_message">They stay kept, to try again the next time. %1$s</string>
     <string name="recovery_keep">Keep</string>

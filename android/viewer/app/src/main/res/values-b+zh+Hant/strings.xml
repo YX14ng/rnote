@@ -345,6 +345,7 @@
 
     <!-- Recovery -->
     <string name="recovery_write_failed">無法儲存未儲存變更的副本：%1$s</string>
+    <string name="recovery_taken">另一個文件的復原副本仍在保留中</string>
     <string name="recovery_restore_failed_title">無法復原未儲存的變更</string>
     <string name="recovery_restore_failed_message">副本會保留，下次再試。%1$s</string>
     <string name="recovery_keep">保留</string>

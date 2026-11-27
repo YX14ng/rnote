@@ -375,6 +375,7 @@
 
     <!-- Recovery -->
     <string name="recovery_write_failed">Не удалось сохранить копию несохранённых изменений: %1$s</string>
+    <string name="recovery_taken">ещё хранится копия для восстановления другого документа</string>
     <string name="recovery_restore_failed_title">Не удалось восстановить несохранённые изменения</string>
     <string name="recovery_restore_failed_message">Они сохранены, чтобы попробовать в следующий раз. %1$s</string>
     <string name="recovery_keep">Сохранить</string>

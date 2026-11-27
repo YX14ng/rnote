@@ -449,6 +449,7 @@ class MainActivity : Activity() {
                     saver.currentUri = uri
                     saver.documentName = file.name
                     // A recovery copy belongs to another document: it stays until restored.
+                    saver.recoveryClaim.opened()
                     showOpenedDocument(info)
                     // A new notebook exists in the library from the start.
                     if (isNew) saver.autosave()
@@ -479,7 +480,8 @@ class MainActivity : Activity() {
                     saver.documentName = DocumentFiles.displayName(contentResolver, uri)
                         ?: uri.lastPathSegment
                         ?: getString(R.string.untitled_file_name)
-                    recovery.clear()
+                    // A recovery copy belongs to another document: it stays until restored.
+                    saver.recoveryClaim.opened()
                     showOpenedDocument(info)
                 }
                 .onFailure { error ->
@@ -499,7 +501,7 @@ class MainActivity : Activity() {
                     libraryPath = null
                     saver.currentUri = null
                     saver.documentName = getString(R.string.untitled_file_name)
-                    recovery.clear()
+                    saver.recoveryClaim.opened()
                     showOpenedDocument(info)
                 }
                 .onFailure { error ->
@@ -529,6 +531,7 @@ class MainActivity : Activity() {
                         saver.currentUri = null
                         saver.documentName = recovery.documentName ?: getString(R.string.untitled_file_name)
                     }
+                    saver.recoveryClaim.restored()
                     showOpenedDocument(info)
                     canvasView.applyEdit(NativeDocument::markModified)
                     Toast.makeText(this, R.string.recovered, Toast.LENGTH_LONG).show()

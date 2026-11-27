@@ -36,6 +36,9 @@ internal class DocumentSaver(
     /** The SHA-256 of the library notebook as the editor last read or wrote it; like [libraryPath]. */
     @Volatile var knownSha256: String? = null
 
+    /** Whether the recovery copy is the open document's. */
+    val recoveryClaim = RecoveryClaim()
+
     /** Runs when the document went to the conflict copy at this library path instead. */
     var onConflictCopy: (String) -> Unit = {}
 
@@ -99,7 +102,7 @@ internal class DocumentSaver(
             result
                 .onSuccess { state ->
                     written?.let(::applyLibraryWrite)
-                    recovery.clear()
+                    if (recoveryClaim.mayClear()) recovery.clear()
                     onSaved(state)
                     if (!quiet) {
                         Toast.makeText(context, R.string.saved, Toast.LENGTH_SHORT).show()
@@ -150,6 +153,13 @@ internal class DocumentSaver(
     }
 
     private fun saveRecovery() {
+        if (!recoveryClaim.mayWrite(recovery.exists)) {
+            // Another document's copy waits there: never replaced by this one's.
+            val reason = context.getString(R.string.recovery_taken)
+            Toast.makeText(context, context.getString(R.string.recovery_write_failed, reason), Toast.LENGTH_LONG).show()
+            return
+        }
+        recoveryClaim.wrote()
         val name = documentName
         val path = libraryPath
         val sha256 = knownSha256
