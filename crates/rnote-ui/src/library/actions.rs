@@ -236,7 +236,7 @@ impl RnLibraryView {
     }
 
     /// Moves the notebooks at `paths` to `folder` (`""` for none), with their tabs.
-    fn move_notebooks(&self, paths: &[String], folder: &str) {
+    pub(super) fn move_notebooks(&self, paths: &[String], folder: &str) {
         let Some(appwindow) = self.appwindow() else {
             return;
         };

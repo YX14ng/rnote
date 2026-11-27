@@ -6,6 +6,7 @@ mod card;
 mod covers;
 mod create;
 pub(crate) mod dialogs;
+mod drag;
 pub(crate) mod error_text;
 mod grid;
 mod import;
@@ -126,6 +127,7 @@ mod imp {
             self.obj().setup_search();
             self.obj().setup_shortcuts();
             self.obj().setup_drop();
+            self.obj().setup_sidebar_drop();
         }
 
         fn dispose(&self) {

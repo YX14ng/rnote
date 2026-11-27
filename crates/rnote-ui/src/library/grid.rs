@@ -101,6 +101,7 @@ impl RnLibraryView {
                 self.append_child(&card);
             } else {
                 card.set_menu(actions::notebook_menu(notebook, &folders).upcast_ref());
+                self.make_draggable(&card, notebook);
                 self.append_card(&card, index);
             }
         }
