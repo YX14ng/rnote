@@ -4,6 +4,7 @@
 //! The library is plain files, so other programs (and the sync) can work on it too.
 
 mod covers;
+mod errors;
 mod import;
 mod meta;
 pub mod names;
@@ -27,6 +28,7 @@ use serde::Serialize;
 
 use crate::meta::Meta;
 
+pub use crate::errors::LibraryError;
 pub use crate::meta::{META_FILE, merge_meta};
 pub use crate::section::{Section, SectionCounts, SortOrder, counts, filter, sort};
 pub use crate::tags::Tag;

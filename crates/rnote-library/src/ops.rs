@@ -5,7 +5,7 @@ use std::fs;
 use anyhow::{Context, bail};
 
 use crate::names::{name_taken, unique_file_name, validate_name};
-use crate::{Library, relative_path, split_extension};
+use crate::{Library, LibraryError, relative_path, split_extension};
 
 impl Library {
     /// Creates a first-level folder, returning its (trimmed) name.
@@ -13,7 +13,7 @@ impl Library {
         let name = validate_name(name)?;
         let dir = self.root.join(&name);
         if dir.exists() {
-            bail!("There is already a folder or notebook named {name:?}");
+            bail!(LibraryError::NameTaken(name));
         }
         fs::create_dir(&dir).with_context(|| format!("Creating {}", dir.display()))?;
         Ok(name)
@@ -25,7 +25,7 @@ impl Library {
         let new_name = validate_name(new_name)?;
         let to = self.root.join(&new_name);
         if to.exists() {
-            bail!("There is already a folder or notebook named {new_name:?}");
+            bail!(LibraryError::NameTaken(new_name));
         }
         let notebooks: Vec<_> = self
             .notebooks()?
@@ -54,7 +54,7 @@ impl Library {
         for entry in fs::read_dir(&dir).with_context(|| format!("Reading {}", dir.display()))? {
             let entry = entry?;
             if entry.file_type()?.is_dir() {
-                bail!("{folder:?} has folders inside; move them out first");
+                bail!(LibraryError::FolderHasFolders(folder.to_owned()));
             }
             let Ok(file_name) = entry.file_name().into_string() else {
                 bail!("{folder:?} has a file whose name isn't valid text");
@@ -85,7 +85,7 @@ impl Library {
         let to = self.root.join(&new_path);
         let dir = self.folder_dir(folder)?;
         if name_taken(&dir, &new_file_name, Some(&from)) {
-            bail!("There is already a notebook named {new_name:?}");
+            bail!(LibraryError::NameTaken(new_name.to_owned()));
         }
         if to.exists() {
             // On case-insensitive file systems (exFAT, NTFS) the new name is the old file:
@@ -108,7 +108,7 @@ impl Library {
         let from = self.existing_notebook(path)?;
         let dir = self.folder_dir(folder)?;
         if !dir.is_dir() {
-            bail!("There is no folder {:?}", folder.unwrap_or_default());
+            bail!(LibraryError::NoSuchFolder(folder.unwrap_or_default().to_owned()));
         }
         let (current_folder, file_name) = split_path(path);
         if current_folder == folder {
@@ -161,7 +161,7 @@ impl Library {
     pub(crate) fn existing_notebook(&self, path: &str) -> anyhow::Result<std::path::PathBuf> {
         let file = self.notebook_file(path)?;
         if !file.is_file() {
-            bail!("There is no notebook {path:?}");
+            bail!(LibraryError::NoSuchNotebook(path.to_owned()));
         }
         Ok(file)
     }

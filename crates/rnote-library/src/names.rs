@@ -4,6 +4,8 @@ use std::path::Path;
 
 use anyhow::bail;
 
+use crate::LibraryError;
+
 /// Longest name kept, in characters.
 pub const MAX_NAME_CHARS: usize = 120;
 
@@ -12,13 +14,13 @@ pub const MAX_NAME_CHARS: usize = 120;
 pub fn validate_name(name: &str) -> anyhow::Result<String> {
     let name = name.trim();
     if name.is_empty() {
-        bail!("The name is empty");
+        bail!(LibraryError::EmptyName);
     }
     if name.starts_with('.') {
-        bail!("The name can't start with a dot");
+        bail!(LibraryError::NameStartsWithDot);
     }
     if let Some(bad) = name.chars().find(|c| matches!(c, '/' | '\\' | '\0')) {
-        bail!("The name can't contain {bad:?}");
+        bail!(LibraryError::NameHasCharacter(bad));
     }
     Ok(name.chars().take(MAX_NAME_CHARS).collect::<String>().trim_end().to_owned())
 }
