@@ -24,7 +24,12 @@ fn box_outline(mins: Vector2, maxs: Vector2) -> impl Fn(f64) -> Vector2 {
         let size = maxs - mins;
         let perimeter = 2.0 * (size.x + size.y);
         let mut along = t * perimeter;
-        let corners = [mins, Vector2::new(maxs.x, mins.y), maxs, Vector2::new(mins.x, maxs.y)];
+        let corners = [
+            mins,
+            Vector2::new(maxs.x, mins.y),
+            maxs,
+            Vector2::new(mins.x, maxs.y),
+        ];
         for i in 0..4 {
             let (a, b) = (corners[i], corners[(i + 1) % 4]);
             let side = (b - a).length();
@@ -44,7 +49,11 @@ fn recognizes_a_circle() {
     let Some(Shape::Ellipse(ellipse)) = recognize(&points, 50.0) else {
         panic!("expected an ellipse");
     };
-    assert!((ellipse.radii.x - ellipse.radii.y).abs() < f64::EPSILON, "{:?}", ellipse.radii);
+    assert!(
+        (ellipse.radii.x - ellipse.radii.y).abs() < f64::EPSILON,
+        "{:?}",
+        ellipse.radii
+    );
     assert!((ellipse.radii.x - 100.0).abs() < 5.0, "{:?}", ellipse.radii);
 }
 
@@ -58,39 +67,64 @@ fn recognizes_a_flat_ellipse() {
     let Some(Shape::Ellipse(ellipse)) = recognize(&points, 50.0) else {
         panic!("expected an ellipse");
     };
-    assert!(ellipse.radii.x > 2.0 * ellipse.radii.y, "{:?}", ellipse.radii);
+    assert!(
+        ellipse.radii.x > 2.0 * ellipse.radii.y,
+        "{:?}",
+        ellipse.radii
+    );
 }
 
 #[test]
 fn recognizes_a_square() {
-    let points = freehand(160, box_outline(Vector2::new(100.0, 100.0), Vector2::new(300.0, 290.0)));
+    let points = freehand(
+        160,
+        box_outline(Vector2::new(100.0, 100.0), Vector2::new(300.0, 290.0)),
+    );
 
     let Some(Shape::Rectangle(rectangle)) = recognize(&points, 50.0) else {
         panic!("expected a rectangle");
     };
     let half_extents = rectangle.cuboid.half_extents;
-    assert!((half_extents.x - half_extents.y).abs() < f64::EPSILON, "{half_extents:?}");
-    assert_eq!(rectangle.affine.matrix2, DAffine2::IDENTITY.matrix2, "should be axis-aligned");
+    assert!(
+        (half_extents.x - half_extents.y).abs() < f64::EPSILON,
+        "{half_extents:?}"
+    );
+    assert_eq!(
+        rectangle.affine.matrix2,
+        DAffine2::IDENTITY.matrix2,
+        "should be axis-aligned"
+    );
 }
 
 #[test]
 fn recognizes_a_rotated_rectangle() {
     let rotation = Vector2::from_angle(PI / 6.0);
     let outline = box_outline(Vector2::new(-150.0, -60.0), Vector2::new(150.0, 60.0));
-    let points = freehand(160, |t| Vector2::new(400.0, 400.0) + rotation.rotate(outline(t)));
+    let points = freehand(160, |t| {
+        Vector2::new(400.0, 400.0) + rotation.rotate(outline(t))
+    });
 
     let Some(Shape::Rectangle(rectangle)) = recognize(&points, 50.0) else {
         panic!("expected a rectangle");
     };
     let half_extents = rectangle.cuboid.half_extents;
-    assert!((half_extents.max_element() - 150.0).abs() < 6.0, "{half_extents:?}");
-    assert!((half_extents.min_element() - 60.0).abs() < 6.0, "{half_extents:?}");
+    assert!(
+        (half_extents.max_element() - 150.0).abs() < 6.0,
+        "{half_extents:?}"
+    );
+    assert!(
+        (half_extents.min_element() - 60.0).abs() < 6.0,
+        "{half_extents:?}"
+    );
 }
 
 #[test]
 fn recognizes_a_triangle() {
-    let corners =
-        [Vector2::new(100.0, 400.0), Vector2::new(250.0, 100.0), Vector2::new(400.0, 400.0)];
+    let corners = [
+        Vector2::new(100.0, 400.0),
+        Vector2::new(250.0, 100.0),
+        Vector2::new(400.0, 400.0),
+    ];
     let outline = |t: f64| {
         let side = ((t * 3.0) as usize).min(2);
         let local = t * 3.0 - side as f64;
@@ -117,7 +151,10 @@ fn recognizes_and_straightens_a_line() {
     let Some(Shape::Line(line)) = recognize(&points, 50.0) else {
         panic!("expected a line");
     };
-    assert!((line.end.y - line.start.y).abs() < f64::EPSILON, "should be horizontal: {line:?}");
+    assert!(
+        (line.end.y - line.start.y).abs() < f64::EPSILON,
+        "should be horizontal: {line:?}"
+    );
 }
 
 #[test]
@@ -145,7 +182,10 @@ fn leaves_scribbles_alone() {
     let points: Vec<Vector2> = (0..80)
         .map(|i| {
             let t = f64::from(i);
-            Vector2::new(200.0 + (t * 0.9).sin() * 120.0 + t, 200.0 + (t * 1.7).cos() * 90.0)
+            Vector2::new(
+                200.0 + (t * 0.9).sin() * 120.0 + t,
+                200.0 + (t * 1.7).cos() * 90.0,
+            )
         })
         .chain(std::iter::once(Vector2::new(210.0, 200.0)))
         .collect();
@@ -160,8 +200,9 @@ fn polygon_outline(corners: Vec<Vector2>) -> impl Fn(f64) -> Vector2 {
 
 fn walk(vertices: &[Vector2], closed: bool, t: f64) -> Vector2 {
     let n = vertices.len();
-    let segments: Vec<(Vector2, Vector2)> =
-        (0..if closed { n } else { n - 1 }).map(|i| (vertices[i], vertices[(i + 1) % n])).collect();
+    let segments: Vec<(Vector2, Vector2)> = (0..if closed { n } else { n - 1 })
+        .map(|i| (vertices[i], vertices[(i + 1) % n]))
+        .collect();
     let total: f64 = segments.iter().map(|(a, b)| (*b - *a).length()).sum();
     let mut along = t.clamp(0.0, 1.0) * total;
     for (a, b) in &segments {
@@ -195,13 +236,18 @@ fn polygon_corners(shape: Option<Shape>) -> Vec<Vector2> {
 }
 
 fn side_lengths(corners: &[Vector2]) -> Vec<f64> {
-    (0..corners.len()).map(|i| (corners[(i + 1) % corners.len()] - corners[i]).length()).collect()
+    (0..corners.len())
+        .map(|i| (corners[(i + 1) % corners.len()] - corners[i]).length())
+        .collect()
 }
 
 fn assert_regular(corners: &[Vector2]) {
     let sides = side_lengths(corners);
     let mean = sides.iter().sum::<f64>() / sides.len() as f64;
-    assert!(sides.iter().all(|side| (side - mean).abs() < 1e-6), "uneven sides: {sides:?}");
+    assert!(
+        sides.iter().all(|side| (side - mean).abs() < 1e-6),
+        "uneven sides: {sides:?}"
+    );
 }
 
 #[test]
@@ -216,7 +262,11 @@ fn recognizes_a_pentagon_and_makes_it_regular() {
     let top = corners.iter().map(|c| c.y).fold(f64::INFINITY, f64::min);
     assert!(
         (top - (400.0
-            - corners.iter().map(|c| (*c - Vector2::splat(400.0)).length()).sum::<f64>() / 5.0))
+            - corners
+                .iter()
+                .map(|c| (*c - Vector2::splat(400.0)).length())
+                .sum::<f64>()
+                / 5.0))
             .abs()
             < 8.0
     );
@@ -294,22 +344,32 @@ fn recognizes_an_arrow_drawn_in_one_stroke() {
         Vector2::new(500.0, 402.0),
         Vector2::new(432.0, 462.0),
     ];
-    let points: Vec<Vector2> =
-        (0..=200).map(|i| walk(&vertices, false, f64::from(i) / 200.0)).collect();
+    let points: Vec<Vector2> = (0..=200)
+        .map(|i| walk(&vertices, false, f64::from(i) / 200.0))
+        .collect();
 
     let Some(Shape::Arrow(arrow)) = recognize(&points, 50.0) else {
         panic!("expected an arrow");
     };
-    assert!((arrow.tip - Vector2::new(500.0, 400.0)).length() < 1.0, "{arrow:?}");
+    assert!(
+        (arrow.tip - Vector2::new(500.0, 400.0)).length() < 1.0,
+        "{arrow:?}"
+    );
 }
 
 #[test]
 fn recognizes_a_zigzag_as_a_polyline() {
     let vertices: Vec<Vector2> = (0..5)
-        .map(|i| Vector2::new(100.0 + 80.0 * f64::from(i), if i % 2 == 0 { 300.0 } else { 420.0 }))
+        .map(|i| {
+            Vector2::new(
+                100.0 + 80.0 * f64::from(i),
+                if i % 2 == 0 { 300.0 } else { 420.0 },
+            )
+        })
         .collect();
-    let points: Vec<Vector2> =
-        (0..=200).map(|i| walk(&vertices, false, f64::from(i) / 200.0)).collect();
+    let points: Vec<Vector2> = (0..=200)
+        .map(|i| walk(&vertices, false, f64::from(i) / 200.0))
+        .collect();
 
     let Some(Shape::Polyline(polyline)) = recognize(&points, 50.0) else {
         panic!("expected a polyline");

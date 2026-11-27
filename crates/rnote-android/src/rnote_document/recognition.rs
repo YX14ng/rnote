@@ -12,7 +12,7 @@ use rnote_engine::pens::PenMode;
 use super::{EditState, RnoteDocument, ViewSize};
 use crate::pen_input::{PenPhase, PenSample};
 use crate::render::Viewport;
-use crate::shape_recognition;
+use rnote_engine::shape_recognition;
 
 /// Whether recognition is on, and the stroke being drawn.
 #[derive(Debug, Default)]

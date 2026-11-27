@@ -42,7 +42,7 @@ const POLYGON_ERROR_WEIGHT: f64 = 1.5;
 /// The shape `points` (a freehand stroke, in document coordinates) looks like, if any.
 /// Strokes whose bounding box is smaller than `min_size` along both axes are left alone, so
 /// handwriting doesn't turn into shapes.
-pub(crate) fn recognize(points: &[Vector2], min_size: f64) -> Option<Shape> {
+pub fn recognize(points: &[Vector2], min_size: f64) -> Option<Shape> {
     if points.len() < MIN_POINTS {
         return None;
     }
@@ -53,7 +53,10 @@ pub(crate) fn recognize(points: &[Vector2], min_size: f64) -> Option<Shape> {
     }
     let first = points[0];
     let last = points[points.len() - 1];
-    let length: f64 = points.windows(2).map(|pair| (pair[1] - pair[0]).length()).sum();
+    let length: f64 = points
+        .windows(2)
+        .map(|pair| (pair[1] - pair[0]).length())
+        .sum();
 
     let chord = (last - first).length();
     if chord >= LINE_STRAIGHTNESS * length {
@@ -78,15 +81,22 @@ pub(crate) fn recognize(points: &[Vector2], min_size: f64) -> Option<Shape> {
         Some(corners) if corners.len() == 4 && !polygons::right_angled(corners) => None,
         _ => rectangle_candidate(points, &hull),
     };
-    let mut fitting: Vec<(f64, Candidate)> =
-        [ellipse_candidate(points, mins, maxs), rectangle, triangle_candidate(points, &hull)]
-            .into_iter()
-            .flatten()
-            .filter_map(fits)
-            .collect();
+    let mut fitting: Vec<(f64, Candidate)> = [
+        ellipse_candidate(points, mins, maxs),
+        rectangle,
+        triangle_candidate(points, &hull),
+    ]
+    .into_iter()
+    .flatten()
+    .filter_map(fits)
+    .collect();
     // A general polygon only competes where no straightened rectangle or triangle fits.
-    let has_rectangle = fitting.iter().any(|(_, c)| matches!(c, Candidate::Rectangle { .. }));
-    let has_triangle = fitting.iter().any(|(_, c)| matches!(c, Candidate::Polygon { .. }));
+    let has_rectangle = fitting
+        .iter()
+        .any(|(_, c)| matches!(c, Candidate::Rectangle { .. }));
+    let has_triangle = fitting
+        .iter()
+        .any(|(_, c)| matches!(c, Candidate::Polygon { .. }));
     if let Some(corners) = corners {
         let covered = (corners.len() == 4 && has_rectangle) || (corners.len() == 3 && has_triangle);
         if !covered {
@@ -110,8 +120,12 @@ fn open_shape(points: &[Vector2], size: f64) -> Option<Shape> {
         return Some(Shape::Arrow(Arrow::new(start, tip)));
     }
     let error = polygons::mean_distance_to(points, &vertices, /* closed */ false) / size;
-    (error <= MAX_FIT_ERROR)
-        .then(|| Shape::Polyline(Polyline { start: vertices[0], path: vertices[1..].to_vec() }))
+    (error <= MAX_FIT_ERROR).then(|| {
+        Shape::Polyline(Polyline {
+            start: vertices[0],
+            path: vertices[1..].to_vec(),
+        })
+    })
 }
 
 /// A shape being considered, in a form that's easy to measure distances to.
@@ -160,7 +174,11 @@ impl Candidate {
                     offset.length() * (1.0 - 1.0 / scaled).abs()
                 }
             }
-            Self::Rectangle { center, half_extents, angle } => {
+            Self::Rectangle {
+                center,
+                half_extents,
+                angle,
+            } => {
                 let local = Vector2::from_angle(-*angle).rotate(point - *center).abs();
                 let outside = (local - *half_extents).max(Vector2::ZERO);
                 if outside == Vector2::ZERO {
@@ -175,16 +193,22 @@ impl Candidate {
 
     fn into_shape(self) -> Shape {
         match self {
-            Self::Ellipse { center, radii } => {
-                Shape::Ellipse(Ellipse { radii, affine: DAffine2::from_translation(center) })
-            }
-            Self::Rectangle { center, half_extents, angle } => Shape::Rectangle(Rectangle {
+            Self::Ellipse { center, radii } => Shape::Ellipse(Ellipse {
+                radii,
+                affine: DAffine2::from_translation(center),
+            }),
+            Self::Rectangle {
+                center,
+                half_extents,
+                angle,
+            } => Shape::Rectangle(Rectangle {
                 cuboid: Cuboid::new(half_extents),
                 affine: DAffine2::from_angle_translation(angle, center),
             }),
-            Self::Polygon { corners, .. } => {
-                Shape::Polygon(Polygon { start: corners[0], path: corners[1..].to_vec() })
-            }
+            Self::Polygon { corners, .. } => Shape::Polygon(Polygon {
+                start: corners[0],
+                path: corners[1..].to_vec(),
+            }),
         }
     }
 }
@@ -198,7 +222,10 @@ fn ellipse_candidate(points: &[Vector2], mins: Vector2, maxs: Vector2) -> Option
     if almost_equal(radii.x, radii.y) {
         radii = Vector2::splat((radii.x + radii.y) / 2.0);
     }
-    Some(Candidate::Ellipse { center: (mins + maxs) / 2.0, radii })
+    Some(Candidate::Ellipse {
+        center: (mins + maxs) / 2.0,
+        radii,
+    })
 }
 
 /// The smallest rectangle around the hull, straightened and made square if almost so.
@@ -210,7 +237,11 @@ fn rectangle_candidate(points: &[Vector2], hull: &[Vector2]) -> Option<Candidate
             edge.y.atan2(edge.x).rem_euclid(FRAC_PI_2)
         })
         .min_by(|a, b| rotated_area(hull, *a).total_cmp(&rotated_area(hull, *b)))?;
-    let angle = if angle < SNAP_ANGLE || FRAC_PI_2 - angle < SNAP_ANGLE { 0.0 } else { angle };
+    let angle = if angle < SNAP_ANGLE || FRAC_PI_2 - angle < SNAP_ANGLE {
+        0.0
+    } else {
+        angle
+    };
 
     let (local_mins, local_maxs) = rotated_bounds(points, angle);
     let mut half_extents = (local_maxs - local_mins) / 2.0;
@@ -221,7 +252,11 @@ fn rectangle_candidate(points: &[Vector2], hull: &[Vector2]) -> Option<Candidate
         half_extents = Vector2::splat((half_extents.x + half_extents.y) / 2.0);
     }
     let center = Vector2::from_angle(angle).rotate((local_mins + local_maxs) / 2.0);
-    Some(Candidate::Rectangle { center, half_extents, angle })
+    Some(Candidate::Rectangle {
+        center,
+        half_extents,
+        angle,
+    })
 }
 
 /// The largest triangle with corners on the hull.
@@ -243,7 +278,10 @@ fn triangle_candidate(points: &[Vector2], hull: &[Vector2]) -> Option<Candidate>
             }
         }
     }
-    best.map(|corners| Candidate::Polygon { corners: corners.to_vec(), weight: 1.0 })
+    best.map(|corners| Candidate::Polygon {
+        corners: corners.to_vec(),
+        weight: 1.0,
+    })
 }
 
 /// A line from `start` to `end`, made horizontal or vertical if almost so.

@@ -20,6 +20,7 @@ pub mod fileformats;
 pub mod image;
 pub mod pens;
 pub mod selectioncollision;
+pub mod shape_recognition;
 pub mod snap;
 pub mod store;
 pub mod strokes;

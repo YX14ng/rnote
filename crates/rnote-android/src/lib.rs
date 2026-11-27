@@ -19,7 +19,6 @@ mod pdf_export;
 mod pen_input;
 mod render;
 mod rnote_document;
-mod shape_recognition;
 mod sync_bridge;
 
 pub use android_color::{color_from_argb, color_to_argb};

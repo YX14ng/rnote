@@ -37,7 +37,9 @@ const SNAP_ROTATION: f64 = 8.0 * PI / 180.0;
 pub(super) fn closed_corners(points: &[Vector2], size: f64) -> Option<Vec<Vector2>> {
     let path = Path::new(points, /* closed */ true);
     let far = (1..points.len()).max_by(|&a, &b| {
-        (points[a] - points[0]).length().total_cmp(&(points[b] - points[0]).length())
+        (points[a] - points[0])
+            .length()
+            .total_cmp(&(points[b] - points[0]).length())
     })?;
     let tolerance = SIMPLIFY_TOLERANCE * size;
     let mut indices = simplify(points, 0, far, tolerance);
@@ -47,8 +49,11 @@ pub(super) fn closed_corners(points: &[Vector2], size: f64) -> Option<Vec<Vector
     let back = simplify(&closing, 0, closing.len() - 1, tolerance);
     indices.extend(back[..back.len() - 1].iter().map(|&i| i + far));
     let corners = drop_shallow_vertices(&path, indices, /* closed */ true);
-    (3..=MAX_POLYGON_CORNERS).contains(&corners.len()).then_some(())?;
-    path.is_sharp(&corners).then(|| corners.iter().map(|&i| points[i]).collect())
+    (3..=MAX_POLYGON_CORNERS)
+        .contains(&corners.len())
+        .then_some(())?;
+    path.is_sharp(&corners)
+        .then(|| corners.iter().map(|&i| points[i]).collect())
 }
 
 /// The vertices of an open stroke, ends included, if it is made of straight segments with
@@ -57,7 +62,9 @@ pub(super) fn open_vertices(points: &[Vector2], size: f64) -> Option<Vec<Vector2
     let path = Path::new(points, /* closed */ false);
     let indices = simplify(points, 0, points.len() - 1, SIMPLIFY_TOLERANCE * size);
     let vertices = drop_shallow_vertices(&path, indices, /* closed */ false);
-    (3..=MAX_POLYLINE_VERTICES).contains(&vertices.len()).then_some(())?;
+    (3..=MAX_POLYLINE_VERTICES)
+        .contains(&vertices.len())
+        .then_some(())?;
     path.is_sharp(&vertices[1..vertices.len() - 1])
         .then(|| vertices.iter().map(|&i| points[i]).collect())
 }
@@ -75,18 +82,22 @@ pub(super) fn right_angled(corners: &[Vector2]) -> bool {
 pub(super) fn regularized(corners: Vec<Vector2>) -> Vec<Vector2> {
     let n = corners.len();
     let center = corners.iter().copied().sum::<Vector2>() / n as f64;
-    let turns: Vec<f64> =
-        (0..n).map(|i| turn(corners[(i + n - 1) % n], corners[i], corners[(i + 1) % n])).collect();
+    let turns: Vec<f64> = (0..n)
+        .map(|i| turn(corners[(i + n - 1) % n], corners[i], corners[(i + 1) % n]))
+        .collect();
     let convex = turns.iter().all(|t| *t > 0.0) || turns.iter().all(|t| *t < 0.0);
     if convex && n != 4 {
-        let sides: Vec<f64> =
-            (0..n).map(|i| (corners[(i + 1) % n] - corners[i]).length()).collect();
+        let sides: Vec<f64> = (0..n)
+            .map(|i| (corners[(i + 1) % n] - corners[i]).length())
+            .collect();
         let mean_side = sides.iter().sum::<f64>() / n as f64;
         let regular_turn = TAU / n as f64;
-        let even_sides =
-            sides.iter().all(|side| (side - mean_side).abs() <= REGULAR_SIDE_TOLERANCE * mean_side);
-        let even_turns =
-            turns.iter().all(|t| (t.abs() - regular_turn).abs() <= REGULAR_TURN_TOLERANCE);
+        let even_sides = sides
+            .iter()
+            .all(|side| (side - mean_side).abs() <= REGULAR_SIDE_TOLERANCE * mean_side);
+        let even_turns = turns
+            .iter()
+            .all(|t| (t.abs() - regular_turn).abs() <= REGULAR_TURN_TOLERANCE);
         if even_sides && even_turns {
             let radius = corners.iter().map(|c| (*c - center).length()).sum::<f64>() / n as f64;
             return regular_points(center, &[radius], n, phase_of(&corners, center, n));
@@ -106,11 +117,18 @@ fn regular_star(corners: &[Vector2], center: Vector2) -> Option<Vec<Vector2>> {
     // Tips are the corners at even or at odd positions, whichever lie farther out.
     let first_tip = usize::from(radii[1] > radii[0]);
     let tips: Vec<f64> = radii.iter().skip(first_tip).step_by(2).copied().collect();
-    let inner: Vec<f64> = radii.iter().skip(1 - first_tip).step_by(2).copied().collect();
+    let inner: Vec<f64> = radii
+        .iter()
+        .skip(1 - first_tip)
+        .step_by(2)
+        .copied()
+        .collect();
     let mean = |values: &[f64]| values.iter().sum::<f64>() / values.len() as f64;
     let (tip_radius, inner_radius) = (mean(&tips), mean(&inner));
     let even = |values: &[f64], mean: f64| {
-        values.iter().all(|v| (v - mean).abs() <= REGULAR_SIDE_TOLERANCE * mean)
+        values
+            .iter()
+            .all(|v| (v - mean).abs() <= REGULAR_SIDE_TOLERANCE * mean)
     };
     let spaced = (0..10).all(|i| {
         let a = corners[i] - center;
@@ -126,7 +144,12 @@ fn regular_star(corners: &[Vector2], center: Vector2) -> Option<Vec<Vector2>> {
     }
     let tip_corners: Vec<Vector2> = corners.iter().skip(first_tip).step_by(2).copied().collect();
     let phase = phase_of(&tip_corners, center, 5);
-    Some(regular_points(center, &[tip_radius, inner_radius], 10, phase))
+    Some(regular_points(
+        center,
+        &[tip_radius, inner_radius],
+        10,
+        phase,
+    ))
 }
 
 /// `count` points around `center` starting at angle `phase`, with radii cycling through
@@ -149,7 +172,11 @@ fn phase_of(corners: &[Vector2], center: Vector2, symmetry: usize) -> f64 {
     // Up is -90° on screen, where y grows downwards; half a step more puts a side down.
     for upright in [-PI / 2.0, -PI / 2.0 + step / 2.0] {
         let delta = (phase - upright).rem_euclid(step);
-        let delta = if delta > step / 2.0 { delta - step } else { delta };
+        let delta = if delta > step / 2.0 {
+            delta - step
+        } else {
+            delta
+        };
         if delta.abs() <= SNAP_ROTATION {
             return phase - delta;
         }
@@ -269,14 +296,26 @@ impl<'a> Path<'a> {
             }
             along.push(total);
         }
-        let length =
-            if closed { total + (points[0] - points[points.len() - 1]).length() } else { total };
-        Self { points, along, length, closed }
+        let length = if closed {
+            total + (points[0] - points[points.len() - 1]).length()
+        } else {
+            total
+        };
+        Self {
+            points,
+            along,
+            length,
+            closed,
+        }
     }
 
     /// The point at distance `s` along the stroke, wrapping around closed ones.
     fn point_at(&self, s: f64) -> Vector2 {
-        let s = if self.closed { s.rem_euclid(self.length) } else { s.clamp(0.0, self.length) };
+        let s = if self.closed {
+            s.rem_euclid(self.length)
+        } else {
+            s.clamp(0.0, self.length)
+        };
         let i = self.along.partition_point(|&a| a <= s);
         if i == 0 {
             return self.points[0];
@@ -287,7 +326,11 @@ impl<'a> Path<'a> {
         } else {
             (self.points[0], self.length)
         };
-        if end <= start { a } else { a + (b - a) * ((s - start) / (end - start)) }
+        if end <= start {
+            a
+        } else {
+            a + (b - a) * ((s - start) / (end - start))
+        }
     }
 
     /// Whether the stroke turns sharply at the points `vertices` (indices): mostly within a
@@ -306,9 +349,17 @@ impl<'a> Path<'a> {
                 let local = turn(before, self.points[i], after).abs();
                 // Compare with the turn between points much farther away along the stroke.
                 let wide = 4.0 * window;
-                let outline =
-                    turn(self.point_at(s - wide), self.points[i], self.point_at(s + wide)).abs();
-                if outline <= f64::EPSILON { 0.0 } else { (local / outline).min(1.0) }
+                let outline = turn(
+                    self.point_at(s - wide),
+                    self.points[i],
+                    self.point_at(s + wide),
+                )
+                .abs();
+                if outline <= f64::EPSILON {
+                    0.0
+                } else {
+                    (local / outline).min(1.0)
+                }
             })
             .sum();
         total / vertices.len() as f64 >= MIN_SHARPNESS

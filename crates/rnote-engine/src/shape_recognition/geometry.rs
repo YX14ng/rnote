@@ -4,7 +4,10 @@ use parry2d_f64::math::Vector2;
 
 pub(super) fn bounding_box(points: &[Vector2]) -> (Vector2, Vector2) {
     points.iter().fold(
-        (Vector2::splat(f64::INFINITY), Vector2::splat(f64::NEG_INFINITY)),
+        (
+            Vector2::splat(f64::INFINITY),
+            Vector2::splat(f64::NEG_INFINITY),
+        ),
         |(mins, maxs), &point| (mins.min(point), maxs.max(point)),
     )
 }
