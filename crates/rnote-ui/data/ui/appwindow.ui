@@ -15,6 +15,9 @@
       <object class="AdwTabOverview" id="overview">
         <property name="enable-new-tab">true</property>
         <child>
+          <!-- Around both pages, so toasts show over the library as well as the editor. -->
+          <object class="AdwToastOverlay" id="window_toast_overlay">
+            <property name="child">
           <object class="AdwViewStack" id="main_stack">
             <property name="enable-transitions">true</property>
             <child>
@@ -69,6 +72,8 @@
                 </property>
               </object>
             </child>
+          </object>
+            </property>
           </object>
         </child>
       </object>

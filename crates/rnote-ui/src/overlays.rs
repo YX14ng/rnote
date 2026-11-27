@@ -112,8 +112,12 @@ impl RnOverlays {
         self.imp().colorpicker.get()
     }
 
+    /// Where toasts go: the window's overlay, over the library and the editor alike, or
+    /// this widget's own when it isn't in such a window.
     pub(crate) fn toast_overlay(&self) -> adw::ToastOverlay {
-        self.imp().toast_overlay.get()
+        self.ancestor(adw::ToastOverlay::static_type())
+            .and_downcast::<adw::ToastOverlay>()
+            .unwrap_or_else(|| self.imp().toast_overlay.get())
     }
 
     pub(crate) fn progressbar(&self) -> ProgressBar {
