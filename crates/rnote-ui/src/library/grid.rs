@@ -1,6 +1,6 @@
 //! Filling the library view: the sidebar, the header for the section and the cards.
 
-use gettextrs::{gettext, ngettext};
+use gettextrs::ngettext;
 use gtk4::{glib, glib::clone, prelude::*, subclass::prelude::*};
 use rnote_library::{Library, Notebook, Section, SortOrder};
 use tracing::error;
@@ -237,35 +237,5 @@ impl RnLibraryView {
             super::open::open_notebook(&appwindow, &root, &notebook).await;
             drop(busy);
         });
-    }
-
-    /// Creates "Untitled.rnote" in the folder shown (the root elsewhere) and opens it.
-    async fn create_notebook(&self) {
-        let Some(appwindow) = self.appwindow() else {
-            return;
-        };
-        let folder = match self.section() {
-            Section::Folder(folder) => Some(folder),
-            _ => None,
-        };
-        let path = self
-            .imp()
-            .library
-            .borrow()
-            .as_ref()
-            .map(|library| library.new_notebook_path(folder.as_deref(), &gettext("Untitled")));
-        let path = match path {
-            Some(Ok(path)) => path,
-            Some(Err(e)) => {
-                error!("Choosing a name for the new notebook failed, Err: {e:?}");
-                self.toast_error(&gettext("Creating the notebook failed"));
-                return;
-            }
-            None => return,
-        };
-        if let Err(e) = super::open::new_notebook_tab(&appwindow, &self.root().join(path)).await {
-            error!("Creating the new notebook failed, Err: {e:?}");
-            self.toast_error(&gettext("Creating the notebook failed"));
-        }
     }
 }

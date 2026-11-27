@@ -5303,6 +5303,74 @@ msgstr "Выбрать все блокноты"
 msgid "Leave Selection Mode"
 msgstr "Выйти из режима выбора"
 
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "Paper"
+msgstr "Бумага"
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "Title"
+msgstr "Название"
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "Letter"
+msgstr "Letter"
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "Legal"
+msgstr "Legal"
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "White"
+msgstr "Белый"
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "Cream"
+msgstr "Кремовый"
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "Light Gray"
+msgstr "Светло-серый"
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "Dark"
+msgstr "Тёмный"
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "{n} mm"
+msgstr "{n} мм"
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "Pages"
+msgstr "Страницы"
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "Sheets"
+msgstr "Листы"
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "Paper Color"
+msgstr "Цвет бумаги"
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "Template"
+msgstr "Шаблон"
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "Blank"
+msgstr "Пустой"
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "Ruled"
+msgstr "В линейку"
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "Line Spacing"
+msgstr "Межстрочный интервал"
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "What you choose stays for the next notebook in this folder."
+msgstr "Выбранные настройки сохранятся для следующего блокнота в этой папке."
+
 #~ msgid "Brush Style"
 #~ msgstr "Стиль кисти"
 

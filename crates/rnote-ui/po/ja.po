@@ -5175,6 +5175,74 @@ msgstr "すべてのノートを選択"
 msgid "Leave Selection Mode"
 msgstr "選択モードを終了"
 
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "Paper"
+msgstr "用紙"
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "Title"
+msgstr "タイトル"
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "Letter"
+msgstr "レター"
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "Legal"
+msgstr "リーガル"
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "White"
+msgstr "白"
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "Cream"
+msgstr "クリーム"
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "Light Gray"
+msgstr "ライトグレー"
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "Dark"
+msgstr "ダーク"
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "{n} mm"
+msgstr "{n} mm"
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "Pages"
+msgstr "ページ"
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "Sheets"
+msgstr "用紙"
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "Paper Color"
+msgstr "用紙の色"
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "Template"
+msgstr "テンプレート"
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "Blank"
+msgstr "無地"
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "Ruled"
+msgstr "罫線"
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "Line Spacing"
+msgstr "罫線の間隔"
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "What you choose stays for the next notebook in this folder."
+msgstr "ここで選んだ設定は、このフォルダーで次に作るノートにも引き継がれます。"
+
 #~ msgid "Brush Style"
 #~ msgstr "ブラシのスタイル"
 

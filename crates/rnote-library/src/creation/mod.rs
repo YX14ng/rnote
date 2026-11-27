@@ -5,6 +5,7 @@
 mod defaults;
 mod paper;
 mod pdf;
+mod presets;
 mod setup;
 
 #[cfg(test)]
@@ -13,6 +14,7 @@ mod tests;
 pub use defaults::{defaults_for, remember_defaults};
 pub use paper::{apply_background, apply_layout, apply_page_size, color_from_argb};
 pub use pdf::{PdfImport, PdfOpenError, PdfPages, pdf_page_count};
+pub use presets::{PAGE_SIZES, PAPERS, PageSize, Paper, SPACINGS_MM, SetupChoice};
 pub use setup::{
     DARK_LINES, DARK_PAPER, NotebookSetup, SetupLayout, SetupPattern, engine_with_setup,
     image_notebook_bytes, new_notebook_bytes, upright_png,

@@ -5003,6 +5003,74 @@ msgstr "选择所有笔记本"
 msgid "Leave Selection Mode"
 msgstr "退出选择模式"
 
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "Paper"
+msgstr "纸张"
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "Title"
+msgstr "标题"
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "Letter"
+msgstr "Letter"
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "Legal"
+msgstr "Legal"
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "White"
+msgstr "白色"
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "Cream"
+msgstr "米色"
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "Light Gray"
+msgstr "浅灰色"
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "Dark"
+msgstr "深色"
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "{n} mm"
+msgstr "{n} 毫米"
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "Pages"
+msgstr "分页"
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "Sheets"
+msgstr "纸张"
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "Paper Color"
+msgstr "纸张颜色"
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "Template"
+msgstr "模板"
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "Blank"
+msgstr "空白"
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "Ruled"
+msgstr "横线"
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "Line Spacing"
+msgstr "行距"
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "What you choose stays for the next notebook in this folder."
+msgstr "你的选择会沿用到此文件夹中的下一个笔记本。"
+
 #~ msgid "Brush Style"
 #~ msgstr "笔刷样式"
 

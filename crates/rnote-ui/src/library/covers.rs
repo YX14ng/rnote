@@ -33,7 +33,7 @@ pub(super) fn cover_from_target(target: i64) -> Option<u32> {
 }
 
 /// The name of the cover color `argb`.
-fn cover_name(argb: u32) -> String {
+pub(super) fn cover_name(argb: u32) -> String {
     let names = [
         gettext("Blue"),
         gettext("Green"),

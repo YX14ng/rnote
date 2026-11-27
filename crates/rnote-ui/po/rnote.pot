@@ -4915,3 +4915,71 @@ msgstr ""
 #: crates/rnote-ui/data/ui/shortcuts.ui
 msgid "Leave Selection Mode"
 msgstr ""
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "Paper"
+msgstr ""
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "Title"
+msgstr ""
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "Letter"
+msgstr ""
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "Legal"
+msgstr ""
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "White"
+msgstr ""
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "Cream"
+msgstr ""
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "Light Gray"
+msgstr ""
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "Dark"
+msgstr ""
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "{n} mm"
+msgstr ""
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "Pages"
+msgstr ""
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "Sheets"
+msgstr ""
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "Paper Color"
+msgstr ""
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "Template"
+msgstr ""
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "Blank"
+msgstr ""
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "Ruled"
+msgstr ""
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "Line Spacing"
+msgstr ""
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "What you choose stays for the next notebook in this folder."
+msgstr ""
