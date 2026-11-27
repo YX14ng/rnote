@@ -13,7 +13,8 @@ import android.widget.TextView
 
 /**
  * The editor screen: the top bar, and below it the canvas with a centered message over it
- * (hints, loading, errors), kept clear of the system bars and the keyboard. Overlays (panels,
+ * (hints, loading, errors), beside the column of sheets when it shows, kept clear of the
+ * system bars and the keyboard. Overlays (panels,
  * the pen wheel) cover everything.
  */
 internal class EditorLayout(activity: Activity, canvas: NoteCanvasView, topBar: EditorTopBar) {
@@ -29,12 +30,18 @@ internal class EditorLayout(activity: Activity, canvas: NoteCanvasView, topBar: 
         addView(messageView, FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT))
     }
 
+    /** The column of sheets, when shown, and the canvas beside it. */
+    private val body = LinearLayout(activity).apply {
+        orientation = LinearLayout.HORIZONTAL
+        addView(content, LinearLayout.LayoutParams(0, MATCH_PARENT, 1f))
+    }
+
     val root: FrameLayout = FrameLayout(activity).apply {
         setBackgroundColor(Graphite.BAR)
         addView(LinearLayout(activity).apply {
             orientation = LinearLayout.VERTICAL
             addView(topBar, LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT))
-            addView(content, LinearLayout.LayoutParams(MATCH_PARENT, 0, 1f))
+            addView(body, LinearLayout.LayoutParams(MATCH_PARENT, 0, 1f))
         }, FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT))
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             // Edge-to-edge is enforced from Android 15 on: keep content out of the bars, and
@@ -65,14 +72,14 @@ internal class EditorLayout(activity: Activity, canvas: NoteCanvasView, topBar: 
             value?.let { content.addView(it, 1, FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, Gravity.TOP or Gravity.START)) }
         }
 
-    /** The column of sheets, along the left edge over the canvas. */
+    /** The column of sheets, along the left edge; the canvas narrows beside it. */
     var sidePanel: View? = null
         set(value) {
-            field?.let(content::removeView)
+            field?.let(body::removeView)
             field = value
             value?.let {
                 val width = Graphite.dp(content.context, PagesPanel.WIDTH_DP)
-                content.addView(it, FrameLayout.LayoutParams(width, MATCH_PARENT, Gravity.START))
+                body.addView(it, 0, LinearLayout.LayoutParams(width, MATCH_PARENT))
             }
         }
 
