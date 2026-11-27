@@ -70,6 +70,7 @@ class MainActivity : Activity() {
             onError = { showError(R.string.failed_edit, it) }
             onEditState = ::updateEditState
             onTwoFingerTap = ::undoByGesture
+            onThreeFingerTap = ::redoByGesture
             onPenWheel = ::showPenWheel
             onLongPress = ::showCanvasMenu
             onViewportMoved = ::onViewportMoved
@@ -640,6 +641,14 @@ class MainActivity : Activity() {
         if (documentOpen && editState.canUndo) {
             canvasView.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             canvasView.applyEdit(NativeDocument::undo)
+        }
+    }
+
+    /** A three-finger tap redoes, like in other note-taking apps. */
+    private fun redoByGesture() {
+        if (documentOpen && editState.canRedo) {
+            canvasView.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+            canvasView.applyEdit(NativeDocument::redo)
         }
     }
 

@@ -132,6 +132,9 @@ class NoteCanvasView(context: Context) : View(context) {
     /** Called on a quick two-finger tap, the undo gesture of other note-taking apps. */
     var onTwoFingerTap: (() -> Unit)? = null
 
+    /** A quick tap with three fingers. */
+    var onThreeFingerTap: (() -> Unit)? = null
+
     /** When on, a single finger draws like a stylus, and two fingers pan and zoom. */
     var fingerDrawing: Boolean
         get() = input.fingerDrawing
@@ -177,7 +180,8 @@ class NoteCanvasView(context: Context) : View(context) {
     /** Tells the hand holding the S Pen from fingers that navigate. */
     private val palm = PalmGuard()
     private val hoverCursor = HoverCursor(resources.displayMetrics.density)
-    private val twoFingerTap = TwoFingerTap(context, palm::fingersAllowed) { onTwoFingerTap?.invoke() }
+    private val twoFingerTap = FingerTap(context, 2, palm::fingersAllowed) { onTwoFingerTap?.invoke() }
+    private val threeFingerTap = FingerTap(context, 3, palm::fingersAllowed) { onThreeFingerTap?.invoke() }
 
     private val input = CanvasInput(
         context,
@@ -377,6 +381,7 @@ class NoteCanvasView(context: Context) : View(context) {
         hoverCursor.hide()
         penButtonHold.onTouch()
         twoFingerTap.onTouch(event)
+        threeFingerTap.onTouch(event)
         input.onTouch(event)
         invalidate()
         return true
