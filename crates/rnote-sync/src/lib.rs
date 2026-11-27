@@ -68,6 +68,9 @@ pub struct SyncReport {
     /// The local paths this sync wrote, moved or removed, so open notebooks can be
     /// reloaded or protected.
     pub changed_here: Vec<String>,
+    /// The local files this sync moved or renamed, as (from, to), so an open notebook can
+    /// follow its file.
+    pub moved_here: Vec<(String, String)>,
     /// The paths that couldn't be synced this time, each with the reason; the next sync
     /// tries them again.
     pub skipped: Vec<String>,

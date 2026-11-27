@@ -672,7 +672,26 @@ class MainActivity : Activity() {
     /** A sync wrote the open library notebook: see whether it's still the file the editor has. */
     private fun onSyncStatus(status: SyncStatus) {
         val path = libraryPath ?: return
-        if (status is SyncStatus.Done && path in status.report.changedHere) checkOpenNotebook(path)
+        if (status !is SyncStatus.Done) return
+        val moved = status.report.movedTo(path)
+        when {
+            moved != null -> followMove(moved)
+            path in status.report.changedHere -> checkOpenNotebook(path)
+        }
+    }
+
+    /**
+     * The sync moved or renamed the open notebook (it was moved on another device): the
+     * editor goes on with it at its new place, so saving never recreates the old one.
+     */
+    private fun followMove(path: String) {
+        val file = LibraryStore.forApp(this).notebookFile(path) ?: return
+        libraryPath = path
+        saver.currentUri = Uri.fromFile(file)
+        saver.documentName = file.name
+        refreshBar()
+        // Its content may have changed too.
+        checkOpenNotebook(path)
     }
 
     /**

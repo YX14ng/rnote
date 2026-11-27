@@ -19,7 +19,21 @@ internal data class SyncReport(
     val conflicts: List<String>,
     val changedHere: List<String>,
     val skipped: List<String>,
+    /** Notebooks this sync moved or renamed here, from their old path to the new one. */
+    val movedHere: Map<String, String> = emptyMap(),
 ) {
+    /** Where the notebook at [path] is after the moves of this sync; null if it didn't move. */
+    fun movedTo(path: String): String? {
+        var current = path
+        val seen = mutableSetOf(path)
+        while (true) {
+            val next = movedHere[current] ?: break
+            if (!seen.add(next)) break
+            current = next
+        }
+        return current.takeIf { it != path }
+    }
+
     /** Whether the sync changed anything here or in Drive; the library shown may be old then. */
     val didAnything: Boolean
         get() = uploaded + downloaded + moved + deleted > 0 || conflicts.isNotEmpty() || changedHere.isNotEmpty()
@@ -35,6 +49,11 @@ internal data class SyncReport(
             conflicts = json.getJSONArray("conflicts").strings(),
             changedHere = json.getJSONArray("changed_here").strings(),
             skipped = json.getJSONArray("skipped").strings(),
+            movedHere = json.optJSONArray("moved_here")?.let { moves ->
+                (0 until moves.length()).associate { i ->
+                    moves.getJSONObject(i).let { it.getString("from") to it.getString("to") }
+                }
+            } ?: emptyMap(),
         )
 
         private fun JSONArray.strings(): List<String> = (0 until length()).map(::getString)

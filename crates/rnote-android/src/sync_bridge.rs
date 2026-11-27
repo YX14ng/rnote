@@ -31,6 +31,11 @@ pub(crate) fn run_sync(
             "conflicts": report.conflicts,
             "changed_here": report.changed_here,
             "skipped": report.skipped,
+            "moved_here": report
+                .moved_here
+                .iter()
+                .map(|(from, to)| json!({ "from": from, "to": to }))
+                .collect::<Vec<_>>(),
         }),
         Err(SyncError::Busy) => json!({ "status": "busy" }),
         Err(SyncError::Unauthorized) => json!({ "status": "unauthorized" }),
@@ -147,6 +152,7 @@ mod tests {
         assert_eq!(answer["changed_here"], serde_json::json!(["a.rnote"]));
         assert_eq!(answer["conflicts"], serde_json::json!([]));
         assert_eq!(answer["skipped"], serde_json::json!([]));
+        assert_eq!(answer["moved_here"], serde_json::json!([]));
         assert_eq!(fs::read(device.root().join("a.rnote")).unwrap(), b"a");
     }
 

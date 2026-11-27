@@ -51,6 +51,8 @@ fn remote_move_moves_the_local_file() {
     // A still has the folder it moved the notebook out of, so B keeps it too.
     assert!(a.root().join("Orga").is_dir() && b.root().join("Orga").is_dir());
     assert_eq!((report.moved, report.downloaded), (1, 0));
+    // So a notebook open in an editor can follow it.
+    assert_eq!(report.moved_here, vec![("Orga/a.rnote".to_owned(), "b.rnote".to_owned())]);
 }
 
 #[test]

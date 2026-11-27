@@ -139,6 +139,7 @@ fn move_local(run: &mut Run, from: &str, to: &str) -> Result<(), SyncError> {
     }
     run.emptied.insert(split(from).0.to_owned());
     run.report.changed_here.extend([from.to_owned(), to.to_owned()]);
+    run.report.moved_here.push((from.to_owned(), to.to_owned()));
     Ok(())
 }
 
