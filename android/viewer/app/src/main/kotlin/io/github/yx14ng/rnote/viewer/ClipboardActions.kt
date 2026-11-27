@@ -108,6 +108,15 @@ internal class ClipboardActions(
         }
     }
 
+    /**
+     * Inserts the picture [read] gives (read on the document's thread) centered on [at], in
+     * document coordinates, or in the middle of the view; it ends up selected.
+     */
+    fun insertImage(at: Pair<Double, Double>?, read: () -> ByteArray) {
+        val (x, y) = at ?: canvas.documentCenter()
+        pasteWith(Tool.SELECTOR) { document -> document.pasteImage(read(), x, y) }
+    }
+
     /** Runs [paste]; once it succeeded, reports the [tool] the engine switched to. */
     private fun pasteWith(tool: Tool, paste: (NativeDocument) -> EditState) {
         canvas.applyEdit { document ->

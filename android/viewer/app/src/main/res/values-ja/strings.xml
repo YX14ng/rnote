@@ -109,6 +109,8 @@
     <string name="action_cut">切り取り</string>
     <string name="action_copy">コピー</string>
     <string name="action_paste">貼り付け</string>
+    <string name="action_insert_image">画像を挿入…</string>
+    <string name="action_take_photo">写真を撮る…</string>
     <string name="clipboard_empty">貼り付けるものがありません</string>
     <string name="clipboard_kept_in_app">システムのクリップボードには大きすぎるため、このアプリ内でのみ貼り付けできます。</string>
     <string name="nothing_selected">何も選択されていません</string>

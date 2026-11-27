@@ -109,6 +109,8 @@
     <string name="action_cut">剪下</string>
     <string name="action_copy">複製</string>
     <string name="action_paste">貼上</string>
+    <string name="action_insert_image">插入圖片…</string>
+    <string name="action_take_photo">拍照…</string>
     <string name="clipboard_empty">沒有可貼上的內容</string>
     <string name="clipboard_kept_in_app">內容太大，無法放入系統剪貼簿：只能在本應用程式中貼上。</string>
     <string name="nothing_selected">未選取任何內容</string>

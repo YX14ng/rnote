@@ -109,6 +109,8 @@
     <string name="action_cut">Cortar</string>
     <string name="action_copy">Copiar</string>
     <string name="action_paste">Pegar</string>
+    <string name="action_insert_image">Insertar imagen…</string>
+    <string name="action_take_photo">Tomar foto…</string>
     <string name="clipboard_empty">No hay nada para pegar</string>
     <string name="clipboard_kept_in_app">Es demasiado grande para el portapapeles del sistema: solo se puede pegar en esta app.</string>
     <string name="nothing_selected">No hay nada seleccionado</string>

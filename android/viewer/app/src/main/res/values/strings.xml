@@ -110,6 +110,8 @@
     <string name="action_cut">Cut</string>
     <string name="action_copy">Copy</string>
     <string name="action_paste">Paste</string>
+    <string name="action_insert_image">Insert picture…</string>
+    <string name="action_take_photo">Take photo…</string>
     <string name="clipboard_empty">Nothing to paste</string>
     <string name="clipboard_kept_in_app">Too big for the system clipboard: it can only be pasted in this app.</string>
     <string name="nothing_selected">Nothing is selected</string>

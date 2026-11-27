@@ -109,6 +109,8 @@
     <string name="action_cut">Вырезать</string>
     <string name="action_copy">Копировать</string>
     <string name="action_paste">Вставить</string>
+    <string name="action_insert_image">Вставить изображение…</string>
+    <string name="action_take_photo">Сделать фото…</string>
     <string name="clipboard_empty">Нечего вставить</string>
     <string name="clipboard_kept_in_app">Слишком большой объём для системного буфера обмена: вставить можно только в этом приложении.</string>
     <string name="nothing_selected">Ничего не выделено</string>

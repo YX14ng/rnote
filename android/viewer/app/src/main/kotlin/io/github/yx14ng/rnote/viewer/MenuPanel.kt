@@ -68,6 +68,12 @@ internal object MenuPanel {
             panel.addView(PanelViews.menuRow(context, R.drawable.ic_text_format, R.string.action_text_format, null, true) {
                 onAction(EditorMenu.Action.TextFormat)
             })
+            panel.addView(PanelViews.menuRow(context, R.drawable.ic_image, R.string.action_insert_image, null, true) {
+                onAction(EditorMenu.Action.InsertImage)
+            })
+            panel.addView(PanelViews.menuRow(context, R.drawable.ic_camera, R.string.action_take_photo, null, true) {
+                onAction(EditorMenu.Action.TakePhoto)
+            })
 
             panel.addView(PanelViews.divider(context), PanelViews.dividerParams(context))
             panel.addView(Graphite.sectionTitle(context, R.string.section_input))

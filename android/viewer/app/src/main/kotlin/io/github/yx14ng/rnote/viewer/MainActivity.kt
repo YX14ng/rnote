@@ -157,6 +157,10 @@ class MainActivity : Activity() {
                 EditorMenu.Action.Cut -> clipboard.cut()
                 EditorMenu.Action.Paste -> clipboard.paste()
                 is EditorMenu.Action.PasteAt -> clipboard.paste(action.x to action.y)
+                EditorMenu.Action.InsertImage -> pickImage(null)
+                is EditorMenu.Action.InsertImageAt -> pickImage(action.x to action.y)
+                EditorMenu.Action.TakePhoto -> takePhoto(null)
+                is EditorMenu.Action.TakePhotoAt -> takePhoto(action.x to action.y)
                 EditorMenu.Action.Document -> showDocumentDialog()
                 EditorMenu.Action.Pages -> pages.toggle()
                 EditorMenu.Action.New -> newNotebook()
@@ -306,6 +310,10 @@ class MainActivity : Activity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_TAKE_PHOTO) {
+            onPhotoTaken(resultCode == RESULT_OK)
+            return
+        }
         val uri = data?.data
         if (resultCode != RESULT_OK || uri == null) {
             // Backed out of the picker: the open document stays, and so does its autosave.
@@ -317,7 +325,36 @@ class MainActivity : Activity() {
             REQUEST_SAVE_AS -> saver.saveAs(uri)
             REQUEST_INSERT_PDF -> pages.onPdfPicked(uri)
             REQUEST_EXPORT_PDF -> pdfExport.saveTo(uri, saver.documentName)
+            REQUEST_INSERT_IMAGE -> {
+                val resolver = contentResolver
+                clipboard.insertImage(insertAt) {
+                    resolver.openInputStream(uri)?.use { it.readBytes() } ?: error("The picture can't be read")
+                }
+            }
         }
+    }
+
+    // Where the picture or photo being picked goes, in document coordinates; null for the
+    // middle of the view, also when the activity was recreated meanwhile.
+    private var insertAt: Pair<Double, Double>? = null
+
+    private fun pickImage(at: Pair<Double, Double>?) {
+        insertAt = at
+        val pick = Intent(Intent.ACTION_OPEN_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("image/*")
+        @Suppress("DEPRECATION")
+        startActivityForResult(pick, REQUEST_INSERT_IMAGE)
+    }
+
+    private fun takePhoto(at: Pair<Double, Double>?) {
+        insertAt = at
+        PhotoCapture.start(this, REQUEST_TAKE_PHOTO)
+    }
+
+    private fun onPhotoTaken(taken: Boolean) {
+        // Cancelled, or the camera wrote nothing: the notebook stays as it was.
+        val photo = (if (taken) PhotoCapture.takenPhoto(this) else null) ?: return PhotoCapture.clear(this)
+        PhotoCapture.clear(this)
+        clipboard.insertImage(insertAt) { photo }
     }
 
     // Only reached before Android 13: from 13 on the manifest opts into OnBackInvokedCallback,
@@ -711,6 +748,8 @@ class MainActivity : Activity() {
         private const val REQUEST_SAVE_AS = 2
         private const val REQUEST_INSERT_PDF = 3
         private const val REQUEST_EXPORT_PDF = 4
+        private const val REQUEST_INSERT_IMAGE = 5
+        private const val REQUEST_TAKE_PHOTO = 6
 
         /** How soon the autosave looks again when the pen was down. */
         private const val PEN_UP_RETRY_MS = 1_000L

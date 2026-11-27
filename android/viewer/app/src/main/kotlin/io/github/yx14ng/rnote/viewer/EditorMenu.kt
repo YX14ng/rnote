@@ -35,6 +35,18 @@ internal object EditorMenu {
 
         /** Pastes centered on ([x], [y]), in document coordinates. */
         data class PasteAt(val x: Double, val y: Double) : Action
+
+        /** Inserts a picture from the gallery or files, in the middle of the view. */
+        data object InsertImage : Action
+
+        /** Inserts a picture centered on ([x], [y]), in document coordinates. */
+        data class InsertImageAt(val x: Double, val y: Double) : Action
+
+        /** Inserts a photo taken now, in the middle of the view. */
+        data object TakePhoto : Action
+
+        /** Inserts a photo taken now, centered on ([x], [y]), in document coordinates. */
+        data class TakePhotoAt(val x: Double, val y: Double) : Action
         data class Emphasis(val emphasis: TextEmphasis) : Action
         data object ColorSelectedText : Action
         data object SelectAllText : Action

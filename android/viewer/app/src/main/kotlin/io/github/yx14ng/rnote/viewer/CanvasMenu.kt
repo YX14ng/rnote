@@ -4,8 +4,9 @@ import android.content.Context
 import android.view.View
 
 /**
- * The menu that opens where a finger holds still on the page: paste there, and what the lasso
- * can do with the selection, or select everything when nothing is selected.
+ * The menu that opens where a finger holds still on the page: paste, or put a picture or a
+ * photo, there; and what the lasso can do with the selection, or select everything when
+ * nothing is selected.
  */
 internal object CanvasMenu {
     /** One row of the menu; [danger] marks what can't be taken back without undo. */
@@ -17,6 +18,8 @@ internal object CanvasMenu {
         if (!hasSelection) {
             return listOf(
                 paste,
+                Entry(R.drawable.ic_image, R.string.action_insert_image, EditorMenu.Action.InsertImageAt(x, y)),
+                Entry(R.drawable.ic_camera, R.string.action_take_photo, EditorMenu.Action.TakePhotoAt(x, y)),
                 Entry(R.drawable.ic_pen_lasso, R.string.action_select_all, EditorMenu.Action.Selection(SelectionAction.SELECT_ALL)),
             )
         }

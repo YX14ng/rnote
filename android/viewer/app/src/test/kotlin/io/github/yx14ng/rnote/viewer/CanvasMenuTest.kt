@@ -6,11 +6,16 @@ import org.junit.Test
 /** What holding a finger on the page offers. */
 class CanvasMenuTest {
     @Test
-    fun withoutSelectionItPastesThereOrSelectsAll() {
+    fun withoutSelectionItPutsSomethingThereOrSelectsAll() {
         val actions = CanvasMenu.entries(hasSelection = false, x = 10.0, y = 20.0).map { it.action }
 
         assertEquals(
-            listOf(EditorMenu.Action.PasteAt(10.0, 20.0), EditorMenu.Action.Selection(SelectionAction.SELECT_ALL)),
+            listOf(
+                EditorMenu.Action.PasteAt(10.0, 20.0),
+                EditorMenu.Action.InsertImageAt(10.0, 20.0),
+                EditorMenu.Action.TakePhotoAt(10.0, 20.0),
+                EditorMenu.Action.Selection(SelectionAction.SELECT_ALL),
+            ),
             actions,
         )
     }
