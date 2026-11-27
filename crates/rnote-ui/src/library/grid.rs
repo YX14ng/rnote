@@ -10,6 +10,21 @@ use super::{
     LIST_VIEW_KEY, RnLibraryView, SELECTION_MODE, SORT_BY_NAME_KEY, actions, search, sidebar,
 };
 
+/// What the library shows, to tell whether showing it again would change anything.
+#[derive(Debug, PartialEq)]
+pub(super) struct Shown {
+    notebooks: Vec<Notebook>,
+    folders: Vec<String>,
+    tags: Vec<rnote_library::Tag>,
+    trash: Vec<rnote_library::TrashEntry>,
+    section: Section,
+    query: String,
+    selection_mode: bool,
+    list: bool,
+    by_name: bool,
+    selected: std::collections::BTreeSet<String>,
+}
+
 impl RnLibraryView {
     /// Fills the sidebar, the header and the cards from the open library.
     pub(super) fn show_notebooks(&self) {
@@ -26,7 +41,30 @@ impl RnLibraryView {
         });
         let folders = library.folders().unwrap_or_default();
         let tags = library.tags();
-        let counts = rnote_library::counts(&notebooks, &folders, library.trash_entries().len());
+        let trash = library.trash_entries();
+        // What a sync or another program removed is no longer selected.
+        imp.selected
+            .borrow_mut()
+            .retain(|path| notebooks.iter().any(|notebook| &notebook.path == path));
+        let shown = Shown {
+            notebooks: notebooks.clone(),
+            folders: folders.clone(),
+            tags: tags.clone(),
+            trash: trash.clone(),
+            section: self.section(),
+            query: self.query(),
+            selection_mode: self.flag(SELECTION_MODE),
+            list: self.flag(LIST_VIEW_KEY),
+            by_name: self.flag(SORT_BY_NAME_KEY),
+            selected: imp.selected.borrow().clone(),
+        };
+        // Nothing changed (e.g. a sync that only uploaded, or the library's own write seen
+        // on disk): rebuilding would close an open menu and lose the keyboard focus.
+        if imp.shown_state.borrow().as_ref() == Some(&shown) {
+            return;
+        }
+        *imp.shown_state.borrow_mut() = Some(shown);
+        let counts = rnote_library::counts(&notebooks, &folders, trash.len());
 
         imp.filling_sidebar.set(true);
         let row_sections = sidebar::fill(

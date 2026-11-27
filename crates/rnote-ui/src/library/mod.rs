@@ -68,6 +68,8 @@ mod imp {
         pub(crate) thumbnails: Thumbnails,
         pub(crate) busy: busy::Busy,
         pub(crate) actions: gio::SimpleActionGroup,
+        /// What the library showed last, so showing the same again does nothing.
+        pub(super) shown_state: RefCell<Option<grid::Shown>>,
         /// The folders watched for changes on disk.
         pub(crate) monitors: RefCell<Vec<gio::FileMonitor>>,
         /// Whether a refresh after changes on disk is waiting.
