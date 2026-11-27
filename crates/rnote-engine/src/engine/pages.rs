@@ -15,6 +15,7 @@ use p2d::bounding_volume::Aabb;
 use p2d::math::Vector2;
 use rnote_compose::Transformable;
 use rnote_compose::shapes::Shapeable;
+use std::hash::{Hash, Hasher};
 use std::time::Instant;
 
 impl Engine {
@@ -51,6 +52,42 @@ impl Engine {
         let count = self.doc_page_count_fixed_size()?;
         let height = self.document.config.format.height();
         (page < count).then(|| self.document.y + f64::from(page) * height)
+    }
+
+    /// A fingerprint of each page's strokes, when in fixed-size layout: it changes when a
+    /// stroke on the page is added, removed, moved or changed, so a column of thumbnails
+    /// redraws only those pages. A changed stroke is a new copy in the store (the history
+    /// keeps the old one), so its address tells it apart even where its bounds stay.
+    pub fn doc_page_fingerprints_fixed_size(&self) -> Vec<u64> {
+        let Some(count) = self.doc_page_count_fixed_size() else {
+            return vec![];
+        };
+        let mut fingerprints = vec![0_u64; count as usize];
+        for key in self.store.stroke_keys_as_rendered() {
+            let (Some(page), Some(stroke)) =
+                (self.page_of_stroke(key), self.store.get_stroke_ref(key))
+            else {
+                continue;
+            };
+            let Some(slot) = fingerprints.get_mut(page as usize) else {
+                continue;
+            };
+            let bounds = stroke.bounds();
+            let mut hasher = std::collections::hash_map::DefaultHasher::new();
+            key.hash(&mut hasher);
+            std::ptr::from_ref(stroke).hash(&mut hasher);
+            for value in [
+                bounds.mins[0],
+                bounds.mins[1],
+                bounds.maxs[0],
+                bounds.maxs[1],
+            ] {
+                value.to_bits().hash(&mut hasher);
+            }
+            // Order-independent, as the strokes of a page come in no particular order.
+            *slot = slot.wrapping_add(hasher.finish());
+        }
+        fingerprints
     }
 
     /// Whether each page has strokes on it, when in fixed-size layout.

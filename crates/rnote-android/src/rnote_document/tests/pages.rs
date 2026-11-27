@@ -209,3 +209,17 @@ fn tells_the_page_at_a_height() {
     assert_eq!(engine.doc_page_at_fixed_size(-5.0), Some(0));
     assert_eq!(engine.doc_page_top_fixed_size(2), Some(2.0 * height));
 }
+
+#[test]
+fn a_page_fingerprint_changes_only_where_something_was_drawn() {
+    let (mut document, height) = sheets(3, &[0, 2]);
+    let before = document.engine.doc_page_fingerprints_fixed_size();
+
+    draw_line(&mut document, 1.5 * height);
+    let after = document.engine.doc_page_fingerprints_fixed_size();
+
+    assert_eq!(after.len(), 3);
+    assert_eq!(after[0], before[0]);
+    assert_ne!(after[1], before[1]);
+    assert_eq!(after[2], before[2]);
+}

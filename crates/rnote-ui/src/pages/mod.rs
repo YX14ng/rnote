@@ -4,7 +4,7 @@
 mod actions;
 mod insert_pdf;
 
-use std::cell::Cell;
+use std::cell::{Cell, RefCell};
 use std::time::Duration;
 
 use gettextrs::{gettext, ngettext};
@@ -32,6 +32,12 @@ mod imp {
         pub(crate) count_label: gtk4::Label,
         pub(crate) actions: gio::SimpleActionGroup,
         pub(crate) refresh_pending: Cell<bool>,
+        /// The thumbnails shown, one per page.
+        pub(crate) thumbnails: RefCell<Vec<StrokeContentPaintable>>,
+        /// The fingerprint of each page as its thumbnail shows it.
+        pub(crate) fingerprints: RefCell<Vec<u64>>,
+        /// The document and paper the thumbnails show.
+        pub(crate) paper: RefCell<String>,
     }
 
     #[glib::object_subclass]
@@ -163,29 +169,75 @@ impl RnPagesPanel {
     /// Shows the pages of the notebook shown.
     pub(crate) fn refresh(&self) {
         let imp = self.imp();
-        let pages = self.canvas().and_then(|canvas| {
+        let state = self.canvas().and_then(|canvas| {
             let engine = canvas.engine_ref();
             let count = engine.doc_page_count_fixed_size()?;
-            let mut pages = engine.extract_all_pages_content(SplitOrder::default());
-            pages.truncate(count as usize);
-            Some((count, pages))
+            let config = &engine.document.config;
+            // Another document, or another paper, shows differently on every page.
+            let paper = format!(
+                "{:?}{:?}{:?}",
+                canvas.as_ptr(),
+                config.background,
+                config.format
+            );
+            Some((
+                count,
+                engine.doc_page_fingerprints_fixed_size(),
+                paper,
+                canvas.clone(),
+            ))
         });
-        let Some((count, pages)) = pages else {
+        let Some((count, fingerprints, paper, canvas)) = state else {
             imp.stack.set_visible_child_name("none");
+            imp.thumbnails.borrow_mut().clear();
             return;
         };
         imp.stack.set_visible_child_name("pages");
         imp.count_label.set_label(
             &ngettext("{n} page", "{n} pages", count).replace("{n}", &count.to_string()),
         );
-        imp.list.remove_all();
-        for (page, content) in (0..).zip(pages) {
-            imp.list.append(&self.row(page, count, content));
+        let same_pages =
+            imp.thumbnails.borrow().len() == count as usize && *imp.paper.borrow() == paper;
+        let old = imp.fingerprints.replace(fingerprints.clone());
+        let changed: Vec<usize> = (0..count as usize)
+            .filter(|&page| !same_pages || old.get(page) != fingerprints.get(page))
+            .collect();
+        if changed.is_empty() {
+            self.follow();
+            return;
+        }
+        let mut pages = canvas
+            .engine_ref()
+            .extract_all_pages_content(SplitOrder::default());
+        pages.truncate(count as usize);
+        if same_pages {
+            // Only the pages that changed are drawn again.
+            let thumbnails = imp.thumbnails.borrow();
+            for page in changed {
+                if let (Some(thumbnail), Some(content)) = (thumbnails.get(page), pages.get(page)) {
+                    thumbnail.set_stroke_content(content.clone());
+                }
+            }
+        } else {
+            *imp.paper.borrow_mut() = paper;
+            imp.list.remove_all();
+            let mut thumbnails = Vec::with_capacity(pages.len());
+            for (page, content) in (0..).zip(pages) {
+                let (row, thumbnail) = self.row(page, count, content);
+                imp.list.append(&row);
+                thumbnails.push(thumbnail);
+            }
+            *imp.thumbnails.borrow_mut() = thumbnails;
         }
         self.follow();
     }
 
-    fn row(&self, page: u32, count: u32, content: StrokeContent) -> gtk4::ListBoxRow {
+    fn row(
+        &self,
+        page: u32,
+        count: u32,
+        content: StrokeContent,
+    ) -> (gtk4::ListBoxRow, StrokeContentPaintable) {
         let paintable = StrokeContentPaintable::new();
         paintable.set_paint_max_width(THUMBNAIL_WIDTH);
         paintable.set_paint_max_height(THUMBNAIL_HEIGHT);
@@ -218,7 +270,10 @@ impl RnPagesPanel {
             .build();
         content.append(&picture);
         content.append(&footer);
-        gtk4::ListBoxRow::builder().child(&content).build()
+        (
+            gtk4::ListBoxRow::builder().child(&content).build(),
+            paintable,
+        )
     }
 
     /// Marks the page in the middle of the view.
