@@ -427,8 +427,11 @@ class MainActivity : Activity() {
         return true
     }
 
-    /** Opens the library notebook at [path], or creates it there when [isNew]. */
-    private fun openLibraryNotebook(path: String, isNew: Boolean) {
+    /**
+     * Opens the library notebook at [path], or creates it there when [isNew]; with [keepView]
+     * (read again after a sync) the view stays where it was.
+     */
+    private fun openLibraryNotebook(path: String, isNew: Boolean, keepView: Boolean = false) {
         // Changes it had when the app stopped unexpectedly come back with it.
         if (!isNew && recovery.exists && recovery.libraryPath == path) {
             restoreRecovery()
@@ -453,7 +456,7 @@ class MainActivity : Activity() {
                     saver.documentName = file.name
                     // A recovery copy belongs to another document: it stays until restored.
                     saver.recoveryClaim.opened()
-                    showOpenedDocument(info)
+                    showOpenedDocument(info, keepView)
                     // A new notebook exists in the library from the start.
                     if (isNew) saver.autosave()
                     // A sync may have written it while it was being read.
@@ -561,7 +564,7 @@ class MainActivity : Activity() {
         }
     }
 
-    private fun showOpenedDocument(info: DocumentInfo) {
+    private fun showOpenedDocument(info: DocumentInfo, keepView: Boolean = false) {
         // Another document: what was due belonged to the one before.
         autosave.saved()
         main.removeCallbacks(autosaveCheck)
@@ -571,7 +574,7 @@ class MainActivity : Activity() {
         guard.changesDiscarded = false
         layout.hideMessage()
         controls.adaptToBackground(info.backgroundColor)
-        canvasView.showDocument(info.bounds, info.settings, info.startAt)
+        canvasView.showDocument(info.bounds, info.settings, info.startAt, keepView)
         controls.applyToDocument()
         updateEditState(info.editState)
         search.close()
@@ -687,7 +690,7 @@ class MainActivity : Activity() {
             val current = result.getOrElse { return@done }
             if (libraryPath != path || saver.knownSha256 != known || editState.modified || current == known) return@done
             if (current != null) {
-                openLibraryNotebook(path, isNew = false)
+                openLibraryNotebook(path, isNew = false, keepView = true)
                 Toast.makeText(this, R.string.sync_reloaded, Toast.LENGTH_SHORT).show()
             } else {
                 Toast.makeText(this, R.string.sync_removed, Toast.LENGTH_LONG).show()

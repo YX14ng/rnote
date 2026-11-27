@@ -39,17 +39,24 @@ internal class ViewportController(context: Context) {
      * Shows [newBounds] with a page of [newPageWidth] fitted to the view width, from [startAt]
      * or else from the origin page, where documents start. Fitting the bounds instead made
      * infinite documents, whose bounds keep a margin of pages around the view, grow on every
-     * edit.
+     * edit. With [keepView] (the same notebook read again, e.g. after a sync) the view stays
+     * where it was, at the same zoom.
      */
     fun showDocument(
         newBounds: DocumentBounds,
         newPageWidth: Double,
         newLayout: DocumentLayout,
         startAt: DocumentPoint?,
+        keepView: Boolean = false,
     ) {
         bounds = newBounds
         pageWidth = newPageWidth
         layout = newLayout
+        if (keepView && width > 0) {
+            fitZoom = pageFitZoom()
+            viewport = clamp(viewport)
+            return
+        }
         start = startAt ?: DocumentPoint(0.0, 0.0)
         fitToWidth()
     }

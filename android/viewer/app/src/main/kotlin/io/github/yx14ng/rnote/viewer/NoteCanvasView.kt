@@ -251,13 +251,18 @@ class NoteCanvasView(context: Context) : View(context) {
      * Shows a newly opened document with a page fitted to the view width, from [startAt] (where
      * it was last viewed) or else from the top.
      */
-    fun showDocument(newBounds: DocumentBounds, settings: DocumentSettings, startAt: DocumentPoint?) {
+    fun showDocument(
+        newBounds: DocumentBounds,
+        settings: DocumentSettings,
+        startAt: DocumentPoint?,
+        keepView: Boolean = false,
+    ) {
         loading = false
         pendingEdits.clear()
         frames.reset()
         input.reset()
         clearPreviewAt = NO_PENDING_CLEAR
-        camera.showDocument(newBounds, settings.pageWidth, settings.layout, startAt)
+        camera.showDocument(newBounds, settings.pageWidth, settings.layout, startAt, keepView)
         pageColor = settings.backgroundColor
         onViewportChanged()
     }
