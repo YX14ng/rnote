@@ -91,6 +91,8 @@ fn show_status(button: &MenuButton, status: &SyncStatus) {
 
 /// Reloads the library after a sync that changed it, and tells about conflict copies.
 fn after_sync(appwindow: &RnAppWindow, report: &SyncReport) {
+    let root = appwindow.library_view().root();
+    crate::library::tabs::follow_sync_moves(appwindow, &root, &report.moved_here);
     if changed_library(report) && appwindow.library_shown() {
         appwindow.library_view().refresh();
     }

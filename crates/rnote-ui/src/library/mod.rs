@@ -20,7 +20,7 @@ pub(crate) mod progress;
 mod search;
 mod shortcuts;
 mod sidebar;
-mod tabs;
+pub(crate) mod tabs;
 mod tagchoice;
 mod thumbnails;
 mod trash_undo;

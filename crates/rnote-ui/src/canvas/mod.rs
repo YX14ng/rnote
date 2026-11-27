@@ -29,7 +29,7 @@ use rnote_engine::ext::GraphenePointExt;
 use rnote_engine::ext::GrapheneRectExt;
 use rnote_engine::{Engine, WidgetFlags};
 use std::cell::{Cell, Ref, RefCell, RefMut};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::time::Duration;
 use tracing::{debug, error, warn};
 
@@ -88,6 +88,9 @@ mod imp {
         /// The SHA-256 of the file as last read or written, so saving a notebook of the
         /// library never replaces a version a sync brought meanwhile.
         pub(crate) library_sha256: RefCell<Option<String>>,
+        /// The file this canvas lost when it was moved or removed outside the app, and
+        /// whether it had unsaved changes then: a sync that moved it gives it back.
+        pub(crate) moved_away: RefCell<Option<(PathBuf, bool)>>,
         pub(crate) save_in_progress: Cell<bool>,
         pub(crate) unsaved_changes: Cell<bool>,
         pub(crate) empty: Cell<bool>,
@@ -187,6 +190,7 @@ mod imp {
                 locked_tool_toast_singleton: glib::WeakRef::new(),
                 output_file_expect_write: Cell::new(false),
                 library_sha256: RefCell::new(None),
+                moved_away: RefCell::new(None),
                 save_in_progress: Cell::new(false),
                 unsaved_changes: Cell::new(false),
                 empty: Cell::new(true),
@@ -786,6 +790,16 @@ impl RnCanvas {
         self.set_property("output-file", output_file.to_value());
     }
 
+    /// The file this canvas lost to a move or removal outside the app, and whether it had
+    /// unsaved changes then.
+    pub(crate) fn moved_away(&self) -> Option<(PathBuf, bool)> {
+        self.imp().moved_away.borrow().clone()
+    }
+
+    pub(crate) fn set_moved_away(&self, moved_away: Option<(PathBuf, bool)>) {
+        *self.imp().moved_away.borrow_mut() = moved_away;
+    }
+
     #[allow(unused)]
     pub(crate) fn output_file_expect_write(&self) -> bool {
         self.imp().output_file_expect_write.get()
@@ -1176,6 +1190,7 @@ impl RnCanvas {
                         // explain here in detail unfortunately). See https://github.com/flxzt/rnote/pull/1678 for more info.
                         return;
                     }
+                    canvas.set_moved_away(Some((file_path.to_owned(), canvas.unsaved_changes())));
                     canvas.set_unsaved_changes(true);
                     canvas.set_output_file(None);
                     appwindow.overlays().dispatch_toast_text(
@@ -1195,6 +1210,7 @@ impl RnCanvas {
                         // the original file's data/metadata, generating a Remove event. We should ignore these.
                         return;
                     }
+                    canvas.set_moved_away(Some((file_path.to_owned(), canvas.unsaved_changes())));
                     canvas.set_unsaved_changes(true);
                     canvas.set_output_file(None);
                     appwindow.overlays().dispatch_toast_text(

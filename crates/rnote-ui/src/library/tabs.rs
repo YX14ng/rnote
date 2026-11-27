@@ -45,6 +45,41 @@ pub(crate) fn retarget_open_tabs(appwindow: &RnAppWindow, from: &Path, to: &Path
     }
 }
 
+/// Where the file at `path` is after the moves a sync made in the library at `root`, given
+/// as (from, to) relative paths in their order; `None` if it didn't move.
+pub(crate) fn followed(path: &Path, root: &Path, moves: &[(String, String)]) -> Option<PathBuf> {
+    let mut current = path.to_owned();
+    for (from, to) in moves {
+        if current == root.join(from) {
+            current = root.join(to);
+        }
+    }
+    (current != path).then_some(current)
+}
+
+/// Points the tabs whose files a sync moved in the library at `root` at their new places.
+/// A move to another folder looks to a tab like its file was removed, so it lost the file
+/// meanwhile: it gets it back, with the unsaved changes it had then.
+pub(crate) fn follow_sync_moves(appwindow: &RnAppWindow, root: &Path, moves: &[(String, String)]) {
+    if moves.is_empty() {
+        return;
+    }
+    for wrapper in all_tabs(appwindow) {
+        let canvas = wrapper.canvas();
+        if let Some(path) = canvas.output_file().and_then(|file| file.path()) {
+            if let Some(new_path) = followed(&path, root, moves) {
+                canvas.set_output_file(Some(gio::File::for_path(new_path)));
+            }
+        } else if let Some((path, unsaved)) = canvas.moved_away()
+            && let Some(new_path) = followed(&path, root, moves)
+        {
+            canvas.set_moved_away(None);
+            canvas.set_output_file(Some(gio::File::for_path(new_path)));
+            canvas.set_unsaved_changes(unsaved);
+        }
+    }
+}
+
 /// The name of a tab with `path`, or a file inside the folder `path`, if one is open.
 pub(crate) fn open_tab_inside(appwindow: &RnAppWindow, path: &Path) -> Option<String> {
     all_tabs(appwindow).into_iter().find_map(|wrapper| {
@@ -62,7 +97,28 @@ pub(crate) fn open_tab_inside(appwindow: &RnAppWindow, path: &Path) -> Option<St
 mod tests {
     use std::path::{Path, PathBuf};
 
-    use super::retarget;
+    use super::{followed, retarget};
+
+    #[test]
+    fn a_file_a_sync_moved_is_followed_to_its_new_place() {
+        let moves = [
+            ("Orga/a.rnote".to_owned(), "b.rnote".to_owned()),
+            ("b.rnote".to_owned(), "F/c.rnote".to_owned()),
+        ];
+
+        assert_eq!(
+            followed(Path::new("/l/Orga/a.rnote"), Path::new("/l"), &moves),
+            Some(PathBuf::from("/l/F/c.rnote"))
+        );
+        assert_eq!(
+            followed(Path::new("/l/x.rnote"), Path::new("/l"), &moves),
+            None
+        );
+        assert_eq!(
+            followed(Path::new("/other/Orga/a.rnote"), Path::new("/l"), &moves),
+            None
+        );
+    }
 
     #[test]
     fn retarget_maps_the_file_itself() {
