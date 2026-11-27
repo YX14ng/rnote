@@ -84,8 +84,9 @@ Run the same commands to update after pulling.
 
 - The sidebar's "Pages" tab shows the sheets of a notebook of fixed-size pages: click a
   page to go to it, and its menu inserts a blank page or a PDF after it, duplicates,
-  moves it up or down, or removes it (asking first if something is written on it). Each
-  of those is one step to undo.
+  moves it up or down, or removes it (asking first if something is written on it), and
+  "Remove Pages…" removes several at once, from one page to another. Each of those is one
+  step to undo.
 - Exporting a document to PDF can include the blank pages, so page numbers stay the same.
 - "About" shows the fork's version and sends issues to this repository.
 
