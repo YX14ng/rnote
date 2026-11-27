@@ -37,6 +37,8 @@ const SOON_DELAY: Duration = Duration::from_secs(5);
 const PERIODIC_DELAY: Duration = Duration::from_secs(5 * 60);
 /// How long closing the window may keep the app running for a sync to finish.
 const CLOSE_GRACE: Duration = Duration::from_secs(60);
+/// How often closing looks whether the syncs are over.
+const CLOSE_POLL: Duration = Duration::from_millis(200);
 /// How long the browser gets to come back from Google.
 const SIGN_IN_TIMEOUT: Duration = Duration::from_secs(5 * 60);
 
@@ -198,20 +200,23 @@ impl RnSync {
             source.remove();
             self.sync_now();
         }
-        if self.status() != SyncStatus::Running {
+        if self.inner.scheduler.borrow().idle() {
             return;
         }
-        let hold = Rc::new(RefCell::new(Some(app.hold())));
-        self.connect_status({
-            let hold = Rc::clone(&hold);
-            move |status| {
-                if *status != SyncStatus::Running {
-                    hold.borrow_mut().take();
-                }
+        // Until no sync runs or waits: when one ends, the one a save asked for meanwhile
+        // starts right after, and must not be cut off.
+        let hold = app.hold();
+        let weak = Rc::downgrade(&self.inner);
+        let started = std::time::Instant::now();
+        glib::timeout_add_local(CLOSE_POLL, move || {
+            let busy = weak
+                .upgrade()
+                .is_some_and(|inner| !inner.scheduler.borrow().idle());
+            if busy && started.elapsed() < CLOSE_GRACE {
+                return glib::ControlFlow::Continue;
             }
-        });
-        glib::timeout_add_local_once(CLOSE_GRACE, move || {
-            hold.borrow_mut().take();
+            let _ = &hold;
+            glib::ControlFlow::Break
         });
     }
 

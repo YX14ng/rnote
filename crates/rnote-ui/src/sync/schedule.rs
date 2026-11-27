@@ -20,6 +20,11 @@ impl Scheduler {
         true
     }
 
+    /// Whether no sync runs and none waits to.
+    pub(crate) fn idle(&self) -> bool {
+        !self.running && !self.queued
+    }
+
     /// The running sync ended; returns whether to start the one asked for meanwhile.
     pub(crate) fn finished(&mut self) -> bool {
         let again = std::mem::take(&mut self.queued);
@@ -57,6 +62,21 @@ mod tests {
         assert!(scheduler.finished());
         assert!(!scheduler.finished());
         assert!(scheduler.request());
+    }
+
+    #[test]
+    fn idle_only_once_nothing_runs_or_waits() {
+        let mut scheduler = Scheduler::default();
+        assert!(scheduler.idle());
+
+        scheduler.request();
+        scheduler.request();
+        assert!(!scheduler.idle());
+        // The first ends, the one asked for meanwhile starts: still busy.
+        scheduler.finished();
+        assert!(!scheduler.idle());
+        scheduler.finished();
+        assert!(scheduler.idle());
     }
 
     #[test]
