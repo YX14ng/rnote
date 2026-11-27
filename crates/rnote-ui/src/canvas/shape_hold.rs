@@ -37,6 +37,12 @@ impl ShapeHold {
     }
 }
 
+/// Whether an element in `pen_state` ends the stroke being followed: any with the pen up,
+/// not only the release, which may go missing (e.g. the focus changed with the pen down).
+fn ends_stroke(pen_state: PenState) -> bool {
+    pen_state != PenState::Down
+}
+
 /// Whether the pen moved from `anchor` to `point` (document coordinates) farther than it may
 /// while holding still, at `zoom`.
 fn moved_enough(anchor: Vector2, point: Vector2, zoom: f64) -> bool {
@@ -56,7 +62,7 @@ impl RnCanvas {
             && pen_mode != Some(PenMode::Eraser)
             && self.engine_ref().current_pen_style_w_override() == PenStyle::Brush
             && self.recognizes_shapes();
-        let ends = pen_state == PenState::Up;
+        let ends = ends_stroke(pen_state);
         let keep = self
             .imp()
             .shape_hold
@@ -126,6 +132,14 @@ impl RnCanvas {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn any_event_with_the_pen_up_ends_the_stroke() {
+        assert!(ends_stroke(PenState::Up));
+        // The release went missing (focus changed with the pen down): hovering ends it too.
+        assert!(ends_stroke(PenState::Proximity));
+        assert!(!ends_stroke(PenState::Down));
+    }
 
     #[test]
     fn moving_counts_in_screen_pixels() {
