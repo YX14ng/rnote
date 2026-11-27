@@ -369,18 +369,25 @@ impl RnSync {
         let access = Arc::clone(&self.inner.tokens);
         let this = self.clone();
         glib::spawn_future_local(async move {
-            let revoked = gio::spawn_blocking(move || -> Result<(), String> {
+            let outcome = gio::spawn_blocking(move || {
                 forget_access_token(&access);
-                let token = store.load().map_err(|error| error.to_string())?;
-                let revoked = match token {
-                    Some(token) => rnote_sync::revoke(&token).map_err(|error| error.to_string()),
-                    None => Ok(()),
-                };
-                store.delete().map_err(|error| error.to_string())?;
-                revoked
+                forget_refresh_token(store.as_ref(), |token| {
+                    rnote_sync::revoke(token).map_err(|error| error.to_string())
+                })
             })
             .await
-            .unwrap_or_else(|_| Err(gettext("Signing out stopped unexpectedly")));
+            .unwrap_or_else(|_| SignOut::Done(Err(gettext("Signing out stopped unexpectedly"))));
+            let revoked = match outcome {
+                // The token stays until the keyring opens: this computer is still signed in.
+                SignOut::KeyringLocked => {
+                    this.set_status(SyncStatus::KeyringLocked);
+                    done(Err(gettext(
+                        "Unlock the keyring to sign out: until then, this computer stays signed in",
+                    )));
+                    return;
+                }
+                SignOut::Done(revoked) => revoked,
+            };
             if let Some(source) = this.inner.soon.borrow_mut().take() {
                 source.remove();
             }
@@ -388,6 +395,30 @@ impl RnSync {
             done(revoked);
         });
     }
+}
+
+/// How signing out went.
+enum SignOut {
+    /// The token is gone from this computer; whether Google was told to forget it too.
+    Done(Result<(), String>),
+    /// The keyring couldn't be read or changed, so the token is still there.
+    KeyringLocked,
+}
+
+/// Tells Google to forget the refresh token in `store` with `revoke`, then removes it from
+/// `store`; off the main thread.
+fn forget_refresh_token(
+    store: &dyn RefreshTokenStore,
+    revoke: impl FnOnce(&str) -> Result<(), String>,
+) -> SignOut {
+    let Ok(token) = store.load() else {
+        return SignOut::KeyringLocked;
+    };
+    let revoked = token.as_deref().map_or(Ok(()), revoke);
+    if store.delete().is_err() {
+        return SignOut::KeyringLocked;
+    }
+    SignOut::Done(revoked)
 }
 
 /// Access tokens renewed with the refresh token in `store`.
@@ -438,5 +469,39 @@ mod tests {
         assert!(retries_on_network(&SyncStatus::Pending, true));
         assert!(!retries_on_network(&SyncStatus::Pending, false));
         assert!(!retries_on_network(&SyncStatus::SignedOut, true));
+    }
+
+    #[test]
+    fn signing_out_with_the_keyring_locked_doesnt_pretend_it_signed_out() {
+        use super::{SignOut, forget_refresh_token};
+        use crate::sync::credentials::{MemoryStore, RefreshTokenStore};
+
+        struct Locked;
+        impl RefreshTokenStore for Locked {
+            fn load(&self) -> anyhow::Result<Option<String>> {
+                Err(anyhow::anyhow!("locked"))
+            }
+            fn save(&self, _token: &str) -> anyhow::Result<()> {
+                Err(anyhow::anyhow!("locked"))
+            }
+            fn delete(&self) -> anyhow::Result<()> {
+                Err(anyhow::anyhow!("locked"))
+            }
+        }
+        assert!(matches!(
+            forget_refresh_token(&Locked, |_| Ok(())),
+            SignOut::KeyringLocked
+        ));
+
+        let store = MemoryStore::default();
+        store.save("r").unwrap();
+        let mut revoked = None;
+        let outcome = forget_refresh_token(&store, |token| {
+            revoked = Some(token.to_owned());
+            Ok(())
+        });
+        assert!(matches!(outcome, SignOut::Done(Ok(()))));
+        assert_eq!(revoked.as_deref(), Some("r"));
+        assert_eq!(store.load().unwrap(), None);
     }
 }

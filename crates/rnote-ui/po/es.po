@@ -5675,6 +5675,10 @@ msgstr "Reconocer formas"
 msgid "Hold the pen still at the end of a stroke to turn it into a shape"
 msgstr "Mantené el lápiz quieto al terminar un trazo para convertirlo en una forma"
 
+#: crates/rnote-ui/src/sync/mod.rs
+msgid "Unlock the keyring to sign out: until then, this computer stays signed in"
+msgstr "Desbloqueá el llavero para cerrar sesión: hasta entonces, esta computadora sigue con la sesión iniciada"
+
 #~ msgid "Brush Style"
 #~ msgstr "Estilo del pincel"
 

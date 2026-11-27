@@ -51,6 +51,9 @@ pub(crate) fn run_with_retry(
         }
         // Another process syncs this library: the next trigger tries again.
         Err(SyncError::Busy | SyncError::Offline(_)) => SyncStatus::Pending,
+        // The keyring locked or crashed meanwhile: renewing the access token failed because
+        // of it, which is told with the way out (unlocking it), not as an odd error.
+        Err(SyncError::Failed(_)) if store.load().is_err() => SyncStatus::KeyringLocked,
         // `{:#}` keeps the whole context chain in a single line.
         Err(SyncError::Failed(error)) => {
             warn!("Syncing failed: {error:?}");
@@ -185,5 +188,31 @@ mod tests {
             status,
             SyncStatus::Failed("Your Google Drive is full".to_owned())
         );
+    }
+
+    /// A keyring that got locked (or crashed) after the app read it.
+    struct LockedStore;
+
+    impl RefreshTokenStore for LockedStore {
+        fn load(&self) -> anyhow::Result<Option<String>> {
+            Err(anyhow::anyhow!("The keyring is locked"))
+        }
+        fn save(&self, _token: &str) -> anyhow::Result<()> {
+            Err(anyhow::anyhow!("The keyring is locked"))
+        }
+        fn delete(&self) -> anyhow::Result<()> {
+            Err(anyhow::anyhow!("The keyring is locked"))
+        }
+    }
+
+    #[test]
+    fn a_keyring_locked_mid_session_says_so_instead_of_an_odd_error() {
+        let status = run_with_retry(&tokens(), &LockedStore, || {
+            Err(SyncError::Failed(anyhow::anyhow!(
+                "renewing the access token failed"
+            )))
+        });
+
+        assert_eq!(status, SyncStatus::KeyringLocked);
     }
 }

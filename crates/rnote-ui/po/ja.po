@@ -5461,6 +5461,10 @@ msgstr "図形を認識"
 msgid "Hold the pen still at the end of a stroke to turn it into a shape"
 msgstr "線を描き終えたところでペンを止めると、図形に変わります"
 
+#: crates/rnote-ui/src/sync/mod.rs
+msgid "Unlock the keyring to sign out: until then, this computer stays signed in"
+msgstr "サインアウトするにはキーリングのロックを解除してください。それまでこのコンピューターはサインインしたままです"
+
 #~ msgid "Brush Style"
 #~ msgstr "ブラシのスタイル"
 

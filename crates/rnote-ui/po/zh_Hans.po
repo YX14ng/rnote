@@ -5289,6 +5289,10 @@ msgstr "识别形状"
 msgid "Hold the pen still at the end of a stroke to turn it into a shape"
 msgstr "画完一笔后让笔停住，即可将其变为形状"
 
+#: crates/rnote-ui/src/sync/mod.rs
+msgid "Unlock the keyring to sign out: until then, this computer stays signed in"
+msgstr "请先解锁密钥环再退出登录：在此之前，这台电脑仍保持登录"
+
 #~ msgid "Brush Style"
 #~ msgstr "笔刷样式"
 
