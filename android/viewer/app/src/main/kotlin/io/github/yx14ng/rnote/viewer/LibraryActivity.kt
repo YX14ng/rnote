@@ -61,7 +61,7 @@ class LibraryActivity : Activity() {
         actions = NotebookActions(this, store, { snapshot }, onChanged = ::onLibraryChanged, onError = { showError(R.string.failed_library, it) })
         listMode = preferences.getBoolean(KEY_LIST_MODE, false)
         sortByName = preferences.getBoolean(KEY_SORT_BY_NAME, false)
-        grid = NotebookGrid(this, ThumbnailCache(this, store)).apply {
+        grid = NotebookGrid(this, ThumbnailCache.forApp(this)).apply {
             onOpen = ::onNotebookTapped
             onHold = ::onNotebookHeld
             onNew = ::showCreateMenu

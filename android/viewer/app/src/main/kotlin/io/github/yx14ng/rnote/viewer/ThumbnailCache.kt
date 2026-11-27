@@ -16,7 +16,7 @@ import java.util.concurrent.Executors
  * memory and in the app's cache folder under the notebook's key, which changes when the
  * notebook does. A notebook that can't be rendered keeps the plain cover.
  */
-internal class ThumbnailCache(context: Context, private val store: LibraryStore) {
+internal class ThumbnailCache private constructor(context: Context, private val store: LibraryStore) {
     private val dir = File(context.cacheDir, "thumbnails")
     private val memory = object : LruCache<String, Bitmap>(MEMORY_BYTES) {
         override fun sizeOf(key: String, value: Bitmap) = value.byteCount
@@ -71,11 +71,20 @@ internal class ThumbnailCache(context: Context, private val store: LibraryStore)
         return BitmapFactory.decodeFile(file.path)
     }
 
-    private companion object {
-        const val TAG = "RnoteViewer"
-        const val SIZE_PX = 360
-        const val WORKERS = 2
-        const val MEMORY_BYTES = 32 * 1024 * 1024
+    companion object {
+        private const val TAG = "RnoteViewer"
+        private const val SIZE_PX = 360
+        private const val WORKERS = 2
+        private const val MEMORY_BYTES = 32 * 1024 * 1024
+
+        private var shared: ThumbnailCache? = null
+
+        /**
+         * The app's one cache: the library screen is made again on every rotation, and a
+         * cache each time left its threads behind and drew every thumbnail again.
+         */
+        fun forApp(context: Context): ThumbnailCache = shared
+            ?: ThumbnailCache(context.applicationContext, LibraryStore.forApp(context)).also { shared = it }
     }
 }
 
