@@ -6,6 +6,7 @@ import android.content.ClipData
 import android.content.Intent
 import android.provider.MediaStore
 import android.widget.Toast
+import java.io.File
 
 /**
  * Takes a photo with the system camera into [CameraFileProvider.photoFile]: the camera app
@@ -32,10 +33,9 @@ internal object PhotoCapture {
     }
 
     /** The photo just taken, or null if there is none (cancelled, or nothing written). */
-    fun takenPhoto(activity: Activity): ByteArray? {
-        val file = CameraFileProvider.photoFile(activity)
-        return file.takeIf { it.length() > 0 }?.readBytes()
-    }
+    /** The photo the camera wrote, if it wrote one; read it off the main thread. */
+    fun takenPhoto(activity: Activity): File? =
+        CameraFileProvider.photoFile(activity).takeIf { it.length() > 0 }
 
     fun clear(activity: Activity) {
         CameraFileProvider.photoFile(activity).delete()

@@ -366,8 +366,8 @@ class MainActivity : Activity() {
     private fun onPhotoTaken(taken: Boolean) {
         // Cancelled, or the camera wrote nothing: the notebook stays as it was.
         val photo = (if (taken) PhotoCapture.takenPhoto(this) else null) ?: return PhotoCapture.clear(this)
-        PhotoCapture.clear(this)
-        clipboard.insertImage(insertAt) { photo }
+        // Read and then forgotten off the main thread: a photo can weigh several MB.
+        clipboard.insertImage(insertAt) { photo.readBytes().also { photo.delete() } }
     }
 
     // Only reached before Android 13: from 13 on the manifest opts into OnBackInvokedCallback,

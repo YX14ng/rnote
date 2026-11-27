@@ -391,7 +391,7 @@ class LibraryActivity : Activity() {
         }
         val name = getString(R.string.create_photo_name, SimpleDateFormat(PHOTO_DATE, Locale.ROOT).format(Date()))
         val folder = preferences.getString(KEY_PHOTO_FOLDER, null)
-        creator.fromImage(folder, name, { photo }) { result ->
+        creator.fromImage(folder, name, { photo.readBytes() }) { result ->
             PhotoCapture.clear(this)
             result.onSuccess(::openCreated).onFailure { showError(R.string.failed_create, it) }
         }
