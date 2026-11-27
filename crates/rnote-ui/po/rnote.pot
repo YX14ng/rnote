@@ -4773,3 +4773,47 @@ msgstr ""
 #: crates/rnote-ui/src/sync/button.rs
 msgid "Retry"
 msgstr ""
+
+#: crates/rnote-ui/src/library/error_text.rs
+msgid "Something unexpected went wrong ({error})"
+msgstr ""
+
+#: crates/rnote-ui/src/library/error_text.rs
+msgid "The name is empty"
+msgstr ""
+
+#: crates/rnote-ui/src/library/error_text.rs
+msgid "A name can’t start with a dot"
+msgstr ""
+
+#: crates/rnote-ui/src/library/error_text.rs
+msgid "A name can’t contain “{name}”"
+msgstr ""
+
+#: crates/rnote-ui/src/library/error_text.rs
+msgid "There is already a folder or notebook named “{name}”"
+msgstr ""
+
+#: crates/rnote-ui/src/library/error_text.rs
+msgid "“{name}” has folders inside: move them out before deleting it"
+msgstr ""
+
+#: crates/rnote-ui/src/library/error_text.rs
+msgid "The folder “{name}” no longer exists"
+msgstr ""
+
+#: crates/rnote-ui/src/library/error_text.rs
+msgid "The notebook “{name}” no longer exists"
+msgstr ""
+
+#: crates/rnote-ui/src/library/error_text.rs
+msgid "There is no space left on the disk"
+msgstr ""
+
+#: crates/rnote-ui/src/library/error_text.rs
+msgid "Rnote has no permission to use that file or folder"
+msgstr ""
+
+#: crates/rnote-ui/src/library/error_text.rs
+msgid "The file or folder no longer exists"
+msgstr ""

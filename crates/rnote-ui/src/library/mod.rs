@@ -4,6 +4,7 @@ mod actions;
 mod busy;
 mod card;
 pub(crate) mod dialogs;
+pub(crate) mod error_text;
 mod grid;
 mod location;
 mod manage;
@@ -292,7 +293,7 @@ impl RnLibraryView {
             Some(Ok(value)) => Some(value),
             Some(Err(e)) => {
                 error!("A library operation failed, Err: {e:?}");
-                self.toast_error(&format!("{e:#}"));
+                self.toast_error(&error_text::user_message(&e));
                 None
             }
             None => None,
@@ -323,7 +324,7 @@ impl RnLibraryView {
         };
         for e in &errors {
             error!("A library operation failed, Err: {e:?}");
-            self.toast_error(&format!("{e:#}"));
+            self.toast_error(&error_text::user_message(e));
         }
         self.changed();
         values

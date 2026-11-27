@@ -5157,6 +5157,51 @@ msgstr "Использовать эту папку"
 msgid "Retry"
 msgstr "Повторить"
 
+
+#: crates/rnote-ui/src/library/error_text.rs
+msgid "Something unexpected went wrong ({error})"
+msgstr "Произошла непредвиденная ошибка ({error})"
+
+#: crates/rnote-ui/src/library/error_text.rs
+msgid "The name is empty"
+msgstr "Имя пустое"
+
+#: crates/rnote-ui/src/library/error_text.rs
+msgid "A name can’t start with a dot"
+msgstr "Имя не может начинаться с точки"
+
+#: crates/rnote-ui/src/library/error_text.rs
+msgid "A name can’t contain “{name}”"
+msgstr "Имя не может содержать «{name}»"
+
+#: crates/rnote-ui/src/library/error_text.rs
+msgid "There is already a folder or notebook named “{name}”"
+msgstr "Папка или блокнот с именем «{name}» уже есть"
+
+#: crates/rnote-ui/src/library/error_text.rs
+msgid "“{name}” has folders inside: move them out before deleting it"
+msgstr "В «{name}» есть папки: перенесите их, прежде чем удалять"
+
+#: crates/rnote-ui/src/library/error_text.rs
+msgid "The folder “{name}” no longer exists"
+msgstr "Папки «{name}» больше нет"
+
+#: crates/rnote-ui/src/library/error_text.rs
+msgid "The notebook “{name}” no longer exists"
+msgstr "Блокнота «{name}» больше нет"
+
+#: crates/rnote-ui/src/library/error_text.rs
+msgid "There is no space left on the disk"
+msgstr "На диске не осталось места"
+
+#: crates/rnote-ui/src/library/error_text.rs
+msgid "Rnote has no permission to use that file or folder"
+msgstr "У Rnote нет доступа к этому файлу или папке"
+
+#: crates/rnote-ui/src/library/error_text.rs
+msgid "The file or folder no longer exists"
+msgstr "Файла или папки больше нет"
+
 #~ msgid "Brush Style"
 #~ msgstr "Стиль кисти"
 

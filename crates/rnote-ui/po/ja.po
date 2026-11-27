@@ -5031,6 +5031,51 @@ msgstr "このフォルダーを使用"
 msgid "Retry"
 msgstr "再試行"
 
+
+#: crates/rnote-ui/src/library/error_text.rs
+msgid "Something unexpected went wrong ({error})"
+msgstr "予期しないエラーが発生しました ({error})"
+
+#: crates/rnote-ui/src/library/error_text.rs
+msgid "The name is empty"
+msgstr "名前が空です"
+
+#: crates/rnote-ui/src/library/error_text.rs
+msgid "A name can’t start with a dot"
+msgstr "名前をドットで始めることはできません"
+
+#: crates/rnote-ui/src/library/error_text.rs
+msgid "A name can’t contain “{name}”"
+msgstr "名前に「{name}」は使えません"
+
+#: crates/rnote-ui/src/library/error_text.rs
+msgid "There is already a folder or notebook named “{name}”"
+msgstr "「{name}」という名前のフォルダーまたはノートブックが既にあります"
+
+#: crates/rnote-ui/src/library/error_text.rs
+msgid "“{name}” has folders inside: move them out before deleting it"
+msgstr "「{name}」の中にフォルダーがあります。削除する前に外へ移動してください"
+
+#: crates/rnote-ui/src/library/error_text.rs
+msgid "The folder “{name}” no longer exists"
+msgstr "フォルダー「{name}」はもう存在しません"
+
+#: crates/rnote-ui/src/library/error_text.rs
+msgid "The notebook “{name}” no longer exists"
+msgstr "ノートブック「{name}」はもう存在しません"
+
+#: crates/rnote-ui/src/library/error_text.rs
+msgid "There is no space left on the disk"
+msgstr "ディスクの空き容量がありません"
+
+#: crates/rnote-ui/src/library/error_text.rs
+msgid "Rnote has no permission to use that file or folder"
+msgstr "Rnote にはそのファイルまたはフォルダーを使う権限がありません"
+
+#: crates/rnote-ui/src/library/error_text.rs
+msgid "The file or folder no longer exists"
+msgstr "ファイルまたはフォルダーはもう存在しません"
+
 #~ msgid "Brush Style"
 #~ msgstr "ブラシのスタイル"
 

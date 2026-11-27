@@ -45,7 +45,10 @@ pub(crate) fn run_with_retry(
         // Another process syncs this library: the next trigger tries again.
         Err(SyncError::Busy | SyncError::Offline(_)) => SyncStatus::Pending,
         // `{:#}` keeps the whole context chain in a single line.
-        Err(SyncError::Failed(error)) => SyncStatus::Failed(format!("{error:#}")),
+        Err(SyncError::Failed(error)) => {
+            warn!("Syncing failed: {error:?}");
+            SyncStatus::Failed(crate::library::error_text::user_message(&error))
+        }
     }
 }
 
@@ -122,7 +125,7 @@ mod tests {
     }
 
     #[test]
-    fn offline_is_pending_and_failures_keep_their_message() {
+    fn offline_is_pending_and_failures_say_why() {
         let store = MemoryStore::default();
 
         let offline = run_with_retry(&tokens(), &store, || {
@@ -133,6 +136,9 @@ mod tests {
         });
 
         assert_eq!(offline, SyncStatus::Pending);
-        assert_eq!(failed, SyncStatus::Failed("disk full".to_owned()));
+        assert_eq!(
+            failed,
+            SyncStatus::Failed("Something unexpected went wrong (disk full)".to_owned())
+        );
     }
 }

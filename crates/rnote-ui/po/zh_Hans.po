@@ -4859,6 +4859,51 @@ msgstr "使用此文件夹"
 msgid "Retry"
 msgstr "重试"
 
+
+#: crates/rnote-ui/src/library/error_text.rs
+msgid "Something unexpected went wrong ({error})"
+msgstr "发生了意外错误（{error}）"
+
+#: crates/rnote-ui/src/library/error_text.rs
+msgid "The name is empty"
+msgstr "名称为空"
+
+#: crates/rnote-ui/src/library/error_text.rs
+msgid "A name can’t start with a dot"
+msgstr "名称不能以点开头"
+
+#: crates/rnote-ui/src/library/error_text.rs
+msgid "A name can’t contain “{name}”"
+msgstr "名称不能包含“{name}”"
+
+#: crates/rnote-ui/src/library/error_text.rs
+msgid "There is already a folder or notebook named “{name}”"
+msgstr "已有名为“{name}”的文件夹或笔记本"
+
+#: crates/rnote-ui/src/library/error_text.rs
+msgid "“{name}” has folders inside: move them out before deleting it"
+msgstr "“{name}”内有文件夹：删除前请先移出"
+
+#: crates/rnote-ui/src/library/error_text.rs
+msgid "The folder “{name}” no longer exists"
+msgstr "文件夹“{name}”已不存在"
+
+#: crates/rnote-ui/src/library/error_text.rs
+msgid "The notebook “{name}” no longer exists"
+msgstr "笔记本“{name}”已不存在"
+
+#: crates/rnote-ui/src/library/error_text.rs
+msgid "There is no space left on the disk"
+msgstr "磁盘空间不足"
+
+#: crates/rnote-ui/src/library/error_text.rs
+msgid "Rnote has no permission to use that file or folder"
+msgstr "Rnote 无权使用该文件或文件夹"
+
+#: crates/rnote-ui/src/library/error_text.rs
+msgid "The file or folder no longer exists"
+msgstr "文件或文件夹已不存在"
+
 #~ msgid "Brush Style"
 #~ msgstr "笔刷样式"
 
