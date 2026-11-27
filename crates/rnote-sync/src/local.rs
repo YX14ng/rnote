@@ -180,9 +180,10 @@ fn scan_dir(
                 found.insert(path, cached.clone());
                 continue;
             }
-            let bytes = fs::read(entry.path()).with_context(|| format!("Reading {path}"))?;
+            let sha256 = sha256_file(&entry.path())
+                .with_context(|| format!("Reading {path}"))?
+                .with_context(|| format!("{path} went away while it was read"))?;
             *hashed += 1;
-            let sha256 = sha256_hex(&bytes);
             // Changed while it was read: keep the hash, but don't trust it next time.
             let settled =
                 fs::metadata(entry.path()).map(|now| CachedHash::stamp(&now)).ok() == Some(stamp);
@@ -199,6 +200,25 @@ pub(crate) fn sha256_hex(bytes: &[u8]) -> String {
     crate::hex(&Sha256::digest(bytes))
 }
 
+/// The SHA-256 of the file at `path`, in lower-case hex, read a piece at a time so a big
+/// notebook isn't held in memory whole just to hash it; `None` if there's no file.
+pub(crate) fn sha256_file(path: &Path) -> std::io::Result<Option<String>> {
+    let mut file = match fs::File::open(path) {
+        Ok(file) => file,
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(None),
+        Err(error) => return Err(error),
+    };
+    let mut hasher = Sha256::new();
+    let mut buffer = vec![0; 64 * 1024];
+    loop {
+        let read = std::io::Read::read(&mut file, &mut buffer)?;
+        if read == 0 {
+            return Ok(Some(crate::hex(&hasher.finalize())));
+        }
+        hasher.update(&buffer[..read]);
+    }
+}
+
 /// Writes `bytes` to the relative `path` under `root`, creating its folders, through a
 /// hidden temporary file renamed into place.
 pub(crate) fn write_atomic(root: &Path, path: &str, bytes: &[u8]) -> anyhow::Result<()> {
@@ -212,11 +232,7 @@ pub(crate) fn write_atomic(root: &Path, path: &str, bytes: &[u8]) -> anyhow::Res
 
 /// The SHA-256 of the local file at `path` right now, or `None` if there's none.
 pub(crate) fn hash_now(root: &Path, path: &str) -> anyhow::Result<Option<String>> {
-    match fs::read(root.join(path)) {
-        Ok(bytes) => Ok(Some(sha256_hex(&bytes))),
-        Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(None),
-        Err(error) => Err(error).with_context(|| format!("Reading {path}")),
-    }
+    sha256_file(&root.join(path)).with_context(|| format!("Reading {path}"))
 }
 
 /// This library's sync identity, created the first time. A state made for another

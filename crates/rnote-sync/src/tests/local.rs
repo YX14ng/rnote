@@ -170,3 +170,15 @@ fn the_hash_cache_is_not_synced() {
     assert!(dir.path().join(".rnote-library/sync-hashes.json").exists());
     assert_eq!(scanned_paths(dir.path()), vec![".rnote-library/library.json", "a.rnote"]);
 }
+
+#[test]
+fn a_file_is_hashed_without_reading_it_whole_to_the_same_hash() {
+    let dir = tempfile::tempdir().unwrap();
+    let bytes: Vec<u8> = (0..300_000u32).map(|i| (i % 253) as u8).collect();
+    std::fs::write(dir.path().join("a.rnote"), &bytes).unwrap();
+
+    let hashed = crate::local::sha256_file(&dir.path().join("a.rnote")).unwrap();
+
+    assert_eq!(hashed, Some(crate::local::sha256_hex(&bytes)));
+    assert_eq!(crate::local::sha256_file(&dir.path().join("b.rnote")).unwrap(), None);
+}

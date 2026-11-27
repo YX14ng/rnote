@@ -3,7 +3,6 @@
 //! version that changed since the editor read it.
 
 use std::fs;
-use std::io::ErrorKind;
 use std::path::{Component, Path};
 
 use anyhow::{Context, bail};
@@ -38,15 +37,13 @@ pub fn write_notebook(
 ) -> anyhow::Result<WrittenNotebook> {
     check_notebook_path(path)?;
     let _guard = rnote_library::write_guard();
-    let current = match fs::read(root.join(path)) {
-        Ok(current) => Some(current),
-        Err(error) if error.kind() == ErrorKind::NotFound => None,
-        Err(error) => return Err(error).with_context(|| format!("Reading {path}")),
-    };
+    // Hashed a piece at a time: the notebook isn't held in memory a second time to compare.
+    let current =
+        crate::local::sha256_file(&root.join(path)).with_context(|| format!("Reading {path}"))?;
     let changed = match (current, expected_sha256) {
         (None, _) => false,
-        (Some(current), Some(expected)) => sha256_hex(&current) != expected,
-        (Some(current), None) => !current.is_empty(),
+        (Some(current), Some(expected)) => current != expected,
+        (Some(_), None) => fs::metadata(root.join(path)).is_ok_and(|meta| meta.len() > 0),
     };
     let target =
         if changed { conflict_copy_path(root, path, device, now) } else { path.to_owned() };
