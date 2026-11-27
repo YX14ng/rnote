@@ -335,6 +335,10 @@
     <string name="page_insert_blank_after">Insertar página en blanco después</string>
     <string name="page_insert_pdf_after">Insertar PDF después</string>
     <string name="page_remove">Borrar página</string>
+    <string name="pages_need_sheets">Solo los cuadernos con páginas las tienen: elegí «%1$s» en %2$s</string>
+    <string name="page_duplicate">Duplicar</string>
+    <string name="page_move_up">Subir</string>
+    <string name="page_move_down">Bajar</string>
     <string name="pages_remove_confirm_message">Lo que tienen escrito también se borra. Se puede deshacer.</string>
     <string name="insert_pdf_title">Insertar PDF</string>
     <string name="insert_pdf_from">Desde la página</string>

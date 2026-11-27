@@ -329,6 +329,10 @@
     <string name="page_insert_blank_after">Insert blank page after</string>
     <string name="page_insert_pdf_after">Insert PDF after</string>
     <string name="page_remove">Remove page</string>
+    <string name="pages_need_sheets">Only notebooks with pages have them: choose “%1$s” in %2$s</string>
+    <string name="page_duplicate">Duplicate</string>
+    <string name="page_move_up">Move up</string>
+    <string name="page_move_down">Move down</string>
     <string name="pages_remove_confirm_message">What is written on them is removed too. You can undo it.</string>
     <string name="insert_pdf_title">Insert PDF</string>
     <string name="insert_pdf_from">From page</string>

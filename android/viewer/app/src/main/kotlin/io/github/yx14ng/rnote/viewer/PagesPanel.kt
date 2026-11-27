@@ -35,6 +35,8 @@ internal class PagesPanel(
     interface Listener {
         fun goToPage(page: Int, sheetHeight: Double)
         fun insertBlankPage(at: Int)
+        fun duplicatePage(page: Int)
+        fun movePage(from: Int, to: Int)
         fun insertPdf(at: Int)
         fun removePages(pages: Set<Int>, withContent: BooleanArray)
         fun closePages()
@@ -193,11 +195,17 @@ internal class PagesPanel(
         PopupMenu(context, anchor).apply {
             menu.add(0, MENU_BLANK, 0, R.string.page_insert_blank_after)
             menu.add(0, MENU_PDF, 1, R.string.page_insert_pdf_after)
-            menu.add(0, MENU_REMOVE, 2, R.string.page_remove)
+            menu.add(0, MENU_DUPLICATE, 2, R.string.page_duplicate)
+            menu.add(0, MENU_UP, 3, R.string.page_move_up).isEnabled = page > 0
+            menu.add(0, MENU_DOWN, 4, R.string.page_move_down).isEnabled = page < pageCount - 1
+            menu.add(0, MENU_REMOVE, 5, R.string.page_remove)
             setOnMenuItemClickListener { item ->
                 when (item.itemId) {
                     MENU_BLANK -> listener.insertBlankPage(page + 1)
                     MENU_PDF -> listener.insertPdf(page + 1)
+                    MENU_DUPLICATE -> listener.duplicatePage(page)
+                    MENU_UP -> listener.movePage(page, page - 1)
+                    MENU_DOWN -> listener.movePage(page, page + 1)
                     MENU_REMOVE -> listener.removePages(setOf(page), withContent)
                 }
                 true
@@ -333,5 +341,8 @@ internal class PagesPanel(
         private const val MENU_BLANK = 1
         private const val MENU_PDF = 2
         private const val MENU_REMOVE = 3
+        private const val MENU_DUPLICATE = 4
+        private const val MENU_UP = 5
+        private const val MENU_DOWN = 6
     }
 }

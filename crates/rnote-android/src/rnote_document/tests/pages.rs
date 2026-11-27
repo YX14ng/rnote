@@ -142,3 +142,37 @@ fn inserting_a_pdf_puts_each_of_its_pages_on_a_sheet_after_the_chosen_one() {
     // The second sheet's line went below the PDF.
     assert_eq!(stroke_middles(&document).last().map(|y| (y / height).floor()), Some(4.0));
 }
+
+#[test]
+fn moving_a_page_shifts_the_ones_between() {
+    let (mut document, height) = sheets(3, &[2]);
+
+    document.move_page(2, 0);
+    assert_middles(&document, height, &[0.5]);
+
+    document.move_page(0, 1);
+    assert_middles(&document, height, &[1.5]);
+    assert_eq!(document.page_count(), Some(3));
+}
+
+#[test]
+fn moving_a_page_down_brings_the_next_ones_up() {
+    let (mut document, height) = sheets(3, &[0, 1]);
+
+    // The line of the first sheet ends up on the last; the second sheet's moves up.
+    document.move_page(0, 2);
+
+    assert_eq!(document.pages_with_content(), [true, false, true]);
+    assert_middles(&document, height, &[0.5, 2.5]);
+}
+
+#[test]
+fn duplicating_a_page_puts_a_copy_right_after_it() {
+    let (mut document, height) = sheets(2, &[0, 1]);
+
+    let state = document.duplicate_page(0);
+
+    assert!(state.modified);
+    assert_eq!(document.page_count(), Some(3));
+    assert_middles(&document, height, &[0.5, 1.5, 2.5]);
+}

@@ -281,6 +281,12 @@ internal object NativeBridge {
     /** Inserts [count] blank sheets before sheet [at]; undoable. */
     @JvmStatic external fun insertBlankPages(handle: Long, at: Int, count: Int): Int
 
+    /** Moves sheet [from] to be sheet [to], the ones between making room; undoable. */
+    @JvmStatic external fun movePage(handle: Long, from: Int, to: Int): Int
+
+    /** Puts a copy of sheet [page] right after it; undoable. */
+    @JvmStatic external fun duplicatePage(handle: Long, page: Int): Int
+
     /**
      * Starts reading pages [firstPage] (0-based) up to [endPage] (excluded) of [pdf] as wide
      * as the sheets of the document at [handle]; returns a pages handle that goes to either

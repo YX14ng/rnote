@@ -128,6 +128,33 @@ pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_insertBla
     })
 }
 
+/// `static native int movePage(long handle, int from, int to)`: moves sheet `from` to be
+/// sheet `to`, the ones between making room.
+#[unsafe(no_mangle)]
+pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_movePage<'caller>(
+    mut unowned_env: EnvUnowned<'caller>,
+    _class: JClass<'caller>,
+    handle: jlong,
+    from: jint,
+    to: jint,
+) -> jint {
+    edit(&mut unowned_env, handle, |document| {
+        Ok(document.move_page(page_index(from), page_index(to)))
+    })
+}
+
+/// `static native int duplicatePage(long handle, int page)`: puts a copy of sheet `page`
+/// right after it.
+#[unsafe(no_mangle)]
+pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_duplicatePage<'caller>(
+    mut unowned_env: EnvUnowned<'caller>,
+    _class: JClass<'caller>,
+    handle: jlong,
+    page: jint,
+) -> jint {
+    edit(&mut unowned_env, handle, |document| Ok(document.duplicate_page(page_index(page))))
+}
+
 /// `static native long pdfPagesBegin(long handle, byte[] pdf, String password, int
 /// firstPage, int endPage, boolean vector)`: starts reading pages `firstPage` (0-based) up
 /// to `endPage` (excluded) of `pdf` as wide as the document's sheets; throws if the PDF or

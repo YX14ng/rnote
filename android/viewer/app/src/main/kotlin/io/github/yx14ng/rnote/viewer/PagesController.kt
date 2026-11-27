@@ -66,6 +66,14 @@ internal class PagesController(
         canvas.applyEdit { document -> document.insertBlankPage(at) }
     }
 
+    override fun duplicatePage(page: Int) {
+        canvas.applyEdit { document -> document.duplicatePage(page) }
+    }
+
+    override fun movePage(from: Int, to: Int) {
+        canvas.applyEdit { document -> document.movePage(from, to) }
+    }
+
     override fun insertPdf(at: Int) {
         insertAt = at
         pickPdf()

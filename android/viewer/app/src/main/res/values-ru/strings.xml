@@ -343,6 +343,10 @@
     <string name="page_insert_blank_after">Вставить пустую страницу после</string>
     <string name="page_insert_pdf_after">Вставить PDF после</string>
     <string name="page_remove">Удалить страницу</string>
+    <string name="pages_need_sheets">Страницы есть только у блокнотов со страницами: выберите «%1$s» в разделе «%2$s»</string>
+    <string name="page_duplicate">Дублировать</string>
+    <string name="page_move_up">Переместить вверх</string>
+    <string name="page_move_down">Переместить вниз</string>
     <string name="pages_remove_confirm_message">Написанное на них тоже удалится. Это можно отменить.</string>
     <string name="insert_pdf_title">Вставить PDF</string>
     <string name="insert_pdf_from">С страницы</string>

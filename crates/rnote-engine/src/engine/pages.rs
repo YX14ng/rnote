@@ -1,5 +1,5 @@
-//! Working with the pages of a fixed-size document as a whole: deleting some of them and
-//! inserting blank pages or imported pages between the others.
+//! Working with the pages of a fixed-size document as a whole: deleting, moving or
+//! duplicating some of them and inserting blank pages or imported pages between the others.
 //!
 //! A stroke belongs to the page its center is on. Removing or inserting pages moves the
 //! strokes of the pages below, so the content stays on its page.
@@ -9,6 +9,7 @@ use crate::store::StrokeKey;
 use crate::store::chrono_comp::StrokeLayer;
 use crate::strokes::Stroke;
 use crate::{Engine, WidgetFlags};
+use p2d::bounding_volume::Aabb;
 use p2d::math::Vector2;
 use rnote_compose::Transformable;
 use rnote_compose::shapes::Shapeable;
@@ -120,6 +121,77 @@ impl Engine {
             page.translate(top_left - bounds.mins);
             self.store.insert_stroke(page, Some(StrokeLayer::Document));
             next += span;
+        }
+        widget_flags |= self.finish_pages_change();
+        widget_flags
+    }
+
+    /// Moves page `from` to be page `to` (both 0-based); the pages between move one place
+    /// to make room, as in a list. Recorded as one change. Does nothing outside fixed-size
+    /// layout or for pages past the end.
+    pub fn doc_move_page_fixed_size(&mut self, from: u32, to: u32) -> WidgetFlags {
+        let mut widget_flags = WidgetFlags::default();
+        let Some(count) = self.doc_page_count_fixed_size() else {
+            return widget_flags;
+        };
+        if from == to || from >= count || to >= count {
+            return widget_flags;
+        }
+        let height = self.document.config.format.height();
+        for key in self.store.stroke_keys_as_rendered() {
+            let Some(page) = self.page_of_stroke(key) else {
+                continue;
+            };
+            let new_page = if page == from {
+                to
+            } else if from < to && (from + 1..=to).contains(&page) {
+                page - 1
+            } else if to < from && (to..from).contains(&page) {
+                page + 1
+            } else {
+                continue;
+            };
+            self.move_strokes(&[key], (f64::from(new_page) - f64::from(page)) * height);
+        }
+        widget_flags |= self.finish_pages_change();
+        widget_flags
+    }
+
+    /// Puts a copy of page `page` (0-based), with everything on it, on a new page right
+    /// after it. Recorded as one change. Does nothing outside fixed-size layout or for a
+    /// page past the end.
+    pub fn doc_duplicate_page_fixed_size(&mut self, page: u32) -> WidgetFlags {
+        let mut widget_flags = WidgetFlags::default();
+        if self
+            .doc_page_count_fixed_size()
+            .is_none_or(|count| page >= count)
+        {
+            return widget_flags;
+        }
+        let height = self.document.config.format.height();
+        let top = self.document.y + f64::from(page) * height;
+        let sheet = Aabb::new(
+            Vector2::new(self.document.x, top),
+            Vector2::new(self.document.x + self.document.width, top + height),
+        );
+        // What is on the page, by the same rule as `page_of_stroke`: its center. Each copy
+        // keeps its layer, so a PDF page stays under the ink.
+        let copies: Vec<(Stroke, StrokeLayer)> = self
+            .extract_content_in_bounds(sheet)
+            .strokes
+            .into_iter()
+            .filter(|layered| {
+                let center = layered.stroke.bounds().center()[1];
+                center >= top && center < top + height
+            })
+            .map(|layered| ((*layered.stroke).clone(), layered.layer))
+            .collect();
+        if self.make_room_for_pages(page + 1, 1).is_none() {
+            return widget_flags;
+        }
+        for (mut stroke, layer) in copies {
+            stroke.translate(Vector2::new(0.0, height));
+            self.store.insert_stroke(stroke, Some(layer));
         }
         widget_flags |= self.finish_pages_change();
         widget_flags

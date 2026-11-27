@@ -319,6 +319,10 @@
     <string name="page_insert_blank_after">後に白紙ページを挿入</string>
     <string name="page_insert_pdf_after">後に PDF を挿入</string>
     <string name="page_remove">このページを削除</string>
+    <string name="pages_need_sheets">ページがあるのはページ付きのノートブックだけです。「%2$s」で「%1$s」を選んでください</string>
+    <string name="page_duplicate">複製</string>
+    <string name="page_move_up">上へ移動</string>
+    <string name="page_move_down">下へ移動</string>
     <string name="pages_remove_confirm_message">書かれている内容も削除されます。元に戻せます。</string>
     <string name="insert_pdf_title">PDF を挿入</string>
     <string name="insert_pdf_from">開始ページ</string>

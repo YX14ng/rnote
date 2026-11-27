@@ -337,6 +337,10 @@ internal class NativeDocument private constructor(private var handle: Long) : Au
 
     fun insertBlankPage(at: Int): EditState = EditState.fromFlags(NativeBridge.insertBlankPages(checkOpen(), at, 1))
 
+    fun movePage(from: Int, to: Int): EditState = EditState.fromFlags(NativeBridge.movePage(checkOpen(), from, to))
+
+    fun duplicatePage(page: Int): EditState = EditState.fromFlags(NativeBridge.duplicatePage(checkOpen(), page))
+
     /** Starts reading PDF pages fitted to this document's sheets; see [NativeBridge.pdfPagesBegin]. */
     fun pdfPagesBegin(pdf: ByteArray, password: String?, firstPage: Int, endPage: Int, vector: Boolean): Long =
         NativeBridge.pdfPagesBegin(checkOpen(), pdf, password, firstPage, endPage, vector)

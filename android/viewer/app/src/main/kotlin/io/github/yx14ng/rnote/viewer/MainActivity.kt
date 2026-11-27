@@ -162,7 +162,15 @@ class MainActivity : Activity() {
                 EditorMenu.Action.TakePhoto -> takePhoto(null)
                 is EditorMenu.Action.TakePhotoAt -> takePhoto(action.x to action.y)
                 EditorMenu.Action.Document -> showDocumentDialog()
-                EditorMenu.Action.Pages -> pages.toggle()
+                EditorMenu.Action.Pages ->
+                    // Only notebooks of sheets have pages: say how to get them.
+                    if (documentSettings?.layout == DocumentLayout.FIXED_SIZE) {
+                        pages.toggle()
+                    } else {
+                        val layoutName = getString(R.string.layout_fixed_size)
+                        val menuName = getString(R.string.page_and_background).trimEnd('…', '.')
+                        Toast.makeText(this, getString(R.string.pages_need_sheets, layoutName, menuName), Toast.LENGTH_LONG).show()
+                    }
                 EditorMenu.Action.New -> newNotebook()
                 EditorMenu.Action.Open ->
                     guard.confirmDiscard { startActivityForResult(DocumentFiles.openIntent(saver.currentUri), REQUEST_OPEN) }

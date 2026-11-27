@@ -32,6 +32,20 @@ impl RnoteDocument {
         self.finish_edit(flags, bounds_before)
     }
 
+    /// Moves sheet `from` to be sheet `to` (0-based), the ones between making room. Undoable.
+    pub fn move_page(&mut self, from: u32, to: u32) -> EditState {
+        let bounds_before = self.bounds();
+        let flags = self.engine.doc_move_page_fixed_size(from, to);
+        self.finish_edit(flags, bounds_before)
+    }
+
+    /// Puts a copy of sheet `page` (0-based) right after it. Undoable.
+    pub fn duplicate_page(&mut self, page: u32) -> EditState {
+        let bounds_before = self.bounds();
+        let flags = self.engine.doc_duplicate_page_fixed_size(page);
+        self.finish_edit(flags, bounds_before)
+    }
+
     /// Inserts `pages`, e.g. those of a PDF, each on sheets of its own, before sheet `at`.
     /// Undoable.
     pub fn insert_page_strokes(&mut self, at: u32, pages: Vec<Stroke>) -> EditState {
