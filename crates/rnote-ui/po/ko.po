@@ -5191,6 +5191,94 @@ msgstr "줄 간격"
 msgid "What you choose stays for the next notebook in this folder."
 msgstr "선택한 설정은 이 폴더의 다음 노트에도 그대로 적용됩니다."
 
+#: crates/rnote-ui/src/library/import.rs
+msgid "Notebooks"
+msgstr "노트"
+
+#: crates/rnote-ui/src/library/import.rs
+msgid "PDF"
+msgstr "PDF"
+
+#: crates/rnote-ui/src/library/import.rs
+msgid "Images"
+msgstr "이미지"
+
+#: crates/rnote-ui/src/library/import.rs
+msgid "“{name}” can’t be imported: only notebooks, PDFs and images can"
+msgstr "‘{name}’은(는) 가져올 수 없습니다. 노트, PDF, 이미지만 가져올 수 있습니다"
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "The PDF can’t be read"
+msgstr "PDF를 읽을 수 없습니다"
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "Sheet Width"
+msgstr "페이지 너비"
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "The height of each sheet follows the PDF’s proportions."
+msgstr "각 페이지의 높이는 PDF의 비율을 따릅니다."
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "From Page"
+msgstr "시작 페이지"
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "To Page"
+msgstr "끝 페이지"
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "Pages Kept As"
+msgstr "페이지 저장 방식"
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "Vector is lighter and stays sharp at any zoom. The eraser doesn’t erase the PDF: only what you write on top."
+msgstr "벡터는 더 가볍고 어떤 배율에서도 선명합니다. 지우개는 PDF가 아니라 위에 쓴 내용만 지웁니다."
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "Import PDF"
+msgstr "PDF 가져오기"
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "{n} pages: each one goes on its own sheet, underneath to write on."
+msgstr "{n}페이지: 각 페이지가 한 장씩 아래에 깔려 그 위에 쓸 수 있습니다."
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "If you cancel, no half notebook is left."
+msgstr "취소해도 반쯤 만들어진 노트는 남지 않습니다."
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "Page {n} of {total}"
+msgstr "{total}페이지 중 {n}페이지"
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "Importing the PDF"
+msgstr "PDF 가져오는 중"
+
+#: crates/rnote-ui/src/library/dialogs.rs
+msgid "Wrong password. Try again."
+msgstr "비밀번호가 틀렸습니다. 다시 시도하세요."
+
+#: crates/rnote-ui/src/library/dialogs.rs
+msgid "This PDF is protected with a password."
+msgstr "이 PDF는 비밀번호로 보호되어 있습니다."
+
+#: crates/rnote-ui/src/library/dialogs.rs
+msgid "Password"
+msgstr "비밀번호"
+
+#: crates/rnote-ui/data/ui/library/libraryview.ui
+msgid "Notebooks (.rnote, .xopp)…"
+msgstr "노트 (.rnote, .xopp)…"
+
+#: crates/rnote-ui/data/ui/library/libraryview.ui
+msgid "PDF as a Notebook…"
+msgstr "PDF를 노트로…"
+
+#: crates/rnote-ui/data/ui/library/libraryview.ui
+msgid "Image as a Notebook…"
+msgstr "이미지를 노트로…"
+
 #~ msgid "Brush Style"
 #~ msgstr "브러시 스타일"
 

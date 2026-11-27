@@ -61,6 +61,27 @@ pub(crate) async fn ask_name(
     Some(entry.text().trim().to_owned()).filter(|name| !name.is_empty())
 }
 
+/// Asks for the password of a protected PDF, saying it was wrong if `wrong`. `None` when
+/// cancelled.
+pub(crate) async fn ask_password(appwindow: &RnAppWindow, wrong: bool) -> Option<String> {
+    let body = if wrong {
+        gettext("Wrong password. Try again.")
+    } else {
+        gettext("This PDF is protected with a password.")
+    };
+    let dialog = alert(&gettext("Password"), &body, &gettext("Open"), false);
+    let entry = gtk4::PasswordEntry::builder()
+        .activates_default(true)
+        .show_peek_icon(true)
+        .build();
+    dialog.set_extra_child(Some(&entry));
+    dialog.set_focus(Some(&entry));
+    if dialog.choose_future(Some(appwindow)).await != ACCEPT {
+        return None;
+    }
+    Some(entry.text().to_string())
+}
+
 /// Asks to confirm `heading`. True when confirmed.
 pub(crate) async fn confirm(
     appwindow: &RnAppWindow,

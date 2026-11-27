@@ -5371,6 +5371,94 @@ msgstr "Межстрочный интервал"
 msgid "What you choose stays for the next notebook in this folder."
 msgstr "Выбранные настройки сохранятся для следующего блокнота в этой папке."
 
+#: crates/rnote-ui/src/library/import.rs
+msgid "Notebooks"
+msgstr "Блокноты"
+
+#: crates/rnote-ui/src/library/import.rs
+msgid "PDF"
+msgstr "PDF"
+
+#: crates/rnote-ui/src/library/import.rs
+msgid "Images"
+msgstr "Изображения"
+
+#: crates/rnote-ui/src/library/import.rs
+msgid "“{name}” can’t be imported: only notebooks, PDFs and images can"
+msgstr "«{name}» нельзя импортировать: только блокноты, PDF и изображения"
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "The PDF can’t be read"
+msgstr "Не удаётся прочитать PDF"
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "Sheet Width"
+msgstr "Ширина листа"
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "The height of each sheet follows the PDF’s proportions."
+msgstr "Высота каждого листа определяется пропорциями PDF."
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "From Page"
+msgstr "С страницы"
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "To Page"
+msgstr "По страницу"
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "Pages Kept As"
+msgstr "Как сохранять страницы"
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "Vector is lighter and stays sharp at any zoom. The eraser doesn’t erase the PDF: only what you write on top."
+msgstr "Вектор легче и остаётся чётким при любом масштабе. Ластик не стирает PDF — только то, что вы написали поверх."
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "Import PDF"
+msgstr "Импорт PDF"
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "{n} pages: each one goes on its own sheet, underneath to write on."
+msgstr "Страниц: {n}. Каждая ложится на свой лист, снизу, чтобы писать поверх."
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "If you cancel, no half notebook is left."
+msgstr "Если отменить, недоделанный блокнот не останется."
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "Page {n} of {total}"
+msgstr "Страница {n} из {total}"
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "Importing the PDF"
+msgstr "Импорт PDF"
+
+#: crates/rnote-ui/src/library/dialogs.rs
+msgid "Wrong password. Try again."
+msgstr "Неверный пароль. Попробуйте ещё раз."
+
+#: crates/rnote-ui/src/library/dialogs.rs
+msgid "This PDF is protected with a password."
+msgstr "Этот PDF защищён паролем."
+
+#: crates/rnote-ui/src/library/dialogs.rs
+msgid "Password"
+msgstr "Пароль"
+
+#: crates/rnote-ui/data/ui/library/libraryview.ui
+msgid "Notebooks (.rnote, .xopp)…"
+msgstr "Блокноты (.rnote, .xopp)…"
+
+#: crates/rnote-ui/data/ui/library/libraryview.ui
+msgid "PDF as a Notebook…"
+msgstr "PDF как блокнот…"
+
+#: crates/rnote-ui/data/ui/library/libraryview.ui
+msgid "Image as a Notebook…"
+msgstr "Изображение как блокнот…"
+
 #~ msgid "Brush Style"
 #~ msgstr "Стиль кисти"
 

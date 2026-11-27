@@ -8,6 +8,8 @@ mod create;
 pub(crate) mod dialogs;
 pub(crate) mod error_text;
 mod grid;
+mod import;
+mod import_pdf;
 mod location;
 mod manage;
 mod new_notebook;
@@ -123,6 +125,7 @@ mod imp {
             self.obj().setup_actions();
             self.obj().setup_search();
             self.obj().setup_shortcuts();
+            self.obj().setup_drop();
         }
 
         fn dispose(&self) {
@@ -267,6 +270,7 @@ impl RnLibraryView {
 
         self.add_notebook_actions(actions);
         self.add_manage_actions(actions);
+        self.add_import_actions(actions);
         self.insert_action_group("library", Some(actions));
     }
 

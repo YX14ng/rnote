@@ -5455,6 +5455,94 @@ msgstr "Interlineado"
 msgid "What you choose stays for the next notebook in this folder."
 msgstr "Lo que elijas queda para el próximo cuaderno de esta carpeta."
 
+#: crates/rnote-ui/src/library/import.rs
+msgid "Notebooks"
+msgstr "Cuadernos"
+
+#: crates/rnote-ui/src/library/import.rs
+msgid "PDF"
+msgstr "PDF"
+
+#: crates/rnote-ui/src/library/import.rs
+msgid "Images"
+msgstr "Imágenes"
+
+#: crates/rnote-ui/src/library/import.rs
+msgid "“{name}” can’t be imported: only notebooks, PDFs and images can"
+msgstr "«{name}» no se puede importar: solo cuadernos, PDF e imágenes"
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "The PDF can’t be read"
+msgstr "No se puede leer el PDF"
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "Sheet Width"
+msgstr "Ancho de la hoja"
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "The height of each sheet follows the PDF’s proportions."
+msgstr "El alto de cada hoja sigue la proporción del PDF."
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "From Page"
+msgstr "Desde la página"
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "To Page"
+msgstr "Hasta la página"
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "Pages Kept As"
+msgstr "Cómo se guardan las páginas"
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "Vector is lighter and stays sharp at any zoom. The eraser doesn’t erase the PDF: only what you write on top."
+msgstr "Vectorial pesa menos y se ve nítido con cualquier zoom. La goma no borra el PDF: solo lo que escribís encima."
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "Import PDF"
+msgstr "Importar PDF"
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "{n} pages: each one goes on its own sheet, underneath to write on."
+msgstr "{n} páginas: cada una va en su hoja, debajo, para escribir encima."
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "If you cancel, no half notebook is left."
+msgstr "Si cancelás no queda ningún cuaderno a medias."
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "Page {n} of {total}"
+msgstr "Página {n} de {total}"
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "Importing the PDF"
+msgstr "Importando el PDF"
+
+#: crates/rnote-ui/src/library/dialogs.rs
+msgid "Wrong password. Try again."
+msgstr "Contraseña incorrecta. Probá de nuevo."
+
+#: crates/rnote-ui/src/library/dialogs.rs
+msgid "This PDF is protected with a password."
+msgstr "Este PDF está protegido con contraseña."
+
+#: crates/rnote-ui/src/library/dialogs.rs
+msgid "Password"
+msgstr "Contraseña"
+
+#: crates/rnote-ui/data/ui/library/libraryview.ui
+msgid "Notebooks (.rnote, .xopp)…"
+msgstr "Cuadernos (.rnote, .xopp)…"
+
+#: crates/rnote-ui/data/ui/library/libraryview.ui
+msgid "PDF as a Notebook…"
+msgstr "PDF como cuaderno…"
+
+#: crates/rnote-ui/data/ui/library/libraryview.ui
+msgid "Image as a Notebook…"
+msgstr "Imagen como cuaderno…"
+
 #~ msgid "Brush Style"
 #~ msgstr "Estilo del pincel"
 

@@ -5077,6 +5077,94 @@ msgstr "行距"
 msgid "What you choose stays for the next notebook in this folder."
 msgstr "你的選擇會套用到這個資料夾的下一本筆記本。"
 
+#: crates/rnote-ui/src/library/import.rs
+msgid "Notebooks"
+msgstr "筆記本"
+
+#: crates/rnote-ui/src/library/import.rs
+msgid "PDF"
+msgstr "PDF"
+
+#: crates/rnote-ui/src/library/import.rs
+msgid "Images"
+msgstr "圖片"
+
+#: crates/rnote-ui/src/library/import.rs
+msgid "“{name}” can’t be imported: only notebooks, PDFs and images can"
+msgstr "無法匯入「{name}」：只能匯入筆記本、PDF 和圖片"
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "The PDF can’t be read"
+msgstr "無法讀取這個 PDF"
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "Sheet Width"
+msgstr "頁面寬度"
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "The height of each sheet follows the PDF’s proportions."
+msgstr "每一頁的高度會依照 PDF 的比例。"
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "From Page"
+msgstr "起始頁"
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "To Page"
+msgstr "結束頁"
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "Pages Kept As"
+msgstr "頁面保存方式"
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "Vector is lighter and stays sharp at any zoom. The eraser doesn’t erase the PDF: only what you write on top."
+msgstr "向量檔案較小，任何縮放下都清晰。橡皮擦不會擦掉 PDF，只會擦掉你在上面寫的內容。"
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "Import PDF"
+msgstr "匯入 PDF"
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "{n} pages: each one goes on its own sheet, underneath to write on."
+msgstr "共 {n} 頁：每頁單獨放在一張紙上，位於底層，可在上面書寫。"
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "If you cancel, no half notebook is left."
+msgstr "如果取消，不會留下只匯入一半的筆記本。"
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "Page {n} of {total}"
+msgstr "第 {n} 頁，共 {total} 頁"
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "Importing the PDF"
+msgstr "正在匯入 PDF"
+
+#: crates/rnote-ui/src/library/dialogs.rs
+msgid "Wrong password. Try again."
+msgstr "密碼錯誤，請再試一次。"
+
+#: crates/rnote-ui/src/library/dialogs.rs
+msgid "This PDF is protected with a password."
+msgstr "這個 PDF 受密碼保護。"
+
+#: crates/rnote-ui/src/library/dialogs.rs
+msgid "Password"
+msgstr "密碼"
+
+#: crates/rnote-ui/data/ui/library/libraryview.ui
+msgid "Notebooks (.rnote, .xopp)…"
+msgstr "筆記本（.rnote、.xopp）…"
+
+#: crates/rnote-ui/data/ui/library/libraryview.ui
+msgid "PDF as a Notebook…"
+msgstr "將 PDF 作為筆記本…"
+
+#: crates/rnote-ui/data/ui/library/libraryview.ui
+msgid "Image as a Notebook…"
+msgstr "將圖片作為筆記本…"
+
 #~ msgid "Brush Style"
 #~ msgstr "筆刷樣式"
 

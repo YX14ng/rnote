@@ -218,16 +218,7 @@ fn rows(folders: &[String], folder: Option<&str>, initial: &SetupChoice) -> Rows
     let folder_index = folder
         .and_then(|folder| folders.iter().position(|f| f == folder))
         .map_or(0, |i| i + 1);
-    let sizes: Vec<String> = ["A3", "A4", "A5"]
-        .iter()
-        .map(|name| (*name).to_owned())
-        .chain([gettext("Letter"), gettext("Legal")])
-        .collect();
-    let sizes: Vec<String> = sizes
-        .iter()
-        .zip(PAGE_SIZES)
-        .map(|(name, size)| format!("{name} · {} × {} mm", size.width_mm, size.height_mm))
-        .collect();
+    let sizes = size_labels();
     let papers = [
         gettext("White"),
         gettext("Cream"),
@@ -291,8 +282,28 @@ fn rows(folders: &[String], folder: Option<&str>, initial: &SetupChoice) -> Rows
     }
 }
 
+/// The names of the page sizes: A3, A4, A5, Letter and Legal.
+pub(super) fn size_names() -> [String; 5] {
+    [
+        "A3".to_owned(),
+        "A4".to_owned(),
+        "A5".to_owned(),
+        gettext("Letter"),
+        gettext("Legal"),
+    ]
+}
+
+/// The names of the page sizes, with their measures, e.g. "A4 · 210 × 297 mm".
+pub(super) fn size_labels() -> Vec<String> {
+    size_names()
+        .iter()
+        .zip(PAGE_SIZES)
+        .map(|(name, size)| format!("{name} · {} × {} mm", size.width_mm, size.height_mm))
+        .collect()
+}
+
 /// A row to choose one of `labels`, with `selected` chosen.
-fn combo(title: &str, labels: &[String], selected: usize) -> adw::ComboRow {
+pub(super) fn combo(title: &str, labels: &[String], selected: usize) -> adw::ComboRow {
     let labels: Vec<&str> = labels.iter().map(String::as_str).collect();
     let row = adw::ComboRow::builder()
         .title(title)

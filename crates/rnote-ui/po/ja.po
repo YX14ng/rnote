@@ -5243,6 +5243,94 @@ msgstr "罫線の間隔"
 msgid "What you choose stays for the next notebook in this folder."
 msgstr "ここで選んだ設定は、このフォルダーで次に作るノートにも引き継がれます。"
 
+#: crates/rnote-ui/src/library/import.rs
+msgid "Notebooks"
+msgstr "ノート"
+
+#: crates/rnote-ui/src/library/import.rs
+msgid "PDF"
+msgstr "PDF"
+
+#: crates/rnote-ui/src/library/import.rs
+msgid "Images"
+msgstr "画像"
+
+#: crates/rnote-ui/src/library/import.rs
+msgid "“{name}” can’t be imported: only notebooks, PDFs and images can"
+msgstr "「{name}」は読み込めません。読み込めるのはノート、PDF、画像だけです"
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "The PDF can’t be read"
+msgstr "PDF を読み込めません"
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "Sheet Width"
+msgstr "用紙の幅"
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "The height of each sheet follows the PDF’s proportions."
+msgstr "各用紙の高さは PDF の縦横比に合わせて決まります。"
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "From Page"
+msgstr "開始ページ"
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "To Page"
+msgstr "終了ページ"
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "Pages Kept As"
+msgstr "ページの保持方法"
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "Vector is lighter and stays sharp at any zoom. The eraser doesn’t erase the PDF: only what you write on top."
+msgstr "ベクターは軽く、どの倍率でもくっきり表示されます。消しゴムで消えるのは上に書いたものだけで、PDF は消えません。"
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "Import PDF"
+msgstr "PDF をインポート"
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "{n} pages: each one goes on its own sheet, underneath to write on."
+msgstr "{n} ページ：各ページが 1 枚ずつ下に敷かれ、その上に書き込めます。"
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "If you cancel, no half notebook is left."
+msgstr "キャンセルしても、作りかけのノートは残りません。"
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "Page {n} of {total}"
+msgstr "{n} / {total} ページ"
+
+#: crates/rnote-ui/src/library/import_pdf.rs
+msgid "Importing the PDF"
+msgstr "PDF をインポート中"
+
+#: crates/rnote-ui/src/library/dialogs.rs
+msgid "Wrong password. Try again."
+msgstr "パスワードが違います。もう一度お試しください。"
+
+#: crates/rnote-ui/src/library/dialogs.rs
+msgid "This PDF is protected with a password."
+msgstr "この PDF はパスワードで保護されています。"
+
+#: crates/rnote-ui/src/library/dialogs.rs
+msgid "Password"
+msgstr "パスワード"
+
+#: crates/rnote-ui/data/ui/library/libraryview.ui
+msgid "Notebooks (.rnote, .xopp)…"
+msgstr "ノート (.rnote、.xopp)…"
+
+#: crates/rnote-ui/data/ui/library/libraryview.ui
+msgid "PDF as a Notebook…"
+msgstr "PDF をノートとして…"
+
+#: crates/rnote-ui/data/ui/library/libraryview.ui
+msgid "Image as a Notebook…"
+msgstr "画像をノートとして…"
+
 #~ msgid "Brush Style"
 #~ msgstr "ブラシのスタイル"
 
