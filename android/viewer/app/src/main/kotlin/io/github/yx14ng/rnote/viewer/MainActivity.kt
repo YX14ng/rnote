@@ -7,9 +7,6 @@ import android.content.Intent
 import android.graphics.Point
 import android.net.Uri
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.os.SystemClock
 import android.util.Log
 import android.view.HapticFeedbackConstants
 import android.view.KeyEvent
@@ -36,9 +33,11 @@ class MainActivity : Activity() {
     private lateinit var pdfExport: PdfExport
 
     // Saves the notebook a few seconds after the writing pauses, so a crash loses little.
-    private val autosave = AutosaveSchedule()
-    private val main = Handler(Looper.getMainLooper())
-    private val autosaveCheck = Runnable { autosaveIfDue() }
+    private val autosave = AutosaveTimer(
+        hasChanges = { documentOpen && editState.modified && !guard.changesDiscarded },
+        penDown = { canvasView.penDown },
+        save = { saver.autosave() },
+    )
     private var shownZoomPercent = 0
 
     private var documentOpen = false
@@ -51,7 +50,8 @@ class MainActivity : Activity() {
             if (path == null) saver.knownSha256 = null
         }
 
-    private val syncListener: (SyncStatus) -> Unit = ::onSyncStatus
+    private lateinit var openSync: OpenNotebookSync
+    private val syncListener: (SyncStatus) -> Unit = { openSync.onStatus(it) }
     private var editState = EditState.CLEAN
     private var documentSettings: DocumentSettings? = null
 
@@ -60,6 +60,20 @@ class MainActivity : Activity() {
         recovery = Recovery(this)
         guard = UnsavedChangesGuard(this, onDiscard = recovery::clear, onBack = ::leave)
         saver = DocumentSaver(this, renderer, recovery, onSaved = ::onSaved, requestSaveAs = ::saveAs)
+        openSync = OpenNotebookSync(
+            this,
+            saver,
+            modified = { editState.modified },
+            onMoved = ::refreshBar,
+            reopen = { path ->
+                openLibraryNotebook(path, isNew = false, keepView = true)
+                Toast.makeText(this, R.string.sync_reloaded, Toast.LENGTH_SHORT).show()
+            },
+            close = {
+                Toast.makeText(this, R.string.sync_removed, Toast.LENGTH_LONG).show()
+                toLibrary()
+            },
+        )
         saver.onConflictCopy = {
             Toast.makeText(this, R.string.sync_saved_as_copy, Toast.LENGTH_LONG).show()
             refreshBar()
@@ -404,7 +418,7 @@ class MainActivity : Activity() {
     }
 
     override fun onDestroy() {
-        main.removeCallbacks(autosaveCheck)
+        autosave.stop()
         // Before the renderer closes: a search waiting to run would use it.
         search.close()
         ink.close()
@@ -462,7 +476,7 @@ class MainActivity : Activity() {
                     // A new notebook exists in the library from the start.
                     if (isNew) saver.autosave()
                     // A sync may have written it while it was being read.
-                    (SyncManager.status as? SyncStatus.Done)?.let(::onSyncStatus)
+                    (SyncManager.status as? SyncStatus.Done)?.let(openSync::onStatus)
                 }
                 .onFailure { error ->
                     guard.keepChanges()
@@ -567,9 +581,7 @@ class MainActivity : Activity() {
     }
 
     private fun showOpenedDocument(info: DocumentInfo, keepView: Boolean = false) {
-        // Another document: what was due belonged to the one before.
-        autosave.saved()
-        main.removeCallbacks(autosaveCheck)
+        autosave.stop()
         documentOpen = true
         controls.documentOpen = true
         documentSettings = info.settings
@@ -664,58 +676,11 @@ class MainActivity : Activity() {
         if (libraryPath != null) SyncManager.syncSoon(this)
     }
 
-    /** A sync wrote the open library notebook: see whether it's still the file the editor has. */
-    private fun onSyncStatus(status: SyncStatus) {
-        val path = libraryPath ?: return
-        if (status !is SyncStatus.Done) return
-        val moved = status.report.movedTo(path)
-        when {
-            moved != null -> followMove(moved)
-            path in status.report.changedHere -> checkOpenNotebook(path)
-        }
-    }
-
-    /**
-     * The sync moved or renamed the open notebook (it was moved on another device): the
-     * editor goes on with it at its new place, so saving never recreates the old one.
-     */
-    private fun followMove(path: String) {
-        val file = LibraryStore.forApp(this).notebookFile(path) ?: return
-        libraryPath?.let { InkIndexFiles.move(this, it, path) }
-        libraryPath = path
-        saver.currentUri = Uri.fromFile(file)
-        saver.documentName = file.name
-        refreshBar()
-        // Its content may have changed too.
-        checkOpenNotebook(path)
-    }
-
-    /**
-     * If the file at [path] isn't what the editor read or wrote: without unsaved changes it
-     * reopens, or closes if it's gone; with them, saving decides (a conflict copy).
-     */
-    private fun checkOpenNotebook(path: String) {
-        val known = saver.knownSha256
-        val store = LibraryStore.forApp(this)
-        store.run({ store.notebookFile(path)?.takeIf { it.exists() }?.readBytes()?.let(DocumentSaver::sha256Hex) }) done@{ result ->
-            val current = result.getOrElse { return@done }
-            if (libraryPath != path || saver.knownSha256 != known || editState.modified || current == known) return@done
-            if (current != null) {
-                openLibraryNotebook(path, isNew = false, keepView = true)
-                Toast.makeText(this, R.string.sync_reloaded, Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(this, R.string.sync_removed, Toast.LENGTH_LONG).show()
-                toLibrary()
-            }
-        }
-    }
-
     private fun updateEditState(state: EditState) {
         if (documentOpen && state.modified) {
             ink.onEdited()
             search.onEdited()
-            autosave.edited(SystemClock.uptimeMillis())
-            scheduleAutosave()
+            autosave.edited()
         }
         if (state.modified) pages.onEdited()
         // Every batch of pen samples reports a state, nearly always the one already shown.
@@ -726,32 +691,6 @@ class MainActivity : Activity() {
         }
         // Even with the same state: a moved selection takes its bar along.
         refreshSelectionBar()
-    }
-
-    private fun scheduleAutosave() {
-        val due = autosave.dueAt() ?: return
-        main.removeCallbacks(autosaveCheck)
-        main.postDelayed(autosaveCheck, (due - SystemClock.uptimeMillis()).coerceAtLeast(0))
-    }
-
-    /** Saves quietly once the schedule says so, never under the pen. */
-    private fun autosaveIfDue() {
-        val due = autosave.dueAt() ?: return
-        if (SystemClock.uptimeMillis() < due) {
-            scheduleAutosave()
-            return
-        }
-        if (!documentOpen || !editState.modified || guard.changesDiscarded) {
-            autosave.saved()
-            return
-        }
-        if (canvasView.penDown) {
-            main.postDelayed(autosaveCheck, PEN_UP_RETRY_MS)
-            return
-        }
-        // Done once asked: a failed write leaves a recovery copy, and the next edit asks again.
-        autosave.saved()
-        saver.autosave()
     }
 
     /** Tells that [action] failed, and why, in words the user can act on. */
@@ -779,8 +718,5 @@ class MainActivity : Activity() {
         private const val REQUEST_EXPORT_PDF = 4
         private const val REQUEST_INSERT_IMAGE = 5
         private const val REQUEST_TAKE_PHOTO = 6
-
-        /** How soon the autosave looks again when the pen was down. */
-        private const val PEN_UP_RETRY_MS = 1_000L
     }
 }
