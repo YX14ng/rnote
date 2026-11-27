@@ -3,7 +3,7 @@
 
 use std::path::Path;
 
-use rnote_library::{Library, thumbnail_key};
+use rnote_library::{Library, LibraryError, thumbnail_key};
 use serde::Deserialize;
 use serde_json::{Value, json};
 
@@ -119,6 +119,25 @@ fn list(library: &Library) -> anyhow::Result<Value> {
     }))
 }
 
+#[cfg_attr(not(target_os = "android"), allow(dead_code))]
+/// The message Java gets for `error`: a code the app words in the person's language when
+/// it is a [`LibraryError`], `library-error:<code>:<argument>`, else the error chain.
+pub(crate) fn coded_message(error: &anyhow::Error) -> String {
+    let Some(error) = error.chain().find_map(|e| e.downcast_ref::<LibraryError>()) else {
+        return format!("{error:#}");
+    };
+    let (code, argument) = match error {
+        LibraryError::EmptyName => ("empty_name", String::new()),
+        LibraryError::NameStartsWithDot => ("name_starts_with_dot", String::new()),
+        LibraryError::NameHasCharacter(c) => ("name_has_character", c.to_string()),
+        LibraryError::NameTaken(name) => ("name_taken", name.clone()),
+        LibraryError::FolderHasFolders(folder) => ("folder_has_folders", folder.clone()),
+        LibraryError::NoSuchFolder(folder) => ("no_such_folder", folder.clone()),
+        LibraryError::NoSuchNotebook(path) => ("no_such_notebook", path.clone()),
+    };
+    format!("library-error:{code}:{argument}")
+}
+
 #[cfg(test)]
 mod tests {
     #![allow(clippy::unwrap_used)]
@@ -206,5 +225,18 @@ mod tests {
     fn bad_json_is_an_error() {
         let dir = tempfile::tempdir().unwrap();
         assert!(handle_request(dir.path(), "{nope").is_err());
+    }
+
+    #[test]
+    fn errors_a_person_can_fix_go_to_java_as_codes() {
+        use rnote_library::LibraryError;
+        let taken = anyhow::Error::new(LibraryError::NameTaken("Orga: 2".to_owned()))
+            .context("Renaming a.rnote");
+        let empty = anyhow::Error::new(LibraryError::EmptyName);
+        let other = anyhow::anyhow!("disk exploded");
+
+        assert_eq!(super::coded_message(&taken), "library-error:name_taken:Orga: 2");
+        assert_eq!(super::coded_message(&empty), "library-error:empty_name:");
+        assert_eq!(super::coded_message(&other), "disk exploded");
     }
 }

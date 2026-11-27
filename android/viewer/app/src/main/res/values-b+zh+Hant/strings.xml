@@ -363,4 +363,11 @@
     <string name="failed_import">無法匯入檔案</string>
     <string name="failed_library">無法變更資料庫</string>
     <string name="failed_read_library">無法讀取資料庫</string>
+    <string name="library_error_empty_name">名稱為空</string>
+    <string name="library_error_name_starts_with_dot">名稱不能以點開頭</string>
+    <string name="library_error_name_has_character">名稱不能包含「%1$s」</string>
+    <string name="library_error_name_taken">已有名為「%1$s」的資料夾或筆記本</string>
+    <string name="library_error_folder_has_folders">「%1$s」內有資料夾：刪除前請先移出</string>
+    <string name="library_error_no_such_folder">資料夾「%1$s」已不存在</string>
+    <string name="library_error_no_such_notebook">筆記本「%1$s」已不存在</string>
 </resources>

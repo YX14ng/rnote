@@ -51,10 +51,42 @@ internal enum class ErrorKind(@StringRes val reason: Int) {
     }
 }
 
+/**
+ * A refusal of the library that the user can fix, as the engine sends it:
+ * `library-error:<code>:<argument>` (see `coded_message` in `library_bridge.rs`).
+ */
+internal data class LibraryErrorCode(val code: String, val argument: String) {
+    /** The sentence for it, or null for a code this version doesn't know. */
+    fun text(context: Context): String? {
+        val resource = when (code) {
+            "empty_name" -> R.string.library_error_empty_name
+            "name_starts_with_dot" -> R.string.library_error_name_starts_with_dot
+            "name_has_character" -> R.string.library_error_name_has_character
+            "name_taken" -> R.string.library_error_name_taken
+            "folder_has_folders" -> R.string.library_error_folder_has_folders
+            "no_such_folder" -> R.string.library_error_no_such_folder
+            "no_such_notebook" -> R.string.library_error_no_such_notebook
+            else -> return null
+        }
+        return context.getString(resource, argument)
+    }
+
+    companion object {
+        private const val PREFIX = "library-error:"
+
+        fun of(error: Throwable): LibraryErrorCode? {
+            val message = error.message ?: return null
+            val rest = message.substringAfter(PREFIX, missingDelimiterValue = "").ifEmpty { return null }
+            return LibraryErrorCode(rest.substringBefore(':'), rest.substringAfter(':', missingDelimiterValue = ""))
+        }
+    }
+}
+
 /** The text the user gets for an error. */
 internal object ErrorText {
     /** Why it failed, e.g. "The file is damaged…"; an unexpected error keeps its message. */
     fun reason(context: Context, error: Throwable): String {
+        LibraryErrorCode.of(error)?.text(context)?.let { return it }
         val kind = ErrorKind.of(error)
         val reason = context.getString(kind.reason)
         return if (kind == ErrorKind.UNEXPECTED) "$reason (${error.message ?: error.javaClass.simpleName})" else reason

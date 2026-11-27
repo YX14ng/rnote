@@ -383,4 +383,11 @@
     <string name="failed_import">No se pudo importar el archivo</string>
     <string name="failed_library">No se pudo cambiar la biblioteca</string>
     <string name="failed_read_library">No se pudo leer la biblioteca</string>
+    <string name="library_error_empty_name">el nombre está vacío</string>
+    <string name="library_error_name_starts_with_dot">un nombre no puede empezar con un punto</string>
+    <string name="library_error_name_has_character">un nombre no puede contener «%1$s»</string>
+    <string name="library_error_name_taken">ya hay una carpeta o un cuaderno llamado «%1$s»</string>
+    <string name="library_error_folder_has_folders">«%1$s» tiene carpetas adentro: sacalas antes de borrarla</string>
+    <string name="library_error_no_such_folder">la carpeta «%1$s» ya no existe</string>
+    <string name="library_error_no_such_notebook">el cuaderno «%1$s» ya no existe</string>
 </resources>

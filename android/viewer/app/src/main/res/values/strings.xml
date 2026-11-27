@@ -375,4 +375,11 @@
     <string name="failed_import">Could not import the file</string>
     <string name="failed_library">Could not change the library</string>
     <string name="failed_read_library">Could not read the library</string>
+    <string name="library_error_empty_name">the name is empty</string>
+    <string name="library_error_name_starts_with_dot">a name can’t start with a dot</string>
+    <string name="library_error_name_has_character">a name can’t contain “%1$s”</string>
+    <string name="library_error_name_taken">there is already a folder or notebook named “%1$s”</string>
+    <string name="library_error_folder_has_folders">“%1$s” has folders inside: move them out before deleting it</string>
+    <string name="library_error_no_such_folder">the folder “%1$s” no longer exists</string>
+    <string name="library_error_no_such_notebook">the notebook “%1$s” no longer exists</string>
 </resources>

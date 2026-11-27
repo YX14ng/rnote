@@ -8,7 +8,7 @@ use jni::objects::{JByteArray, JClass, JObject, JString};
 use jni::sys::jint;
 
 use super::common::BridgeError;
-use crate::library_bridge::handle_request;
+use crate::library_bridge::{coded_message, handle_request};
 
 /// `static native String libraryCall(String root, String request)`: runs a JSON request on
 /// the library at `root` and returns the JSON answer; throws with the error's message.
@@ -23,7 +23,8 @@ pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_libraryCa
         .with_env(|env| -> Result<JObject<'caller>, BridgeError> {
             let root = root.try_to_string(env)?;
             let request = request.try_to_string(env)?;
-            let answer = handle_request(Path::new(&root), &request)?;
+            let answer = handle_request(Path::new(&root), &request)
+                .map_err(|error| BridgeError::Rnote(coded_message(&error)))?;
             Ok(env.new_string(answer)?.into())
         })
         .resolve::<ThrowRuntimeExAndDefault>()

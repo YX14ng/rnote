@@ -363,4 +363,11 @@
     <string name="failed_import">无法导入文件</string>
     <string name="failed_library">无法更改资料库</string>
     <string name="failed_read_library">无法读取资料库</string>
+    <string name="library_error_empty_name">名称为空</string>
+    <string name="library_error_name_starts_with_dot">名称不能以点开头</string>
+    <string name="library_error_name_has_character">名称不能包含“%1$s”</string>
+    <string name="library_error_name_taken">已有名为“%1$s”的文件夹或笔记本</string>
+    <string name="library_error_folder_has_folders">“%1$s”内有文件夹：删除前请先移出</string>
+    <string name="library_error_no_such_folder">文件夹“%1$s”已不存在</string>
+    <string name="library_error_no_such_notebook">笔记本“%1$s”已不存在</string>
 </resources>

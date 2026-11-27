@@ -393,4 +393,11 @@
     <string name="failed_import">Не удалось импортировать файл</string>
     <string name="failed_library">Не удалось изменить библиотеку</string>
     <string name="failed_read_library">Не удалось прочитать библиотеку</string>
+    <string name="library_error_empty_name">имя пустое</string>
+    <string name="library_error_name_starts_with_dot">имя не может начинаться с точки</string>
+    <string name="library_error_name_has_character">имя не может содержать «%1$s»</string>
+    <string name="library_error_name_taken">папка или блокнот с именем «%1$s» уже есть</string>
+    <string name="library_error_folder_has_folders">в «%1$s» есть папки: перенесите их, прежде чем удалять</string>
+    <string name="library_error_no_such_folder">папки «%1$s» больше нет</string>
+    <string name="library_error_no_such_notebook">блокнота «%1$s» больше нет</string>
 </resources>
