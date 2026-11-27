@@ -106,14 +106,30 @@ impl Meta {
     }
 
     /// Writes the metadata to `dir`, replacing the file at once so a crash never leaves
-    /// half of it.
+    /// half of it. What another writer (a sync, another window) saved there since this copy
+    /// was read is merged in, entry by entry, as the sync merges two devices' copies: the
+    /// newer entry wins, so nothing saved meanwhile is lost.
     pub(crate) fn save(&self, dir: &Path) -> anyhow::Result<()> {
         let _guard = crate::write_guard();
         let path = dir.join(META_FILE);
+        let on_disk = fs::read(&path).ok().and_then(|bytes| parse(&bytes));
+        let merged = on_disk.map(|on_disk| self.merged_with(on_disk));
         let temporary = dir.join(format!("{META_FILE}.tmp"));
-        fs::write(&temporary, serde_json::to_vec_pretty(self)?)
+        fs::write(&temporary, serde_json::to_vec_pretty(merged.as_ref().unwrap_or(self))?)
             .with_context(|| format!("Writing {}", temporary.display()))?;
         fs::rename(&temporary, &path).with_context(|| format!("Replacing {}", path.display()))
+    }
+
+    /// This copy merged with `other`, entry by entry; unknown keys of this copy win.
+    fn merged_with(&self, other: Self) -> Self {
+        Self {
+            version: VERSION,
+            tags: merge_map(&self.tags, &other.tags),
+            notebook_tags: merge_map(&self.notebook_tags, &other.notebook_tags),
+            notebook_covers: merge_map(&self.notebook_covers, &other.notebook_covers),
+            trash: merge_map(&self.trash, &other.trash),
+            extra: merge_extra(self.extra.clone(), other.extra),
+        }
     }
 
     /// The live tags of the notebook at `path`.
@@ -218,14 +234,7 @@ impl_record!(TagRecord, NotebookTagsRecord, CoverRecord, TrashRecord);
 /// read, or is of another version, counts as missing; it's an error only if both are.
 pub fn merge_meta(local: &[u8], remote: &[u8]) -> anyhow::Result<Vec<u8>> {
     let merged = match (parse(local), parse(remote)) {
-        (Some(local), Some(remote)) => Meta {
-            version: VERSION,
-            tags: merge_map(&local.tags, &remote.tags),
-            notebook_tags: merge_map(&local.notebook_tags, &remote.notebook_tags),
-            notebook_covers: merge_map(&local.notebook_covers, &remote.notebook_covers),
-            trash: merge_map(&local.trash, &remote.trash),
-            extra: merge_extra(local.extra, remote.extra),
-        },
+        (Some(local), Some(remote)) => local.merged_with(remote),
         (Some(meta), None) | (None, Some(meta)) => meta,
         (None, None) => bail!("Neither copy of {META_FILE} can be read"),
     };

@@ -276,3 +276,21 @@ fn merge_keeps_unknown_keys_of_both_sides() {
 
     assert_eq!((merged["x"].clone(), merged["y"].clone()), (1.into(), 3.into()));
 }
+
+#[test]
+fn saving_keeps_what_another_writer_saved_meanwhile() {
+    let dir = tempfile::tempdir().unwrap();
+    write(dir.path(), "a.rnote", b"a");
+    let mut stale = library_at(dir.path());
+    let mut other = library_at(dir.path());
+
+    // A sync or another window saves a tag after `stale` read the library.
+    let tag = other.create_tag("Parcial", 0xFFFF_0000).unwrap();
+    other.set_tags("a.rnote", std::slice::from_ref(&tag)).unwrap();
+    stale.set_cover("a.rnote", Some(0xFF3D_6FB6)).unwrap();
+
+    let reread = library_at(dir.path());
+    let notebook = &reread.notebooks().unwrap()[0];
+    assert_eq!(notebook.tags, vec![tag]);
+    assert_eq!(notebook.cover, Some(0xFF3D_6FB6));
+}
