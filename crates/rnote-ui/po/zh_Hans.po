@@ -4986,6 +4986,15 @@ msgstr "包含空白页"
 msgid "Export the pages with nothing on them too, so the page numbers stay the same. Only for PDF"
 msgstr "也导出没有内容的页面，使页码保持不变。仅适用于 PDF"
 
+#: crates/rnote-ui/src/library/trash_undo.rs
+msgid "“{name}” was moved to the trash"
+msgstr "“{name}”已移到回收站"
+
+#: crates/rnote-ui/src/library/trash_undo.rs
+msgid "{n} notebook was moved to the trash"
+msgid_plural "{n} notebooks were moved to the trash"
+msgstr[0] "{n} 个笔记本已移到回收站"
+
 #~ msgid "Brush Style"
 #~ msgstr "笔刷样式"
 

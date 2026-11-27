@@ -5106,6 +5106,15 @@ msgstr "빈 페이지 포함"
 msgid "Export the pages with nothing on them too, so the page numbers stay the same. Only for PDF"
 msgstr "내용이 없는 페이지도 내보내 페이지 번호가 바뀌지 않게 합니다. PDF 전용"
 
+#: crates/rnote-ui/src/library/trash_undo.rs
+msgid "“{name}” was moved to the trash"
+msgstr "‘{name}’을(를) 휴지통으로 옮겼습니다"
+
+#: crates/rnote-ui/src/library/trash_undo.rs
+msgid "{n} notebook was moved to the trash"
+msgid_plural "{n} notebooks were moved to the trash"
+msgstr[0] "노트 {n}개를 휴지통으로 옮겼습니다"
+
 #~ msgid "Brush Style"
 #~ msgstr "브러시 스타일"
 

@@ -56,6 +56,7 @@ crates/rnote-ui/src/library/mod.rs
 crates/rnote-ui/src/library/open.rs
 crates/rnote-ui/src/library/search.rs
 crates/rnote-ui/src/library/sidebar.rs
+crates/rnote-ui/src/library/trash_undo.rs
 crates/rnote-ui/src/penssidebar/shaperpage.rs
 crates/rnote-ui/src/settingspanel/mod.rs
 crates/rnote-ui/src/settingspanel/penshortcutmodels.rs

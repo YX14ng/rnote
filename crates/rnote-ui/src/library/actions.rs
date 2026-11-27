@@ -268,7 +268,13 @@ impl RnLibraryView {
                 },
             )
             .collect();
-        self.modify_each(closed, |library, path| library.trash(path));
+        let ids = self.modify_each(&closed, |library, path| library.trash(path));
+        let trashed = closed
+            .iter()
+            .zip(ids)
+            .filter_map(|(path, id)| Some((notebook_name(path), id?)))
+            .collect();
+        self.offer_undo_trash(trashed);
     }
 
     /// Lets the user choose the tags of the notebooks at `paths`.
@@ -309,6 +315,14 @@ impl RnLibraryView {
             library.set_tags(&path, &tags)
         });
     }
+}
+
+/// The name of the notebook at `path`: its file name without extension.
+fn notebook_name(path: &str) -> String {
+    Path::new(path).file_stem().map_or_else(
+        || path.to_owned(),
+        |stem| stem.to_string_lossy().into_owned(),
+    )
 }
 
 /// "Close “{name}” first", for a notebook open in a tab.

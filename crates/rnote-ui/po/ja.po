@@ -5158,6 +5158,15 @@ msgstr "空白ページを含める"
 msgid "Export the pages with nothing on them too, so the page numbers stay the same. Only for PDF"
 msgstr "何も書かれていないページも書き出して、ページ番号を変えないようにします。PDF のみ"
 
+#: crates/rnote-ui/src/library/trash_undo.rs
+msgid "“{name}” was moved to the trash"
+msgstr "「{name}」をゴミ箱に移動しました"
+
+#: crates/rnote-ui/src/library/trash_undo.rs
+msgid "{n} notebook was moved to the trash"
+msgid_plural "{n} notebooks were moved to the trash"
+msgstr[0] "{n} 冊のノートをゴミ箱に移動しました"
+
 #~ msgid "Brush Style"
 #~ msgstr "ブラシのスタイル"
 

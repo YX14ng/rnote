@@ -5369,6 +5369,16 @@ msgstr "Incluir las hojas en blanco"
 msgid "Export the pages with nothing on them too, so the page numbers stay the same. Only for PDF"
 msgstr "Exporta también las hojas sin nada, para que los números de página no cambien. Solo para PDF"
 
+#: crates/rnote-ui/src/library/trash_undo.rs
+msgid "“{name}” was moved to the trash"
+msgstr "«{name}» se mandó a la papelera"
+
+#: crates/rnote-ui/src/library/trash_undo.rs
+msgid "{n} notebook was moved to the trash"
+msgid_plural "{n} notebooks were moved to the trash"
+msgstr[0] "{n} cuaderno se mandó a la papelera"
+msgstr[1] "{n} cuadernos se mandaron a la papelera"
+
 #~ msgid "Brush Style"
 #~ msgstr "Estilo del pincel"
 

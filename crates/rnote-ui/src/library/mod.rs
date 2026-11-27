@@ -6,15 +6,16 @@ mod card;
 mod covers;
 pub(crate) mod dialogs;
 pub(crate) mod error_text;
-mod search;
 mod grid;
 mod location;
 mod manage;
 pub(crate) mod open;
+mod search;
 mod sidebar;
 mod tabs;
 mod tagchoice;
 mod thumbnails;
+mod trash_undo;
 
 use std::cell::{Cell, RefCell};
 use std::collections::BTreeSet;
@@ -58,6 +59,8 @@ mod imp {
         pub(crate) thumbnails: Thumbnails,
         pub(crate) busy: busy::Busy,
         pub(crate) actions: gio::SimpleActionGroup,
+        /// The notice offering to undo the last trashing.
+        pub(crate) trash_toast: glib::WeakRef<adw::Toast>,
 
         #[template_child]
         pub(crate) title: TemplateChild<adw::WindowTitle>,

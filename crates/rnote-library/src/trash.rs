@@ -29,11 +29,12 @@ pub struct TrashEntry {
 }
 
 impl Library {
-    /// Sends the notebook at `path` to the trash.
-    pub fn trash(&mut self, path: &str) -> anyhow::Result<()> {
+    /// Sends the notebook at `path` to the trash. Returns its id there, to restore it.
+    pub fn trash(&mut self, path: &str) -> anyhow::Result<String> {
         self.existing_notebook(path)?;
-        self.trash_file(path)?;
-        self.save_meta()
+        let id = self.trash_file(path)?;
+        self.save_meta()?;
+        Ok(id)
     }
 
     /// The notebooks in the trash, sorted by id.
@@ -91,15 +92,15 @@ impl Library {
     }
 
     /// Moves the file at the relative `path` to the trash and records it, without saving
-    /// the metadata.
-    pub(crate) fn trash_file(&mut self, path: &str) -> anyhow::Result<()> {
+    /// the metadata. Returns its id in the trash.
+    pub(crate) fn trash_file(&mut self, path: &str) -> anyhow::Result<String> {
         self.notebook_file(path)?;
         self.trash_relative(path)
     }
 
     /// Like [`Library::trash_file`] for any file in the root or a first-level folder, hidden
     /// ones included; `path` must come from listing the library.
-    pub(crate) fn trash_relative(&mut self, path: &str) -> anyhow::Result<()> {
+    pub(crate) fn trash_relative(&mut self, path: &str) -> anyhow::Result<String> {
         let now = self.now();
         let (_, file_name) = split_path(path);
         let (stem, extension) = split_extension(file_name);
@@ -110,7 +111,7 @@ impl Library {
         // Its tags wait in the trash with it, so a new notebook at its path starts untagged.
         self.meta.move_notebook(path, &trash_key(&id), now);
         self.meta.trash.insert(
-            id,
+            id.clone(),
             TrashRecord {
                 original_path: path.to_owned(),
                 deleted_at: now,
@@ -118,7 +119,7 @@ impl Library {
                 deleted: false,
             },
         );
-        Ok(())
+        Ok(id)
     }
 
     fn remove_from_trash(&mut self, id: &str) -> anyhow::Result<()> {

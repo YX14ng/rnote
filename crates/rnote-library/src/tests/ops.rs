@@ -302,3 +302,15 @@ fn imported_rnote_of_rejects_paths_outside_the_library() {
 
     assert_eq!(library.imported_rnote_of("../x.xopp"), None);
 }
+
+#[test]
+fn trash_returns_the_id_that_restores_it() {
+    let dir = tempfile::tempdir().unwrap();
+    write(dir.path(), "F/b.rnote", b"b");
+    let mut library = library_at(dir.path());
+
+    let id: String = library.trash("F/b.rnote").unwrap();
+
+    assert_eq!(library.trash_entries()[0].id, id);
+    assert_eq!(library.restore(&id).unwrap(), "F/b.rnote");
+}

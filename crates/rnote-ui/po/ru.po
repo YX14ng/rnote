@@ -5284,6 +5284,17 @@ msgstr "Включать пустые страницы"
 msgid "Export the pages with nothing on them too, so the page numbers stay the same. Only for PDF"
 msgstr "Экспортировать и страницы без содержимого, чтобы номера страниц не менялись. Только для PDF"
 
+#: crates/rnote-ui/src/library/trash_undo.rs
+msgid "“{name}” was moved to the trash"
+msgstr "«{name}» перемещён в корзину"
+
+#: crates/rnote-ui/src/library/trash_undo.rs
+msgid "{n} notebook was moved to the trash"
+msgid_plural "{n} notebooks were moved to the trash"
+msgstr[0] "{n} блокнот перемещён в корзину"
+msgstr[1] "{n} блокнота перемещены в корзину"
+msgstr[2] "{n} блокнотов перемещены в корзину"
+
 #~ msgid "Brush Style"
 #~ msgstr "Стиль кисти"
 
