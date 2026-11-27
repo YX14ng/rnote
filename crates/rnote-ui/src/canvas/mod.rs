@@ -2,6 +2,7 @@
 mod canvaslayout;
 pub(crate) mod imexport;
 mod input;
+mod shape_hold;
 
 // Re-exports
 pub(crate) use canvaslayout::RnCanvasLayout;
@@ -96,6 +97,8 @@ mod imp {
         pub(crate) empty: Cell<bool>,
         pub(crate) touch_drawing: Cell<bool>,
         pub(crate) show_drawing_cursor: Cell<bool>,
+        /// Holding the pen still turns the brush stroke into a shape.
+        pub(crate) shape_hold: RefCell<super::shape_hold::ShapeHold>,
         pub(crate) text_input_enabled: Cell<bool>,
 
         pub(crate) last_export_dir: RefCell<Option<gio::File>>,
@@ -196,6 +199,7 @@ mod imp {
                 empty: Cell::new(true),
                 touch_drawing: Cell::new(false),
                 show_drawing_cursor: Cell::new(false),
+                shape_hold: RefCell::default(),
                 text_input_enabled: Cell::new(false),
 
                 last_export_dir: RefCell::new(None),

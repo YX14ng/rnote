@@ -5667,6 +5667,14 @@ msgstr "Todavía no hay etiquetas: creálas desde el panel lateral de la bibliot
 msgid "No tags"
 msgstr "Sin etiquetas"
 
+#: crates/rnote-ui/data/ui/settingspanel.ui
+msgid "Recognize Shapes"
+msgstr "Reconocer formas"
+
+#: crates/rnote-ui/data/ui/settingspanel.ui
+msgid "Hold the pen still at the end of a stroke to turn it into a shape"
+msgstr "Mantené el lápiz quieto al terminar un trazo para convertirlo en una forma"
+
 #~ msgid "Brush Style"
 #~ msgstr "Estilo del pincel"
 

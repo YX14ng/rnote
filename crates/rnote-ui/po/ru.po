@@ -5585,6 +5585,14 @@ msgstr "Меток пока нет: создайте их на боковой п
 msgid "No tags"
 msgstr "Без меток"
 
+#: crates/rnote-ui/data/ui/settingspanel.ui
+msgid "Recognize Shapes"
+msgstr "Распознавать фигуры"
+
+#: crates/rnote-ui/data/ui/settingspanel.ui
+msgid "Hold the pen still at the end of a stroke to turn it into a shape"
+msgstr "Задержите перо в конце штриха, чтобы превратить его в фигуру"
+
 #~ msgid "Brush Style"
 #~ msgstr "Стиль кисти"
 

@@ -5195,3 +5195,11 @@ msgstr ""
 #: crates/rnote-ui/src/library/new_notebook.rs
 msgid "No tags"
 msgstr ""
+
+#: crates/rnote-ui/data/ui/settingspanel.ui
+msgid "Recognize Shapes"
+msgstr ""
+
+#: crates/rnote-ui/data/ui/settingspanel.ui
+msgid "Hold the pen still at the end of a stroke to turn it into a shape"
+msgstr ""

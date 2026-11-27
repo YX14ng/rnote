@@ -201,6 +201,11 @@ pub(crate) fn handle_pointer_controller_event(
                 }
             }
 
+            // A brush stroke that became a shape: the rest of it goes nowhere.
+            if !canvas.shape_hold_follow(pen_state, pen_mode, element.pos) {
+                continue;
+            }
+
             match pen_state {
                 PenState::Up => {
                     canvas.enable_drawing_cursor(false);

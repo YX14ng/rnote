@@ -5287,6 +5287,14 @@ msgstr "還沒有任何標籤：請從筆記庫的側邊面板建立。"
 msgid "No tags"
 msgstr "無標籤"
 
+#: crates/rnote-ui/data/ui/settingspanel.ui
+msgid "Recognize Shapes"
+msgstr "辨識形狀"
+
+#: crates/rnote-ui/data/ui/settingspanel.ui
+msgid "Hold the pen still at the end of a stroke to turn it into a shape"
+msgstr "畫完一筆後讓筆停住，即可將其變為形狀"
+
 #~ msgid "Brush Style"
 #~ msgstr "筆刷樣式"
 

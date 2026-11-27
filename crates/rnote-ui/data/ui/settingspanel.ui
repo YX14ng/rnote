@@ -127,6 +127,13 @@ gets disabled.</property>
                         </child>
                       </object>
                     </child>
+                    <child>
+                      <object class="AdwSwitchRow" id="general_shape_recognition_row">
+                        <property name="title" translatable="yes">Recognize Shapes</property>
+                        <property name="subtitle" translatable="yes">Hold the pen still at the end of a stroke to turn it into a shape</property>
+                        <property name="active">true</property>
+                      </object>
+                    </child>
                   </object>
                 </child>
                 <!-- Format Group -->

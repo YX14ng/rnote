@@ -5401,6 +5401,14 @@ msgstr "아직 태그가 없습니다. 라이브러리의 사이드 패널에서
 msgid "No tags"
 msgstr "태그 없음"
 
+#: crates/rnote-ui/data/ui/settingspanel.ui
+msgid "Recognize Shapes"
+msgstr "도형 인식"
+
+#: crates/rnote-ui/data/ui/settingspanel.ui
+msgid "Hold the pen still at the end of a stroke to turn it into a shape"
+msgstr "획을 그은 끝에서 펜을 멈추면 도형으로 바뀝니다"
+
 #~ msgid "Brush Style"
 #~ msgstr "브러시 스타일"
 

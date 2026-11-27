@@ -5453,6 +5453,14 @@ msgstr "タグはまだありません。ライブラリのサイドパネルか
 msgid "No tags"
 msgstr "タグなし"
 
+#: crates/rnote-ui/data/ui/settingspanel.ui
+msgid "Recognize Shapes"
+msgstr "図形を認識"
+
+#: crates/rnote-ui/data/ui/settingspanel.ui
+msgid "Hold the pen still at the end of a stroke to turn it into a shape"
+msgstr "線を描き終えたところでペンを止めると、図形に変わります"
+
 #~ msgid "Brush Style"
 #~ msgstr "ブラシのスタイル"
 

@@ -5281,6 +5281,14 @@ msgstr "还没有标签：请在资料库的侧边栏中创建。"
 msgid "No tags"
 msgstr "无标签"
 
+#: crates/rnote-ui/data/ui/settingspanel.ui
+msgid "Recognize Shapes"
+msgstr "识别形状"
+
+#: crates/rnote-ui/data/ui/settingspanel.ui
+msgid "Hold the pen still at the end of a stroke to turn it into a shape"
+msgstr "画完一笔后让笔停住，即可将其变为形状"
+
 #~ msgid "Brush Style"
 #~ msgstr "笔刷样式"
 

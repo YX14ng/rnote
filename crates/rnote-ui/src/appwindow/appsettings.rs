@@ -135,6 +135,19 @@ impl RnAppWindow {
             .get_no_changes()
             .build();
 
+        // shape recognition
+        app_settings
+            .bind(
+                "shape-recognition",
+                &self
+                    .sidebar()
+                    .settings_panel()
+                    .general_shape_recognition_row(),
+                "active",
+            )
+            .get_no_changes()
+            .build();
+
         // lock pen tool
         app_settings
             .bind("lock-pen", self, "lock-pen")

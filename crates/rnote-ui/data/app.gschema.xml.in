@@ -157,6 +157,10 @@
       <default>true</default>
       <summary>Whether the drawing cursor is visible</summary>
     </key>
+    <key name="shape-recognition" type="b">
+      <default>true</default>
+      <summary>Whether holding the pen still at the end of a brush stroke turns it into a shape</summary>
+    </key>
     <key name="drawing-cursor" type="s">
       <default>"cursor-dot-small"</default>
       <summary>The drawing cursor</summary>
