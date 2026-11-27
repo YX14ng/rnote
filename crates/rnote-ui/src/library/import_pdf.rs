@@ -3,12 +3,9 @@
 //! written only once every page is in, so cancelling leaves nothing behind.
 
 use std::ops::Range;
-use std::sync::Arc;
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::atomic::Ordering;
 
 use adw::prelude::*;
-use futures::StreamExt;
-use futures::channel::mpsc;
 use gettextrs::gettext;
 use gtk4::{gio, glib, glib::clone};
 use rnote_library::creation::{
@@ -17,7 +14,7 @@ use rnote_library::creation::{
 use tracing::error;
 
 use super::new_notebook::{combo, size_names};
-use super::{RnLibraryView, create, dialogs, error_text, import};
+use super::{RnLibraryView, create, dialogs, error_text, import, progress};
 use crate::RnAppWindow;
 
 const ACCEPT: &str = "import";
@@ -25,7 +22,7 @@ const CANCEL: &str = "cancel";
 
 /// The pages from `first` to `last`, counted from one, of a PDF of `count` pages, as a
 /// range counted from zero; pages outside the PDF are left out.
-pub(super) fn page_range(first: u32, last: u32, count: usize) -> Range<usize> {
+pub(crate) fn page_range(first: u32, last: u32, count: usize) -> Range<usize> {
     let count = count.max(1);
     let first = (first.max(1) as usize).min(count);
     let last = (last as usize).clamp(first, count);
@@ -38,14 +35,6 @@ struct PdfChoice {
     size: usize,
     pages: Range<usize>,
     vector: bool,
-}
-
-/// What the import thread tells.
-enum Step {
-    /// This many pages are in.
-    Page(usize),
-    /// Finished: the notebook's bytes, or `None` if cancelled.
-    Done(anyhow::Result<Option<Vec<u8>>>),
 }
 
 impl RnLibraryView {
@@ -211,85 +200,25 @@ async fn import_with_progress(
     file_name: String,
 ) -> Option<anyhow::Result<Vec<u8>>> {
     let total = pages.len();
-    let label = gtk4::Label::new(None);
-    let bar = gtk4::ProgressBar::new();
-    let hint = gtk4::Label::builder()
-        .label(gettext("If you cancel, no half notebook is left."))
-        .wrap(true)
-        .css_classes(["dim-label"])
-        .build();
-    let content = gtk4::Box::builder()
-        .orientation(gtk4::Orientation::Vertical)
-        .spacing(12)
-        .build();
-    content.append(&label);
-    content.append(&bar);
-    content.append(&hint);
-    let show = move |done: usize| {
-        label.set_label(
-            &gettext("Page {n} of {total}")
-                .replace("{n}", &(done + 1).min(total).to_string())
-                .replace("{total}", &total.to_string()),
-        );
-        bar.set_fraction(done as f64 / total.max(1) as f64);
-    };
-    show(0);
-    let dialog = adw::AlertDialog::builder()
-        .heading(gettext("Importing the PDF"))
-        .extra_child(&content)
-        .close_response(CANCEL)
-        .build();
-    dialog.add_response(CANCEL, &gettext("Cancel"));
-    let cancelled = Arc::new(AtomicBool::new(false));
-    dialog.connect_response(
-        None,
-        clone!(
-            #[strong]
-            cancelled,
-            move |_, _| cancelled.store(true, Ordering::Relaxed)
-        ),
-    );
-    dialog.present(Some(appwindow));
-
-    let (sender, mut receiver) = mpsc::unbounded();
-    let stop = cancelled.clone();
-    std::thread::spawn(move || {
-        let result = (|| {
-            let mut import =
-                PdfImport::new(bytes, password, &setup, pages, vector).map_err(|e| match e {
-                    PdfOpenError::NeedsPassword => anyhow::anyhow!("The PDF needs a password"),
-                    PdfOpenError::Invalid(e) => e,
-                })?;
+    progress::run_with_progress(
+        appwindow,
+        &gettext("Importing the PDF"),
+        total,
+        move |step, cancelled| {
+            let mut import = PdfImport::new(bytes, password, &setup, pages, vector)
+                .map_err(progress::pdf_error)?;
             let mut done = 0;
-            while !stop.load(Ordering::Relaxed) && import.import_next()? {
+            while !cancelled.load(Ordering::Relaxed) && import.import_next()? {
                 done += 1;
-                let _ = sender.unbounded_send(Step::Page(done));
+                step(done);
             }
-            if stop.load(Ordering::Relaxed) {
+            if cancelled.load(Ordering::Relaxed) {
                 return Ok(None);
             }
             import.finish(&file_name).map(Some)
-        })();
-        let _ = sender.unbounded_send(Step::Done(result));
-    });
-    let mut result = None;
-    while let Some(step) = receiver.next().await {
-        match step {
-            Step::Page(done) => show(done),
-            Step::Done(done) => {
-                result = Some(done);
-                break;
-            }
-        }
-    }
-    // Before closing the dialog: closing it answers "cancel".
-    let cancelled = cancelled.load(Ordering::Relaxed);
-    dialog.force_close();
-    match result? {
-        Ok(Some(notebook)) if !cancelled => Some(Ok(notebook)),
-        Ok(_) => None,
-        Err(e) => Some(Err(e)),
-    }
+        },
+    )
+    .await
 }
 
 #[cfg(test)]

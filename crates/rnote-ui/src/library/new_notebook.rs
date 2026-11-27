@@ -303,7 +303,7 @@ pub(super) fn size_labels() -> Vec<String> {
 }
 
 /// A row to choose one of `labels`, with `selected` chosen.
-pub(super) fn combo(title: &str, labels: &[String], selected: usize) -> adw::ComboRow {
+pub(crate) fn combo(title: &str, labels: &[String], selected: usize) -> adw::ComboRow {
     let labels: Vec<&str> = labels.iter().map(String::as_str).collect();
     let row = adw::ComboRow::builder()
         .title(title)
