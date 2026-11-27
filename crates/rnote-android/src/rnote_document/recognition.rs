@@ -5,14 +5,11 @@
 use std::time::Instant;
 
 use parry2d_f64::math::Vector2;
-use rnote_compose::PenEvent;
-use rnote_compose::penpath::Element;
-use rnote_engine::pens::PenMode;
+use rnote_engine::shape_recognition::StrokeTracker;
 
 use super::{EditState, RnoteDocument, ViewSize};
 use crate::pen_input::{PenPhase, PenSample};
 use crate::render::Viewport;
-use rnote_engine::shape_recognition;
 
 /// Whether recognition is on, and the stroke being drawn.
 #[derive(Debug, Default)]
@@ -20,9 +17,7 @@ pub(super) struct Recognition {
     enabled: bool,
     /// Smallest size, in screen pixels, of strokes that may become shapes.
     min_size_px: f64,
-    points: Vec<Vector2>,
-    /// The current stroke became a shape: its remaining samples are dropped.
-    snapped: bool,
+    tracker: StrokeTracker,
 }
 
 impl RnoteDocument {
@@ -31,7 +26,7 @@ impl RnoteDocument {
     pub fn set_shape_recognition(&mut self, enabled: bool, min_size_px: f64) -> EditState {
         self.recognition.enabled = enabled;
         self.recognition.min_size_px = min_size_px;
-        self.recognition.points.clear();
+        self.recognition.tracker.reset();
         self.edit_state()
     }
 
@@ -42,31 +37,18 @@ impl RnoteDocument {
     /// samples, up to and including the pen lifting, are ignored. Otherwise the stroke goes
     /// on as if nothing happened.
     pub fn snap_to_shape(&mut self, viewport: Viewport, view_size: ViewSize) -> EditState {
-        let unchanged = self.edit_state();
-        let recognition = &self.recognition;
-        if !recognition.enabled || recognition.snapped {
-            return unchanged;
+        let min_size = self.recognition.min_size_px / viewport.zoom.max(f64::MIN_POSITIVE);
+        if !self.recognition.enabled || !self.recognition.tracker.looks_like_a_shape(min_size) {
+            return self.edit_state();
         }
-        let min_size = recognition.min_size_px / viewport.zoom.max(f64::MIN_POSITIVE);
-        let (Some(shape), Some(&last)) = (
-            shape_recognition::recognize(&recognition.points, min_size),
-            recognition.points.last(),
-        ) else {
-            return unchanged;
-        };
         let bounds_before = self.bounds();
         let now = Instant::now();
         let mut flags = self.sync_camera(viewport, view_size);
-        // End the stroke where the pen rests, then swap it for the shape: undoing removes the
-        // freehand stroke, and recording the shape also drops it from the redo history.
-        let up =
-            PenEvent::Up { element: Element::new(last, 0.5), modifier_keys: Default::default() };
-        let (_propagation, up_flags) = self.engine.handle_pen_event(up, Some(PenMode::Pen), now);
-        flags |= up_flags;
-        flags |= self.engine.undo(now);
-        flags |= self.engine.insert_shapes(vec![shape]);
-        self.recognition.points.clear();
-        self.recognition.snapped = true;
+        let Some(snap_flags) = self.recognition.tracker.snap(&mut self.engine, min_size, now)
+        else {
+            return self.finish_edit(flags, bounds_before);
+        };
+        flags |= snap_flags;
         EditState { shape_snapped: true, ..self.finish_edit(flags, bounds_before) }
     }
 
@@ -75,27 +57,14 @@ impl RnoteDocument {
     pub(super) fn follow_brush_stroke(&mut self, phase: PenPhase, samples: &[PenSample]) -> bool {
         let recognition = &mut self.recognition;
         let ends = matches!(phase, PenPhase::Up | PenPhase::Cancel);
-        if recognition.snapped {
-            if ends {
-                recognition.snapped = false;
-            }
-            return false;
-        }
-        if recognition.enabled && phase == PenPhase::Down {
-            recognition
-                .points
-                .extend(samples.iter().map(|sample| Vector2::new(sample.x, sample.y)));
-        }
-        if ends {
-            recognition.points.clear();
-        }
-        true
+        let drawing = recognition.enabled && phase == PenPhase::Down;
+        let points = samples.iter().map(|sample| Vector2::new(sample.x, sample.y));
+        recognition.tracker.follow(drawing, ends, points)
     }
 
     /// Forgets the stroke being followed, e.g. when another tool takes over.
     pub(super) fn reset_recognition(&mut self) {
-        self.recognition.points.clear();
-        self.recognition.snapped = false;
+        self.recognition.tracker.reset();
     }
 }
 
