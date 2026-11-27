@@ -72,6 +72,8 @@ internal class PagesController(
 
     override fun movePage(from: Int, to: Int) {
         canvas.applyEdit { document -> document.movePage(from, to) }
+        // The sheets keep their number, but more than those on screen changed: redraw all.
+        panel?.refreshNow()
     }
 
     override fun insertPdf(at: Int) {

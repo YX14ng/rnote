@@ -124,6 +124,8 @@ internal class PagesPanel(
     }
 
     private val refreshNow = Runnable {
+        // Taken now: a refresh asked for meanwhile must not turn this whole one into a partial one.
+        val onlyEdited = editedOnly
         renderer.query({ document ->
             val pages = document.pageCount()
             val sheet = if (pages != null) document.sheetSize() else null
@@ -139,7 +141,7 @@ internal class PagesPanel(
                 sheetWidth = sheet.first
                 sheetHeight = sheet.second
                 withContent = content
-                if (editedOnly && sameSheets) {
+                if (onlyEdited && sameSheets) {
                     for (page in Pages.visible(viewTop, visibleHeight, sheetHeight, pageCount)) {
                         pageGenerations[page]++
                         drawing.remove(page)
