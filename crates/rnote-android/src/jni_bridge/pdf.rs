@@ -88,22 +88,6 @@ pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_pdfImport
         .resolve::<ThrowRuntimeExAndDefault>()
 }
 
-/// `static native int pdfImportTotal(long handle)`: the number of pages to import.
-#[unsafe(no_mangle)]
-pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_pdfImportTotal<'caller>(
-    mut unowned_env: EnvUnowned<'caller>,
-    _class: JClass<'caller>,
-    handle: jlong,
-) -> jint {
-    unowned_env
-        .with_env(|_env| -> Result<jint, BridgeError> {
-            // SAFETY: `handle` comes from `PdfImporter`, which upholds the module contract.
-            let import = unsafe { import_from_handle(handle) }?;
-            Ok(jint::try_from(import.total()).unwrap_or(jint::MAX))
-        })
-        .resolve::<ThrowRuntimeExAndDefault>()
-}
-
 /// `static native boolean pdfImportNext(long handle)`: imports the next page; false once
 /// every page is imported.
 #[unsafe(no_mangle)]

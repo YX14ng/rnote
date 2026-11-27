@@ -264,9 +264,6 @@ internal object NativeBridge {
         vector: Boolean,
     ): Long
 
-    /** The number of pages the import at [handle] brings in. */
-    @JvmStatic external fun pdfImportTotal(handle: Long): Int
-
     /** Imports the next page; false once every page is imported. Blocks while it works. */
     @JvmStatic external fun pdfImportNext(handle: Long): Boolean
 
