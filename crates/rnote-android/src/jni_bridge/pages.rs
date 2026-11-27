@@ -12,7 +12,7 @@ use jni::sys::{jboolean, jint, jlong};
 
 use super::common::{BridgeError, document_from_handle, edit, edit_flags};
 use super::creation::optional_string;
-use crate::pdf_import::PdfPages;
+use rnote_library::creation::PdfPages;
 
 /// What `pageCount` returns for a document without sheets.
 const NO_PAGES: jint = -1;

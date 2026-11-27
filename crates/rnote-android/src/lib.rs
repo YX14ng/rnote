@@ -15,14 +15,7 @@ mod jni_bridge;
 #[cfg_attr(not(target_os = "android"), allow(dead_code))]
 mod ink_index;
 mod library_bridge;
-// Only the JNI entry points, built for Android, call them outside of tests.
-#[cfg_attr(not(target_os = "android"), allow(dead_code))]
-mod notebook_defaults;
-#[cfg_attr(not(target_os = "android"), allow(dead_code))]
-mod notebook_setup;
 mod pdf_export;
-#[cfg_attr(not(target_os = "android"), allow(dead_code))]
-mod pdf_import;
 mod pen_input;
 mod render;
 mod rnote_document;

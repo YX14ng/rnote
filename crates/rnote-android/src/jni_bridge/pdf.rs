@@ -11,7 +11,7 @@ use jni::sys::{jboolean, jint, jlong};
 
 use super::common::BridgeError;
 use super::creation::{optional_string, setup_from_json};
-use crate::pdf_import::{PdfImport, PdfOpenError, pdf_page_count};
+use rnote_library::creation::{PdfImport, PdfOpenError, pdf_page_count};
 
 /// What `pdfPageCount` returns for a PDF that needs a (different) password.
 const NEEDS_PASSWORD: jint = -1;

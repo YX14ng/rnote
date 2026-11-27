@@ -4,6 +4,7 @@
 //! The library is plain files, so other programs (and the sync) can work on it too.
 
 mod covers;
+pub mod creation;
 mod errors;
 mod import;
 mod meta;

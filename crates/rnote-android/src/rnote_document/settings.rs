@@ -76,14 +76,14 @@ impl RnoteDocument {
     /// Changes the page size, in millimeters.
     pub fn set_page_size(&mut self, width_mm: f64, height_mm: f64) -> EditState {
         let bounds_before = self.bounds();
-        let flags = document_settings::apply_page_size(&mut self.engine, width_mm, height_mm);
+        let flags = rnote_library::creation::apply_page_size(&mut self.engine, width_mm, height_mm);
         self.finish_settings_change(flags, bounds_before)
     }
 
     /// Changes how the document grows.
     pub fn set_layout(&mut self, layout: Layout) -> EditState {
         let bounds_before = self.bounds();
-        let flags = document_settings::apply_layout(&mut self.engine, layout);
+        let flags = rnote_library::creation::apply_layout(&mut self.engine, layout);
         self.finish_settings_change(flags, bounds_before)
     }
 
@@ -96,7 +96,7 @@ impl RnoteDocument {
         pattern_size: f64,
     ) -> EditState {
         let bounds_before = self.bounds();
-        document_settings::apply_background(
+        rnote_library::creation::apply_background(
             &mut self.engine,
             color,
             pattern,

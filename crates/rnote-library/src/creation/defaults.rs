@@ -7,14 +7,14 @@ use std::path::Path;
 
 use anyhow::Context;
 
-use crate::notebook_setup::{DARK_LINES, DARK_PAPER, NotebookSetup};
+use super::setup::{DARK_LINES, DARK_PAPER, NotebookSetup};
 
 /// The key of the notebooks outside any folder.
 const ROOT_KEY: &str = "";
 
 /// The setup last remembered for `folder` (`None` = outside any folder) in `file`; the
 /// default one if there is none or the file can't be read.
-pub(crate) fn defaults_for(file: &Path, folder: Option<&str>) -> NotebookSetup {
+pub fn defaults_for(file: &Path, folder: Option<&str>) -> NotebookSetup {
     let setup = read(file).remove(folder.unwrap_or(ROOT_KEY)).unwrap_or_default();
     with_current_dark_paper(setup)
 }
@@ -32,7 +32,7 @@ fn with_current_dark_paper(setup: NotebookSetup) -> NotebookSetup {
 }
 
 /// Remembers `setup` for `folder` in `file`, replacing the file at once.
-pub(crate) fn remember(
+pub fn remember_defaults(
     file: &Path,
     folder: Option<&str>,
     setup: &NotebookSetup,
@@ -48,6 +48,3 @@ pub(crate) fn remember(
 fn read(file: &Path) -> BTreeMap<String, NotebookSetup> {
     fs::read(file).ok().and_then(|bytes| serde_json::from_slice(&bytes).ok()).unwrap_or_default()
 }
-
-#[cfg(test)]
-mod tests;

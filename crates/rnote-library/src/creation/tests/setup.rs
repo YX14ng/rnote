@@ -1,5 +1,3 @@
-#![allow(clippy::unwrap_used)]
-
 use std::io::Cursor;
 
 use image::{DynamicImage, ImageFormat, RgbImage};
@@ -10,8 +8,11 @@ use rnote_engine::document::background::PatternStyle;
 use rnote_engine::engine::EngineSnapshot;
 use rnote_engine::strokes::{BitmapImage, Stroke};
 
-use super::{NotebookSetup, SetupLayout, SetupPattern, image_notebook_bytes, new_notebook_bytes};
-use crate::document_settings::{DocumentSettings, document_settings};
+use rnote_compose::Color;
+
+use crate::creation::{
+    NotebookSetup, SetupLayout, SetupPattern, image_notebook_bytes, new_notebook_bytes,
+};
 
 const MM_PER_INCH: f64 = 25.4;
 
@@ -31,8 +32,40 @@ fn reopen(bytes: Vec<u8>) -> (Engine, Vec<BitmapImage>) {
     (engine, images)
 }
 
-fn settings_of(bytes: Vec<u8>) -> DocumentSettings {
-    document_settings(&reopen(bytes).0)
+/// What a test checks of a notebook's paper, with sizes in millimeters.
+#[derive(Debug)]
+struct Paper {
+    page_width_mm: f64,
+    page_height_mm: f64,
+    page_width: f64,
+    layout: Layout,
+    background_color: Color,
+    pattern: PatternStyle,
+    pattern_color: Color,
+    pattern_size: f64,
+}
+
+fn settings_of(bytes: Vec<u8>) -> Paper {
+    let engine = reopen(bytes).0;
+    let config = &engine.document.config;
+    let format = &config.format;
+    let to_mm = |pixels: f64| pixels / format.dpi() * MM_PER_INCH;
+    Paper {
+        page_width_mm: to_mm(format.width()),
+        page_height_mm: to_mm(format.height()),
+        page_width: format.width(),
+        layout: config.layout,
+        background_color: config.background.color,
+        pattern: config.background.pattern,
+        pattern_color: config.background.pattern_color,
+        pattern_size: config.background.pattern_size.y,
+    }
+}
+
+/// `color` as ARGB.
+fn argb(color: Color) -> u32 {
+    let channel = |value: f64| (value.clamp(0.0, 1.0) * 255.0).round() as u8;
+    u32::from_be_bytes([channel(color.a), channel(color.r), channel(color.g), channel(color.b)])
 }
 
 fn close(a: f64, b: f64, tolerance: f64) -> bool {
@@ -96,8 +129,8 @@ fn default_setup_is_a4_dark_grid_5mm() {
     let dpi = settings.page_width / settings.page_width_mm * MM_PER_INCH;
     assert!(close(settings.pattern_size, 5.0 / MM_PER_INCH * dpi, 0.01), "{settings:?}");
     // StarNote's dark paper: black, with dark gray lines.
-    assert_eq!(crate::android_color::color_to_argb(settings.background_color) as u32, 0xFF00_0000);
-    assert_eq!(crate::android_color::color_to_argb(settings.pattern_color) as u32, 0xFF40_4040);
+    assert_eq!(argb(settings.background_color), 0xFF00_0000);
+    assert_eq!(argb(settings.pattern_color), 0xFF40_4040);
 }
 
 #[test]
@@ -119,8 +152,8 @@ fn setup_is_applied() {
     assert!(close(settings.page_height_mm, 215.9, 0.01), "{settings:?}");
     assert_eq!(settings.layout, Layout::Infinite);
     assert_eq!(settings.pattern, PatternStyle::Lines);
-    assert_eq!(crate::android_color::color_to_argb(settings.background_color) as u32, 0xFFFB_F6E9);
-    assert_eq!(crate::android_color::color_to_argb(settings.pattern_color) as u32, 0xFFC8_CCD6);
+    assert_eq!(argb(settings.background_color), 0xFFFB_F6E9);
+    assert_eq!(argb(settings.pattern_color), 0xFFC8_CCD6);
     let dpi = settings.page_width / settings.page_width_mm * MM_PER_INCH;
     assert!(close(settings.pattern_size, 8.0 / MM_PER_INCH * dpi, 0.01), "{settings:?}");
 }

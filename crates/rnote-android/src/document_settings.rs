@@ -1,6 +1,5 @@
 //! Text format, shape style and document settings: what the formatting menus change.
 
-use parry2d_f64::math::Vector2;
 use rnote_compose::Color;
 use rnote_engine::document::Layout;
 use rnote_engine::document::background::PatternStyle;
@@ -113,41 +112,6 @@ pub(crate) fn document_settings(engine: &Engine) -> DocumentSettings {
     }
 }
 
-/// Changes the page size, keeping the document's resolution.
-pub(crate) fn apply_page_size(engine: &mut Engine, width_mm: f64, height_mm: f64) -> WidgetFlags {
-    let format = &mut engine.document.config.format;
-    let to_pixels = |mm: f64| mm / MM_PER_INCH * format.dpi();
-    let (width, height) = (to_pixels(width_mm), to_pixels(height_mm));
-    format.set_width(width);
-    format.set_height(height);
-    // Like the desktop app: the pages follow the new format, content stays where it is.
-    engine.doc_resize_to_fit_content()
-}
-
-/// Changes how the document grows.
-pub(crate) fn apply_layout(engine: &mut Engine, layout: Layout) -> WidgetFlags {
-    engine.set_doc_layout(layout)
-}
-
-/// Smallest and largest pattern spacing offered, in document units.
-const PATTERN_SIZE_RANGE: (f64, f64) = (4.0, 512.0);
-
-/// Changes the background color and pattern; `pattern_size` is the spacing in both directions.
-pub(crate) fn apply_background(
-    engine: &mut Engine,
-    color: Color,
-    pattern: PatternStyle,
-    pattern_color: Color,
-    pattern_size: f64,
-) {
-    let background = &mut engine.document.config.background;
-    background.color = color;
-    background.pattern = pattern;
-    background.pattern_color = pattern_color;
-    let (min, max) = PATTERN_SIZE_RANGE;
-    background.pattern_size = Vector2::splat(pattern_size.clamp(min, max));
-}
-
 /// Shows or hides the page outlines.
 pub(crate) fn apply_page_borders(engine: &mut Engine, show: bool) {
     engine.document.config.format.show_borders = show;
@@ -161,7 +125,7 @@ mod tests {
     fn page_size_round_trips_through_millimeters() {
         let mut engine = Engine::default();
 
-        let _flags = apply_page_size(&mut engine, 210.0, 297.0);
+        let _flags = rnote_library::creation::apply_page_size(&mut engine, 210.0, 297.0);
         let settings = document_settings(&engine);
 
         assert!((settings.page_width_mm - 210.0).abs() < 0.01, "got {settings:?}");

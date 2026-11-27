@@ -1,8 +1,8 @@
 //! PDF pages and pictures under the ink are drawn from rasters kept between frames.
 
 use crate::image_layer::ImageLayer;
-use crate::pdf_import::PdfPages;
 use crate::render::BYTES_PER_PIXEL;
+use rnote_library::creation::PdfPages;
 
 use super::*;
 

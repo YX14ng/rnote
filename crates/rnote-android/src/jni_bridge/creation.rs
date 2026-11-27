@@ -9,8 +9,9 @@ use jni::errors::ThrowRuntimeExAndDefault;
 use jni::objects::{JByteArray, JClass, JObject, JString};
 
 use super::common::BridgeError;
-use crate::notebook_defaults::{defaults_for, remember};
-use crate::notebook_setup::{NotebookSetup, image_notebook_bytes, new_notebook_bytes};
+use rnote_library::creation::{
+    NotebookSetup, defaults_for, image_notebook_bytes, new_notebook_bytes, remember_defaults,
+};
 
 pub(super) fn setup_from_json(json: &str) -> anyhow::Result<NotebookSetup> {
     serde_json::from_str(json).context("Reading the notebook setup")
@@ -99,7 +100,7 @@ pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_rememberN
             let file = file.try_to_string(env)?;
             let folder = optional_string(env, &folder)?;
             let setup = setup_from_json(&setup_json.try_to_string(env)?)?;
-            remember(Path::new(&file), folder.as_deref(), &setup)?;
+            remember_defaults(Path::new(&file), folder.as_deref(), &setup)?;
             Ok(())
         })
         .resolve::<ThrowRuntimeExAndDefault>()

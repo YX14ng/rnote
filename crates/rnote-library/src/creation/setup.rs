@@ -1,4 +1,4 @@
-//! A new notebook made from what the "new notebook" screen chose: page size, how pages
+//! A new notebook made from what the "new notebook" dialog chose: page size, how pages
 //! grow, paper color, template and spacing, optionally with an image on its first page.
 
 use std::io::Cursor;
@@ -14,8 +14,7 @@ use rnote_engine::strokes::{BitmapImage, Stroke};
 use rnote_engine::{Engine, WidgetFlags};
 use serde::{Deserialize, Serialize};
 
-use crate::android_color::color_from_argb;
-use crate::document_settings::{apply_background, apply_layout, apply_page_size};
+use super::paper::{apply_background, apply_layout, apply_page_size, color_from_argb};
 
 const MM_PER_INCH: f64 = 25.4;
 /// The longest side an inserted image keeps, in pixels. The engine keeps images as raw
@@ -26,7 +25,7 @@ const MAX_IMAGE_SIDE: u32 = 1600;
 /// How the pages of a new notebook grow.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
-pub(crate) enum SetupLayout {
+pub enum SetupLayout {
     /// Sheets of the chosen size.
     FixedSize,
     /// One long page downwards.
@@ -38,7 +37,7 @@ pub(crate) enum SetupLayout {
 /// The template drawn on the paper.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
-pub(crate) enum SetupPattern {
+pub enum SetupPattern {
     /// Blank.
     None,
     /// Ruled lines.
@@ -51,7 +50,7 @@ pub(crate) enum SetupPattern {
 
 /// What a new notebook starts with.
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
-pub(crate) struct NotebookSetup {
+pub struct NotebookSetup {
     /// Page width in millimeters.
     pub page_width_mm: f64,
     /// Page height in millimeters.
@@ -71,9 +70,9 @@ pub(crate) struct NotebookSetup {
 }
 
 /// The dark paper: black, as StarNote's.
-pub(crate) const DARK_PAPER: u32 = 0xFF00_0000;
+pub const DARK_PAPER: u32 = 0xFF00_0000;
 /// The lines on the dark paper: dark gray, as StarNote's.
-pub(crate) const DARK_LINES: u32 = 0xFF40_4040;
+pub const DARK_LINES: u32 = 0xFF40_4040;
 
 impl Default for NotebookSetup {
     /// A4 portrait sheets, dark paper with a 5 mm grid, no cover. The dark paper is
@@ -93,16 +92,16 @@ impl Default for NotebookSetup {
 }
 
 /// An engine with an empty document set up as `setup` says.
-pub(crate) fn engine_with_setup(setup: &NotebookSetup) -> Engine {
+pub fn engine_with_setup(setup: &NotebookSetup) -> Engine {
     let mut engine = Engine::default();
     let _flags: WidgetFlags =
         apply_page_size(&mut engine, setup.page_width_mm, setup.page_height_mm);
     let pattern_size = setup.pattern_size_mm / MM_PER_INCH * engine.document.config.format.dpi();
     apply_background(
         &mut engine,
-        color_from_argb(setup.background_argb as i32),
+        color_from_argb(setup.background_argb),
         pattern_style(setup.pattern),
-        color_from_argb(setup.pattern_argb as i32),
+        color_from_argb(setup.pattern_argb),
         pattern_size,
     );
     let _flags = apply_layout(&mut engine, layout(setup.layout));
@@ -110,17 +109,14 @@ pub(crate) fn engine_with_setup(setup: &NotebookSetup) -> Engine {
 }
 
 /// The `.rnote` bytes of an empty notebook set up as `setup` says.
-pub(crate) fn new_notebook_bytes(
-    setup: &NotebookSetup,
-    file_name: &str,
-) -> anyhow::Result<Vec<u8>> {
+pub fn new_notebook_bytes(setup: &NotebookSetup, file_name: &str) -> anyhow::Result<Vec<u8>> {
     save(&engine_with_setup(setup), file_name)
 }
 
 /// The `.rnote` bytes of a notebook set up as `setup` says with the image `image` (PNG,
 /// JPEG, ...) at the top of its first page, across the page width. Photos are turned
 /// upright as their EXIF data says and scaled down to [`MAX_IMAGE_SIDE`].
-pub(crate) fn image_notebook_bytes(
+pub fn image_notebook_bytes(
     setup: &NotebookSetup,
     image: &[u8],
     file_name: &str,
@@ -142,7 +138,7 @@ pub(crate) fn image_notebook_bytes(
 
 /// `image` decoded, turned upright, scaled down to [`MAX_IMAGE_SIDE`] and encoded as PNG,
 /// with its size in pixels.
-pub(crate) fn upright_png(image: &[u8]) -> anyhow::Result<(Vec<u8>, (u32, u32))> {
+pub fn upright_png(image: &[u8]) -> anyhow::Result<(Vec<u8>, (u32, u32))> {
     let mut decoder = ImageReader::new(Cursor::new(image))
         .with_guessed_format()?
         .into_decoder()
@@ -179,6 +175,3 @@ fn pattern_style(pattern: SetupPattern) -> PatternStyle {
         SetupPattern::Dots => PatternStyle::Dots,
     }
 }
-
-#[cfg(test)]
-mod tests;

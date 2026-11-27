@@ -5,7 +5,7 @@ use rnote_compose::shapes::Shapeable;
 use rnote_engine::strokes::Stroke;
 
 use super::*;
-use crate::pdf_import::PdfPages;
+use rnote_library::creation::PdfPages;
 
 const PDF: &[u8] = include_bytes!("../../tests/fixtures/tres_paginas.pdf");
 

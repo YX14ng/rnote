@@ -16,14 +16,14 @@ use rnote_engine::engine::import::{PdfImportPageSpacing, PdfImportPrefs};
 use rnote_engine::strokes::{BitmapImage, Stroke, VectorImage};
 use rnote_engine::{Engine, WidgetFlags};
 
-use crate::notebook_setup::{NotebookSetup, engine_with_setup};
+use super::setup::{NotebookSetup, engine_with_setup};
 
 /// The scale of pages imported as images, as the desktop app does.
 const BITMAP_SCALE: f64 = 1.8;
 
 /// Why a PDF can't be opened.
 #[derive(Debug)]
-pub(crate) enum PdfOpenError {
+pub enum PdfOpenError {
     /// It is encrypted and no password, or a wrong one, was given.
     NeedsPassword,
     /// It can't be read, or the pages asked for aren't in it.
@@ -31,7 +31,7 @@ pub(crate) enum PdfOpenError {
 }
 
 /// The number of pages of the PDF `bytes`, opened with `password` if given.
-pub(crate) fn pdf_page_count(bytes: &[u8], password: Option<&str>) -> Result<usize, PdfOpenError> {
+pub fn pdf_page_count(bytes: &[u8], password: Option<&str>) -> Result<usize, PdfOpenError> {
     let data = Arc::new(bytes.to_vec());
     let pdf = match password {
         Some(password) => Pdf::new_with_password(data, password),
@@ -48,7 +48,7 @@ pub(crate) fn pdf_page_count(bytes: &[u8], password: Option<&str>) -> Result<usi
 
 /// The pages of a PDF made into images one at a time, each as wide as a sheet of `format`
 /// and with its top left at the origin.
-pub(crate) struct PdfPages {
+pub struct PdfPages {
     bytes: Vec<u8>,
     password: Option<String>,
     format: Format,
@@ -61,7 +61,7 @@ pub(crate) struct PdfPages {
 impl PdfPages {
     /// Starts reading `pages` (0-based) of the PDF `bytes`, as vector images or, if `vector`
     /// is false, as bitmaps.
-    pub(crate) fn new(
+    pub fn new(
         bytes: Vec<u8>,
         password: Option<String>,
         pages: Range<usize>,
@@ -80,12 +80,12 @@ impl PdfPages {
     }
 
     /// The number of pages to read.
-    pub(crate) fn total(&self) -> usize {
+    pub fn total(&self) -> usize {
         self.pages.len()
     }
 
     /// Reads the next page; `false` once every page is read.
-    pub(crate) fn import_next(&mut self) -> anyhow::Result<bool> {
+    pub fn import_next(&mut self) -> anyhow::Result<bool> {
         if self.next >= self.pages.end {
             return Ok(false);
         }
@@ -116,7 +116,7 @@ impl PdfPages {
     }
 
     /// The pages read so far, in order.
-    pub(crate) fn into_pages(self) -> Vec<Stroke> {
+    pub fn into_pages(self) -> Vec<Stroke> {
         self.imported
     }
 
@@ -126,7 +126,7 @@ impl PdfPages {
 }
 
 /// A PDF being imported as a new notebook.
-pub(crate) struct PdfImport {
+pub struct PdfImport {
     engine: Engine,
     pages: PdfPages,
 }
@@ -134,7 +134,7 @@ pub(crate) struct PdfImport {
 impl PdfImport {
     /// Starts importing `pages` (0-based) of the PDF `bytes` into a notebook set up as
     /// `setup` says, as vector images or, if `vector` is false, as bitmaps.
-    pub(crate) fn new(
+    pub fn new(
         bytes: Vec<u8>,
         password: Option<String>,
         setup: &NotebookSetup,
@@ -148,18 +148,18 @@ impl PdfImport {
     }
 
     /// The number of pages to import.
-    pub(crate) fn total(&self) -> usize {
+    pub fn total(&self) -> usize {
         self.pages.total()
     }
 
     /// Imports the next page; `false` once every page is imported.
-    pub(crate) fn import_next(&mut self) -> anyhow::Result<bool> {
+    pub fn import_next(&mut self) -> anyhow::Result<bool> {
         self.pages.import_next()
     }
 
     /// The `.rnote` bytes of the notebook with the pages imported so far: sheets as tall as
     /// the tallest page, one page on each.
-    pub(crate) fn finish(&mut self, file_name: &str) -> anyhow::Result<Vec<u8>> {
+    pub fn finish(&mut self, file_name: &str) -> anyhow::Result<Vec<u8>> {
         let imported = self.pages.take_pages();
         let height = imported.iter().map(|page| page.bounds().extents().y).fold(0.0, f64::max);
         if height > 0.0 {
@@ -183,6 +183,3 @@ impl PdfImport {
             .map_err(|_| anyhow!("The save task was cancelled"))?
     }
 }
-
-#[cfg(test)]
-mod tests;

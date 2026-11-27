@@ -17,7 +17,9 @@ rnote-engine = { workspace = true }
 anyhow = { workspace = true }
 cairo-rs = { workspace = true }
 futures = { workspace = true }
+hayro = { workspace = true }
 image = { workspace = true }
+parry2d-f64 = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 unicode-normalization = { workspace = true }

@@ -140,7 +140,7 @@ fn exports_a_pdf_with_a_page_per_sheet() {
 
     assert!(pdf.starts_with(b"%PDF"), "not a PDF");
     // Read back by the same reader the PDF import uses.
-    assert_eq!(crate::pdf_import::pdf_page_count(&pdf, None).expect("reads"), 3);
+    assert_eq!(rnote_library::creation::pdf_page_count(&pdf, None).expect("reads"), 3);
 }
 
 #[test]
@@ -161,5 +161,5 @@ fn a_pdf_export_draws_one_sheet_per_step_so_it_can_show_progress() {
     let pdf = job.finish().expect("finishes");
 
     assert_eq!(steps, [1, 2, 3]);
-    assert_eq!(crate::pdf_import::pdf_page_count(&pdf, None).expect("reads"), 3);
+    assert_eq!(rnote_library::creation::pdf_page_count(&pdf, None).expect("reads"), 3);
 }

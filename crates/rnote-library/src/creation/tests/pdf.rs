@@ -1,5 +1,3 @@
-#![allow(clippy::unwrap_used)]
-
 use parry2d_f64::bounding_volume::Aabb;
 use rnote_compose::shapes::Shapeable;
 use rnote_engine::Engine;
@@ -7,11 +5,10 @@ use rnote_engine::document::Layout;
 use rnote_engine::engine::EngineSnapshot;
 use rnote_engine::strokes::Stroke;
 
-use super::{PdfImport, PdfOpenError, pdf_page_count};
-use crate::notebook_setup::NotebookSetup;
+use crate::creation::{NotebookSetup, PdfImport, PdfOpenError, pdf_page_count};
 
-const PLAIN: &[u8] = include_bytes!("../tests/fixtures/tres_paginas.pdf");
-const ENCRYPTED: &[u8] = include_bytes!("../tests/fixtures/con_clave.pdf");
+const PLAIN: &[u8] = include_bytes!("fixtures/tres_paginas.pdf");
+const ENCRYPTED: &[u8] = include_bytes!("fixtures/con_clave.pdf");
 
 /// The kinds and bounds of the imported pages, top to bottom, and the reopened engine.
 fn reopen(bytes: Vec<u8>) -> (Engine, Vec<(&'static str, Aabb)>) {
