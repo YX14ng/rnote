@@ -63,16 +63,17 @@ impl RnLibraryView {
             return;
         };
         let folder = self.shown_folder();
-        let folders = self
+        let (folders, tags) = self
             .imp()
             .library
             .borrow()
             .as_ref()
-            .and_then(|library| library.folders().ok())
+            .map(|library| (library.folders().unwrap_or_default(), library.tags()))
             .unwrap_or_default();
         let initial = SetupChoice::from_setup(&defaults_for(folder.as_deref()));
         let Some(chosen) =
-            new_notebook::ask_new_notebook(&appwindow, &folders, folder.as_deref(), initial).await
+            new_notebook::ask_new_notebook(&appwindow, &folders, &tags, folder.as_deref(), initial)
+                .await
         else {
             return;
         };
@@ -83,9 +84,13 @@ impl RnLibraryView {
                 creation::new_notebook_bytes(&setup, file_name)
             })
             .await;
-        if made.is_some()
-            && let Err(e) = remember_defaults(folder, &setup)
-        {
+        let Some(path) = made else {
+            return;
+        };
+        if !chosen.tags.is_empty() {
+            self.modify(|library| library.set_tags(&path, &chosen.tags));
+        }
+        if let Err(e) = remember_defaults(folder, &setup) {
             error!("Remembering the new notebook's setup failed, Err: {e:?}");
         }
     }

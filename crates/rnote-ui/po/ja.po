@@ -5445,6 +5445,14 @@ msgid "{n} notebook couldn't be synced this time: {names}. It tries again on the
 msgid_plural "{n} notebooks couldn't be synced this time: {names}. They try again on the next sync."
 msgstr[0] "今回 {n} 冊のノートを同期できませんでした：{names}。次の同期で再試行します。"
 
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "There are no tags yet: create them from the library's sidebar."
+msgstr "タグはまだありません。ライブラリのサイドパネルから作成してください。"
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "No tags"
+msgstr "タグなし"
+
 #~ msgid "Brush Style"
 #~ msgstr "ブラシのスタイル"
 

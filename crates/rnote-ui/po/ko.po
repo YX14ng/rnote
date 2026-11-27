@@ -5393,6 +5393,14 @@ msgid "{n} notebook couldn't be synced this time: {names}. It tries again on the
 msgid_plural "{n} notebooks couldn't be synced this time: {names}. They try again on the next sync."
 msgstr[0] "이번에 노트 {n}개를 동기화하지 못했습니다: {names}. 다음 동기화 때 다시 시도합니다."
 
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "There are no tags yet: create them from the library's sidebar."
+msgstr "아직 태그가 없습니다. 라이브러리의 사이드 패널에서 만드세요."
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "No tags"
+msgstr "태그 없음"
+
 #~ msgid "Brush Style"
 #~ msgstr "브러시 스타일"
 

@@ -2,16 +2,17 @@
 //! starts from the setup last used in the folder, as on Android.
 
 use std::cell::RefCell;
+use std::collections::BTreeSet;
 use std::rc::Rc;
 
 use adw::prelude::*;
 use futures::channel::oneshot;
 use gettextrs::gettext;
 use gtk4::{glib, glib::clone};
-use rnote_library::COVER_COLORS;
 use rnote_library::creation::{
     PAGE_SIZES, PAPERS, SPACINGS_MM, SetupChoice, SetupLayout, SetupPattern,
 };
+use rnote_library::{COVER_COLORS, Tag};
 
 use super::paper_preview::PaperPreview;
 use crate::RnAppWindow;
@@ -25,6 +26,8 @@ pub(crate) struct NewNotebook {
     pub(crate) folder: Option<String>,
     /// The page, paper and cover.
     pub(crate) choice: SetupChoice,
+    /// The ids of the tags to give it.
+    pub(crate) tags: Vec<String>,
 }
 
 const LAYOUTS: [SetupLayout; 3] = [
@@ -63,6 +66,7 @@ impl Rows {
         NewNotebook {
             title: self.title.text().trim().to_owned(),
             folder,
+            tags: Vec::new(),
             choice: SetupChoice {
                 size: index(&self.size),
                 landscape: index(&self.orientation) == 1,
@@ -89,10 +93,13 @@ impl Rows {
 pub(crate) async fn ask_new_notebook(
     appwindow: &RnAppWindow,
     folders: &[String],
+    tags: &[Tag],
     folder: Option<&str>,
     initial: SetupChoice,
 ) -> Option<NewNotebook> {
     let rows = Rc::new(rows(folders, folder, &initial));
+    let chosen_tags: Rc<RefCell<BTreeSet<String>>> = Rc::default();
+    let tags_row = tags_row(appwindow, tags, &chosen_tags);
     let preview = PaperPreview::new();
     preview.show(&initial);
 
@@ -114,6 +121,7 @@ pub(crate) async fn ask_new_notebook(
         &[&rows.paper, &rows.pattern, &rows.spacing],
     ));
     let library = group(&gettext("Library"), &[&rows.cover]);
+    library.add(&tags_row);
     library.set_description(Some(&gettext(
         "What you choose stays for the next notebook in this folder.",
     )));
@@ -185,7 +193,9 @@ pub(crate) async fn ask_new_notebook(
         #[weak]
         dialog,
         move || {
-            answer(Some(rows.chosen(&folders)));
+            let mut chosen = rows.chosen(&folders);
+            chosen.tags = chosen_tags.borrow().iter().cloned().collect();
+            answer(Some(chosen));
             dialog.close();
         }
     );
@@ -205,6 +215,61 @@ pub(crate) async fn ask_new_notebook(
     dialog.connect_closed(move |_| answer(None));
     dialog.present(Some(appwindow));
     receiver.await.ok().flatten()
+}
+
+/// The row with the tags to give the new notebook; choosing them opens the tags dialog.
+fn tags_row(
+    appwindow: &RnAppWindow,
+    tags: &[Tag],
+    chosen: &Rc<RefCell<BTreeSet<String>>>,
+) -> adw::ActionRow {
+    let row = adw::ActionRow::builder().title(gettext("Tags")).build();
+    if tags.is_empty() {
+        row.set_subtitle(&gettext(
+            "There are no tags yet: create them from the library's sidebar.",
+        ));
+        return row;
+    }
+    row.set_subtitle(&gettext("No tags"));
+    row.set_activatable(true);
+    row.add_suffix(&gtk4::Image::from_icon_name("go-next-symbolic"));
+    let tags = tags.to_vec();
+    row.connect_activated(clone!(
+        #[weak]
+        appwindow,
+        #[strong]
+        chosen,
+        move |row| {
+            let tags = tags.clone();
+            let chosen = chosen.clone();
+            glib::spawn_future_local(clone!(
+                #[weak]
+                appwindow,
+                #[weak]
+                row,
+                async move {
+                    let current = chosen.borrow().clone();
+                    let Some(checked) =
+                        super::dialogs::choose_tags(&appwindow, &tags, &current).await
+                    else {
+                        return;
+                    };
+                    let names: Vec<&str> = tags
+                        .iter()
+                        .filter(|tag| checked.contains(&tag.id))
+                        .map(|tag| tag.name.as_str())
+                        .collect();
+                    row.set_subtitle(&if names.is_empty() {
+                        gettext("No tags")
+                    } else {
+                        names.join(", ")
+                    });
+                    *chosen.borrow_mut() = checked;
+                }
+            ));
+        }
+    ));
+    row
 }
 
 fn rows(folders: &[String], folder: Option<&str>, initial: &SetupChoice) -> Rows {

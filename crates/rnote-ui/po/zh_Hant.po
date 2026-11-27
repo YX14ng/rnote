@@ -5279,6 +5279,14 @@ msgid "{n} notebook couldn't be synced this time: {names}. It tries again on the
 msgid_plural "{n} notebooks couldn't be synced this time: {names}. They try again on the next sync."
 msgstr[0] "這次有 {n} 本筆記本未能同步：{names}。下次同步時會再試。"
 
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "There are no tags yet: create them from the library's sidebar."
+msgstr "還沒有任何標籤：請從筆記庫的側邊面板建立。"
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "No tags"
+msgstr "無標籤"
+
 #~ msgid "Brush Style"
 #~ msgstr "筆刷樣式"
 

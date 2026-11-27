@@ -5659,6 +5659,14 @@ msgid_plural "{n} notebooks couldn't be synced this time: {names}. They try agai
 msgstr[0] "{n} cuaderno no se pudo sincronizar esta vez: {names}. Se vuelve a intentar en la próxima sincronización."
 msgstr[1] "{n} cuadernos no se pudieron sincronizar esta vez: {names}. Se vuelve a intentar en la próxima sincronización."
 
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "There are no tags yet: create them from the library's sidebar."
+msgstr "Todavía no hay etiquetas: creálas desde el panel lateral de la biblioteca."
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "No tags"
+msgstr "Sin etiquetas"
+
 #~ msgid "Brush Style"
 #~ msgstr "Estilo del pincel"
 

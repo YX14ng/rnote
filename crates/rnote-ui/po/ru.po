@@ -5577,6 +5577,14 @@ msgstr[0] "{n} блокнот не удалось синхронизироват
 msgstr[1] "{n} блокнота не удалось синхронизировать: {names}. Попытка повторится при следующей синхронизации."
 msgstr[2] "{n} блокнотов не удалось синхронизировать: {names}. Попытка повторится при следующей синхронизации."
 
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "There are no tags yet: create them from the library's sidebar."
+msgstr "Меток пока нет: создайте их на боковой панели библиотеки."
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "No tags"
+msgstr "Без меток"
+
 #~ msgid "Brush Style"
 #~ msgstr "Стиль кисти"
 

@@ -5187,3 +5187,11 @@ msgid "{n} notebook couldn't be synced this time: {names}. It tries again on the
 msgid_plural "{n} notebooks couldn't be synced this time: {names}. They try again on the next sync."
 msgstr[0] ""
 msgstr[1] ""
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "There are no tags yet: create them from the library's sidebar."
+msgstr ""
+
+#: crates/rnote-ui/src/library/new_notebook.rs
+msgid "No tags"
+msgstr ""
