@@ -176,6 +176,7 @@ class NoteCanvasView(context: Context) : View(context) {
 
     /** Tells the hand holding the S Pen from fingers that navigate. */
     private val palm = PalmGuard()
+    private val hoverCursor = HoverCursor(resources.displayMetrics.density)
     private val twoFingerTap = TwoFingerTap(context, palm::fingersAllowed) { onTwoFingerTap?.invoke() }
 
     private val input = CanvasInput(
@@ -313,6 +314,7 @@ class NoteCanvasView(context: Context) : View(context) {
         val tool = event.getToolType(0)
         if (tool == MotionEvent.TOOL_TYPE_STYLUS || tool == MotionEvent.TOOL_TYPE_ERASER) {
             palm.penHover(inRange = event.actionMasked != MotionEvent.ACTION_HOVER_EXIT, at = event.eventTime)
+            showHoverCursor(event)
         }
         if (acceptsInput) {
             penButtonHold.onHover(event)
@@ -372,6 +374,7 @@ class NoteCanvasView(context: Context) : View(context) {
         if (event.actionMasked == MotionEvent.ACTION_DOWN) {
             onCanvasTouched?.invoke()
         }
+        hoverCursor.hide()
         penButtonHold.onTouch()
         twoFingerTap.onTouch(event)
         input.onTouch(event)
@@ -422,10 +425,32 @@ class NoteCanvasView(context: Context) : View(context) {
         highlights.draw(canvas, viewport)
         input.preview.draw(canvas, viewport)
         input.gesture.draw(canvas, viewport)
+        hoverCursor.draw(canvas)
         navigation.pullProgress?.let { progress -> pullHint.draw(canvas, width, height, progress) }
     }
 
     private fun navigate(event: MotionEvent) = navigation.onTouch(event)
+
+    /** Shows under the hovering pen what touching would draw or erase; hides it as it leaves. */
+    private fun showHoverCursor(event: MotionEvent) {
+        if (!acceptsInput || input.penDown || event.actionMasked == MotionEvent.ACTION_HOVER_EXIT) {
+            if (hoverCursor.shown) {
+                hoverCursor.hide()
+                invalidate()
+            }
+            return
+        }
+        val eraserEnd = event.getToolType(0) == MotionEvent.TOOL_TYPE_ERASER
+        val radius = HoverCursor.radiusPx(tool, eraserEnd, brush.width, viewport.zoom)
+        // Half as strong as the ink, so what is under it still shows.
+        val fill = if (tool == Tool.BRUSH && !eraserEnd) {
+            (brush.color and 0x00FF_FFFF) or ((Color.alpha(brush.color) / 2) shl 24)
+        } else {
+            null
+        }
+        hoverCursor.show(event.x, event.y, radius, fill)
+        invalidate()
+    }
 
     private fun longPressed(event: MotionEvent) {
         val listener = onLongPress ?: return
