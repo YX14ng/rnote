@@ -42,6 +42,9 @@ class MainActivity : Activity() {
 
     private var documentOpen = false
 
+    // What came back from another app (camera, pickers) waits here while the notebook loads.
+    private val untilOpen = UntilOpen()
+
     /** The open notebook's path in the library, if it is one of its notebooks; kept by [saver]. */
     private var libraryPath: String?
         get() = saver.libraryPath
@@ -338,7 +341,7 @@ class MainActivity : Activity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_TAKE_PHOTO) {
-            onPhotoTaken(resultCode == RESULT_OK)
+            untilOpen.run { onPhotoTaken(resultCode == RESULT_OK) }
             return
         }
         val uri = data?.data
@@ -347,15 +350,21 @@ class MainActivity : Activity() {
             guard.keepChanges()
             return
         }
-        when (requestCode) {
-            REQUEST_OPEN -> openDocument(uri)
-            REQUEST_SAVE_AS -> saver.saveAs(uri)
-            REQUEST_INSERT_PDF -> pages.onPdfPicked(uri)
-            REQUEST_EXPORT_PDF -> pdfExport.saveTo(uri, saver.documentName)
-            REQUEST_INSERT_IMAGE -> {
-                val resolver = contentResolver
-                clipboard.insertImage(insertAt) {
-                    resolver.openInputStream(uri)?.use { it.readBytes() } ?: error("The picture can't be read")
+        if (requestCode == REQUEST_OPEN) {
+            openDocument(uri)
+            return
+        }
+        // The others need the notebook, which may still be loading after a restart.
+        untilOpen.run {
+            when (requestCode) {
+                REQUEST_SAVE_AS -> saver.saveAs(uri)
+                REQUEST_INSERT_PDF -> pages.onPdfPicked(uri)
+                REQUEST_EXPORT_PDF -> pdfExport.saveTo(uri, saver.documentName)
+                REQUEST_INSERT_IMAGE -> {
+                    val resolver = contentResolver
+                    clipboard.insertImage(insertAt) {
+                        resolver.openInputStream(uri)?.use { it.readBytes() } ?: error("The picture can't be read")
+                    }
                 }
             }
         }
@@ -568,6 +577,7 @@ class MainActivity : Activity() {
 
     /** Shows that a document is loading, and keeps input away from the current one. */
     private fun startLoading() {
+        untilOpen.loading()
         canvasView.loading = true
         layout.showMessage(getString(R.string.loading))
     }
@@ -577,6 +587,9 @@ class MainActivity : Activity() {
         canvasView.loading = false
         if (documentOpen) {
             layout.hideMessage()
+            untilOpen.opened()
+        } else {
+            untilOpen.failed()
         }
     }
 
@@ -595,6 +608,7 @@ class MainActivity : Activity() {
         pages.onDocumentShown()
         // A notebook with no file yet has no index: its text boxes are searched still.
         ink.open((libraryPath ?: saver.currentUri?.toString())?.let { InkIndexer.indexFileFor(this, it) })
+        untilOpen.opened()
     }
 
     /** Reads the document settings back after the document dialog changed them. */
