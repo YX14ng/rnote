@@ -496,24 +496,6 @@ class MainActivity : Activity() {
         }
     }
 
-    private fun newDocument() {
-        canvasView.loading = true
-        renderer.createEmpty(brush = null) { result ->
-            result
-                .onSuccess { info ->
-                    libraryPath = null
-                    saver.currentUri = null
-                    saver.documentName = getString(R.string.untitled_file_name)
-                    saver.recoveryClaim.opened()
-                    showOpenedDocument(info)
-                }
-                .onFailure { error ->
-                    endLoading()
-                    showError(R.string.failed_open, error)
-                }
-        }
-    }
-
     /** Reopens the unsaved changes kept by [DocumentSaver.autosave], still marked as unsaved. */
     private fun restoreRecovery() {
         startLoading()
