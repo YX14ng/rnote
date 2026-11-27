@@ -13,8 +13,6 @@ use serde::{Deserialize, Serialize};
 
 /// The file name of the metadata, inside [`crate::LIBRARY_DIR`].
 pub const META_FILE: &str = "library.json";
-/// Where a file that can't be read is set aside.
-const BAD_META_FILE: &str = "library.json.bad";
 /// The format version this code reads and writes.
 const VERSION: u32 = 1;
 
@@ -98,8 +96,7 @@ impl Meta {
         match serde_json::from_slice::<Self>(&bytes) {
             Ok(meta) if meta.version == VERSION => Ok(meta),
             _ => {
-                fs::rename(&path, dir.join(BAD_META_FILE))
-                    .with_context(|| format!("Setting aside {}", path.display()))?;
+                crate::set_aside(&path)?;
                 Ok(Self::default())
             }
         }

@@ -46,9 +46,7 @@ impl SyncState {
         match serde_json::from_slice(&bytes) {
             Ok(state) => Ok(state),
             Err(_) => {
-                let bad = path.with_file_name(format!("{}.bad", file_name(path)));
-                fs::rename(path, &bad)
-                    .with_context(|| format!("Setting aside {}", path.display()))?;
+                rnote_library::set_aside(path)?;
                 Ok(Self::default())
             }
         }

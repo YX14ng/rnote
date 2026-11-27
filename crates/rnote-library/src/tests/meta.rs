@@ -294,3 +294,17 @@ fn saving_keeps_what_another_writer_saved_meanwhile() {
     assert_eq!(notebook.tags, vec![tag]);
     assert_eq!(notebook.cover, Some(0xFF3D_6FB6));
 }
+
+#[test]
+fn a_second_corrupt_library_json_keeps_the_first_one_set_aside() {
+    let dir = tempfile::tempdir().unwrap();
+    write(dir.path(), ".rnote-library/library.json", b"{first");
+    library_at(dir.path());
+    write(dir.path(), ".rnote-library/library.json", b"{second");
+
+    library_at(dir.path());
+
+    let aside = dir.path().join(".rnote-library");
+    assert_eq!(fs::read(aside.join("library.json.bad")).unwrap(), b"{first");
+    assert_eq!(fs::read(aside.join("library.json.bad.2")).unwrap(), b"{second");
+}

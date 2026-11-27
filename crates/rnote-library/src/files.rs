@@ -50,6 +50,20 @@ pub fn replace_durably(temporary: &Path, target: &Path, bytes: &[u8]) -> anyhow:
     Ok(())
 }
 
+/// Moves the damaged file at `path` out of the way, to `<name>.bad`, or `<name>.bad.2`, ... when
+/// earlier damaged copies are there already: each may hold what only it still has.
+pub fn set_aside(path: &Path) -> anyhow::Result<()> {
+    let name = path.file_name().context("A file has a name")?.to_string_lossy().into_owned();
+    let free = (1..)
+        .map(|n| match n {
+            1 => path.with_file_name(format!("{name}.bad")),
+            n => path.with_file_name(format!("{name}.bad.{n}")),
+        })
+        .find(|candidate| fs::symlink_metadata(candidate).is_err())
+        .context("A free name to set a file aside")?;
+    fs::rename(path, &free).with_context(|| format!("Setting aside {}", path.display()))
+}
+
 /// Writes `bytes` to `path` and waits until they are on the disk.
 fn write_synced(path: &Path, bytes: &[u8]) -> anyhow::Result<()> {
     let mut file = File::create(path).with_context(|| format!("Writing {}", path.display()))?;
