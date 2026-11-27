@@ -5295,6 +5295,14 @@ msgstr[0] "{n} блокнот перемещён в корзину"
 msgstr[1] "{n} блокнота перемещены в корзину"
 msgstr[2] "{n} блокнотов перемещены в корзину"
 
+#: crates/rnote-ui/data/ui/shortcuts.ui
+msgid "Select All Notebooks"
+msgstr "Выбрать все блокноты"
+
+#: crates/rnote-ui/data/ui/shortcuts.ui
+msgid "Leave Selection Mode"
+msgstr "Выйти из режима выбора"
+
 #~ msgid "Brush Style"
 #~ msgstr "Стиль кисти"
 

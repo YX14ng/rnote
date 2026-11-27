@@ -5115,6 +5115,14 @@ msgid "{n} notebook was moved to the trash"
 msgid_plural "{n} notebooks were moved to the trash"
 msgstr[0] "노트 {n}개를 휴지통으로 옮겼습니다"
 
+#: crates/rnote-ui/data/ui/shortcuts.ui
+msgid "Select All Notebooks"
+msgstr "모든 노트 선택"
+
+#: crates/rnote-ui/data/ui/shortcuts.ui
+msgid "Leave Selection Mode"
+msgstr "선택 모드 끝내기"
+
 #~ msgid "Brush Style"
 #~ msgstr "브러시 스타일"
 

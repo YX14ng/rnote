@@ -4907,3 +4907,11 @@ msgid "{n} notebook was moved to the trash"
 msgid_plural "{n} notebooks were moved to the trash"
 msgstr[0] ""
 msgstr[1] ""
+
+#: crates/rnote-ui/data/ui/shortcuts.ui
+msgid "Select All Notebooks"
+msgstr ""
+
+#: crates/rnote-ui/data/ui/shortcuts.ui
+msgid "Leave Selection Mode"
+msgstr ""

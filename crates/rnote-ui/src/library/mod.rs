@@ -11,6 +11,7 @@ mod location;
 mod manage;
 pub(crate) mod open;
 mod search;
+mod shortcuts;
 mod sidebar;
 mod tabs;
 mod tagchoice;
@@ -118,6 +119,7 @@ mod imp {
             // widgets made earlier at a group inserted later.
             self.obj().setup_actions();
             self.obj().setup_search();
+            self.obj().setup_shortcuts();
         }
 
         fn dispose(&self) {

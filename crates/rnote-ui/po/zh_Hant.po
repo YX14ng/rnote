@@ -5001,6 +5001,14 @@ msgid "{n} notebook was moved to the trash"
 msgid_plural "{n} notebooks were moved to the trash"
 msgstr[0] "{n} 本筆記本已移到回收站"
 
+#: crates/rnote-ui/data/ui/shortcuts.ui
+msgid "Select All Notebooks"
+msgstr "選擇所有筆記本"
+
+#: crates/rnote-ui/data/ui/shortcuts.ui
+msgid "Leave Selection Mode"
+msgstr "退出選擇模式"
+
 #~ msgid "Brush Style"
 #~ msgstr "筆刷樣式"
 

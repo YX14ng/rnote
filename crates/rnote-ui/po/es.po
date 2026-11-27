@@ -5379,6 +5379,14 @@ msgid_plural "{n} notebooks were moved to the trash"
 msgstr[0] "{n} cuaderno se mandó a la papelera"
 msgstr[1] "{n} cuadernos se mandaron a la papelera"
 
+#: crates/rnote-ui/data/ui/shortcuts.ui
+msgid "Select All Notebooks"
+msgstr "Seleccionar todos los cuadernos"
+
+#: crates/rnote-ui/data/ui/shortcuts.ui
+msgid "Leave Selection Mode"
+msgstr "Salir del modo de selección"
+
 #~ msgid "Brush Style"
 #~ msgstr "Estilo del pincel"
 
