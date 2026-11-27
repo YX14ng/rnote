@@ -6,8 +6,6 @@
 use std::collections::{BTreeMap, BTreeSet};
 use std::fs;
 
-use anyhow::Context;
-
 use crate::local::{hash_now, set_aside, sha256_hex, write_atomic};
 use crate::remote::{Remote, RemoteFile};
 use crate::state::{Entry, SyncState};
@@ -75,18 +73,9 @@ impl<'a> Run<'a> {
         Ok(())
     }
 
-    /// The local `path`, to upload. A notebook that is empty or starts with zeros, as a crash
-    /// or a power cut can leave one, is refused: uploading it would spread the damage over
-    /// the good copy in Drive and on the other devices.
+    /// The local `path`, to upload (see [`read_for_upload`]).
     pub(crate) fn read_local(&self, path: &str) -> Result<Vec<u8>, SyncError> {
-        let bytes = fs::read(self.ctx.library_root.join(path))
-            .with_context(|| format!("Reading {path}"))?;
-        if path.to_lowercase().ends_with(".rnote") && bytes.first().is_none_or(|&byte| byte == 0) {
-            return Err(SyncError::Failed(anyhow::anyhow!(
-                "{path} looks damaged (empty or zeroed), so it isn't uploaded"
-            )));
-        }
-        Ok(bytes)
+        read_for_upload(self.ctx.library_root, path)
     }
 
     /// Fails unless the local `path` is still as the scan saw it (or still missing).
@@ -216,4 +205,28 @@ impl<'a> Run<'a> {
         self.report.deleted += 1;
         self.forget(path)
     }
+}
+
+/// The local `path` under `root`, to upload. Gone since the scan (renamed or moved meanwhile)
+/// counts as changed during the sync, which the next try takes as it is then. A notebook that
+/// is empty or starts with zeros, as a crash or a power cut can leave one, is refused:
+/// uploading it would spread the damage over the good copy in Drive and the other devices.
+pub(crate) fn read_for_upload(root: &std::path::Path, path: &str) -> Result<Vec<u8>, SyncError> {
+    let bytes = match fs::read(root.join(path)) {
+        Ok(bytes) => bytes,
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
+            return Err(SyncError::Failed(
+                crate::ChangedDuringSync(format!("{path} was moved here during the sync")).into(),
+            ));
+        }
+        Err(error) => {
+            return Err(anyhow::Error::new(error).context(format!("Reading {path}")).into());
+        }
+    };
+    if path.to_lowercase().ends_with(".rnote") && bytes.first().is_none_or(|&byte| byte == 0) {
+        return Err(SyncError::Failed(anyhow::anyhow!(
+            "{path} looks damaged (empty or zeroed), so it isn't uploaded"
+        )));
+    }
+    Ok(bytes)
 }

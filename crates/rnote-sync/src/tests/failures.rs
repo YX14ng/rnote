@@ -49,3 +49,15 @@ fn a_file_changed_meanwhile_is_told_apart() {
 fn anything_else_is_unexpected() {
     assert_eq!(failure_kind(&anyhow!("strange")), FailureKind::Unexpected);
 }
+
+#[test]
+fn a_notebook_renamed_during_the_sync_counts_as_changed_meanwhile() {
+    let dir = tempfile::tempdir().unwrap();
+
+    let Err(crate::SyncError::Failed(error)) = crate::run::read_for_upload(dir.path(), "a.rnote")
+    else {
+        panic!("a missing notebook can't be read");
+    };
+
+    assert_eq!(failure_kind(&error), FailureKind::ChangedMeanwhile);
+}
