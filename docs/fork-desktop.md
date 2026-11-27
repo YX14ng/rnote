@@ -75,6 +75,13 @@ Run the same commands to update after pulling.
 
 ## The editor
 
+- Holding the pen still for a second at the end of a brush stroke turns it into the shape
+  it looks like: a line, rectangle, ellipse, triangle, polygon, star, arrow, polyline, or a
+  tall bracket like the parentheses around a matrix, made symmetric. It takes the brush's
+  color and width, and undoing once brings back the empty page. Lifting the pen without the
+  pause keeps the stroke as drawn, and small strokes (handwriting) are never touched.
+  "Recognize Shapes" in the settings turns it off. It is the same recognizer as on Android.
+
 - The sidebar's "Pages" tab shows the sheets of a notebook of fixed-size pages: click a
   page to go to it, and its menu inserts a blank page or a PDF after it, duplicates,
   moves it up or down, or removes it (asking first if something is written on it). Each
