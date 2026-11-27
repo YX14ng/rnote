@@ -307,7 +307,7 @@ internal class PagesPanel(
                 orientation = HORIZONTAL
                 gravity = Gravity.CENTER_VERTICAL
                 addView(number, LayoutParams(0, LayoutParams.WRAP_CONTENT, 1f))
-                addView(more, LayoutParams(Graphite.dp(context, 36f), Graphite.dp(context, 32f)))
+                addView(more, LayoutParams(Graphite.dp(context, Graphite.TOUCH_DP), Graphite.dp(context, Graphite.TOUCH_DP)))
             }, LayoutParams(thumbnailWidth + border * 2, LayoutParams.WRAP_CONTENT).apply {
                 gravity = Gravity.CENTER_HORIZONTAL
             })

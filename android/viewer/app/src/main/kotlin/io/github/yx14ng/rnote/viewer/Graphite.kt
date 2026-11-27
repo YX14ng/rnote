@@ -32,6 +32,9 @@ internal object Graphite {
     val RIPPLE = Color.argb(0x33, 0xFF, 0xFF, 0xFF)
 
     const val PANEL_RADIUS_DP = 22f
+
+    /** The smallest a button may be, so a finger finds it (Android's accessibility guideline). */
+    const val TOUCH_DP = 48f
     const val BUTTON_RADIUS_DP = 14f
 
     fun dp(context: Context, value: Float): Int =

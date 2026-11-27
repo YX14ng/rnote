@@ -90,7 +90,7 @@ internal class EditorTopBar(
             addView(titles, LayoutParams(0, MATCH_PARENT, 1f).apply { marginStart = dp(4f) })
             addView(finishShape, square())
             addView(search, square())
-            addView(zoom, LayoutParams(dp(72f), dp(44f)))
+            addView(zoom, LayoutParams(dp(72f), dp(Graphite.TOUCH_DP)))
             addView(zoomLock, square())
             addView(moreButton, square())
             addView(fold, square())
@@ -154,7 +154,7 @@ internal class EditorTopBar(
     private companion object {
         const val FIRST_ROW_DP = 52f
         const val TOOLS_ROW_DP = 56f
-        const val BUTTON_DP = 44f
+        const val BUTTON_DP = Graphite.TOUCH_DP
         const val DISABLED_ALPHA = 0.35f
     }
 }

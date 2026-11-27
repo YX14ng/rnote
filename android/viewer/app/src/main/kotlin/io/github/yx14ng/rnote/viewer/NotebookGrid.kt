@@ -188,14 +188,14 @@ internal class NotebookGrid(context: Context, private val thumbnails: ThumbnailC
             if (listMode) {
                 addView(coverFrame, LayoutParams(dp(48f), dp(64f)))
                 addView(texts, LayoutParams(0, WRAP_CONTENT, 1f).apply { marginStart = dp(14f) })
-                addView(menu, LayoutParams(dp(40f), dp(40f)))
+                addView(menu, LayoutParams(dp(Graphite.TOUCH_DP), dp(Graphite.TOUCH_DP)))
             } else {
                 val coverHeight = (CARD_WIDTH_DP * PAGE_RATIO)
                 addView(coverFrame, LayoutParams(MATCH_PARENT, dp(coverHeight)))
                 val row = LinearLayout(context).apply {
                     gravity = Gravity.CENTER_VERTICAL
                     addView(texts, LayoutParams(0, WRAP_CONTENT, 1f))
-                    addView(menu, LayoutParams(dp(36f), dp(36f)))
+                    addView(menu, LayoutParams(dp(Graphite.TOUCH_DP), dp(Graphite.TOUCH_DP)))
                 }
                 addView(row, LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply { topMargin = dp(6f) })
             }

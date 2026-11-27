@@ -148,7 +148,7 @@ internal class LibrarySidebar(context: Context) : ScrollView(context) {
             contentDescription = context.getString(if (label == R.string.library_folders) R.string.library_new_folder else R.string.library_new_tag)
             tooltipText = contentDescription
             setOnClickListener { onAdd() }
-        }, LinearLayout.LayoutParams(dp(40f), dp(40f)))
+        }, LinearLayout.LayoutParams(dp(Graphite.TOUCH_DP), dp(Graphite.TOUCH_DP)))
     }
 
     private fun divider() = View(context).apply { setBackgroundColor(Graphite.DIVIDER) }.also { view ->
