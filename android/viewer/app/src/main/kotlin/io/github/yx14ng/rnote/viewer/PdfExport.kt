@@ -7,6 +7,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
+import android.provider.DocumentsContract
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -28,7 +29,12 @@ internal class PdfExport(
 
     /** Writes the PDF of the notebook named [title] to [uri], picked by the user. */
     fun saveTo(uri: Uri, title: String) {
-        export(title) { pdf ->
+        // The picker made the file already: an export that doesn't finish leaves no empty one.
+        val dropFile = {
+            runCatching { DocumentsContract.deleteDocument(activity.contentResolver, uri) }
+            Unit
+        }
+        export(title, onAbandoned = dropFile) { pdf ->
             activity.contentResolver.openOutputStream(uri, "wt")?.use { it.write(pdf) }
                 ?: error("The chosen file can't be written")
             main.post { Toast.makeText(activity, R.string.pdf_saved, Toast.LENGTH_SHORT).show() }
@@ -65,7 +71,8 @@ internal class PdfExport(
      * Exports the notebook named [title] a sheet at a time behind a dialog that shows how
      * far it got and can stop it, then hands the PDF to [deliver] off the main thread.
      */
-    private fun export(title: String, deliver: (ByteArray) -> Unit) {
+    /** [onAbandoned] runs off the main thread when the export is cancelled or fails. */
+    private fun export(title: String, onAbandoned: () -> Unit = {}, deliver: (ByteArray) -> Unit) {
         val cancelled = AtomicBoolean(false)
         val progress = ProgressBar(activity, null, android.R.attr.progressBarStyleHorizontal).apply { isIndeterminate = true }
         val pages = TextView(activity).apply { setText(R.string.pdf_exporting) }
@@ -92,8 +99,9 @@ internal class PdfExport(
                                 main.post { showProgress(progress, pages, done, total) }
                             }
                             main.post { close() }
-                            if (pdf != null) deliver(pdf)
+                            if (pdf != null) deliver(pdf) else onAbandoned()
                         }.onFailure { error ->
+                            onAbandoned()
                             main.post {
                                 close()
                                 onError(error)
@@ -103,6 +111,7 @@ internal class PdfExport(
                 }
                 .onFailure { error ->
                     close()
+                    Thread(onAbandoned, "rnote-pdf-export").start()
                     onError(error)
                 }
         }
