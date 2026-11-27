@@ -174,7 +174,9 @@ class NoteCanvasView(context: Context) : View(context) {
     private var editSequence = 0
     private var clearPreviewAt = NO_PENDING_CLEAR
 
-    private val twoFingerTap = TwoFingerTap(context) { onTwoFingerTap?.invoke() }
+    /** Tells the hand holding the S Pen from fingers that navigate. */
+    private val palm = PalmGuard()
+    private val twoFingerTap = TwoFingerTap(context, palm::fingersAllowed) { onTwoFingerTap?.invoke() }
 
     private val input = CanvasInput(
         context,
@@ -186,6 +188,7 @@ class NoteCanvasView(context: Context) : View(context) {
             flushPendingEdits()
         },
         onHold = ::snapToShape,
+        palm = palm,
     )
 
     // Whether the text tool is editing, which shows the soft keyboard.
@@ -307,6 +310,10 @@ class NoteCanvasView(context: Context) : View(context) {
     }
 
     override fun onHoverEvent(event: MotionEvent): Boolean {
+        val tool = event.getToolType(0)
+        if (tool == MotionEvent.TOOL_TYPE_STYLUS || tool == MotionEvent.TOOL_TYPE_ERASER) {
+            palm.penHover(inRange = event.actionMasked != MotionEvent.ACTION_HOVER_EXIT, at = event.eventTime)
+        }
         if (acceptsInput) {
             penButtonHold.onHover(event)
         }

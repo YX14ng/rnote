@@ -1,5 +1,6 @@
 package io.github.yx14ng.rnote.viewer
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.view.MotionEvent
 import android.view.ViewConfiguration
@@ -12,7 +13,11 @@ import kotlin.math.hypot
  * Only watches the events; the view still passes them on, so a slower two-finger gesture
  * pans and zooms as usual.
  */
-internal class TwoFingerTap(context: Context, private val onTap: () -> Unit) {
+internal class TwoFingerTap(
+    context: Context,
+    private val fingersAllowed: (Long) -> Boolean,
+    private val onTap: () -> Unit,
+) {
     private val touchSlop = ViewConfiguration.get(context).scaledTouchSlop.toFloat()
 
     private var candidate = false
@@ -25,7 +30,8 @@ internal class TwoFingerTap(context: Context, private val onTap: () -> Unit) {
     fun onTouch(event: MotionEvent) {
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
-                candidate = isFinger(event, 0)
+                // Not the palm resting while the pen is near.
+                candidate = isFinger(event, 0) && fingersAllowed(event.eventTime)
                 sawSecondFinger = false
                 downTime = event.eventTime
                 remember(event, 0, slot = 0)
@@ -41,7 +47,10 @@ internal class TwoFingerTap(context: Context, private val onTap: () -> Unit) {
                 }
             }
             MotionEvent.ACTION_MOVE -> if (candidate && moved(event)) candidate = false
+            // Android found out a pointer was the palm, after the fact.
+            MotionEvent.ACTION_POINTER_UP -> if (canceled(event)) candidate = false
             MotionEvent.ACTION_UP -> {
+                if (canceled(event)) candidate = false
                 val quick = event.eventTime - downTime <= MAX_TAP_DURATION_MS
                 if (candidate && sawSecondFinger && quick && !moved(event)) {
                     onTap()
@@ -51,6 +60,9 @@ internal class TwoFingerTap(context: Context, private val onTap: () -> Unit) {
             MotionEvent.ACTION_CANCEL -> candidate = false
         }
     }
+
+    @SuppressLint("InlinedApi")
+    private fun canceled(event: MotionEvent) = event.flags and MotionEvent.FLAG_CANCELED != 0
 
     private fun isFinger(event: MotionEvent, index: Int) = event.getToolType(index) == MotionEvent.TOOL_TYPE_FINGER
 

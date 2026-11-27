@@ -33,6 +33,7 @@ internal class CanvasInput(
     private val sendPen: (PenPhase, Tool, DoubleArray) -> Unit,
     private val onPenLifted: () -> Unit,
     private val onHold: () -> Unit,
+    private val palm: PalmGuard,
 ) {
     var tool = Tool.BRUSH
     var brush = Brush(Color.BLACK, BrushPalette.DEFAULT_WIDTH)
@@ -135,6 +136,7 @@ internal class CanvasInput(
         val action = event.actionMasked
         val actionIndex = event.actionIndex
         val startsPointer = action == MotionEvent.ACTION_DOWN || action == MotionEvent.ACTION_POINTER_DOWN
+        if (isPenTool(event.getToolType(actionIndex))) palm.penTouched(event.eventTime)
         when {
             penDown && fingerGesture != FingerGesture.DRAWING -> followStylus(event)
             startsPointer && isPenTool(event.getToolType(actionIndex)) -> {
@@ -153,6 +155,8 @@ internal class CanvasInput(
             ignoringRest -> if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
                 ignoringRest = false
             }
+            // The hand holding the pen: ignored until it lifts.
+            action == MotionEvent.ACTION_DOWN && !palm.fingersAllowed(event.eventTime) -> ignoringRest = true
             fingerGesture != FingerGesture.NONE -> handleFingerEvent(event)
             action == MotionEvent.ACTION_DOWN && fingerDrawing &&
                 event.getToolType(actionIndex) == MotionEvent.TOOL_TYPE_FINGER -> handleFingerEvent(event)
