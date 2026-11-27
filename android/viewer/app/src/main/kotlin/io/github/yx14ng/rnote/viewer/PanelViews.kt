@@ -237,7 +237,21 @@ internal class PanelOverlay(
     }
 
     init {
-        // Placed once both are laid out, before the first frame shows the panel.
+        placeBeforeNextFrame()
+    }
+
+    /**
+     * The screen turned (or the window was resized) with the panel open: a panel of a button
+     * moves below it again; one opened at a point of the page closes, as that point is gone.
+     */
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
+        if (oldw == 0 && oldh == 0) return
+        if (point != null) post(onDismiss) else placeBeforeNextFrame()
+    }
+
+    /** Places the panel once it and its button are laid out, before the next frame shows it. */
+    private fun placeBeforeNextFrame() {
         viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
             override fun onPreDraw(): Boolean {
                 viewTreeObserver.removeOnPreDrawListener(this)
