@@ -373,4 +373,12 @@
     <string name="library_error_folder_has_folders">“%1$s”内有文件夹：删除前请先移出</string>
     <string name="library_error_no_such_folder">文件夹“%1$s”已不存在</string>
     <string name="library_error_no_such_notebook">笔记本“%1$s”已不存在</string>
+    <!-- Library search -->
+    <string name="library_empty_search">没有名称包含“%1$s”的笔记本</string>
+    <string name="library_trash_is_empty">回收站是空的</string>
+    <string name="library_empty_folder">此文件夹还没有笔记本</string>
+    <string name="library_empty_tag">还没有笔记本使用此标签</string>
+    <string name="library_search_hint">搜索笔记本</string>
+    <string name="library_search">搜索</string>
+    <string name="library_search_close">关闭搜索</string>
 </resources>

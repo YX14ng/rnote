@@ -403,4 +403,12 @@
     <string name="library_error_folder_has_folders">в «%1$s» есть папки: перенесите их, прежде чем удалять</string>
     <string name="library_error_no_such_folder">папки «%1$s» больше нет</string>
     <string name="library_error_no_such_notebook">блокнота «%1$s» больше нет</string>
+    <!-- Library search -->
+    <string name="library_empty_search">Нет блокнотов с названием «%1$s»</string>
+    <string name="library_trash_is_empty">Корзина пуста</string>
+    <string name="library_empty_folder">В этой папке пока нет блокнотов</string>
+    <string name="library_empty_tag">Пока ни у одного блокнота нет этой метки</string>
+    <string name="library_search_hint">Поиск блокнотов</string>
+    <string name="library_search">Поиск</string>
+    <string name="library_search_close">Закрыть поиск</string>
 </resources>

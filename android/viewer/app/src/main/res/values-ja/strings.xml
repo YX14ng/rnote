@@ -373,4 +373,12 @@
     <string name="library_error_folder_has_folders">「%1$s」の中にフォルダーがあります。削除する前に外へ移動してください</string>
     <string name="library_error_no_such_folder">フォルダー「%1$s」はもう存在しません</string>
     <string name="library_error_no_such_notebook">ノートブック「%1$s」はもう存在しません</string>
+    <!-- Library search -->
+    <string name="library_empty_search">「%1$s」という名前のノートブックはありません</string>
+    <string name="library_trash_is_empty">ゴミ箱は空です</string>
+    <string name="library_empty_folder">このフォルダーにはまだノートブックがありません</string>
+    <string name="library_empty_tag">このタグが付いたノートブックはまだありません</string>
+    <string name="library_search_hint">ノートブックを検索</string>
+    <string name="library_search">検索</string>
+    <string name="library_search_close">検索を閉じる</string>
 </resources>

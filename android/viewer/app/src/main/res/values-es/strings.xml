@@ -393,4 +393,12 @@
     <string name="library_error_folder_has_folders">«%1$s» tiene carpetas adentro: sacalas antes de borrarla</string>
     <string name="library_error_no_such_folder">la carpeta «%1$s» ya no existe</string>
     <string name="library_error_no_such_notebook">el cuaderno «%1$s» ya no existe</string>
+    <!-- Library search -->
+    <string name="library_empty_search">Ningún cuaderno se llama como «%1$s»</string>
+    <string name="library_trash_is_empty">La papelera está vacía</string>
+    <string name="library_empty_folder">Esta carpeta todavía no tiene cuadernos</string>
+    <string name="library_empty_tag">Ningún cuaderno tiene esta etiqueta todavía</string>
+    <string name="library_search_hint">Buscar cuadernos</string>
+    <string name="library_search">Buscar</string>
+    <string name="library_search_close">Cerrar la búsqueda</string>
 </resources>

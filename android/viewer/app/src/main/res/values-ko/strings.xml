@@ -373,4 +373,12 @@
     <string name="library_error_folder_has_folders">“%1$s” 안에 폴더가 있습니다. 삭제하기 전에 밖으로 옮기세요</string>
     <string name="library_error_no_such_folder">“%1$s” 폴더가 더 이상 없습니다</string>
     <string name="library_error_no_such_notebook">“%1$s” 노트북이 더 이상 없습니다</string>
+    <!-- Library search -->
+    <string name="library_empty_search">이름에 “%1$s”이(가) 들어간 노트북이 없습니다</string>
+    <string name="library_trash_is_empty">휴지통이 비어 있습니다</string>
+    <string name="library_empty_folder">이 폴더에는 아직 노트북이 없습니다</string>
+    <string name="library_empty_tag">아직 이 태그가 붙은 노트북이 없습니다</string>
+    <string name="library_search_hint">노트북 검색</string>
+    <string name="library_search">검색</string>
+    <string name="library_search_close">검색 닫기</string>
 </resources>

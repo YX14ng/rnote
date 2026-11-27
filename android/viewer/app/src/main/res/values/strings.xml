@@ -385,4 +385,12 @@
     <string name="library_error_folder_has_folders">“%1$s” has folders inside: move them out before deleting it</string>
     <string name="library_error_no_such_folder">the folder “%1$s” no longer exists</string>
     <string name="library_error_no_such_notebook">the notebook “%1$s” no longer exists</string>
+    <!-- Library search -->
+    <string name="library_empty_search">No notebook is named like “%1$s”</string>
+    <string name="library_trash_is_empty">The trash is empty</string>
+    <string name="library_empty_folder">This folder has no notebooks yet</string>
+    <string name="library_empty_tag">No notebook has this tag yet</string>
+    <string name="library_search_hint">Search notebooks</string>
+    <string name="library_search">Search</string>
+    <string name="library_search_close">Close search</string>
 </resources>

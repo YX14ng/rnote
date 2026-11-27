@@ -4,11 +4,17 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.text.Editable
 import android.text.TextUtils
+import android.text.TextWatcher
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.WindowInsets
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.LinearLayout
@@ -38,6 +44,12 @@ class LibraryActivity : Activity() {
 
     private var snapshot = LibrarySnapshot(emptyList(), emptyList(), emptyList(), emptyList())
     private var section: LibrarySection = LibrarySection.All
+
+    // A search by name across the library, while the search field is open.
+    private var query = ""
+    private var searching = false
+    private lateinit var searchField: EditText
+    private lateinit var emptyText: TextView
     private var listMode = false
     private var sortByName = false
 
@@ -64,7 +76,15 @@ class LibraryActivity : Activity() {
             onLibraryChanged = ::reload
             view.layoutParams = LinearLayout.LayoutParams(dp(48f), dp(48f))
         }
+        // Back from being recreated (e.g. the tablet turned): the same section, search and selection.
+        if (savedInstanceState != null) {
+            section = LibrarySearch.sectionFrom(savedInstanceState.getString(KEY_SECTION))
+            query = savedInstanceState.getString(KEY_QUERY).orEmpty()
+            searching = savedInstanceState.getBoolean(KEY_SEARCHING)
+            grid.selection = savedInstanceState.getStringArrayList(KEY_SELECTION)?.toSet()
+        }
         setContentView(buildLayout())
+        showSearch(searching)
         // Unsaved changes kept when the app last stopped: the editor restores them first.
         if (savedInstanceState == null && Recovery(this).exists) {
             startActivity(Intent(this, MainActivity::class.java))
@@ -122,6 +142,31 @@ class LibraryActivity : Activity() {
             ellipsize = TextUtils.TruncateAt.END
             gravity = Gravity.CENTER_VERTICAL
         }
+        searchField = EditText(this).apply {
+            setSingleLine()
+            setText(query)
+            setHint(R.string.library_search_hint)
+            setTextColor(Graphite.TEXT)
+            setHintTextColor(Graphite.TEXT_SECONDARY)
+            imeOptions = EditorInfo.IME_ACTION_SEARCH
+            addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(text: CharSequence?, start: Int, count: Int, after: Int) = Unit
+
+                override fun onTextChanged(text: CharSequence?, start: Int, before: Int, count: Int) = Unit
+
+                override fun afterTextChanged(text: Editable?) {
+                    query = text?.toString().orEmpty()
+                    showNotebooks()
+                }
+            })
+        }
+        emptyText = TextView(this).apply {
+            setTextColor(Graphite.TEXT_SECONDARY)
+            textSize = 16f
+            gravity = Gravity.CENTER
+            setPadding(dp(32f), dp(32f), dp(32f), dp(32f))
+            visibility = View.GONE
+        }
         viewButton = barButton(R.drawable.ic_list, R.string.library_view_list) { toggleView() }
         updateViewButton()
         barButtons = LinearLayout(this)
@@ -131,6 +176,7 @@ class LibraryActivity : Activity() {
             setPadding(dp(4f), 0, dp(8f), 0)
             addView(barButton(R.drawable.ic_menu, R.string.library_sections) { toggleSidebar() })
             addView(title, LinearLayout.LayoutParams(0, MATCH_PARENT, 1f).apply { marginStart = dp(8f) })
+            addView(searchField, LinearLayout.LayoutParams(0, WRAP_CONTENT, 1f).apply { marginStart = dp(8f) })
             addView(barButtons)
         }
         selectionBar = LinearLayout(this).apply {
@@ -140,7 +186,13 @@ class LibraryActivity : Activity() {
         }
         val content = LinearLayout(this).apply {
             addView(sidebar, LinearLayout.LayoutParams(dp(SIDEBAR_WIDTH_DP), MATCH_PARENT))
-            addView(FrameLayout(this@LibraryActivity).apply { addView(grid) }, LinearLayout.LayoutParams(0, MATCH_PARENT, 1f))
+            addView(
+                FrameLayout(this@LibraryActivity).apply {
+                    addView(grid)
+                    addView(emptyText, FrameLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT, Gravity.CENTER))
+                },
+                LinearLayout.LayoutParams(0, MATCH_PARENT, 1f),
+            )
         }
         sidebar.visibility = if (resources.configuration.screenWidthDp >= WIDE_SCREEN_DP) View.VISIBLE else View.GONE
         return LinearLayout(this).apply {
@@ -166,6 +218,11 @@ class LibraryActivity : Activity() {
             return
         }
         barButtons.addView(syncButton.view)
+        if (searching) {
+            barButtons.addView(barButton(R.drawable.ic_close, R.string.library_search_close) { showSearch(false) })
+        } else if (section != LibrarySection.Trash) {
+            barButtons.addView(barButton(R.drawable.ic_search, R.string.library_search) { showSearch(true) })
+        }
         if (section == LibrarySection.Trash) {
             if (snapshot.trash.isNotEmpty()) {
                 barButtons.addView(barButton(R.drawable.ic_delete, R.string.library_empty_trash) { actions.emptyTrash() })
@@ -215,8 +272,35 @@ class LibraryActivity : Activity() {
         showNotebooks()
     }
 
+    /** Opens the search field, with the keyboard, or closes it and shows the section again. */
+    private fun showSearch(open: Boolean) {
+        searching = open
+        title.visibility = if (open) View.GONE else View.VISIBLE
+        searchField.visibility = if (open) View.VISIBLE else View.GONE
+        val keyboard = getSystemService(InputMethodManager::class.java)
+        if (open) {
+            searchField.requestFocus()
+            keyboard?.showSoftInput(searchField, InputMethodManager.SHOW_IMPLICIT)
+        } else {
+            keyboard?.hideSoftInputFromWindow(searchField.windowToken, 0)
+            // Clearing the text shows the section again.
+            if (query.isNotEmpty()) searchField.setText("")
+        }
+        updateBar()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString(KEY_SECTION, LibrarySearch.sectionText(section))
+        outState.putString(KEY_QUERY, query)
+        outState.putBoolean(KEY_SEARCHING, searching)
+        grid.selection?.let { outState.putStringArrayList(KEY_SELECTION, ArrayList(it)) }
+    }
+
     private fun showNotebooks() {
-        val notebooks = snapshot.filter(section).let { notebooks ->
+        val searchingNow = searching && query.isNotBlank()
+        val source = if (searchingNow) LibrarySearch.find(snapshot, query) else snapshot.filter(section)
+        val notebooks = source.let { notebooks ->
             if (sortByName) {
                 notebooks.sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.name })
             } else {
@@ -231,7 +315,10 @@ class LibraryActivity : Activity() {
             LibrarySection.Trash -> getString(R.string.library_trash)
         }
         val inTrash = section == LibrarySection.Trash
-        grid.show(notebooks, listMode, offerNew = !inTrash && section !is LibrarySection.Tag)
+        grid.show(notebooks, listMode, offerNew = !searchingNow && !inTrash && section !is LibrarySection.Tag)
+        val empty = if (notebooks.isEmpty()) LibrarySearch.emptyMessage(section, if (searchingNow) query else "") else null
+        emptyText.text = empty?.let { getString(it, query.trim()) }
+        emptyText.visibility = if (empty != null) View.VISIBLE else View.GONE
         sidebar.show(snapshot, section)
         updateBar()
         updateSelectionBar()
@@ -414,6 +501,10 @@ class LibraryActivity : Activity() {
         const val PREFERENCES = "library"
         const val KEY_LIST_MODE = "list_mode"
         const val KEY_SORT_BY_NAME = "sort_by_name"
+        const val KEY_SECTION = "section"
+        const val KEY_QUERY = "query"
+        const val KEY_SEARCHING = "searching"
+        const val KEY_SELECTION = "selection"
         const val KEY_PHOTO_FOLDER = "photo_folder"
         const val REQUEST_IMPORT = 1
         const val REQUEST_PDF = 2
