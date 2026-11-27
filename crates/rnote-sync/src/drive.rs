@@ -32,9 +32,14 @@ const REQUEST_TIMEOUT: Duration = Duration::from_secs(600);
 /// Gives the current access token for the `drive.file` scope.
 type TokenSource = Box<dyn FnMut() -> Result<String, RemoteError>>;
 
+mod upload;
+
 /// A [`Remote`] on the real Google Drive.
 pub struct DriveClient {
     agent: Agent,
+    /// For upload chunks: Drive answers a partial one with 308, which isn't a redirect.
+    upload_agent: Agent,
+    chunk_bytes: usize,
     base_url: String,
     token: TokenSource,
     sleep: Box<dyn FnMut(Duration)>,
@@ -104,8 +109,16 @@ impl DriveClient {
             .timeout_global(Some(REQUEST_TIMEOUT))
             .build()
             .into();
+        let upload_agent = Agent::config_builder()
+            .http_status_as_error(false)
+            .max_redirects(0)
+            .timeout_global(Some(REQUEST_TIMEOUT))
+            .build()
+            .into();
         Self {
             agent,
+            upload_agent,
+            chunk_bytes: upload::CHUNK_BYTES,
             base_url: DEFAULT_BASE_URL.to_owned(),
             token: Box::new(token),
             sleep: Box::new(thread::sleep),
@@ -116,6 +129,13 @@ impl DriveClient {
     #[must_use]
     pub fn with_base_url(mut self, url: &str) -> Self {
         url.trim_end_matches('/').clone_into(&mut self.base_url);
+        self
+    }
+
+    /// Uploads big files in chunks of `bytes` (for tests).
+    #[must_use]
+    pub fn with_chunk_bytes(mut self, bytes: usize) -> Self {
+        self.chunk_bytes = bytes;
         self
     }
 
@@ -228,36 +248,6 @@ impl DriveClient {
         body: Body,
     ) -> Result<RemoteFile, RemoteError> {
         let file: FileJson = self.send_json(method, path, query, body)?;
-        Ok(file.into_remote_file())
-    }
-}
-
-impl DriveClient {
-    /// Uploads `bytes` in a resumable session started with `method` on `path`: the first
-    /// request (with `metadata`, if any) opens the session, a second one sends the bytes.
-    fn upload_resumable(
-        &mut self,
-        method: Method,
-        path: &str,
-        metadata: Option<serde_json::Value>,
-        bytes: &[u8],
-    ) -> Result<RemoteFile, RemoteError> {
-        let query = [("uploadType", "resumable"), ("fields", FILE_FIELDS)];
-        let url = self.url(path, &query)?;
-        let body = metadata.map_or(Body::Empty, Body::Json);
-        let headers = [("X-Upload-Content-Type", "application/octet-stream")];
-        let (headers, _) = self.send_to(method, &url, &headers, body)?;
-        let session = headers
-            .get("location")
-            .and_then(|value| value.to_str().ok())
-            .ok_or_else(|| anyhow!("Drive opened no upload session"))?;
-        let session = url::Url::parse(session).context("Bad Drive upload session URL")?;
-        let body = Body::Bytes {
-            content_type: "application/octet-stream".to_owned(),
-            bytes: bytes.to_vec(),
-        };
-        let (_, answer) = self.send_to(Method::PUT, &session, &[], body)?;
-        let file: FileJson = serde_json::from_slice(&answer).context("Reading Drive's answer")?;
         Ok(file.into_remote_file())
     }
 }

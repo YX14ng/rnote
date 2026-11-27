@@ -399,3 +399,53 @@ fn list_reads_when_folders_were_created() {
     assert_eq!(listing.folders[0].created, "2026-11-10T10:00:00.000Z");
     assert!(stub.requests()[0].query("fields").unwrap().contains("createdTime"));
 }
+
+const FOUR_MIB: usize = 4 * 1024 * 1024;
+
+#[test]
+fn a_big_upload_goes_in_chunks() {
+    let stub = Stub::start_with_headers(vec![
+        (200, JSON, vec![("Location", "{url}/upload/session-1?upload_id=u1")], Vec::new()),
+        (308, JSON, vec![("Range", "bytes=0-4194303")], Vec::new()),
+        (200, JSON, Vec::new(), json(file_json("n", "a.rnote", "r"))),
+    ]);
+    let (client, _) = client(&stub);
+    let mut client = client.with_chunk_bytes(FOUR_MIB);
+    let bytes: Vec<u8> = (0..FIVE_MIB + 1).map(|i| (i % 251) as u8).collect();
+
+    let file = client.create_file("r", "a.rnote", &bytes).unwrap();
+
+    assert_eq!(file, remote_file("n", "a.rnote", "r"));
+    let requests = stub.requests();
+    assert_eq!(requests.len(), 3);
+    assert_eq!(requests[1].header("content-range"), Some("bytes 0-4194303/5242881"));
+    assert!(requests[1].body == bytes[..FOUR_MIB]);
+    assert_eq!(requests[2].header("content-range"), Some("bytes 4194304-5242880/5242881"));
+    assert!(requests[2].body == bytes[FOUR_MIB..]);
+}
+
+#[test]
+fn a_chunk_that_fails_goes_on_from_where_google_got() {
+    let stub = Stub::start_with_headers(vec![
+        (200, JSON, vec![("Location", "{url}/upload/session-1?upload_id=u1")], Vec::new()),
+        (503, JSON, Vec::new(), b"{}".to_vec()),
+        // Asked how far it got: the first MiB.
+        (308, JSON, vec![("Range", "bytes=0-1048575")], Vec::new()),
+        (308, JSON, vec![("Range", "bytes=0-5242879")], Vec::new()),
+        (200, JSON, Vec::new(), json(file_json("n", "a.rnote", "r"))),
+    ]);
+    let (client, sleeps) = client(&stub);
+    let mut client = client.with_chunk_bytes(FOUR_MIB);
+    let bytes: Vec<u8> = (0..FIVE_MIB + 1).map(|i| (i % 251) as u8).collect();
+
+    client.create_file("r", "a.rnote", &bytes).unwrap();
+
+    let requests = stub.requests();
+    assert_eq!(requests.len(), 5);
+    assert_eq!(requests[2].header("content-range"), Some("bytes */5242881"));
+    assert!(requests[2].body.is_empty());
+    assert_eq!(requests[3].header("content-range"), Some("bytes 1048576-5242879/5242881"));
+    assert!(requests[3].body == bytes[1024 * 1024..FIVE_MIB]);
+    assert_eq!(requests[4].header("content-range"), Some("bytes 5242880-5242880/5242881"));
+    assert_eq!(sleeps.borrow().len(), 1);
+}
