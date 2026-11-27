@@ -5227,6 +5227,15 @@ msgstr "В этой папке пока нет блокнотов"
 msgid "No notebook has this tag yet"
 msgstr "Пока ни у одного блокнота нет этой метки"
 
+
+#: crates/rnote-ui/src/sync/button.rs
+msgid "“{name}” was changed on two devices: both versions were kept"
+msgstr "«{name}» изменён на двух устройствах: сохранены обе версии"
+
+#: crates/rnote-ui/src/sync/button.rs
+msgid "Show Library"
+msgstr "Показать библиотеку"
+
 #~ msgid "Brush Style"
 #~ msgstr "Стиль кисти"
 

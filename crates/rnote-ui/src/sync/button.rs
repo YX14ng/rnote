@@ -94,16 +94,77 @@ fn after_sync(appwindow: &RnAppWindow, report: &SyncReport) {
     if changed_library(report) && appwindow.library_shown() {
         appwindow.library_view().refresh();
     }
-    if !report.conflicts.is_empty() {
-        let count = u32::try_from(report.conflicts.len()).unwrap_or(u32::MAX);
-        let text = ngettext(
-            "Changed on two devices: kept both, one as a conflict copy",
-            "Changed on two devices: kept both versions of {n} notebooks",
-            count,
-        )
-        .replace("{n}", &count.to_string());
-        appwindow.overlays().dispatch_toast_text(&text, None);
+    let text = conflicts_text(&report.conflicts);
+    match report.conflicts.as_slice() {
+        [] => {}
+        // One copy: open it right from the toast, to compare it with the other version.
+        [copy] => {
+            let window = appwindow.downgrade();
+            let copy = copy.clone();
+            appwindow.overlays().dispatch_toast_w_button(
+                &text,
+                &gettext("Open"),
+                move |_| {
+                    if let Some(appwindow) = window.upgrade() {
+                        open_copy(&appwindow, &copy);
+                    }
+                },
+                None,
+            );
+        }
+        _ => {
+            let window = appwindow.downgrade();
+            appwindow.overlays().dispatch_toast_w_button(
+                &text,
+                &gettext("Show Library"),
+                move |_| {
+                    if let Some(appwindow) = window.upgrade() {
+                        appwindow.show_library();
+                    }
+                },
+                None,
+            );
+        }
     }
+}
+
+/// What the toast says about the conflict copies at `paths`: the copy's name when there is
+/// one, how many when there are more.
+fn conflicts_text(paths: &[String]) -> String {
+    if let [path] = paths {
+        let file_name = path.rsplit('/').next().unwrap_or(path);
+        let name = file_name
+            .rsplit_once('.')
+            .map_or(file_name, |(stem, _)| stem);
+        return gettext("“{name}” was changed on two devices: both versions were kept")
+            .replace("{name}", name);
+    }
+    let count = u32::try_from(paths.len()).unwrap_or(u32::MAX);
+    ngettext(
+        "Changed on two devices: kept both, one as a conflict copy",
+        "Changed on two devices: kept both versions of {n} notebooks",
+        count,
+    )
+    .replace("{n}", &count.to_string())
+}
+
+/// Opens the conflict copy at `path` of the library in a tab.
+fn open_copy(appwindow: &RnAppWindow, path: &str) {
+    let root = appwindow.library_view().root();
+    let notebook = crate::library::open::open_existing_library(&root)
+        .and_then(|library| library.notebooks())
+        .ok()
+        .and_then(|notebooks| notebooks.into_iter().find(|n| n.path == path));
+    let Some(notebook) = notebook else {
+        appwindow
+            .overlays()
+            .dispatch_toast_error(&gettext("Opening file failed"));
+        return;
+    };
+    let appwindow = appwindow.clone();
+    glib::spawn_future_local(async move {
+        crate::library::open::open_notebook(&appwindow, &root, &notebook).await;
+    });
 }
 
 /// The menu's status line and the actions that fit it.
@@ -225,8 +286,30 @@ mod tests {
 
     use rnote_sync::SyncReport;
 
-    use super::{changed_library, icon_name};
+    use super::{changed_library, conflicts_text, icon_name};
     use crate::sync::SyncStatus;
+
+    #[test]
+    fn one_conflict_is_named() {
+        let text = conflicts_text(&[
+            "Orga/Parcial (conflicto, SM-X920, 2026-11-12 17.20).rnote".to_owned()
+        ]);
+
+        assert_eq!(
+            text,
+            "“Parcial (conflicto, SM-X920, 2026-11-12 17.20)” was changed on two devices: both versions were kept"
+        );
+    }
+
+    #[test]
+    fn many_conflicts_are_counted() {
+        let text = conflicts_text(&["a.rnote".to_owned(), "b.rnote".to_owned()]);
+
+        assert_eq!(
+            text,
+            "Changed on two devices: kept both versions of 2 notebooks"
+        );
+    }
 
     #[test]
     fn sync_button_icon_per_status() {

@@ -9,7 +9,7 @@ mod search;
 mod grid;
 mod location;
 mod manage;
-mod open;
+pub(crate) mod open;
 mod sidebar;
 mod tabs;
 mod tagchoice;

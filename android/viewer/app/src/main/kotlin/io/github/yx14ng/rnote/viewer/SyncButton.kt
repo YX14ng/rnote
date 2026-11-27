@@ -19,6 +19,9 @@ internal class SyncButton(private val activity: Activity) {
     /** Runs when a sync changed the library while the screen shows. */
     var onLibraryChanged: () -> Unit = {}
 
+    /** Opens the library notebook at a path, e.g. a conflict copy the user tapped. */
+    var onOpenNotebook: (String) -> Unit = {}
+
     /** The status last shown; null until [attach] gives the current one. */
     private var shown: SyncStatus? = null
     private val listener: (SyncStatus) -> Unit = ::show
@@ -61,9 +64,8 @@ internal class SyncButton(private val activity: Activity) {
                 toastedFailure = null
                 val report = status.report
                 if (report.didAnything) onLibraryChanged()
-                if (report.conflicts.isNotEmpty()) {
-                    val text = activity.resources.getQuantityString(R.plurals.sync_conflicts, report.conflicts.size, report.conflicts.size)
-                    Toast.makeText(activity, text, Toast.LENGTH_LONG).show()
+                if (report.conflicts.isNotEmpty() && !activity.isFinishing) {
+                    ConflictCopies.show(activity, report.conflicts, onOpenNotebook)
                 }
             }
             // Once per failure, not once per attempt.

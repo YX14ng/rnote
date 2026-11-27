@@ -5312,6 +5312,15 @@ msgstr "Esta carpeta todavía no tiene cuadernos"
 msgid "No notebook has this tag yet"
 msgstr "Ningún cuaderno tiene esta etiqueta todavía"
 
+
+#: crates/rnote-ui/src/sync/button.rs
+msgid "“{name}” was changed on two devices: both versions were kept"
+msgstr "«{name}» se cambió en dos dispositivos: se guardaron las dos versiones"
+
+#: crates/rnote-ui/src/sync/button.rs
+msgid "Show Library"
+msgstr "Mostrar la biblioteca"
+
 #~ msgid "Brush Style"
 #~ msgstr "Estilo del pincel"
 

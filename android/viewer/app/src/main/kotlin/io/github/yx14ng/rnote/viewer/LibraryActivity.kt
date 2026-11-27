@@ -74,6 +74,7 @@ class LibraryActivity : Activity() {
         }
         syncButton = SyncButton(this).apply {
             onLibraryChanged = ::reload
+            onOpenNotebook = { path -> startEditor(path, isNew = false) }
             view.layoutParams = LinearLayout.LayoutParams(dp(48f), dp(48f))
         }
         // Back from being recreated (e.g. the tablet turned): the same section, search and selection.

@@ -4841,3 +4841,11 @@ msgstr ""
 #: crates/rnote-ui/src/library/search.rs
 msgid "No notebook has this tag yet"
 msgstr ""
+
+#: crates/rnote-ui/src/sync/button.rs
+msgid "“{name}” was changed on two devices: both versions were kept"
+msgstr ""
+
+#: crates/rnote-ui/src/sync/button.rs
+msgid "Show Library"
+msgstr ""

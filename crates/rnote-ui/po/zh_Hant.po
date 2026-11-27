@@ -4935,6 +4935,15 @@ msgstr "此資料夾還沒有筆記本"
 msgid "No notebook has this tag yet"
 msgstr "還沒有筆記本使用此標籤"
 
+
+#: crates/rnote-ui/src/sync/button.rs
+msgid "“{name}” was changed on two devices: both versions were kept"
+msgstr "「{name}」在兩台裝置上被修改：兩個版本都已保留"
+
+#: crates/rnote-ui/src/sync/button.rs
+msgid "Show Library"
+msgstr "顯示資料庫"
+
 #~ msgid "Brush Style"
 #~ msgstr "筆刷樣式"
 

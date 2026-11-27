@@ -5101,6 +5101,15 @@ msgstr "このフォルダーにはまだノートブックがありません"
 msgid "No notebook has this tag yet"
 msgstr "このタグが付いたノートブックはまだありません"
 
+
+#: crates/rnote-ui/src/sync/button.rs
+msgid "“{name}” was changed on two devices: both versions were kept"
+msgstr "「{name}」は 2 台のデバイスで変更されました。両方のバージョンを保持しました"
+
+#: crates/rnote-ui/src/sync/button.rs
+msgid "Show Library"
+msgstr "ライブラリを表示"
+
 #~ msgid "Brush Style"
 #~ msgstr "ブラシのスタイル"
 
