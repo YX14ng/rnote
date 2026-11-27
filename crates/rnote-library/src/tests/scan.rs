@@ -96,3 +96,12 @@ fn unique_file_name_treats_names_differing_in_case_as_taken() {
 
     assert_eq!(unique_file_name(dir.path(), "x", "rnote"), "x (2).rnote");
 }
+
+#[test]
+fn a_folder_that_vanished_while_reading_has_no_notebooks() {
+    let dir = tempfile::tempdir().unwrap();
+
+    let notebooks = crate::scan::in_folder(&dir.path().join("Gone"), Some("Gone")).unwrap();
+
+    assert!(notebooks.is_empty());
+}

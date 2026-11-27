@@ -1,6 +1,7 @@
 //! Finding the notebooks and folders on disk.
 
 use std::fs;
+use std::io::ErrorKind;
 use std::path::Path;
 use std::time::UNIX_EPOCH;
 
@@ -42,16 +43,29 @@ pub(crate) fn notebooks(root: &Path) -> anyhow::Result<Vec<Notebook>> {
     Ok(notebooks)
 }
 
-fn in_folder(dir: &Path, folder: Option<&str>) -> anyhow::Result<Vec<Notebook>> {
+/// The notebooks in `dir`, the folder `folder` (`None` for the root). What a sync or another
+/// program moves away while it is read is left out, the folder itself included.
+pub(crate) fn in_folder(dir: &Path, folder: Option<&str>) -> anyhow::Result<Vec<Notebook>> {
     let mut notebooks = Vec::new();
-    for entry in fs::read_dir(dir).with_context(|| format!("Reading {}", dir.display()))? {
+    let entries = match fs::read_dir(dir) {
+        Ok(entries) => entries,
+        Err(error) if folder.is_some() && error.kind() == ErrorKind::NotFound => {
+            return Ok(notebooks);
+        }
+        Err(error) => return Err(error).with_context(|| format!("Reading {}", dir.display())),
+    };
+    for entry in entries {
         let entry = entry?;
         let Ok(file_name) = entry.file_name().into_string() else { continue };
         let Some(kind) = kind_of(&file_name) else { continue };
-        if is_hidden(&file_name) || !entry.file_type()?.is_file() {
+        let metadata = match entry.metadata() {
+            Ok(metadata) => metadata,
+            Err(error) if error.kind() == ErrorKind::NotFound => continue,
+            Err(error) => return Err(error).with_context(|| format!("Reading {file_name}")),
+        };
+        if is_hidden(&file_name) || !metadata.is_file() {
             continue;
         }
-        let metadata = entry.metadata()?;
         let modified_ms = metadata
             .modified()
             .ok()

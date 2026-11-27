@@ -20,6 +20,8 @@ impl RnLibraryView {
         };
         let notebooks = library.notebooks().unwrap_or_else(|e| {
             error!("Listing the notebooks failed, Err: {e:?}");
+            // Said, not shown as an empty library: the notebooks are still there.
+            self.toast_error(&super::error_text::user_message(&e));
             Vec::new()
         });
         let folders = library.folders().unwrap_or_default();
