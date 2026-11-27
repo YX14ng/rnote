@@ -1,6 +1,7 @@
 //! Tests for the shape recognizer, with synthetic freehand strokes.
 
 use super::*;
+use rnote_compose::shapes::QuadraticBezier;
 
 /// A slightly wobbly freehand version of `outline`, sampled `count` times, with a small
 /// gap between the ends like a real stroke.
@@ -375,4 +376,93 @@ fn recognizes_a_zigzag_as_a_polyline() {
         panic!("expected a polyline");
     };
     assert_eq!(polyline.path.len(), 4);
+}
+
+/// A slightly wobbly freehand open stroke along `outline`, from end to end.
+fn drawn(count: usize, outline: impl Fn(f64) -> Vector2) -> Vec<Vector2> {
+    (0..=count)
+        .map(|i| {
+            let t = i as f64 / count as f64;
+            outline(t) + Vector2::new((t * 37.0).sin(), (t * 23.0).cos()) * 1.5
+        })
+        .collect()
+}
+
+/// A tall bracket from (300, 100) to (300, 500) whose middle bulges by `bulge` (negative:
+/// to the left, like "(").
+fn bracket_outline(bulge: f64) -> impl Fn(f64) -> Vector2 {
+    move |t| Vector2::new(300.0 + bulge * (PI * t).sin(), 100.0 + 400.0 * t)
+}
+
+fn bezier(shape: Option<Shape>) -> QuadraticBezier {
+    match shape {
+        Some(Shape::QuadraticBezier(curve)) => curve,
+        other => panic!("expected a bracket, got {other:?}"),
+    }
+}
+
+#[test]
+fn recognizes_a_tall_parenthesis_as_a_symmetric_arc() {
+    for bulge in [-45.0, 45.0] {
+        let curve = bezier(recognize(&drawn(80, bracket_outline(bulge)), 50.0));
+
+        // The ends stand straight above each other, the bend is right in the middle and on
+        // the side it was drawn.
+        assert!((curve.start.x - curve.end.x).abs() < 1e-6, "{curve:?}");
+        assert!(
+            (curve.cp.y - (curve.start.y + curve.end.y) / 2.0).abs() < 1e-6,
+            "{curve:?}"
+        );
+        assert!((curve.cp.x - curve.start.x) * bulge > 0.0, "{curve:?}");
+        assert!(
+            ((curve.cp.x - curve.start.x).abs() - 2.0 * 45.0).abs() < 10.0,
+            "{curve:?}"
+        );
+    }
+}
+
+#[test]
+fn a_parenthesis_drawn_upwards_gives_the_same_arc() {
+    let points = drawn(80, bracket_outline(-45.0));
+    let mut upwards = points.clone();
+    upwards.reverse();
+
+    let down = bezier(recognize(&points, 50.0));
+    let up = bezier(recognize(&upwards, 50.0));
+
+    assert!((down.cp - up.cp).length() < 1.0, "{down:?} {up:?}");
+    assert!((down.start - up.end).length() < 1.0 && (down.end - up.start).length() < 1.0);
+}
+
+#[test]
+fn a_slightly_bent_line_stays_a_line() {
+    let points = drawn(80, bracket_outline(0.03 * 400.0));
+
+    assert!(matches!(recognize(&points, 50.0), Some(Shape::Line(_))));
+}
+
+#[test]
+fn an_obtuse_angle_bracket_stays_a_polyline() {
+    // A "<" whose corner is 120°: its bulge is within a bracket's, but it has a corner.
+    let apex = Vector2::new(100.0, 300.0);
+    let (top, bottom) = (Vector2::new(200.0, 127.0), Vector2::new(200.0, 473.0));
+    let points = drawn(80, |t| {
+        if t < 0.5 {
+            top + (apex - top) * (t * 2.0)
+        } else {
+            apex + (bottom - apex) * ((t - 0.5) * 2.0)
+        }
+    });
+
+    assert!(matches!(recognize(&points, 50.0), Some(Shape::Polyline(_))));
+}
+
+#[test]
+fn a_small_parenthesis_is_left_alone() {
+    let points: Vec<Vector2> = drawn(40, bracket_outline(-45.0))
+        .into_iter()
+        .map(|point| point * 0.1)
+        .collect();
+
+    assert!(recognize(&points, 50.0).is_none());
 }

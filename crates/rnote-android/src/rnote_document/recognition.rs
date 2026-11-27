@@ -1,6 +1,6 @@
 //! Shape recognition for brush strokes: holding the pen still at the end of a stroke that
-//! looks like a line, rectangle, ellipse or triangle replaces it with that shape, styled like
-//! the shaper draws, like other note-taking apps do.
+//! looks like a shape (see [`rnote_engine::shape_recognition`]) replaces it with that shape,
+//! like other note-taking apps do.
 
 use std::time::Instant;
 

@@ -1,7 +1,8 @@
 //! Turns freehand strokes that look like shapes into those shapes, like the shape recognition
 //! of other note-taking apps: lines, rectangles (squares), ellipses (circles), triangles,
 //! any other polygon with sharp corners (pentagons, hexagons, stars, arrows drawn as an
-//! outline, ...), and open strokes made of straight segments (polylines, arrows).
+//! outline, ...), open strokes made of straight segments (polylines, arrows), and brackets:
+//! open strokes that bend once to one side, like a tall parenthesis, made symmetric.
 //!
 //! A stroke is recognized when it is large enough and stays close to the outline of one of
 //! the candidate shapes; the closest candidate wins. Shapes that are almost axis-aligned, or
@@ -19,6 +20,7 @@ pub use self::tracker::StrokeTracker;
 
 use self::geometry::{bounding_box, convex_hull, rotated_area, rotated_bounds};
 
+mod arcs;
 mod geometry;
 mod polygons;
 mod style;
@@ -64,10 +66,15 @@ pub fn recognize(points: &[Vector2], min_size: f64) -> Option<Shape> {
         .sum();
 
     let chord = (last - first).length();
+    let open = chord > MAX_CLOSING_GAP * size;
+    // Before lines: a gently bent bracket is almost as long as the line between its ends.
+    if open && let Some(bracket) = arcs::bracket(points, size) {
+        return Some(Shape::QuadraticBezier(bracket));
+    }
     if chord >= LINE_STRAIGHTNESS * length {
         return Some(Shape::Line(snapped_line(first, last)));
     }
-    if chord > MAX_CLOSING_GAP * size {
+    if open {
         return open_shape(points, size);
     }
 
