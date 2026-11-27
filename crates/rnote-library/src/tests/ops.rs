@@ -314,3 +314,38 @@ fn trash_returns_the_id_that_restores_it() {
     assert_eq!(library.trash_entries()[0].id, id);
     assert_eq!(library.restore(&id).unwrap(), "F/b.rnote");
 }
+
+/// Runs `change` while another writer (a save, the sync) holds the library for a moment, and
+/// returns whether `watched` stayed in place until that writer let go.
+fn waits_for_another_writer(watched: &std::path::Path, change: impl FnOnce() + Send) -> bool {
+    let held = std::sync::Barrier::new(2);
+    std::thread::scope(|scope| {
+        let writer = scope.spawn(|| {
+            let _guard = crate::write_guard();
+            held.wait();
+            std::thread::sleep(std::time::Duration::from_millis(300));
+            watched.exists()
+        });
+        held.wait();
+        change();
+        writer.join().unwrap()
+    })
+}
+
+#[test]
+fn renaming_moving_and_trashing_wait_for_another_writer() {
+    let dir = tempfile::tempdir().unwrap();
+    write(dir.path(), "a.rnote", b"a");
+    let mut library = library_at(dir.path());
+    library.create_folder("F").unwrap();
+
+    assert!(waits_for_another_writer(&dir.path().join("a.rnote"), || {
+        library.rename("a.rnote", "b").unwrap();
+    }));
+    assert!(waits_for_another_writer(&dir.path().join("b.rnote"), || {
+        library.move_to("b.rnote", Some("F")).unwrap();
+    }));
+    assert!(waits_for_another_writer(&dir.path().join("F/b.rnote"), || {
+        library.trash("F/b.rnote").unwrap();
+    }));
+}

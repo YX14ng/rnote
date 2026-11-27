@@ -64,11 +64,14 @@ impl Library {
         let dir = self.folder_dir(folder)?;
         fs::create_dir_all(&dir).with_context(|| format!("Creating {}", dir.display()))?;
         let (stem, extension) = split_extension(file_name);
+        // Another writer (a save, the sync) must not slip between the check and the move.
+        let guard = crate::write_guard();
         let free_name = unique_file_name(&dir, stem, extension);
         let restored = crate::relative_path(folder, &free_name);
         let from = self.trash_dir().join(id);
         fs::rename(&from, self.root.join(&restored))
             .with_context(|| format!("Restoring {}", from.display()))?;
+        drop(guard);
         let now = self.now();
         self.meta.move_notebook(&trash_key(id), &restored, now);
         self.bury_trash_record(id, now);
@@ -104,10 +107,13 @@ impl Library {
         let now = self.now();
         let (_, file_name) = split_path(path);
         let (stem, extension) = split_extension(file_name);
+        // Another writer (a save, the sync) must not slip between the check and the move.
+        let guard = crate::write_guard();
         let id = unique_file_name(&self.trash_dir(), &format!("{now}-{stem}"), extension);
         let from = self.root.join(path);
         fs::rename(&from, self.trash_dir().join(&id))
             .with_context(|| format!("Moving {} to the trash", from.display()))?;
+        drop(guard);
         // Its tags wait in the trash with it, so a new notebook at its path starts untagged.
         self.meta.move_notebook(path, &trash_key(&id), now);
         self.meta.trash.insert(

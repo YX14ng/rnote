@@ -24,6 +24,8 @@ impl Library {
         let from = self.folder_dir(Some(folder))?;
         let new_name = validate_name(new_name)?;
         let to = self.root.join(&new_name);
+        // Another writer (a save, the sync) must not slip between the check and the move.
+        let guard = crate::write_guard();
         if to.exists() {
             bail!(LibraryError::NameTaken(new_name));
         }
@@ -33,6 +35,7 @@ impl Library {
             .filter(|notebook| notebook.folder.as_deref() == Some(folder))
             .collect();
         fs::rename(&from, &to).with_context(|| format!("Renaming {}", from.display()))?;
+        drop(guard);
         let now = self.now();
         for notebook in notebooks {
             let file_name = notebook.path.rsplit('/').next().unwrap_or(&notebook.path);
@@ -82,6 +85,8 @@ impl Library {
         if new_path == path {
             return Ok(new_path);
         }
+        // Another writer (a save, the sync) must not slip between the check and the move.
+        let guard = crate::write_guard();
         let to = self.root.join(&new_path);
         let dir = self.folder_dir(folder)?;
         if name_taken(&dir, &new_file_name, Some(&from)) {
@@ -97,6 +102,7 @@ impl Library {
         } else {
             fs::rename(&from, &to).with_context(|| format!("Renaming {}", from.display()))?;
         }
+        drop(guard);
         self.meta.move_notebook(path, &new_path, self.now());
         self.save_meta()?;
         Ok(new_path)
@@ -115,9 +121,12 @@ impl Library {
             return Ok(path.to_owned());
         }
         let (stem, extension) = split_extension(file_name);
+        // Another writer (a save, the sync) must not slip between the check and the move.
+        let guard = crate::write_guard();
         let new_path = relative_path(folder, &unique_file_name(&dir, stem, extension));
         fs::rename(&from, self.root.join(&new_path))
             .with_context(|| format!("Moving {}", from.display()))?;
+        drop(guard);
         self.meta.move_notebook(path, &new_path, self.now());
         self.save_meta()?;
         Ok(new_path)
