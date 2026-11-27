@@ -5,8 +5,6 @@ use std::collections::BTreeMap;
 use std::fs;
 use std::path::Path;
 
-use anyhow::Context;
-
 use super::setup::{DARK_LINES, DARK_PAPER, NotebookSetup};
 
 /// The key of the notebooks outside any folder.
@@ -40,9 +38,7 @@ pub fn remember_defaults(
     let mut all = read(file);
     all.insert(folder.unwrap_or(ROOT_KEY).to_owned(), *setup);
     let temporary = file.with_extension("json.tmp");
-    fs::write(&temporary, serde_json::to_vec_pretty(&all)?)
-        .with_context(|| format!("Writing {}", temporary.display()))?;
-    fs::rename(&temporary, file).with_context(|| format!("Replacing {}", file.display()))
+    crate::replace_durably(&temporary, file, &serde_json::to_vec_pretty(&all)?)
 }
 
 fn read(file: &Path) -> BTreeMap<String, NotebookSetup> {

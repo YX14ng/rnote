@@ -75,8 +75,18 @@ impl<'a> Run<'a> {
         Ok(())
     }
 
+    /// The local `path`, to upload. A notebook that is empty or starts with zeros, as a crash
+    /// or a power cut can leave one, is refused: uploading it would spread the damage over
+    /// the good copy in Drive and on the other devices.
     pub(crate) fn read_local(&self, path: &str) -> Result<Vec<u8>, SyncError> {
-        Ok(fs::read(self.ctx.library_root.join(path)).with_context(|| format!("Reading {path}"))?)
+        let bytes = fs::read(self.ctx.library_root.join(path))
+            .with_context(|| format!("Reading {path}"))?;
+        if path.to_lowercase().ends_with(".rnote") && bytes.first().is_none_or(|&byte| byte == 0) {
+            return Err(SyncError::Failed(anyhow::anyhow!(
+                "{path} looks damaged (empty or zeroed), so it isn't uploaded"
+            )));
+        }
+        Ok(bytes)
     }
 
     /// Fails unless the local `path` is still as the scan saw it (or still missing).

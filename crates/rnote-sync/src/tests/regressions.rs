@@ -509,3 +509,20 @@ fn sync_writes_wait_for_the_write_guard() {
     assert!(!written_while_held);
     assert_eq!(device.read("a.rnote"), b"remote");
 }
+
+#[test]
+fn a_notebook_left_empty_or_zeroed_by_a_crash_is_never_uploaded() {
+    let drive = FakeDrive::new();
+    let a = Device::new("A");
+    a.write("a.rnote", b"good");
+    a.sync(&drive);
+
+    // A power cut can leave a file empty, or full of zeros, where the notebook was.
+    a.write("a.rnote", b"");
+    a.write("b.rnote", &[0, 0, 0, 0]);
+    let report = a.sync(&drive);
+
+    assert_eq!(drive.content("a.rnote").as_deref(), Some(&b"good"[..]));
+    assert!(!drive.paths().contains(&"b.rnote".to_owned()), "{report:?}");
+    assert_eq!(report.skipped.len(), 2, "{report:?}");
+}

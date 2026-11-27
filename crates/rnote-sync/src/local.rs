@@ -207,8 +207,7 @@ pub(crate) fn write_atomic(root: &Path, path: &str, bytes: &[u8]) -> anyhow::Res
     fs::create_dir_all(dir).with_context(|| format!("Creating {}", dir.display()))?;
     let name = target.file_name().context("A file path has a name")?.to_string_lossy();
     let temporary = dir.join(format!(".{name}{TEMPORARY_SUFFIX}"));
-    fs::write(&temporary, bytes).with_context(|| format!("Writing {}", temporary.display()))?;
-    fs::rename(&temporary, &target).with_context(|| format!("Replacing {path}"))
+    rnote_library::replace_durably(&temporary, &target, bytes)
 }
 
 /// The SHA-256 of the local file at `path` right now, or `None` if there's none.

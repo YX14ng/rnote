@@ -1,6 +1,8 @@
-//! Writing a new file of the library all at once.
+//! Writing files of the library all at once, so that a crash or a power cut leaves either
+//! the old file or the new one, never a torn or empty one.
 
-use std::fs;
+use std::fs::{self, File};
+use std::io::Write;
 use std::path::Path;
 
 use anyhow::{Context, bail};
@@ -20,13 +22,43 @@ pub fn write_new_file(target: &Path, bytes: &[u8]) -> anyhow::Result<()> {
     if fs::symlink_metadata(target).is_ok() {
         bail!("{} exists already", target.display());
     }
-    let written = fs::write(&temporary, bytes)
-        .with_context(|| format!("Writing {}", temporary.display()))
-        .and_then(|()| {
-            fs::rename(&temporary, target).with_context(|| format!("Creating {}", target.display()))
-        });
+    let written = write_synced(&temporary, bytes).and_then(|()| {
+        fs::rename(&temporary, target).with_context(|| format!("Creating {}", target.display()))
+    });
     if written.is_err() {
         let _ = fs::remove_file(&temporary);
     }
-    written
+    written?;
+    sync_folder(dir);
+    Ok(())
+}
+
+/// Replaces `target` with `bytes` through `temporary`, a hidden file in the same folder: the
+/// bytes reach the disk before the rename, and the rename before this returns. The temporary
+/// file is removed when anything fails, so a full disk doesn't keep its space.
+pub fn replace_durably(temporary: &Path, target: &Path, bytes: &[u8]) -> anyhow::Result<()> {
+    let replaced = write_synced(temporary, bytes).and_then(|()| {
+        fs::rename(temporary, target).with_context(|| format!("Replacing {}", target.display()))
+    });
+    if replaced.is_err() {
+        let _ = fs::remove_file(temporary);
+    }
+    replaced?;
+    if let Some(dir) = target.parent() {
+        sync_folder(dir);
+    }
+    Ok(())
+}
+
+/// Writes `bytes` to `path` and waits until they are on the disk.
+fn write_synced(path: &Path, bytes: &[u8]) -> anyhow::Result<()> {
+    let mut file = File::create(path).with_context(|| format!("Writing {}", path.display()))?;
+    file.write_all(bytes).with_context(|| format!("Writing {}", path.display()))?;
+    file.sync_all().with_context(|| format!("Writing {}", path.display()))
+}
+
+/// Makes a rename in `dir` reach the disk. Some systems and file systems can't open a
+/// folder for that; the rename is still done, only less certain to survive a crash.
+fn sync_folder(dir: &Path) {
+    let _ = File::open(dir).and_then(|folder| folder.sync_all());
 }

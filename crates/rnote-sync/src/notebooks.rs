@@ -81,11 +81,7 @@ fn write_atomic(target: &Path, bytes: &[u8]) -> anyhow::Result<()> {
     // A sync may have removed the folder with the notebook's last copy here.
     fs::create_dir_all(dir).with_context(|| format!("Creating {}", dir.display()))?;
     let temporary = dir.join(format!(".{name}.write-tmp"));
-    fs::write(&temporary, bytes).with_context(|| format!("Writing {}", temporary.display()))?;
-    fs::rename(&temporary, target).map_err(|error| {
-        let _ = fs::remove_file(&temporary);
-        anyhow::Error::new(error).context(format!("Replacing {}", target.display()))
-    })
+    rnote_library::replace_durably(&temporary, target, bytes)
 }
 
 /// The SHA-256 of `bytes`, in lower-case hex.

@@ -60,9 +60,7 @@ impl SyncState {
             fs::create_dir_all(dir).with_context(|| format!("Creating {}", dir.display()))?;
         }
         let temporary = path.with_file_name(format!("{}.tmp", file_name(path)));
-        fs::write(&temporary, serde_json::to_vec(self)?)
-            .with_context(|| format!("Writing {}", temporary.display()))?;
-        fs::rename(&temporary, path).with_context(|| format!("Replacing {}", path.display()))
+        rnote_library::replace_durably(&temporary, path, &serde_json::to_vec(self)?)
     }
 }
 

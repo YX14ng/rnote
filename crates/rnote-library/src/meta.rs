@@ -115,9 +115,8 @@ impl Meta {
         let on_disk = fs::read(&path).ok().and_then(|bytes| parse(&bytes));
         let merged = on_disk.map(|on_disk| self.merged_with(on_disk));
         let temporary = dir.join(format!("{META_FILE}.tmp"));
-        fs::write(&temporary, serde_json::to_vec_pretty(merged.as_ref().unwrap_or(self))?)
-            .with_context(|| format!("Writing {}", temporary.display()))?;
-        fs::rename(&temporary, &path).with_context(|| format!("Replacing {}", path.display()))
+        let bytes = serde_json::to_vec_pretty(merged.as_ref().unwrap_or(self))?;
+        crate::replace_durably(&temporary, &path, &bytes)
     }
 
     /// This copy merged with `other`, entry by entry; unknown keys of this copy win.

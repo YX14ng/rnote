@@ -32,7 +32,7 @@ use crate::meta::Meta;
 
 pub use crate::covers::COVER_COLORS;
 pub use crate::errors::LibraryError;
-pub use crate::files::write_new_file;
+pub use crate::files::{replace_durably, write_new_file};
 pub use crate::meta::{META_FILE, merge_meta};
 pub use crate::section::{Section, SectionCounts, SortOrder, counts, filter, search, sort};
 pub use crate::tags::Tag;

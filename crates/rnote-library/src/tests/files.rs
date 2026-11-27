@@ -63,3 +63,30 @@ fn duplicating_leaves_no_temporary_file() {
     assert_eq!(fs::read(dir.path().join(&copy)).unwrap(), b"a");
     assert_eq!(names(dir.path()), [".rnote-library", "a (2).rnote", "a.rnote"]);
 }
+
+#[test]
+fn replacing_leaves_the_new_content_and_no_temporary_file() {
+    let dir = tempfile::tempdir().unwrap();
+    let target = dir.path().join("a.rnote");
+    let temporary = dir.path().join(".a.rnote.write-tmp");
+    std::fs::write(&target, b"old").unwrap();
+
+    crate::replace_durably(&temporary, &target, b"new").unwrap();
+
+    assert_eq!(std::fs::read(&target).unwrap(), b"new");
+    assert!(!temporary.exists());
+}
+
+#[test]
+fn a_failed_replace_leaves_no_temporary_file() {
+    let dir = tempfile::tempdir().unwrap();
+    // A folder with something in it can't be replaced by a file.
+    let target = dir.path().join("a.rnote");
+    std::fs::create_dir(&target).unwrap();
+    std::fs::write(target.join("inside"), b"x").unwrap();
+    let temporary = dir.path().join(".a.rnote.write-tmp");
+
+    assert!(crate::replace_durably(&temporary, &target, b"new").is_err());
+
+    assert!(!temporary.exists());
+}
