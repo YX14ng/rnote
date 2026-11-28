@@ -6,12 +6,14 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.graphics.Point
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.HapticFeedbackConstants
 import android.view.KeyEvent
 import android.view.View
 import android.widget.Toast
+import android.window.OnBackInvokedDispatcher
 import androidx.annotation.StringRes
 
 /** Opens, creates, edits and saves `.rnote` documents. */
@@ -60,6 +62,7 @@ class MainActivity : Activity() {
         guard = UnsavedChangesGuard(this, onDiscard = recovery::clear, onBack = ::leave)
         saver = DocumentSaver(this, renderer, recovery, onSaved = ::onSaved, requestSaveAs = ::saveAs)
         saver.onLocationChanged = ::rememberLocation
+        registerBackSteps()
         openSync = OpenNotebookSync(
             this,
             saver,
@@ -398,11 +401,46 @@ class MainActivity : Activity() {
     @SuppressLint("GestureBackNavigation")
     @Deprecated("Only used before Android 13; later versions use OnBackInvokedCallback.")
     override fun onBackPressed() {
+        if (closeOnBack()) return
         if (editState.modified) {
             leave()
         } else {
             @Suppress("DEPRECATION")
             super.onBackPressed()
+        }
+    }
+
+    /**
+     * Closes what is open on top of the page (a panel, the search, the pages, a selection);
+     * false when there's nothing, and back leaves the notebook.
+     */
+    private fun closeOnBack(): Boolean {
+        val step = BackStep.first(
+            overlay = layout.overlayShown,
+            search = search.isOpen,
+            pages = pages.shown,
+            selection = documentOpen && editState.hasSelection,
+        )
+        when (step) {
+            BackStep.OVERLAY -> {
+                layout.hideOverlay()
+                refreshSelectionBar()
+            }
+            BackStep.SEARCH -> search.close()
+            BackStep.PAGES -> pages.closePages()
+            BackStep.SELECTION -> perform(EditorMenu.Action.Selection(SelectionAction.DESELECT_ALL))
+            BackStep.LEAVE -> return false
+        }
+        return true
+    }
+
+    /** From Android 13 on: back first closes what is open on top of the page. */
+    private fun registerBackSteps() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
+        // Above the unsaved changes guard, which it falls back to by leaving as it would.
+        onBackInvokedDispatcher.registerOnBackInvokedCallback(OnBackInvokedDispatcher.PRIORITY_OVERLAY) {
+            if (closeOnBack()) return@registerOnBackInvokedCallback
+            if (editState.modified) leave() else finish()
         }
     }
 

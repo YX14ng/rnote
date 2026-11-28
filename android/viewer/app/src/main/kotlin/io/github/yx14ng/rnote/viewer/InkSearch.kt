@@ -53,6 +53,10 @@ internal class InkSearch(
         main.postDelayed(refresh, EDIT_PAUSE_MS)
     }
 
+    /** Whether the search field is shown. */
+    val isOpen: Boolean
+        get() = showing
+
     /** Shows the search field in the editor's bar. */
     fun open() {
         showing = true
