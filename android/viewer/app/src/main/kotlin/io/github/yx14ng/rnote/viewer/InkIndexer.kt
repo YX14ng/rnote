@@ -74,8 +74,18 @@ internal class InkIndexer(
         if (file == null) return
         // A notebook not read yet takes the language chosen last.
         val chosen = InkLanguage.fromTag(preferences.getString(KEY_LANGUAGE, null))
-        language = InkLanguage.fromTag(NativeBridge.inkLanguage(file.path, chosen.tag))
-        start()
+        language = chosen
+        // The index of a long notebook is big: its language is read off the main thread.
+        Thread({
+            val read = InkLanguage.fromTag(NativeBridge.inkLanguage(file.path, chosen.tag))
+            main.post {
+                // Another notebook may be open by now.
+                if (indexFile != file) return@post
+                language = read
+                start()
+                onChanged?.invoke()
+            }
+        }, "rnote-ink-language").start()
     }
 
     private fun start() {
