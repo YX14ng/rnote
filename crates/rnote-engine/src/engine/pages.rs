@@ -19,9 +19,17 @@ use std::hash::{Hash, Hasher};
 use std::time::Instant;
 
 impl Engine {
-    /// The pages a document export with `prefs` has: the ones with something on them, or
-    /// every page when blank pages are exported too.
+    /// The pages a document export with `prefs` has: the ones with something on them, every
+    /// page when blank pages are exported too, or the range of pages chosen.
     pub fn export_pages_content(&self, prefs: &DocExportPrefs) -> Vec<StrokeContent> {
+        if let Some((first, last)) = prefs.pages {
+            let mut pages = self.extract_all_pages_content(prefs.page_order);
+            let last = (last as usize).min(pages.len().saturating_sub(1));
+            let first = (first as usize).min(last);
+            pages.truncate(last + 1);
+            pages.drain(..first);
+            return pages;
+        }
         if prefs.with_empty_pages {
             self.extract_all_pages_content(prefs.page_order)
         } else {

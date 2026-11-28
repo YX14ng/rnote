@@ -5344,6 +5344,22 @@ msgstr "每個副本保存的是一台裝置寫下的內容。開啟一個與筆
 msgid "Close"
 msgstr "關閉"
 
+#: crates/rnote-ui/src/dialogs/export_pages.rs
+msgid "All Pages"
+msgstr "全部頁面"
+
+#: crates/rnote-ui/src/dialogs/export_pages.rs
+msgid "This Page ({n})"
+msgstr "目前頁面（{n}）"
+
+#: crates/rnote-ui/data/ui/dialogs/export.ui
+msgid "Which pages go in the PDF"
+msgstr "PDF 中包含哪些頁面"
+
+#: crates/rnote-ui/data/ui/dialogs/export.ui
+msgid "Pages to Export"
+msgstr "要匯出的頁面"
+
 #~ msgid "Brush Style"
 #~ msgstr "筆刷樣式"
 

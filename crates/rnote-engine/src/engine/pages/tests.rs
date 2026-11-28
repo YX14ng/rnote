@@ -82,3 +82,17 @@ fn a_page_fingerprint_changes_only_where_something_was_drawn() {
     assert_ne!(after[1], before[1]);
     assert_eq!(after[2], before[2]);
 }
+
+#[test]
+fn exporting_some_pages_takes_only_those_blank_or_not() {
+    let (engine, _) = sheets(3, &[1]);
+    let mut prefs = DocExportPrefs::default();
+
+    prefs.pages = Some((0, 0));
+    assert_eq!(engine.export_pages_content(&prefs).len(), 1);
+    prefs.pages = Some((0, 2));
+    assert_eq!(engine.export_pages_content(&prefs).len(), 3);
+    // Past the last page stops there.
+    prefs.pages = Some((1, 9));
+    assert_eq!(engine.export_pages_content(&prefs).len(), 2);
+}

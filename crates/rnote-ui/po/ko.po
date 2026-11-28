@@ -5458,6 +5458,22 @@ msgstr "각 사본에는 한 기기에서 쓴 내용이 들어 있습니다. 하
 msgid "Close"
 msgstr "닫기"
 
+#: crates/rnote-ui/src/dialogs/export_pages.rs
+msgid "All Pages"
+msgstr "모든 페이지"
+
+#: crates/rnote-ui/src/dialogs/export_pages.rs
+msgid "This Page ({n})"
+msgstr "이 페이지 ({n})"
+
+#: crates/rnote-ui/data/ui/dialogs/export.ui
+msgid "Which pages go in the PDF"
+msgstr "PDF에 넣을 페이지"
+
+#: crates/rnote-ui/data/ui/dialogs/export.ui
+msgid "Pages to Export"
+msgstr "내보낼 페이지"
+
 #~ msgid "Brush Style"
 #~ msgstr "브러시 스타일"
 

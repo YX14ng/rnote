@@ -5725,6 +5725,22 @@ msgstr "Cada copia tiene lo que escribió un dispositivo. Abrí una para compara
 msgid "Close"
 msgstr "Cerrar"
 
+#: crates/rnote-ui/src/dialogs/export_pages.rs
+msgid "All Pages"
+msgstr "Todas las páginas"
+
+#: crates/rnote-ui/src/dialogs/export_pages.rs
+msgid "This Page ({n})"
+msgstr "Esta página ({n})"
+
+#: crates/rnote-ui/data/ui/dialogs/export.ui
+msgid "Which pages go in the PDF"
+msgstr "Qué páginas van en el PDF"
+
+#: crates/rnote-ui/data/ui/dialogs/export.ui
+msgid "Pages to Export"
+msgstr "Páginas a exportar"
+
 #~ msgid "Brush Style"
 #~ msgstr "Estilo del pincel"
 

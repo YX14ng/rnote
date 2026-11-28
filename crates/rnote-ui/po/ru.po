@@ -5644,6 +5644,22 @@ msgstr "В каждой копии то, что написали на одном
 msgid "Close"
 msgstr "Закрыть"
 
+#: crates/rnote-ui/src/dialogs/export_pages.rs
+msgid "All Pages"
+msgstr "Все страницы"
+
+#: crates/rnote-ui/src/dialogs/export_pages.rs
+msgid "This Page ({n})"
+msgstr "Эта страница ({n})"
+
+#: crates/rnote-ui/data/ui/dialogs/export.ui
+msgid "Which pages go in the PDF"
+msgstr "Какие страницы попадут в PDF"
+
+#: crates/rnote-ui/data/ui/dialogs/export.ui
+msgid "Pages to Export"
+msgstr "Экспортируемые страницы"
+
 #~ msgid "Brush Style"
 #~ msgstr "Стиль кисти"
 

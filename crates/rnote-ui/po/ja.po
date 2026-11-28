@@ -5510,6 +5510,22 @@ msgstr "各コピーには 1 台のデバイスで書いた内容が入ってい
 msgid "Close"
 msgstr "閉じる"
 
+#: crates/rnote-ui/src/dialogs/export_pages.rs
+msgid "All Pages"
+msgstr "すべてのページ"
+
+#: crates/rnote-ui/src/dialogs/export_pages.rs
+msgid "This Page ({n})"
+msgstr "このページ（{n}）"
+
+#: crates/rnote-ui/data/ui/dialogs/export.ui
+msgid "Which pages go in the PDF"
+msgstr "PDF に含めるページ"
+
+#: crates/rnote-ui/data/ui/dialogs/export.ui
+msgid "Pages to Export"
+msgstr "書き出すページ"
+
 #~ msgid "Brush Style"
 #~ msgstr "ブラシのスタイル"
 

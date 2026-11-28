@@ -92,6 +92,10 @@ pub struct DocExportPrefs {
     /// sheets keep their numbers. Only for PDF.
     #[serde(rename = "with_empty_pages")]
     pub with_empty_pages: bool,
+    /// Only the pages from the first to the last of these (from 0), blank ones included,
+    /// not every page: chosen for one export, never kept. Only for PDF.
+    #[serde(skip)]
+    pub pages: Option<(u32, u32)>,
 }
 
 impl Default for DocExportPrefs {
@@ -103,6 +107,7 @@ impl Default for DocExportPrefs {
             export_format: DocExportFormat::default(),
             page_order: SplitOrder::default(),
             with_empty_pages: false,
+            pages: None,
         }
     }
 }

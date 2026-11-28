@@ -149,6 +149,40 @@
                               </object>
                             </child>
                             <child>
+                              <object class="AdwComboRow" id="export_doc_pages_row">
+                                <property name="title" translatable="yes">Pages to Export</property>
+                                <property name="subtitle" translatable="yes">Which pages go in the PDF</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="AdwSpinRow" id="export_doc_pages_from_row">
+                                <property name="title" translatable="yes">From Page</property>
+                                <property name="visible">false</property>
+                                <property name="adjustment">
+                                  <object class="GtkAdjustment">
+                                    <property name="lower">1</property>
+                                    <property name="upper">1</property>
+                                    <property name="step-increment">1</property>
+                                    <property name="value">1</property>
+                                  </object>
+                                </property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="AdwSpinRow" id="export_doc_pages_to_row">
+                                <property name="title" translatable="yes">To Page</property>
+                                <property name="visible">false</property>
+                                <property name="adjustment">
+                                  <object class="GtkAdjustment">
+                                    <property name="lower">1</property>
+                                    <property name="upper">1</property>
+                                    <property name="step-increment">1</property>
+                                    <property name="value">1</property>
+                                  </object>
+                                </property>
+                              </object>
+                            </child>
+                            <child>
                               <object class="AdwComboRow" id="export_doc_page_order_row">
                                 <property name="title" translatable="yes">Page Order</property>
                                 <property name="subtitle" translatable="yes">The page order when documents with layouts

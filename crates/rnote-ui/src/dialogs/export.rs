@@ -308,7 +308,11 @@ pub(crate) async fn dialog_export_doc_w_prefs(appwindow: &RnAppWindow, canvas: &
         }
     ));
 
+    super::export_pages::wire(&builder, &dialog, appwindow, canvas, &preview);
+
     export_doc_button_confirm.connect_clicked(clone!(#[weak] dialog, #[weak] canvas, #[weak] appwindow , move |_| {
+        // Taken before closing: closing forgets the pages chosen.
+        let prefs = appwindow.engine_config().read().export_prefs.doc_export_prefs;
         dialog.close();
 
         let Some(file) = selected_file.take() else {
@@ -327,7 +331,7 @@ pub(crate) async fn dialog_export_doc_w_prefs(appwindow: &RnAppWindow, canvas: &
                 None,
             );
 
-            if let Err(e) = canvas.export_doc(&file, file_title, None).await {
+            if let Err(e) = canvas.export_doc(&file, file_title, Some(prefs)).await {
                 error!("Exporting document failed, Err: `{e:?}`");
                 appwindow.overlays().dispatch_toast_error(&gettext("Exporting document failed"));
                 appwindow.overlays().progressbar_abort();
