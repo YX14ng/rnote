@@ -175,13 +175,17 @@ pub(crate) fn reload_if_clean(appwindow: &RnAppWindow, canvas: &RnCanvas) -> boo
                 Ok((snapshot, sha256, path)) => {
                     // The file also holds the view of the device that wrote it: this one's
                     // stays, as on Android.
-                    let (offset, zoom) = {
+                    let (offset, zoom, size) = {
                         let engine = canvas.engine_ref();
-                        (engine.camera.offset(), engine.camera.zoom())
+                        (
+                            engine.camera.offset(),
+                            engine.camera.zoom(),
+                            engine.camera.size(),
+                        )
                     };
                     let mut widget_flags =
                         canvas.apply_rnote_snapshot(snapshot, sha256, Some(path));
-                    widget_flags |= canvas.engine_mut().restore_view(offset, zoom);
+                    widget_flags |= canvas.engine_mut().restore_view(offset, zoom, size);
                     canvas.emit_handle_widget_flags(widget_flags);
                     canvas.emit_invalidate_thumbnail();
                     appwindow.overlays().dispatch_toast_text(
