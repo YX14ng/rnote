@@ -5438,6 +5438,10 @@ msgstr "“{name}”이(가) 다른 기기에서 삭제되었습니다"
 msgid "It was deleted on another device: save it elsewhere to keep your changes"
 msgstr "다른 기기에서 삭제되었습니다. 변경 사항을 유지하려면 다른 곳에 저장하세요"
 
+#: crates/rnote-ui/src/sync/button.rs
+msgid "Signed out here, but Google couldn't be told: remove Rnote's access at myaccount.google.com/permissions"
+msgstr "여기서는 로그아웃했지만 Google에 알리지 못했습니다. myaccount.google.com/permissions에서 Rnote의 액세스를 삭제하세요"
+
 #~ msgid "Brush Style"
 #~ msgstr "브러시 스타일"
 

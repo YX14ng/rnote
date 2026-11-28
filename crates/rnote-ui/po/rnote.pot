@@ -5233,3 +5233,7 @@ msgstr ""
 #: crates/rnote-ui/src/library/tabs.rs
 msgid "It was deleted on another device: save it elsewhere to keep your changes"
 msgstr ""
+
+#: crates/rnote-ui/src/sync/button.rs
+msgid "Signed out here, but Google couldn't be told: remove Rnote's access at myaccount.google.com/permissions"
+msgstr ""

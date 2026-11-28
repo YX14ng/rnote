@@ -5318,6 +5318,10 @@ msgstr "“{name}”已在另一台设备上删除"
 msgid "It was deleted on another device: save it elsewhere to keep your changes"
 msgstr "它已在另一台设备上删除：请另存到别处以保留你的更改"
 
+#: crates/rnote-ui/src/sync/button.rs
+msgid "Signed out here, but Google couldn't be told: remove Rnote's access at myaccount.google.com/permissions"
+msgstr "已在此处退出登录，但未能通知 Google：请在 myaccount.google.com/permissions 移除 Rnote 的访问权限"
+
 #~ msgid "Brush Style"
 #~ msgstr "笔刷样式"
 

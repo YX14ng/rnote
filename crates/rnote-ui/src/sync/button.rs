@@ -287,14 +287,25 @@ async fn sign_out(appwindow: RnAppWindow) {
         return;
     }
     let window = appwindow.downgrade();
-    appwindow.sync().sign_out(move |result| {
-        if let (Err(error), Some(appwindow)) = (result, window.upgrade()) {
-            appwindow.overlays().dispatch_toast_error(
-                &gettext("Signed out here, but Google couldn't be told: {error}")
-                    .replace("{error}", &error),
-            );
+    appwindow.sync().sign_out(move |outcome| {
+        if let (Some(text), Some(appwindow)) = (sign_out_message(&outcome), window.upgrade()) {
+            appwindow.overlays().dispatch_toast_error(&text);
         }
     });
+}
+
+/// What to tell about signing out, if anything went wrong.
+fn sign_out_message(outcome: &crate::sync::SignOutOutcome) -> Option<String> {
+    use crate::sync::SignOutOutcome;
+    match outcome {
+        SignOutOutcome::Done => None,
+        SignOutOutcome::GoogleNotTold => Some(gettext(
+            "Signed out here, but Google couldn't be told: remove Rnote's access at myaccount.google.com/permissions",
+        )),
+        SignOutOutcome::KeyringLocked => Some(gettext(
+            "Unlock the keyring to sign out: until then, this computer stays signed in",
+        )),
+    }
 }
 
 #[cfg(test)]
@@ -302,6 +313,18 @@ mod tests {
     use std::time::SystemTime;
 
     use rnote_sync::SyncReport;
+
+    #[test]
+    fn signing_out_says_what_happened_without_contradicting_itself() {
+        use super::sign_out_message;
+        use crate::sync::SignOutOutcome;
+
+        assert_eq!(sign_out_message(&SignOutOutcome::Done), None);
+        let locked = sign_out_message(&SignOutOutcome::KeyringLocked).unwrap();
+        assert!(!locked.contains("Signed out here"), "{locked}");
+        let not_told = sign_out_message(&SignOutOutcome::GoogleNotTold).unwrap();
+        assert!(not_told.contains("myaccount.google.com"), "{not_told}");
+    }
 
     use super::{changed_library, conflicts_text, icon_name};
     use crate::sync::SyncStatus;

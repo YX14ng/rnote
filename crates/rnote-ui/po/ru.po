@@ -5624,6 +5624,10 @@ msgstr "«{name}» удалён на другом устройстве"
 msgid "It was deleted on another device: save it elsewhere to keep your changes"
 msgstr "Удалено на другом устройстве: сохраните в другом месте, чтобы не потерять изменения"
 
+#: crates/rnote-ui/src/sync/button.rs
+msgid "Signed out here, but Google couldn't be told: remove Rnote's access at myaccount.google.com/permissions"
+msgstr "Выход выполнен здесь, но Google не удалось уведомить: удалите доступ Rnote на myaccount.google.com/permissions"
+
 #~ msgid "Brush Style"
 #~ msgstr "Стиль кисти"
 

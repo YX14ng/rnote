@@ -364,7 +364,7 @@ impl RnSync {
 
     /// Signs out: Google forgets the app's access and the keyring the token. Signed out
     /// here even when Google can't be told; `done` gets that error then.
-    pub(crate) fn sign_out(&self, done: impl FnOnce(Result<(), String>) + 'static) {
+    pub(crate) fn sign_out(&self, done: impl FnOnce(SignOutOutcome) + 'static) {
         let store = Arc::clone(&self.inner.store);
         let access = Arc::clone(&self.inner.tokens);
         let this = self.clone();
@@ -376,14 +376,12 @@ impl RnSync {
                 })
             })
             .await
-            .unwrap_or_else(|_| SignOut::Done(Err(gettext("Signing out stopped unexpectedly"))));
+            .unwrap_or_else(|_| SignOut::Done(Err("Signing out stopped unexpectedly".to_owned())));
             let revoked = match outcome {
                 // The token stays until the keyring opens: this computer is still signed in.
                 SignOut::KeyringLocked => {
                     this.set_status(SyncStatus::KeyringLocked);
-                    done(Err(gettext(
-                        "Unlock the keyring to sign out: until then, this computer stays signed in",
-                    )));
+                    done(SignOutOutcome::KeyringLocked);
                     return;
                 }
                 SignOut::Done(revoked) => revoked,
@@ -392,9 +390,26 @@ impl RnSync {
                 source.remove();
             }
             this.set_status(SyncStatus::SignedOut);
-            done(revoked);
+            done(match revoked {
+                Ok(()) => SignOutOutcome::Done,
+                Err(error) => {
+                    tracing::warn!("Telling Google to forget the sign-in failed: {error}");
+                    SignOutOutcome::GoogleNotTold
+                }
+            });
         });
     }
+}
+
+/// How signing out went, for the user.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum SignOutOutcome {
+    /// Signed out, and Google forgot the app's access.
+    Done,
+    /// Signed out here, but Google couldn't be told (e.g. offline).
+    GoogleNotTold,
+    /// The keyring is locked: still signed in until it opens.
+    KeyringLocked,
 }
 
 /// How signing out went.
