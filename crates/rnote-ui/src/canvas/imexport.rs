@@ -259,6 +259,8 @@ impl RnCanvas {
             self.set_save_in_progress(false);
             anyhow::anyhow!("Could not retrieve basename for file: `{file:?}`.")
         })?;
+        // A change made while this save writes isn't in the file: it stays unsaved.
+        let edits_at_save = self.edits();
         let rnote_bytes_receiver = self
             .engine_ref()
             .save_as_rnote_bytes(basename.to_string_lossy().to_string());
@@ -324,7 +326,9 @@ impl RnCanvas {
         if let (Some((root, _)), Some(written)) = (&library, &written) {
             crate::sync::opened::saved(self, root, written);
         }
-        self.set_unsaved_changes(false);
+        if self.edits() == edits_at_save {
+            self.set_unsaved_changes(false);
+        }
         self.set_save_in_progress(false);
 
         Ok(true)

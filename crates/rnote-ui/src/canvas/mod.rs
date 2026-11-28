@@ -99,6 +99,9 @@ mod imp {
         pub(crate) show_drawing_cursor: Cell<bool>,
         /// Holding the pen still turns the brush stroke into a shape.
         pub(crate) shape_hold: RefCell<super::shape_hold::ShapeHold>,
+        /// How many times the document was changed: a save marks it saved only if no change
+        /// came while it wrote.
+        pub(crate) edits: Cell<u64>,
         pub(crate) text_input_enabled: Cell<bool>,
 
         pub(crate) last_export_dir: RefCell<Option<gio::File>>,
@@ -200,6 +203,7 @@ mod imp {
                 touch_drawing: Cell::new(false),
                 show_drawing_cursor: Cell::new(false),
                 shape_hold: RefCell::default(),
+                edits: Cell::new(0),
                 text_input_enabled: Cell::new(false),
 
                 last_export_dir: RefCell::new(None),
@@ -840,7 +844,15 @@ impl RnCanvas {
     }
 
     #[allow(unused)]
+    /// How many times the document was changed so far, to tell whether it changed meanwhile.
+    pub(crate) fn edits(&self) -> u64 {
+        self.imp().edits.get()
+    }
+
     pub(crate) fn set_unsaved_changes(&self, unsaved_changes: bool) {
+        if unsaved_changes {
+            self.imp().edits.set(self.imp().edits.get().wrapping_add(1));
+        }
         if self.imp().unsaved_changes.get() != unsaved_changes {
             self.set_property("unsaved-changes", unsaved_changes.to_value());
         }
