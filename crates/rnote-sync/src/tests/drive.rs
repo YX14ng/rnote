@@ -449,3 +449,26 @@ fn a_chunk_that_fails_goes_on_from_where_google_got() {
     assert_eq!(requests[4].header("content-range"), Some("bytes 5242880-5242880/5242881"));
     assert_eq!(sleeps.borrow().len(), 1);
 }
+
+#[test]
+fn a_connection_that_hangs_gives_up_soon_instead_of_syncing_for_minutes() {
+    // Accepts and then never answers, like a half-open connection after a network switch.
+    let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+    let url = format!("http://{}", listener.local_addr().unwrap());
+    let server = std::thread::spawn(move || {
+        let (stream, _) = listener.accept().unwrap();
+        std::thread::sleep(Duration::from_secs(3));
+        drop(stream);
+    });
+    let mut client = DriveClient::new(|| Ok("t".to_owned()))
+        .with_base_url(&url)
+        .with_sleep(|_| {})
+        .with_request_timeout(Duration::from_millis(300));
+
+    let started = std::time::Instant::now();
+    let result = client.find_root();
+
+    assert!(matches!(result, Err(RemoteError::Offline(_))), "{result:?}");
+    assert!(started.elapsed() < Duration::from_secs(2));
+    server.join().unwrap();
+}

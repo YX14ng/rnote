@@ -26,8 +26,11 @@ const FILE_FIELDS: &str = "id,name,mimeType,parents,md5Checksum,modifiedTime,cre
 const RESUMABLE_THRESHOLD: usize = 5 * 1024 * 1024;
 /// The waits before each retry of a request Drive asked to slow down.
 const RETRY_WAITS_SECS: [u64; 5] = [1, 2, 4, 8, 16];
-/// The longest a request may take, uploads of big notebooks included.
-const REQUEST_TIMEOUT: Duration = Duration::from_secs(600);
+/// The longest a transfer of a file may take, big notebooks on slow connections included.
+const TRANSFER_TIMEOUT: Duration = Duration::from_secs(600);
+/// The longest any other request (listings, metadata) may take: a connection left hanging,
+/// e.g. by a network switch, shows as offline soon instead of "syncing" for minutes.
+const REQUEST_TIMEOUT: Duration = Duration::from_secs(60);
 
 /// Gives the current access token for the `drive.file` scope.
 type TokenSource = Box<dyn FnMut() -> Result<String, RemoteError>>;
@@ -37,6 +40,8 @@ mod upload;
 /// A [`Remote`] on the real Google Drive.
 pub struct DriveClient {
     agent: Agent,
+    /// For downloads and one-request uploads, which may take long.
+    transfer_agent: Agent,
     /// For upload chunks: Drive answers a partial one with 308, which isn't a redirect.
     upload_agent: Agent,
     chunk_bytes: usize,
@@ -104,19 +109,15 @@ struct FileListJson {
 impl DriveClient {
     /// A client that asks `token` for the access token before each request.
     pub fn new(token: impl FnMut() -> Result<String, RemoteError> + 'static) -> Self {
-        let agent = Agent::config_builder()
-            .http_status_as_error(false)
-            .timeout_global(Some(REQUEST_TIMEOUT))
-            .build()
-            .into();
         let upload_agent = Agent::config_builder()
             .http_status_as_error(false)
             .max_redirects(0)
-            .timeout_global(Some(REQUEST_TIMEOUT))
+            .timeout_global(Some(TRANSFER_TIMEOUT))
             .build()
             .into();
         Self {
-            agent,
+            agent: agent_with_timeout(REQUEST_TIMEOUT),
+            transfer_agent: agent_with_timeout(TRANSFER_TIMEOUT),
             upload_agent,
             chunk_bytes: upload::CHUNK_BYTES,
             base_url: DEFAULT_BASE_URL.to_owned(),
@@ -129,6 +130,13 @@ impl DriveClient {
     #[must_use]
     pub fn with_base_url(mut self, url: &str) -> Self {
         url.trim_end_matches('/').clone_into(&mut self.base_url);
+        self
+    }
+
+    /// Gives up on requests other than file transfers after `timeout` (for tests).
+    #[must_use]
+    pub fn with_request_timeout(mut self, timeout: Duration) -> Self {
+        self.agent = agent_with_timeout(timeout);
         self
     }
 
@@ -177,6 +185,9 @@ impl DriveClient {
         headers: &[(&str, &str)],
         body: Body,
     ) -> Result<(HeaderMap, Vec<u8>), RemoteError> {
+        // Files may take long to go up or down; anything else answers quickly or not at all.
+        let transfer = matches!(body, Body::Bytes { .. })
+            || url.query_pairs().any(|(key, value)| key == "alt" && value == "media");
         let mut waits = RETRY_WAITS_SECS.iter();
         loop {
             let token = (self.token)()?;
@@ -199,7 +210,8 @@ impl DriveClient {
                 }
             };
             let request = request.body(bytes).context("Building a Drive request")?;
-            let mut response = self.agent.run(request).map_err(transport_error)?;
+            let agent = if transfer { &self.transfer_agent } else { &self.agent };
+            let mut response = agent.run(request).map_err(transport_error)?;
             let status = response.status().as_u16();
             let text = response
                 .body_mut()
@@ -435,6 +447,11 @@ impl Remote for DriveClient {
         self.send(Method::PATCH, &format!("/drive/v3/files/{id}"), &[("fields", "id")], body)?;
         Ok(())
     }
+}
+
+/// An agent answering with any status (the client reads it) that gives up after `timeout`.
+fn agent_with_timeout(timeout: Duration) -> Agent {
+    Agent::config_builder().http_status_as_error(false).timeout_global(Some(timeout)).build().into()
 }
 
 /// Whether Drive asked to slow down or failed on its side.
