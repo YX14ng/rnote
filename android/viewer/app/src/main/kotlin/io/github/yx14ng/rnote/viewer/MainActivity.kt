@@ -97,6 +97,7 @@ class MainActivity : Activity() {
         toolRow = ToolRow(this)
         controls = EditorControls(this, canvasView, toolRow, renderer, onChanged = ::refreshBar)
         toolRow.onToolSelected = controls::selectTool
+        toolRow.onHighlighter = { controls.selectPenSlot(PenSlots.Slot.HIGHLIGHTER) }
         toolRow.onColorSelected = controls::selectPaletteColor
         toolRow.onColorEdit = { slot -> showColorPanel(slot, toolRow.swatch(slot)) }
         toolRow.onColorOptions = ::showColorPanel

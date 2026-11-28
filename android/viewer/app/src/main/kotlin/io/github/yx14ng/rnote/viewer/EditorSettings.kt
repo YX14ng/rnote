@@ -29,6 +29,8 @@ data class EditorSettings(
     val brushes: Map<BrushStyle, Brush> = emptyMap(),
     /** What the stylus button does. */
     val penButton: PenButton = PenButton.ERASER,
+    /** The pen's style, which the pen button goes back to from the highlighter. */
+    val penStyle: BrushStyle = BrushStyle.SOLID,
 ) {
     fun save(context: Context) {
         context.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE).edit()
@@ -38,6 +40,7 @@ data class EditorSettings(
             .putBoolean(KEY_COLOR_CHOSEN, colorChosen)
             .putString(KEY_SHAPE, shape.name)
             .putString(KEY_BRUSH_STYLE, brushStyle.name)
+            .putString(KEY_PEN_STYLE, penStyle.name)
             .putString(KEY_ERASER_STYLE, eraserStyle.name)
             .putFloat(KEY_ERASER_WIDTH, eraserWidth.toFloat())
             .putBoolean(KEY_FINGER_DRAWING, fingerDrawing)
@@ -72,6 +75,7 @@ data class EditorSettings(
         private const val KEY_COLOR_CHOSEN = "color_chosen"
         private const val KEY_SHAPE = "shape"
         private const val KEY_BRUSH_STYLE = "brush_style"
+        private const val KEY_PEN_STYLE = "pen_style"
         private const val KEY_ERASER_STYLE = "eraser_style"
         private const val KEY_ERASER_WIDTH = "eraser_width"
         private const val KEY_FINGER_DRAWING = "finger_drawing"
@@ -102,6 +106,7 @@ data class EditorSettings(
                 colorChosen = preferences.getBoolean(KEY_COLOR_CHOSEN, defaults.colorChosen),
                 shape = enumOrDefault(preferences.getString(KEY_SHAPE, null), defaults.shape),
                 brushStyle = enumOrDefault(preferences.getString(KEY_BRUSH_STYLE, null), defaults.brushStyle),
+                penStyle = enumOrDefault(preferences.getString(KEY_PEN_STYLE, null), defaults.penStyle),
                 eraserStyle = enumOrDefault(preferences.getString(KEY_ERASER_STYLE, null), defaults.eraserStyle),
                 eraserWidth = preferences.getFloat(KEY_ERASER_WIDTH, defaults.eraserWidth.toFloat()).toDouble(),
                 fingerDrawing = preferences.getBoolean(KEY_FINGER_DRAWING, defaults.fingerDrawing),

@@ -43,6 +43,18 @@ internal class EditorControls(
     fun selectTool(tool: Tool) {
         change(settings.copy(tool = tool))
         canvas.applyEdit { it.setTool(tool) }
+        // The pen button from the highlighter: back to the pen's own style.
+        if (tool == Tool.BRUSH) selectPenSlot(PenSlots.Slot.PEN)
+    }
+
+    /** Draws with the pen or the highlighter, each in its own style, color and width. */
+    fun selectPenSlot(slot: PenSlots.Slot) {
+        if (settings.tool != Tool.BRUSH) {
+            change(settings.copy(tool = Tool.BRUSH))
+            canvas.applyEdit { it.setTool(Tool.BRUSH) }
+        }
+        val style = PenSlots.styleFor(slot, settings.penStyle)
+        if (style != settings.brushStyle) perform(EditorMenu.Action.SelectBrushStyle(style))
     }
 
     /** Applies [brush]; [colorChosen] tells whether its color was picked rather than automatic. */
@@ -105,7 +117,8 @@ internal class EditorControls(
                 val (brushes, brush) = BrushMemory.switch(current.brushes, current.brushStyle, current.brush, action.style)
                 // The highlighter's yellow is a choice: the background doesn't recolor it.
                 val colorChosen = current.colorChosen || action.style == BrushStyle.MARKER
-                change(current.copy(brushStyle = action.style, brushes = brushes))
+                val penStyle = PenSlots.penStyleAfter(action.style, current.penStyle)
+                change(current.copy(brushStyle = action.style, brushes = brushes, penStyle = penStyle))
                 changeBrush(brush, colorChosen)
                 canvas.applyEdit { it.setBrushStyle(action.style) }
             }
@@ -197,6 +210,7 @@ internal class EditorControls(
     }
 
     private fun applyToView() {
+        sidebar.highlighting = settings.brushStyle == BrushStyle.MARKER
         sidebar.selectedTool = settings.tool
         sidebar.showPalette(paletteOnPaper, settings.brush.color)
         sidebar.showWidth(settings.brush.width)

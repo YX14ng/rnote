@@ -36,6 +36,27 @@ internal class ToolRow(private val context: Context) {
 
     private val buttons = TOOLS.associate { (tool, icon, label) -> tool to toolButton(tool, icon, label) }
 
+    /** The highlighter: the pen in the marker style, one tap away. */
+    private val highlighterButton = ImageButton(context).apply {
+        setImageResource(R.drawable.ic_pen_highlighter)
+        contentDescription = context.getString(R.string.brush_style_marker)
+        tooltipText = contentDescription
+        scaleType = ImageView.ScaleType.CENTER
+        setOnClickListener {
+            if (selectedTool == Tool.BRUSH && highlighting) onToolOptions?.invoke(Tool.BRUSH) else onHighlighter?.invoke()
+        }
+    }
+
+    /** The highlighter was tapped while not in use. */
+    var onHighlighter: (() -> Unit)? = null
+
+    /** Whether the pen draws as the highlighter, which then shows as the selected button. */
+    var highlighting = false
+        set(value) {
+            field = value
+            selectedTool = selectedTool
+        }
+
     private val swatches: List<View> = List(PALETTE_SIZE) { slot ->
         View(context).apply {
             contentDescription = context.getString(R.string.palette_color, slot + 1)
@@ -87,18 +108,18 @@ internal class ToolRow(private val context: Context) {
         set(value) {
             field = value
             for ((tool, button) in buttons) {
-                val selected = tool == value
-                button.isSelected = selected
-                val resting = if (selected) withOptionsMark(Graphite.rounded(context, Graphite.ACCENT, TOOL_RADIUS_DP)) else null
-                button.background = Graphite.pressable(context, resting, TOOL_RADIUS_DP)
-                button.imageTintList = ColorStateList.valueOf(if (selected) Color.WHITE else Graphite.ICON)
+                showSelected(button, tool == value && !(tool == Tool.BRUSH && highlighting))
             }
+            showSelected(highlighterButton, value == Tool.BRUSH && highlighting)
         }
 
     init {
         val toolSpacing = dp(3f)
-        for (button in buttons.values) {
+        for ((tool, button) in buttons) {
             tools.addView(button, LinearLayout.LayoutParams(dp(TOOL_DP), dp(TOOL_DP)).apply { setMargins(toolSpacing, 0, toolSpacing, 0) })
+            if (tool == Tool.BRUSH) {
+                tools.addView(highlighterButton, LinearLayout.LayoutParams(dp(TOOL_DP), dp(TOOL_DP)).apply { setMargins(toolSpacing, 0, toolSpacing, 0) })
+            }
         }
         for (swatch in swatches) {
             val cell = dp(SWATCH_CELL_DP)
@@ -160,8 +181,17 @@ internal class ToolRow(private val context: Context) {
         tooltipText = contentDescription
         scaleType = ImageView.ScaleType.CENTER
         setOnClickListener {
-            if (tool == selectedTool) onToolOptions?.invoke(tool) else onToolSelected?.invoke(tool)
+            // The pen button while highlighting goes back to the pen rather than opening options.
+            val selected = tool == selectedTool && !(tool == Tool.BRUSH && highlighting)
+            if (selected) onToolOptions?.invoke(tool) else onToolSelected?.invoke(tool)
         }
+    }
+
+    private fun showSelected(button: ImageButton, selected: Boolean) {
+        button.isSelected = selected
+        val resting = if (selected) withOptionsMark(Graphite.rounded(context, Graphite.ACCENT, TOOL_RADIUS_DP)) else null
+        button.background = Graphite.pressable(context, resting, TOOL_RADIUS_DP)
+        button.imageTintList = ColorStateList.valueOf(if (selected) Color.WHITE else Graphite.ICON)
     }
 
     /** Marks the corner of the selected tool, whose options open when it is tapped again. */
