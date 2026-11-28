@@ -4,12 +4,10 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
-import android.graphics.Point
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.view.HapticFeedbackConstants
 import android.view.KeyEvent
 import android.view.View
 import android.widget.Toast
@@ -43,6 +41,18 @@ class MainActivity : Activity() {
     private var shownZoomPercent = 0
 
     private var documentOpen = false
+
+    private val gestures by lazy {
+        CanvasGestures(
+            this,
+            canvasView,
+            layout = { layout },
+            controls = { controls },
+            state = { editState.takeIf { documentOpen } },
+            perform = ::perform,
+            refreshSelectionBar = ::refreshSelectionBar,
+        )
+    }
 
     // What came back from another app (camera, pickers) waits here while the notebook loads.
     private val untilOpen = UntilOpen()
@@ -86,10 +96,10 @@ class MainActivity : Activity() {
             renderer = this@MainActivity.renderer
             onError = { showError(R.string.failed_edit, it) }
             onEditState = ::updateEditState
-            onTwoFingerTap = ::undoByGesture
-            onThreeFingerTap = ::redoByGesture
-            onPenWheel = ::showPenWheel
-            onLongPress = ::showCanvasMenu
+            onTwoFingerTap = { gestures.undo() }
+            onThreeFingerTap = { gestures.redo() }
+            onPenWheel = { x, y -> gestures.showPenWheel(x, y) }
+            onLongPress = { x, y, documentX, documentY -> gestures.showCanvasMenu(x, y, documentX, documentY) }
             onViewportMoved = ::onViewportMoved
             // Moving the selection or drawing: the selection bar returns after the edit.
             onCanvasTouched = { selectionBar.hide() }
@@ -654,60 +664,6 @@ class MainActivity : Activity() {
                     onRefreshed(settings)
                 }
                 .onFailure { showError(R.string.failed_settings, it) }
-        }
-    }
-
-    /**
-     * Opens the page's menu where a finger held still: at ([x], [y]) on the canvas, and
-     * ([documentX], [documentY]) in the document, where pasting puts things.
-     */
-    private fun showCanvasMenu(x: Float, y: Float, documentX: Double, documentY: Double) {
-        if (!documentOpen) {
-            return
-        }
-        val entries = CanvasMenu.entries(editState.hasSelection, documentX, documentY)
-        val panel = CanvasMenu.build(this, entries, ::perform)
-        val canvasAt = IntArray(2).also(canvasView::getLocationInWindow)
-        val point = Point(canvasAt[0] + x.toInt(), canvasAt[1] + y.toInt())
-        val dismiss = {
-            layout.hideOverlay()
-            refreshSelectionBar()
-        }
-        layout.showOverlay(PanelOverlay(this, panel, CanvasMenu.PANEL_WIDTH_DP, null, dismiss, point))
-    }
-
-    /** Opens the wheel to pick the brush color and width around the pen at ([x], [y]). */
-    private fun showPenWheel(x: Float, y: Float) {
-        if (!documentOpen) {
-            return
-        }
-        val settings = controls.settings
-        val wheel = PenWheel(
-            this,
-            colors = controls.paletteOnPaper,
-            presets = ToolOptionsPanel.PRESET_WIDTHS,
-            color = settings.brush.color,
-            brushWidth = settings.brush.width,
-            onPick = controls::pickFromWheel,
-            onClose = layout::hideOverlay,
-        )
-        wheel.centerAt(x, y)
-        layout.showOverlay(wheel)
-    }
-
-    /** A two-finger tap undoes, like in other note-taking apps. */
-    private fun undoByGesture() {
-        if (documentOpen && editState.canUndo) {
-            canvasView.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
-            canvasView.applyEdit(NativeDocument::undo)
-        }
-    }
-
-    /** A three-finger tap redoes, like in other note-taking apps. */
-    private fun redoByGesture() {
-        if (documentOpen && editState.canRedo) {
-            canvasView.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
-            canvasView.applyEdit(NativeDocument::redo)
         }
     }
 
