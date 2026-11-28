@@ -5697,6 +5697,14 @@ msgstr[1] "¿Quitar {n} páginas?"
 msgid "What is written on them is removed too. You can undo it."
 msgstr "Lo que está escrito en ellas también se quita. Podés deshacerlo."
 
+#: crates/rnote-ui/src/library/tabs.rs
+msgid "“{name}” was deleted on another device"
+msgstr "“{name}” se borró en otro dispositivo"
+
+#: crates/rnote-ui/src/library/tabs.rs
+msgid "It was deleted on another device: save it elsewhere to keep your changes"
+msgstr "Se borró en otro dispositivo: guardalo en otro lugar para conservar tus cambios"
+
 #~ msgid "Brush Style"
 #~ msgstr "Estilo del pincel"
 

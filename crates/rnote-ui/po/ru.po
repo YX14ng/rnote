@@ -5616,6 +5616,14 @@ msgstr[2] "Удалить {n} страниц?"
 msgid "What is written on them is removed too. You can undo it."
 msgstr "Написанное на них тоже удалится. Это можно отменить."
 
+#: crates/rnote-ui/src/library/tabs.rs
+msgid "“{name}” was deleted on another device"
+msgstr "«{name}» удалён на другом устройстве"
+
+#: crates/rnote-ui/src/library/tabs.rs
+msgid "It was deleted on another device: save it elsewhere to keep your changes"
+msgstr "Удалено на другом устройстве: сохраните в другом месте, чтобы не потерять изменения"
+
 #~ msgid "Brush Style"
 #~ msgstr "Стиль кисти"
 

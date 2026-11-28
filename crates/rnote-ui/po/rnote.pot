@@ -5225,3 +5225,11 @@ msgstr[1] ""
 #: crates/rnote-ui/src/pages/actions.rs
 msgid "What is written on them is removed too. You can undo it."
 msgstr ""
+
+#: crates/rnote-ui/src/library/tabs.rs
+msgid "“{name}” was deleted on another device"
+msgstr ""
+
+#: crates/rnote-ui/src/library/tabs.rs
+msgid "It was deleted on another device: save it elsewhere to keep your changes"
+msgstr ""

@@ -5482,6 +5482,14 @@ msgstr[0] "{n} ページを削除しますか？"
 msgid "What is written on them is removed too. You can undo it."
 msgstr "書かれている内容も削除されます。元に戻せます。"
 
+#: crates/rnote-ui/src/library/tabs.rs
+msgid "“{name}” was deleted on another device"
+msgstr "「{name}」は別のデバイスで削除されました"
+
+#: crates/rnote-ui/src/library/tabs.rs
+msgid "It was deleted on another device: save it elsewhere to keep your changes"
+msgstr "別のデバイスで削除されました。変更を残すには別の場所に保存してください"
+
 #~ msgid "Brush Style"
 #~ msgstr "ブラシのスタイル"
 

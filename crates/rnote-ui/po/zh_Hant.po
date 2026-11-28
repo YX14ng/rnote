@@ -5316,6 +5316,14 @@ msgstr[0] "要移除 {n} 頁嗎？"
 msgid "What is written on them is removed too. You can undo it."
 msgstr "其中寫下的內容也會一併移除。可以復原。"
 
+#: crates/rnote-ui/src/library/tabs.rs
+msgid "“{name}” was deleted on another device"
+msgstr "「{name}」已在另一台裝置上刪除"
+
+#: crates/rnote-ui/src/library/tabs.rs
+msgid "It was deleted on another device: save it elsewhere to keep your changes"
+msgstr "它已在另一台裝置上刪除：請另存到別處以保留你的變更"
+
 #~ msgid "Brush Style"
 #~ msgstr "筆刷樣式"
 

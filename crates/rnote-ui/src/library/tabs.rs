@@ -2,6 +2,7 @@
 
 use std::path::{Path, PathBuf};
 
+use gettextrs::gettext;
 use gtk4::{gio, prelude::*};
 
 use crate::{RnAppWindow, RnCanvasWrapper};
@@ -80,20 +81,73 @@ pub(crate) fn follow_sync_moves(appwindow: &RnAppWindow, root: &Path, moves: &[(
     }
 }
 
+/// What a tab does after a sync wrote its notebook.
+#[derive(Debug, PartialEq, Eq)]
+enum SyncedTab {
+    /// Loads the new version (if it has nothing unsaved; else saving keeps both).
+    Reload,
+    /// The notebook was removed on another device and the tab has nothing unsaved: it goes.
+    Close,
+    /// Removed, with unsaved changes: the tab stays, without a file, until saved elsewhere.
+    KeepUnsaved,
+}
+
+/// What a tab whose notebook a sync wrote does, given whether the file still `exists` and
+/// whether the tab has `unsaved` changes.
+fn synced_tab(exists: bool, unsaved: bool) -> SyncedTab {
+    match (exists, unsaved) {
+        (true, _) => SyncedTab::Reload,
+        (false, false) => SyncedTab::Close,
+        (false, true) => SyncedTab::KeepUnsaved,
+    }
+}
+
 /// A sync wrote the library notebooks at `changed`: the tabs showing them load the new
-/// version if they have nothing unsaved; with unsaved changes, saving keeps both versions.
+/// version if they have nothing unsaved (with unsaved changes, saving keeps both versions),
+/// and those of notebooks removed on another device close, as on Android.
 pub(crate) fn reload_synced(appwindow: &RnAppWindow, root: &Path, changed: &[String]) {
     if changed.is_empty() {
         return;
     }
     for wrapper in all_tabs(appwindow) {
         let canvas = wrapper.canvas();
-        let synced = canvas
-            .output_file()
-            .and_then(|file| file.path())
-            .is_some_and(|path| crate::sync::opened::changed_by_sync(root, &path, changed));
-        if synced {
-            crate::sync::opened::reload_if_clean(appwindow, &canvas);
+        let Some(path) = canvas.output_file().and_then(|file| file.path()) else {
+            continue;
+        };
+        if !crate::sync::opened::changed_by_sync(root, &path, changed) {
+            continue;
+        }
+        let window = wrapper.root().and_downcast::<RnAppWindow>();
+        match synced_tab(path.exists(), canvas.unsaved_changes()) {
+            SyncedTab::Reload => {
+                crate::sync::opened::reload_if_clean(appwindow, &canvas);
+            }
+            SyncedTab::Close => {
+                if let Some(window) = window {
+                    let page = window.overlays().tabview().page(&wrapper);
+                    window.close_tab_request(&page);
+                    window.overlays().dispatch_toast_text(
+                        &gettext("“{name}” was deleted on another device").replace(
+                            "{name}",
+                            &path.file_stem().unwrap_or_default().to_string_lossy(),
+                        ),
+                        None,
+                    );
+                }
+            }
+            SyncedTab::KeepUnsaved => {
+                // Saving where it was would bring it back on every device.
+                canvas.set_moved_away(Some((path.clone(), true)));
+                canvas.set_output_file(None);
+                if let Some(window) = window {
+                    window.overlays().dispatch_toast_text(
+                        &gettext(
+                            "It was deleted on another device: save it elsewhere to keep your changes",
+                        ),
+                        None,
+                    );
+                }
+            }
         }
     }
 }
@@ -115,7 +169,15 @@ pub(crate) fn open_tab_inside(appwindow: &RnAppWindow, path: &Path) -> Option<St
 mod tests {
     use std::path::{Path, PathBuf};
 
-    use super::{followed, retarget};
+    use super::{SyncedTab, followed, retarget, synced_tab};
+
+    #[test]
+    fn a_tab_whose_notebook_a_sync_removed_closes_unless_it_has_unsaved_changes() {
+        assert_eq!(synced_tab(true, false), SyncedTab::Reload);
+        assert_eq!(synced_tab(true, true), SyncedTab::Reload);
+        assert_eq!(synced_tab(false, false), SyncedTab::Close);
+        assert_eq!(synced_tab(false, true), SyncedTab::KeepUnsaved);
+    }
 
     #[test]
     fn a_file_a_sync_moved_is_followed_to_its_new_place() {
