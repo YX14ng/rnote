@@ -34,9 +34,7 @@ internal class OpenNotebookSync(
     private fun follow(from: String, to: String) {
         val file = LibraryStore.forApp(context).notebookFile(to) ?: return
         InkIndexFiles.move(context, from, to)
-        saver.libraryPath = to
-        saver.currentUri = Uri.fromFile(file)
-        saver.documentName = file.name
+        saver.moveTo(to, Uri.fromFile(file), file.name)
         onMoved()
         // Its content may have changed too.
         check(to)

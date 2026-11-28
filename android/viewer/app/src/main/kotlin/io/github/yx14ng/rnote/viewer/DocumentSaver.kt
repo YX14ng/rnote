@@ -6,6 +6,7 @@ import android.os.Build
 import android.util.Log
 import android.widget.Toast
 import org.json.JSONObject
+import java.io.File
 import java.security.MessageDigest
 
 /**
@@ -41,6 +42,18 @@ internal class DocumentSaver(
 
     /** Runs when the document went to the conflict copy at this library path instead. */
     var onConflictCopy: (String) -> Unit = {}
+
+    /** Runs when the open document is somewhere else now: renamed, moved, a conflict copy. */
+    var onLocationChanged: () -> Unit = {}
+
+    /** The open document is now [path] in the library (null: not in it), at [uri], named [name]. */
+    fun moveTo(path: String?, uri: Uri?, name: String) {
+        libraryPath = path
+        if (path == null) knownSha256 = null
+        currentUri = uri
+        documentName = name
+        onLocationChanged()
+    }
 
     private val library = LibraryStore.forApp(context)
 
@@ -93,7 +106,9 @@ internal class DocumentSaver(
                 val answer = JSONObject(NativeBridge.libraryWriteNotebook(library.root.path, path, knownSha256, Build.MODEL, bytes))
                 // Right away, on this thread: the next queued save compares against it.
                 knownSha256 = answer.getString("sha256")
-                if (answer.getBoolean("conflict")) libraryPath = answer.getString("path")
+                // A conflict copy, or the notebook's new place after a move it wasn't told of yet.
+                val wrote = answer.getString("path")
+                if (answer.getBoolean("conflict") || wrote != path) libraryPath = wrote
                 written = answer
             }
             Unit
@@ -127,14 +142,22 @@ internal class DocumentSaver(
         }
     }
 
-    /** Shows what writing a library notebook did: a conflict copy became the open notebook. */
+    /**
+     * Shows what writing a library notebook did: a conflict copy became the open notebook, or
+     * the notebook, moved meanwhile (renamed, or by a sync), was saved at its new place.
+     */
     private fun applyLibraryWrite(written: JSONObject) {
+        val path = written.getString("path")
+        val file = library.file(path)
+        val uri = Uri.fromFile(file)
         if (written.getBoolean("conflict")) {
-            val path = written.getString("path")
-            val file = library.file(path)
-            currentUri = Uri.fromFile(file)
-            documentName = file.name
+            moveTo(path, uri, file.name)
             onConflictCopy(path)
+        } else if (uri != currentUri) {
+            currentUri?.path?.let { old -> library.relativePath(File(old)) }?.let { old ->
+                InkIndexFiles.move(context, old, path)
+            }
+            moveTo(path, uri, file.name)
         }
     }
 

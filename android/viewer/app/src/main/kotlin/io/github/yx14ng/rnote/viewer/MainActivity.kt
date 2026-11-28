@@ -46,12 +46,8 @@ class MainActivity : Activity() {
     private val untilOpen = UntilOpen()
 
     /** The open notebook's path in the library, if it is one of its notebooks; kept by [saver]. */
-    private var libraryPath: String?
+    private val libraryPath: String?
         get() = saver.libraryPath
-        set(path) {
-            saver.libraryPath = path
-            if (path == null) saver.knownSha256 = null
-        }
 
     private lateinit var openSync: OpenNotebookSync
     private val syncListener: (SyncStatus) -> Unit = { openSync.onStatus(it) }
@@ -63,6 +59,7 @@ class MainActivity : Activity() {
         recovery = Recovery(this)
         guard = UnsavedChangesGuard(this, onDiscard = recovery::clear, onBack = ::leave)
         saver = DocumentSaver(this, renderer, recovery, onSaved = ::onSaved, requestSaveAs = ::saveAs)
+        saver.onLocationChanged = ::rememberLocation
         openSync = OpenNotebookSync(
             this,
             saver,
@@ -119,6 +116,10 @@ class MainActivity : Activity() {
             startActivityForResult(DocumentFiles.openIntent(null).setType("application/pdf"), REQUEST_INSERT_PDF)
         }, onError = { showError(R.string.failed_pages, it) })
         pdfExport = PdfExport(this, renderer, onError = { showError(R.string.failed_export, it) })
+        savedInstanceState?.let { state ->
+            val sheets = state.getIntArray(STATE_PDF_SHEETS)?.let { it[0]..it[1] }
+            pdfExport.restorePending(PdfOptions(state.getBoolean(STATE_PDF_WHITE_PAPER), sheets))
+        }
         setContentView(layout.root)
         if (!handleIntent(intent) && recovery.exists) {
             restoreRecovery()
@@ -270,10 +271,7 @@ class MainActivity : Activity() {
                     .onSuccess { answer ->
                         val renamed = answer.getString("path")
                         InkIndexFiles.move(this, path, renamed)
-                        libraryPath = renamed
-                        saver.currentUri = Uri.fromFile(store.file(renamed))
-                        saver.documentName = store.file(renamed).name
-                        refreshBar()
+                        saver.moveTo(renamed, Uri.fromFile(store.file(renamed)), store.file(renamed).name)
                     }
                     .onFailure { showError(R.string.failed_rename, it) }
             }
@@ -477,10 +475,8 @@ class MainActivity : Activity() {
         val onOpened = { result: Result<DocumentInfo> ->
             result
                 .onSuccess { info ->
-                    libraryPath = path
+                    saver.moveTo(path, uri, file.name)
                     saver.knownSha256 = readSha256
-                    saver.currentUri = uri
-                    saver.documentName = file.name
                     // A recovery copy belongs to another document: it stays until restored.
                     saver.recoveryClaim.opened()
                     showOpenedDocument(info, keepView)
@@ -508,11 +504,10 @@ class MainActivity : Activity() {
         renderer.open({ DocumentFiles.read(contentResolver, uri) }, brush = null) { result ->
             result
                 .onSuccess { info ->
-                    libraryPath = null
-                    saver.currentUri = uri
-                    saver.documentName = DocumentFiles.displayName(contentResolver, uri)
+                    val name = DocumentFiles.displayName(contentResolver, uri)
                         ?: uri.lastPathSegment
                         ?: getString(R.string.untitled_file_name)
+                    saver.moveTo(null, uri, name)
                     // A recovery copy belongs to another document: it stays until restored.
                     saver.recoveryClaim.opened()
                     showOpenedDocument(info)
@@ -537,14 +532,10 @@ class MainActivity : Activity() {
                     if (path != null && file != null) {
                         // Back in its place in the library; saving compares with the file as it
                         // was then, so changes a sync brought meanwhile go to a conflict copy.
-                        libraryPath = path
+                        saver.moveTo(path, Uri.fromFile(file), file.name)
                         saver.knownSha256 = recovery.knownSha256
-                        saver.currentUri = Uri.fromFile(file)
-                        saver.documentName = file.name
                     } else {
-                        libraryPath = null
-                        saver.currentUri = null
-                        saver.documentName = recovery.documentName ?: getString(R.string.untitled_file_name)
+                        saver.moveTo(null, null, recovery.documentName ?: getString(R.string.untitled_file_name))
                     }
                     saver.recoveryClaim.restored()
                     showOpenedDocument(info)
@@ -687,6 +678,30 @@ class MainActivity : Activity() {
         pdfExport.askThen(action, viewport.y, canvasView.height / viewport.zoom, then)
     }
 
+    /**
+     * Keeps this screen's intent on the open notebook: when Android recreates the screen (the
+     * app was killed in the background), it opens this one again, not the one it started with.
+     */
+    private fun rememberLocation() {
+        refreshBar()
+        val path = saver.libraryPath
+        val uri = saver.currentUri
+        intent = when {
+            path != null -> Intent(this, MainActivity::class.java).putExtra(EXTRA_LIBRARY_PATH, path)
+            uri != null -> Intent(Intent.ACTION_VIEW, uri, this, MainActivity::class.java)
+            else -> Intent(this, MainActivity::class.java)
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        // The file picker may outlive this process: the PDF still comes out as chosen.
+        pdfExport.pending.let { options ->
+            outState.putBoolean(STATE_PDF_WHITE_PAPER, options.onWhitePaper)
+            options.sheets?.let { outState.putIntArray(STATE_PDF_SHEETS, intArrayOf(it.first, it.last)) }
+        }
+    }
+
     private fun saveAs() {
         startActivityForResult(DocumentFiles.createIntent(saver.documentName, saver.currentUri), REQUEST_SAVE_AS)
     }
@@ -733,6 +748,9 @@ class MainActivity : Activity() {
         const val EXTRA_NEW = "io.github.yx14ng.rnote.viewer.NEW"
 
         private const val TAG = "RnoteViewer"
+
+        private const val STATE_PDF_WHITE_PAPER = "pdf_white_paper"
+        private const val STATE_PDF_SHEETS = "pdf_sheets"
 
         private const val REQUEST_OPEN = 1
         private const val REQUEST_SAVE_AS = 2

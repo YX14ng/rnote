@@ -31,6 +31,11 @@ internal class PdfExport(
     var pending = PdfOptions()
         private set
 
+    /** Brings back [pending] after Android recreated the screen. */
+    fun restorePending(options: PdfOptions) {
+        pending = options
+    }
+
     /**
      * Asks how to export (see [PdfOptionsDialog]), with the view showing the document from
      * [viewTop] down [visibleHeight] to tell the current sheet; [then] gets the options.

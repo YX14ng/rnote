@@ -75,6 +75,9 @@ internal class LibraryStore(val root: File) {
     /** The file of the notebook at the relative [path]. */
     fun file(path: String): File = File(root, path)
 
+    /** The path in the library of [file], with `/`, or null if it isn't inside it. */
+    fun relativePath(file: File): String? = file.relativeToOrNull(root)?.invariantSeparatorsPath
+
     /**
      * The file of the `.rnote` notebook at [path], or null if [path] doesn't name one at the
      * root or in a first-level folder: the editor takes paths from intents, which other apps
