@@ -37,6 +37,10 @@ pub fn write_notebook(
 ) -> anyhow::Result<WrittenNotebook> {
     check_notebook_path(path)?;
     let _guard = rnote_library::write_guard();
+    // Moved (renamed, or by a sync) since the editor read it: saved at its new place, not
+    // brought back at the old one, which would leave the latest strokes in a stray copy.
+    let moved = moved_since_read(root, path, expected_sha256);
+    let path = moved.as_deref().unwrap_or(path);
     // Hashed a piece at a time: the notebook isn't held in memory a second time to compare.
     let current =
         crate::local::sha256_file(&root.join(path)).with_context(|| format!("Reading {path}"))?;
@@ -49,6 +53,22 @@ pub fn write_notebook(
         if changed { conflict_copy_path(root, path, device, now) } else { path.to_owned() };
     write_atomic(&root.join(&target), bytes)?;
     Ok(WrittenNotebook { path: target, sha256: sha256_hex(bytes), conflict: changed })
+}
+
+/// Where the notebook the editor read at `path` (known by `expected_sha256`) is now, if it
+/// isn't there anymore because it was moved: relative to `root`, with `/`.
+fn moved_since_read(root: &Path, path: &str, expected_sha256: Option<&str>) -> Option<String> {
+    let old = root.join(path);
+    if expected_sha256.is_none() || old.exists() {
+        return None;
+    }
+    let new = rnote_library::moved_to(&old).filter(|new| new.exists())?;
+    let relative = new.strip_prefix(root).ok()?;
+    let relative: Vec<String> =
+        relative.components().map(|part| part.as_os_str().to_string_lossy().into_owned()).collect();
+    let relative = relative.join("/");
+    check_notebook_path(&relative).ok()?;
+    Some(relative)
 }
 
 /// Creates the notebook `path` in the library at `root` with `bytes`, all at once: it

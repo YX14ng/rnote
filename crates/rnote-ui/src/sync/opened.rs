@@ -83,6 +83,15 @@ pub(crate) fn saved(canvas: &RnCanvas, root: &Path, written: &WrittenNotebook) {
     let Some(appwindow) = canvas.root().and_downcast::<RnAppWindow>() else {
         return;
     };
+    // Moved meanwhile (renamed, or by a sync) and saved at its new place: the tab follows.
+    let moved = canvas
+        .output_file()
+        .and_then(|file| file.path())
+        .is_some_and(|path| library_path(root, &path).as_deref() != Some(written.path.as_str()));
+    if moved && !written.conflict {
+        canvas.set_output_file(Some(gio::File::for_path(root.join(&written.path))));
+        canvas.set_output_file_expect_write(false);
+    }
     if written.conflict {
         canvas.set_output_file(Some(gio::File::for_path(root.join(&written.path))));
         // The file the editor had wasn't written, so no event of it will clear this.

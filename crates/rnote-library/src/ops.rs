@@ -36,6 +36,7 @@ impl Library {
             .filter(|notebook| notebook.folder.as_deref() == Some(folder))
             .collect();
         crate::rename_in_place(&from, &to)?;
+        crate::record_move(&from, &to);
         drop(guard);
         let now = self.now();
         for notebook in notebooks {
@@ -103,6 +104,7 @@ impl Library {
         } else {
             fs::rename(&from, &to).with_context(|| format!("Renaming {}", from.display()))?;
         }
+        crate::record_move(&from, &to);
         drop(guard);
         self.meta.move_notebook(path, &new_path, self.now());
         self.save_meta()?;
@@ -127,6 +129,7 @@ impl Library {
         let new_path = relative_path(folder, &unique_file_name(&dir, stem, extension));
         fs::rename(&from, self.root.join(&new_path))
             .with_context(|| format!("Moving {}", from.display()))?;
+        crate::record_move(&from, &self.root.join(&new_path));
         drop(guard);
         self.meta.move_notebook(path, &new_path, self.now());
         self.save_meta()?;

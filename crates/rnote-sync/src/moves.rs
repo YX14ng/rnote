@@ -135,6 +135,8 @@ fn move_local(run: &mut Run, from: &str, to: &str) -> Result<(), SyncError> {
     // In two steps when only the case changes: a plain rename leaves exFAT's name as it was.
     rnote_library::rename_in_place(&run.ctx.library_root.join(from), &target)
         .with_context(|| format!("Moving {from} to {to}"))?;
+    // A save the editor makes before it hears of the move goes to the new place.
+    rnote_library::record_move(&run.ctx.library_root.join(from), &target);
     if let Some(sha256) = run.local.remove(from) {
         run.local.insert(to.to_owned(), sha256);
     }

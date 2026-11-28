@@ -138,3 +138,39 @@ fn write_notebook_waits_for_the_write_guard() {
     assert_eq!(while_held, b"old");
     assert_eq!(fs::read(dir.path().join("a.rnote")).unwrap(), b"new");
 }
+
+#[test]
+fn a_save_after_the_notebook_was_moved_goes_to_its_new_place() {
+    let dir = tempfile::tempdir().unwrap();
+    fs::write(dir.path().join("a.rnote"), b"old").unwrap();
+    fs::create_dir(dir.path().join("F")).unwrap();
+    // Moved (by a sync or the library) while the editor still had the old path.
+    let (from, to) = (dir.path().join("a.rnote"), dir.path().join("F/b.rnote"));
+    fs::rename(&from, &to).unwrap();
+    rnote_library::record_move(&from, &to);
+
+    let written =
+        write_notebook(dir.path(), "a.rnote", Some(&sha256(b"old")), "Tab", now(), b"new").unwrap();
+
+    assert_eq!(written.path, "F/b.rnote");
+    assert!(!written.conflict);
+    assert!(!from.exists(), "no notebook comes back at the old place");
+    assert_eq!(fs::read(&to).unwrap(), b"new");
+}
+
+#[test]
+fn a_save_after_its_folder_was_renamed_follows_the_folder() {
+    let dir = tempfile::tempdir().unwrap();
+    fs::create_dir(dir.path().join("Algebra")).unwrap();
+    fs::write(dir.path().join("Algebra/a.rnote"), b"old").unwrap();
+    let (from, to) = (dir.path().join("Algebra"), dir.path().join("Álgebra II"));
+    fs::rename(&from, &to).unwrap();
+    rnote_library::record_move(&from, &to);
+
+    let written =
+        write_notebook(dir.path(), "Algebra/a.rnote", Some(&sha256(b"old")), "Tab", now(), b"new")
+            .unwrap();
+
+    assert_eq!(written.path, "Álgebra II/a.rnote");
+    assert!(!dir.path().join("Algebra").exists());
+}
