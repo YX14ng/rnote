@@ -69,7 +69,7 @@ internal class CanvasInput(
 
     private var strokePointerId = NO_POINTER
     private var penTool = Tool.BRUSH
-    private var fingerGesture = FingerGesture.NONE
+    private var fingerGesture = FingerGestures.State.NONE
     private var fingerPointerId = NO_POINTER
 
     // Set when a stroke ended while other pointers (a palm) stay down: they do nothing until
@@ -97,7 +97,7 @@ internal class CanvasInput(
     /** Forgets any interaction in progress, e.g. when another document is shown. */
     fun reset() {
         strokePointerId = NO_POINTER
-        fingerGesture = FingerGesture.NONE
+        fingerGesture = FingerGestures.State.NONE
         fingerPointerId = NO_POINTER
         ignoringRest = false
         holdHandler.removeCallbacks(holdCheck)
@@ -120,7 +120,7 @@ internal class CanvasInput(
     fun onLongPressed(event: MotionEvent) {
         if (penDown) return
         cancelNavigation(event)
-        fingerGesture = FingerGesture.NONE
+        fingerGesture = FingerGestures.State.NONE
         fingerPointerId = NO_POINTER
         ignoringRest = true
     }
@@ -142,10 +142,10 @@ internal class CanvasInput(
         val startsPointer = action == MotionEvent.ACTION_DOWN || action == MotionEvent.ACTION_POINTER_DOWN
         if (isPenTool(event.getToolType(actionIndex))) palm.penTouched(event.eventTime)
         when {
-            penDown && fingerGesture != FingerGesture.DRAWING -> followStylus(event)
+            penDown && fingerGesture != FingerGestures.State.DRAWING -> followStylus(event)
             startsPointer && isPenTool(event.getToolType(actionIndex)) -> {
                 // A stylus landing ends whatever the fingers were doing: they were the palm.
-                if (fingerGesture != FingerGesture.NONE) {
+                if (fingerGesture != FingerGestures.State.NONE) {
                     cancelFingers(event)
                 } else if (event.pointerCount > 1) {
                     cancelNavigation(event)
@@ -161,7 +161,7 @@ internal class CanvasInput(
             }
             // The hand holding the pen: ignored until it lifts.
             action == MotionEvent.ACTION_DOWN && !palm.fingersAllowed(event.eventTime) -> ignoringRest = true
-            fingerGesture != FingerGesture.NONE -> handleFingerEvent(event)
+            fingerGesture != FingerGestures.State.NONE -> handleFingerEvent(event)
             action == MotionEvent.ACTION_DOWN && fingerDrawing &&
                 event.getToolType(actionIndex) == MotionEvent.TOOL_TYPE_FINGER -> handleFingerEvent(event)
             else -> navigate(event)
@@ -214,85 +214,64 @@ internal class CanvasInput(
     }
 
     private fun handleFingerEvent(event: MotionEvent) {
-        when (event.actionMasked) {
-            MotionEvent.ACTION_DOWN -> {
-                camera.stopFling()
-                fingerGesture = FingerGesture.UNDECIDED
-                fingerPointerId = event.getPointerId(0)
-                fingerDownX = event.x
-                fingerDownY = event.y
-                fingerDownSamples = samplesOf(event, 0, withHistory = false)
-                navigate(event)
-            }
-            MotionEvent.ACTION_POINTER_DOWN -> when (fingerGesture) {
-                FingerGesture.UNDECIDED, FingerGesture.NAVIGATING -> {
-                    fingerGesture = FingerGesture.NAVIGATING
-                    navigate(event)
-                }
-                // Extra fingers while drawing are a resting hand.
-                FingerGesture.DRAWING, FingerGesture.NONE -> {}
-            }
-            MotionEvent.ACTION_MOVE -> when (fingerGesture) {
-                FingerGesture.UNDECIDED -> {
-                    val index = event.findPointerIndex(fingerPointerId)
-                    val moved = index >= 0 &&
-                        hypot(event.getX(index) - fingerDownX, event.getY(index) - fingerDownY) > touchSlop
-                    if (moved) {
-                        fingerGesture = FingerGesture.DRAWING
-                        cancelNavigation(event)
-                        beginPen(tool, fingerPointerId, fingerDownSamples)
-                        continuePen(samplesOf(event, index, withHistory = true))
-                        trackHold(event.getX(index), event.getY(index), restart = true)
-                    } else {
-                        navigate(event)
-                    }
-                }
-                FingerGesture.DRAWING -> {
-                    val index = event.findPointerIndex(fingerPointerId)
-                    if (index >= 0) {
-                        continuePen(samplesOf(event, index, withHistory = true))
-                        trackHold(event.getX(index), event.getY(index), restart = false)
-                    }
-                }
-                FingerGesture.NAVIGATING -> navigate(event)
-                FingerGesture.NONE -> {}
-            }
-            MotionEvent.ACTION_POINTER_UP -> when (fingerGesture) {
-                FingerGesture.NAVIGATING -> navigate(event)
-                FingerGesture.DRAWING ->
-                    // The drawing finger lifted while another rests: the stroke ends here.
-                    if (event.getPointerId(event.actionIndex) == fingerPointerId) {
-                        endPen(samplesOf(event, event.actionIndex, withHistory = true))
-                        fingerGesture = FingerGesture.NONE
-                        fingerPointerId = NO_POINTER
-                        ignoringRest = true
-                    }
-                FingerGesture.UNDECIDED, FingerGesture.NONE -> {}
-            }
-            MotionEvent.ACTION_UP -> {
-                when (fingerGesture) {
-                    FingerGesture.DRAWING -> endPen(samplesOf(event, event.actionIndex, withHistory = true))
-                    else -> navigate(event)
-                }
-                fingerGesture = FingerGesture.NONE
-                fingerPointerId = NO_POINTER
-            }
-            MotionEvent.ACTION_CANCEL -> {
-                if (fingerGesture == FingerGesture.DRAWING) cancelPen() else navigate(event)
-                fingerGesture = FingerGesture.NONE
-                fingerPointerId = NO_POINTER
-            }
+        val action = event.actionMasked
+        if (action == MotionEvent.ACTION_DOWN) {
+            camera.stopFling()
+            fingerPointerId = event.getPointerId(0)
+            fingerDownX = event.x
+            fingerDownY = event.y
+            fingerDownSamples = samplesOf(event, 0, withHistory = false)
         }
+        val index = event.findPointerIndex(fingerPointerId)
+        val gestureEvent = when (action) {
+            MotionEvent.ACTION_DOWN -> FingerGestures.Event.DOWN
+            MotionEvent.ACTION_POINTER_DOWN -> FingerGestures.Event.POINTER_DOWN
+            MotionEvent.ACTION_MOVE -> {
+                val moved = index >= 0 &&
+                    hypot(event.getX(index) - fingerDownX, event.getY(index) - fingerDownY) > touchSlop
+                if (moved) FingerGestures.Event.MOVE_PAST_SLOP else FingerGestures.Event.MOVE_WITHIN_SLOP
+            }
+            MotionEvent.ACTION_POINTER_UP ->
+                if (event.getPointerId(event.actionIndex) == fingerPointerId) {
+                    FingerGestures.Event.DRAWING_FINGER_UP
+                } else {
+                    FingerGestures.Event.OTHER_FINGER_UP
+                }
+            MotionEvent.ACTION_UP -> FingerGestures.Event.UP
+            MotionEvent.ACTION_CANCEL -> FingerGestures.Event.CANCEL
+            else -> return
+        }
+        val (state, step) = FingerGestures.next(fingerGesture, gestureEvent)
+        fingerGesture = state
+        when (step) {
+            FingerGestures.Action.NOTHING -> {}
+            FingerGestures.Action.NAVIGATE -> navigate(event)
+            FingerGestures.Action.CANCEL_NAVIGATION -> cancelNavigation(event)
+            FingerGestures.Action.START_DRAWING -> {
+                cancelNavigation(event)
+                beginPen(tool, fingerPointerId, fingerDownSamples)
+                continuePen(samplesOf(event, index, withHistory = true))
+                trackHold(event.getX(index), event.getY(index), restart = true)
+            }
+            FingerGestures.Action.CONTINUE_DRAWING -> if (index >= 0) {
+                continuePen(samplesOf(event, index, withHistory = true))
+                trackHold(event.getX(index), event.getY(index), restart = false)
+            }
+            FingerGestures.Action.END_DRAWING -> {
+                endPen(samplesOf(event, event.actionIndex, withHistory = true))
+                // The drawing finger lifted while another rests: ignore the rest of the touch.
+                if (gestureEvent == FingerGestures.Event.DRAWING_FINGER_UP) ignoringRest = true
+            }
+            FingerGestures.Action.CANCEL_DRAWING -> cancelPen()
+        }
+        if (state == FingerGestures.State.NONE) fingerPointerId = NO_POINTER
     }
 
     /** Ends a finger gesture because a stylus took over. */
     private fun cancelFingers(event: MotionEvent) {
-        if (fingerGesture == FingerGesture.DRAWING) {
-            cancelPen()
-        } else {
-            cancelNavigation(event)
-        }
-        fingerGesture = FingerGesture.NONE
+        val (state, step) = FingerGestures.next(fingerGesture, FingerGestures.Event.STYLUS_TOOK_OVER)
+        if (step == FingerGestures.Action.CANCEL_DRAWING) cancelPen() else cancelNavigation(event)
+        fingerGesture = state
         fingerPointerId = NO_POINTER
     }
 
@@ -446,13 +425,6 @@ internal class CanvasInput(
         } else {
             (if (step < history) event.getHistoricalEventTime(step) else event.eventTime).toDouble()
         }
-
-    private enum class FingerGesture {
-        NONE,
-        UNDECIDED,
-        DRAWING,
-        NAVIGATING,
-    }
 
     private companion object {
         const val DEFAULT_PRESSURE = 0.5
