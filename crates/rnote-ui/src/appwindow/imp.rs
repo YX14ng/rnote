@@ -427,7 +427,14 @@ impl WindowImpl for RnAppWindow {
                 #[weak(rename_to=appwindow)]
                 obj,
                 async move {
-                    dialogs::dialog_close_window(&appwindow).await;
+                    // Notebooks of the library are saved without asking, as on going back to
+                    // the library and on Android; only other documents are asked about.
+                    appwindow.save_library_tabs().await;
+                    if appwindow.tabs_any_unsaved_changes() {
+                        dialogs::dialog_close_window(&appwindow).await;
+                    } else {
+                        appwindow.close_force();
+                    }
                 }
             ));
         } else {

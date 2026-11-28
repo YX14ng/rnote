@@ -102,7 +102,7 @@ impl RnAppWindow {
 
     /// Saves the tabs of notebooks of the library that have unsaved changes. The library
     /// shows them again by itself once their files change.
-    async fn save_library_tabs(&self) {
+    pub(crate) async fn save_library_tabs(&self) {
         let root = self.library_view().root();
         for wrapper in self.get_all_tabs() {
             let canvas = wrapper.canvas();
@@ -189,7 +189,8 @@ impl RnAppWindow {
 /// Whether a tab with the file at `path` (`None`: never saved) and `unsaved` changes is saved
 /// on going to the library at `root`: only notebooks of the library are.
 fn saves_on_leaving(path: Option<&Path>, unsaved: bool, root: &Path) -> bool {
-    unsaved && path.is_some_and(|path| path.starts_with(root))
+    // As the sync tells: a library reached through a link (or a file through one) counts.
+    unsaved && path.is_some_and(|path| crate::sync::opened::library_path(root, path).is_some())
 }
 
 #[cfg(test)]
@@ -197,6 +198,18 @@ mod tests {
     use std::path::Path;
 
     use super::saves_on_leaving;
+
+    #[test]
+    fn a_library_reached_through_a_link_still_saves_its_notebooks() {
+        let dir = tempfile::tempdir().unwrap();
+        let real = dir.path().join("HandNotes");
+        std::fs::create_dir(&real).unwrap();
+        std::fs::write(real.join("a.rnote"), b"a").unwrap();
+        let link = dir.path().join("Notas");
+        std::os::unix::fs::symlink(&real, &link).unwrap();
+
+        assert!(saves_on_leaving(Some(&real.join("a.rnote")), true, &link));
+    }
 
     #[test]
     fn unsaved_notebooks_of_the_library_are_saved() {
