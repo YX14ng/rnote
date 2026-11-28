@@ -5442,6 +5442,22 @@ msgstr "다른 기기에서 삭제되었습니다. 변경 사항을 유지하려
 msgid "Signed out here, but Google couldn't be told: remove Rnote's access at myaccount.google.com/permissions"
 msgstr "여기서는 로그아웃했지만 Google에 알리지 못했습니다. myaccount.google.com/permissions에서 Rnote의 액세스를 삭제하세요"
 
+#: crates/rnote-ui/src/sync/button.rs
+msgid "Choose…"
+msgstr "선택…"
+
+#: crates/rnote-ui/src/sync/button.rs
+msgid "Both Versions Were Kept"
+msgstr "두 버전을 모두 보관했습니다"
+
+#: crates/rnote-ui/src/sync/button.rs
+msgid "Each copy holds what one device wrote. Open one to compare it with the notebook."
+msgstr "각 사본에는 한 기기에서 쓴 내용이 들어 있습니다. 하나를 열어 노트와 비교하세요."
+
+#: crates/rnote-ui/src/sync/button.rs
+msgid "Close"
+msgstr "닫기"
+
 #~ msgid "Brush Style"
 #~ msgstr "브러시 스타일"
 

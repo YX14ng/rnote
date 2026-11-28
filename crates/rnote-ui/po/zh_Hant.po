@@ -5328,6 +5328,22 @@ msgstr "它已在另一台裝置上刪除：請另存到別處以保留你的變
 msgid "Signed out here, but Google couldn't be told: remove Rnote's access at myaccount.google.com/permissions"
 msgstr "已在此處登出，但無法通知 Google：請在 myaccount.google.com/permissions 移除 Rnote 的存取權"
 
+#: crates/rnote-ui/src/sync/button.rs
+msgid "Choose…"
+msgstr "選擇…"
+
+#: crates/rnote-ui/src/sync/button.rs
+msgid "Both Versions Were Kept"
+msgstr "兩個版本都已保留"
+
+#: crates/rnote-ui/src/sync/button.rs
+msgid "Each copy holds what one device wrote. Open one to compare it with the notebook."
+msgstr "每個副本保存的是一台裝置寫下的內容。開啟一個與筆記本比對。"
+
+#: crates/rnote-ui/src/sync/button.rs
+msgid "Close"
+msgstr "關閉"
+
 #~ msgid "Brush Style"
 #~ msgstr "筆刷樣式"
 

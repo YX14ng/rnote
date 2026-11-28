@@ -4,8 +4,9 @@ use std::cell::RefCell;
 use std::rc::Rc;
 use std::time::SystemTime;
 
+use adw::prelude::*;
 use gettextrs::{gettext, ngettext};
-use gtk4::{Align, Button, Label, MenuButton, Orientation, Popover, glib, glib::clone, prelude::*};
+use gtk4::{Align, Button, Label, MenuButton, Orientation, Popover, glib, glib::clone};
 use rnote_sync::SyncReport;
 
 use super::SyncStatus;
@@ -129,20 +130,70 @@ fn after_sync(appwindow: &RnAppWindow, report: &SyncReport) {
                 None,
             );
         }
-        _ => {
+        // More: choose which to open, as on Android.
+        copies => {
             let window = appwindow.downgrade();
+            let copies = copies.to_vec();
             appwindow.overlays().dispatch_toast_w_button(
                 &text,
-                &gettext("Show Library"),
+                &gettext("Choose…"),
                 move |_| {
                     if let Some(appwindow) = window.upgrade() {
-                        appwindow.show_library();
+                        choose_copy(&appwindow, &copies);
                     }
                 },
                 None,
             );
         }
     }
+}
+
+/// Lists the conflict `copies` to open one of them.
+fn choose_copy(appwindow: &RnAppWindow, copies: &[String]) {
+    let list = gtk4::ListBox::builder()
+        .selection_mode(gtk4::SelectionMode::None)
+        .css_classes(["boxed-list"])
+        .build();
+    let dialog = adw::AlertDialog::builder()
+        .heading(gettext("Both Versions Were Kept"))
+        .body(gettext(
+            "Each copy holds what one device wrote. Open one to compare it with the notebook.",
+        ))
+        .extra_child(&list)
+        .close_response("close")
+        .build();
+    dialog.add_response("close", &gettext("Close"));
+    for copy in copies {
+        let (name, folder) = copy_row_text(copy);
+        let row = adw::ActionRow::builder()
+            .title(name)
+            .subtitle(folder)
+            .activatable(true)
+            .build();
+        row.add_suffix(&gtk4::Image::from_icon_name("go-next-symbolic"));
+        let copy = copy.clone();
+        row.connect_activated(clone!(
+            #[weak]
+            appwindow,
+            #[weak]
+            dialog,
+            move |_| {
+                dialog.close();
+                open_copy(&appwindow, &copy);
+            }
+        ));
+        list.append(&row);
+    }
+    dialog.present(Some(appwindow));
+}
+
+/// The name and folder a conflict copy at `path` is listed with.
+fn copy_row_text(path: &str) -> (String, String) {
+    let (folder, file_name) = path.rsplit_once('/').unwrap_or(("", path));
+    let name = file_name
+        .rsplit_once('.')
+        .map_or(file_name, |(stem, _)| stem);
+    (name.to_owned(), folder.to_owned())
 }
 
 /// What the toast says about the conflict copies at `paths`: the copy's name when there is
@@ -313,6 +364,23 @@ mod tests {
     use std::time::SystemTime;
 
     use rnote_sync::SyncReport;
+
+    #[test]
+    fn a_conflict_copy_is_listed_by_its_name_and_folder() {
+        use super::copy_row_text;
+
+        assert_eq!(
+            copy_row_text("Algebra/Parcial (conflicto, SM-X920, 2026-11-27 13.48).rnote"),
+            (
+                "Parcial (conflicto, SM-X920, 2026-11-27 13.48)".to_owned(),
+                "Algebra".to_owned()
+            )
+        );
+        assert_eq!(
+            copy_row_text("a (conflicto).rnote"),
+            ("a (conflicto)".to_owned(), String::new())
+        );
+    }
 
     #[test]
     fn signing_out_says_what_happened_without_contradicting_itself() {
