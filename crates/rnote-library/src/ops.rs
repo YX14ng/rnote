@@ -26,7 +26,8 @@ impl Library {
         let to = self.root.join(&new_name);
         // Another writer (a save, the sync) must not slip between the check and the move.
         let guard = crate::write_guard();
-        if to.exists() {
+        // The same folder spelled otherwise, on a case-insensitive file system, isn't taken.
+        if crate::names::taken_by_another(&from, &to) {
             bail!(LibraryError::NameTaken(new_name));
         }
         let notebooks: Vec<_> = self
@@ -34,7 +35,7 @@ impl Library {
             .into_iter()
             .filter(|notebook| notebook.folder.as_deref() == Some(folder))
             .collect();
-        fs::rename(&from, &to).with_context(|| format!("Renaming {}", from.display()))?;
+        crate::rename_in_place(&from, &to)?;
         drop(guard);
         let now = self.now();
         for notebook in notebooks {

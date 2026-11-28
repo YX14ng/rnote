@@ -132,7 +132,8 @@ fn move_local(run: &mut Run, from: &str, to: &str) -> Result<(), SyncError> {
     if let Some(dir) = target.parent() {
         fs::create_dir_all(dir).with_context(|| format!("Creating {}", dir.display()))?;
     }
-    fs::rename(run.ctx.library_root.join(from), &target)
+    // In two steps when only the case changes: a plain rename leaves exFAT's name as it was.
+    rnote_library::rename_in_place(&run.ctx.library_root.join(from), &target)
         .with_context(|| format!("Moving {from} to {to}"))?;
     if let Some(sha256) = run.local.remove(from) {
         run.local.insert(to.to_owned(), sha256);
@@ -149,5 +150,13 @@ fn taken_here(run: &Run, candidate: &str, moving: &str) -> bool {
     let lower = candidate.to_lowercase();
     let known: BTreeSet<&String> = run.local.keys().chain(run.state.entries.keys()).collect();
     known.into_iter().any(|path| path != moving && path.to_lowercase() == lower)
-        || (candidate != moving && run.ctx.library_root.join(candidate).exists())
+        || taken_on_disk(run.ctx.library_root, candidate, moving)
+}
+
+/// Whether `candidate` is taken in the library at `root` by a file other than `moving`: on
+/// a case-insensitive file system (exFAT) a move that only changes case finds `moving`
+/// itself under the new spelling, which doesn't count.
+pub(crate) fn taken_on_disk(root: &std::path::Path, candidate: &str, moving: &str) -> bool {
+    let target = root.join(candidate);
+    candidate != moving && target.exists() && !rnote_library::same_file(&target, &root.join(moving))
 }

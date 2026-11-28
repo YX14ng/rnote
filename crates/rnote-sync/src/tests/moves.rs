@@ -133,3 +133,16 @@ fn remote_move_onto_a_taken_local_name_keeps_both() {
     assert_eq!(b.read("Orga/b (2).rnote"), b"1");
     assert_eq!(drive.paths(), vec!["Orga/b (2).rnote", "Orga/b.rnote"]);
 }
+
+#[test]
+fn a_move_that_only_changes_case_doesnt_find_its_own_file_in_the_way() {
+    let dir = tempfile::tempdir().unwrap();
+    std::fs::write(dir.path().join("parcial.rnote"), b"a").unwrap();
+    std::fs::write(dir.path().join("otro.rnote"), b"b").unwrap();
+    // Stands for exFAT: "Parcial.rnote" is "parcial.rnote".
+    std::os::unix::fs::symlink(dir.path().join("parcial.rnote"), dir.path().join("Parcial.rnote"))
+        .unwrap();
+
+    assert!(!crate::moves::taken_on_disk(dir.path(), "Parcial.rnote", "parcial.rnote"));
+    assert!(crate::moves::taken_on_disk(dir.path(), "otro.rnote", "parcial.rnote"));
+}

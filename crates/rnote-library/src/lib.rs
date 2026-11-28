@@ -34,6 +34,7 @@ pub use crate::covers::COVER_COLORS;
 pub use crate::errors::LibraryError;
 pub use crate::files::{replace_durably, set_aside, write_new_file};
 pub use crate::meta::{META_FILE, merge_meta};
+pub use crate::names::{rename_in_place, same_file};
 pub use crate::section::{Section, SectionCounts, SortOrder, counts, filter, search, sort};
 pub use crate::tags::Tag;
 pub use crate::thumbnail::{render_thumbnail, thumbnail_key};

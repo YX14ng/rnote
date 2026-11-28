@@ -349,3 +349,47 @@ fn renaming_moving_and_trashing_wait_for_another_writer() {
         library.trash("F/b.rnote").unwrap();
     }));
 }
+
+/// On exFAT (the user's library) "parcial.rnote" and "Parcial.rnote" are one file; a link
+/// stands for that on the case-sensitive test file system.
+#[test]
+fn a_rename_that_only_changes_case_renames_in_place() {
+    let dir = tempfile::tempdir().unwrap();
+    write(dir.path(), "parcial.rnote", b"a");
+    std::os::unix::fs::symlink(dir.path().join("parcial.rnote"), dir.path().join("Parcial.rnote"))
+        .unwrap();
+
+    crate::rename_in_place(&dir.path().join("parcial.rnote"), &dir.path().join("Parcial.rnote"))
+        .unwrap();
+
+    let names: Vec<String> = fs::read_dir(dir.path())
+        .unwrap()
+        .map(|entry| entry.unwrap().file_name().to_string_lossy().into_owned())
+        .collect();
+    assert_eq!(names, ["Parcial.rnote"]);
+    assert_eq!(fs::read(dir.path().join("Parcial.rnote")).unwrap(), b"a");
+}
+
+#[test]
+fn another_spelling_of_the_same_folder_doesnt_take_its_name() {
+    let dir = tempfile::tempdir().unwrap();
+    fs::create_dir(dir.path().join("algebra")).unwrap();
+    fs::create_dir(dir.path().join("fisica")).unwrap();
+    // Stands for the case-insensitive file system: "Algebra" is "algebra".
+    std::os::unix::fs::symlink(dir.path().join("algebra"), dir.path().join("Algebra")).unwrap();
+
+    let taken = |from: &str, to: &str| {
+        crate::names::taken_by_another(&dir.path().join(from), &dir.path().join(to))
+    };
+    assert!(!taken("algebra", "Algebra"));
+    assert!(taken("fisica", "algebra"));
+    assert!(!taken("fisica", "Fisica2"));
+}
+
+#[test]
+fn names_other_systems_cant_store_are_refused() {
+    for name in ["Tema 2: límites", "¿Qué?", "a*b", "\"x\"", "a<b", "a>b", "a|b"] {
+        assert!(crate::names::validate_name(name).is_err(), "{name}");
+    }
+    assert!(crate::names::validate_name("Tema 2 - límites").is_ok());
+}

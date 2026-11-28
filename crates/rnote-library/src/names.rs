@@ -19,7 +19,11 @@ pub fn validate_name(name: &str) -> anyhow::Result<String> {
     if name.starts_with('.') {
         bail!(LibraryError::NameStartsWithDot);
     }
-    if let Some(bad) = name.chars().find(|c| matches!(c, '/' | '\\' | '\0')) {
+    // Also what Windows, exFAT and FAT (memory cards, the user's library disk) refuse.
+    if let Some(bad) = name
+        .chars()
+        .find(|c| matches!(c, '/' | '\\' | '\0' | ':' | '?' | '*' | '"' | '<' | '>' | '|'))
+    {
         bail!(LibraryError::NameHasCharacter(bad));
     }
     Ok(name.chars().take(MAX_NAME_CHARS).collect::<String>().trim_end().to_owned())
@@ -53,9 +57,32 @@ pub(crate) fn name_taken(dir: &Path, name: &str, except: Option<&Path>) -> bool 
     })
 }
 
+/// Whether renaming `from` to `to` would take the name of another entry: `to` exists and
+/// isn't `from` spelled otherwise on a case-insensitive file system.
+pub(crate) fn taken_by_another(from: &Path, to: &Path) -> bool {
+    to.exists() && !same_file(from, to)
+}
+
+/// Renames `from` to `to`, also when they are two spellings of one name on a
+/// case-insensitive file system (a rename that only changes case), which a plain rename
+/// leaves as it was there: it goes through a temporary name.
+pub fn rename_in_place(from: &Path, to: &Path) -> anyhow::Result<()> {
+    use anyhow::Context;
+    if to.exists() && same_file(from, to) {
+        let mut temporary = from.as_os_str().to_owned();
+        temporary.push(".renaming");
+        let temporary = std::path::PathBuf::from(temporary);
+        std::fs::rename(from, &temporary)
+            .with_context(|| format!("Renaming {}", from.display()))?;
+        return std::fs::rename(&temporary, to)
+            .with_context(|| format!("Renaming {}", from.display()));
+    }
+    std::fs::rename(from, to).with_context(|| format!("Renaming {}", from.display()))
+}
+
 /// Whether `a` and `b` are the same file, e.g. two spellings of one name on a
 /// case-insensitive file system.
-pub(crate) fn same_file(a: &Path, b: &Path) -> bool {
+pub fn same_file(a: &Path, b: &Path) -> bool {
     #[cfg(unix)]
     {
         use std::os::unix::fs::MetadataExt;
