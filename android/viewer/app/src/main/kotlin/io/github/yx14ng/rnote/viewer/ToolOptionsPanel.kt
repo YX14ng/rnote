@@ -18,6 +18,9 @@ internal object ToolOptionsPanel {
     /** Widths offered as presets; the pen wheel sets any other. */
     val PRESET_WIDTHS = listOf(1.0, 2.0, 3.0, 6.0, 10.0)
 
+    /** The eraser's sides offered, in document units: from a digit of a matrix to a block. */
+    val ERASER_WIDTHS = listOf(4.0, 8.0, 12.0, 24.0, 48.0)
+
     fun build(context: Context, tool: Tool, settings: EditorSettings, onAction: (EditorMenu.Action) -> Unit): View {
         val panel = PanelViews.column(context)
         when (tool) {
@@ -94,6 +97,12 @@ internal object ToolOptionsPanel {
             EraserStyle.entries.map { context.getString(it.label) },
             settings.eraserStyle.ordinal,
         ) { onAction(EditorMenu.Action.SelectEraserStyle(EraserStyle.entries[it])) })
+        panel.addView(PanelViews.title(context, R.string.eraser_size))
+        panel.addView(PanelViews.segmented(
+            context,
+            ERASER_WIDTHS.map { ToolRow.formatWidth(it) },
+            ERASER_WIDTHS.indexOfFirst { it == settings.eraserWidth },
+        ) { onAction(EditorMenu.Action.SelectEraserWidth(ERASER_WIDTHS[it])) })
     }
 
     private fun lasso(context: Context, panel: LinearLayout, onAction: (EditorMenu.Action) -> Unit) {

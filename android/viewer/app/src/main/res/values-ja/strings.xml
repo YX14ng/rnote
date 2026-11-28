@@ -360,6 +360,7 @@
     <string name="pdf_sheets_to">終了</string>
     <string name="pdf_export_action">書き出す</string>
     <string name="pdf_share_action">共有</string>
+    <string name="eraser_size">サイズ</string>
     <string name="share_pdf_title">PDF を共有</string>
 
     <!-- Recovery -->

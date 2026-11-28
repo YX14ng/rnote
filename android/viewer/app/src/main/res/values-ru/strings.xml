@@ -393,6 +393,7 @@
     <string name="pdf_sheets_to">по</string>
     <string name="pdf_export_action">Экспортировать</string>
     <string name="pdf_share_action">Поделиться</string>
+    <string name="eraser_size">Размер</string>
     <string name="share_pdf_title">Поделиться PDF</string>
 
     <!-- Recovery -->

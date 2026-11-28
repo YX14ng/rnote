@@ -398,3 +398,14 @@ fn the_app_draws_the_eraser_while_it_rubs() {
     let pixel = render_pixel(&mut document, 210.0, 300.0);
     assert_pixel_near(pixel, [255, 255, 255, 255]);
 }
+
+#[test]
+fn the_eraser_takes_the_width_chosen_within_the_engines_limits() {
+    let mut document = plain_document();
+
+    document.set_eraser_width(30.0);
+    assert_eq!(document.config.read().pens_config.eraser_config.width, 30.0);
+
+    document.set_eraser_width(1e9);
+    assert!(document.config.read().pens_config.eraser_config.width < 1e9);
+}

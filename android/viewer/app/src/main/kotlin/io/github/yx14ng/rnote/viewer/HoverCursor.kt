@@ -48,8 +48,8 @@ internal class HoverCursor(density: Float) {
     }
 
     companion object {
-        /** The eraser's width in document units: the engine's default, which the app keeps. */
-        const val ERASER_WIDTH = 12.0
+        /** The eraser's side in document units until one is chosen: the engine's default. */
+        const val DEFAULT_ERASER_WIDTH = 12.0
 
         /** The smallest circle shown, so a thin pen far out still shows where it is. */
         const val MIN_RADIUS_PX = 1.5f
@@ -59,11 +59,18 @@ internal class HoverCursor(density: Float) {
 
         /**
          * The radius in pixels of the circle for [tool] (or the eraser end, [eraserEnd]) with a
-         * pen [brushWidth] wide at [zoom]; null where hovering shows nothing.
+         * pen [brushWidth] wide, or an eraser [eraserWidth] wide, at [zoom]; null where hovering
+         * shows nothing.
          */
-        fun radiusPx(tool: Tool, eraserEnd: Boolean, brushWidth: Double, zoom: Double): Float? {
+        fun radiusPx(
+            tool: Tool,
+            eraserEnd: Boolean,
+            brushWidth: Double,
+            zoom: Double,
+            eraserWidth: Double = DEFAULT_ERASER_WIDTH,
+        ): Float? {
             val width = when {
-                eraserEnd || tool == Tool.ERASER -> ERASER_WIDTH
+                eraserEnd || tool == Tool.ERASER -> eraserWidth
                 tool == Tool.BRUSH -> brushWidth
                 else -> return null
             }

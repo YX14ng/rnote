@@ -9,7 +9,7 @@ use rnote_engine::document::Layout;
 use rnote_engine::document::background::PatternStyle;
 use rnote_engine::pens::pensconfig::BrushConfig;
 use rnote_engine::pens::pensconfig::brushconfig::BrushStyle;
-use rnote_engine::pens::pensconfig::eraserconfig::EraserStyle;
+use rnote_engine::pens::pensconfig::eraserconfig::{EraserConfig, EraserStyle};
 
 use super::{EditState, RnoteDocument};
 use crate::document_settings::{self, DocumentSettings, ShapeStyle, TextFormat};
@@ -53,6 +53,12 @@ impl RnoteDocument {
     /// Sets whether the eraser removes whole strokes or only the parts it touches.
     pub fn set_eraser_style(&mut self, style: EraserStyle) {
         self.config.write().pens_config.eraser_config.style = style;
+    }
+
+    /// Sets the side of the eraser, in document units, within the engine's limits.
+    pub fn set_eraser_width(&mut self, width: f64) {
+        self.config.write().pens_config.eraser_config.width =
+            width.clamp(EraserConfig::WIDTH_MIN, EraserConfig::WIDTH_MAX);
     }
 
     /// Sets the format of new text, and of the text being edited if any.

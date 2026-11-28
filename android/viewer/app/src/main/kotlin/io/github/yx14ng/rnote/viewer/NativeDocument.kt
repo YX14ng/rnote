@@ -226,6 +226,8 @@ internal class NativeDocument private constructor(private var handle: Long) : Au
         NativeBridge.snapToShape(checkOpen(), viewport.x, viewport.y, viewport.zoom, viewWidth, viewHeight),
     )
 
+    fun setEraserWidth(width: Double): EditState = EditState.fromFlags(NativeBridge.setEraserWidth(checkOpen(), width))
+
     fun setTool(tool: Tool): EditState = EditState.fromFlags(NativeBridge.setTool(checkOpen(), tool.nativeValue))
 
     fun setShape(shape: Shape): EditState = EditState.fromFlags(NativeBridge.setShape(checkOpen(), shape.nativeValue))

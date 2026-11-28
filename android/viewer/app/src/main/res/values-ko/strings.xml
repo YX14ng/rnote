@@ -360,6 +360,7 @@
     <string name="pdf_sheets_to">끝</string>
     <string name="pdf_export_action">내보내기</string>
     <string name="pdf_share_action">공유</string>
+    <string name="eraser_size">크기</string>
     <string name="share_pdf_title">PDF 공유</string>
 
     <!-- Recovery -->

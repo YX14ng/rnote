@@ -12,10 +12,9 @@ class HoverCursorTest {
     }
 
     @Test
-    fun theEraserShowsItsWidth() {
-        val expected = (HoverCursor.ERASER_WIDTH * 2.0 / 2).toFloat()
-        assertEquals(expected, HoverCursor.radiusPx(Tool.ERASER, eraserEnd = false, brushWidth = 2.0, zoom = 2.0)!!, 0.001f)
-        assertEquals(expected, HoverCursor.radiusPx(Tool.BRUSH, eraserEnd = true, brushWidth = 2.0, zoom = 2.0)!!, 0.001f)
+    fun theEraserShowsTheWidthChosen() {
+        assertEquals(12f, HoverCursor.radiusPx(Tool.ERASER, eraserEnd = false, brushWidth = 2.0, zoom = 2.0, eraserWidth = 12.0)!!, 0.001f)
+        assertEquals(30f, HoverCursor.radiusPx(Tool.BRUSH, eraserEnd = true, brushWidth = 2.0, zoom = 2.0, eraserWidth = 30.0)!!, 0.001f)
     }
 
     @Test

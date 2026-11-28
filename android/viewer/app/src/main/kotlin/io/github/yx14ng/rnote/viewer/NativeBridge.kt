@@ -187,6 +187,9 @@ internal object NativeBridge {
      * Starts exporting the document as a PDF titled [title], a page per sheet; on the
      * document's thread. The export handle goes to [pdfExportFinish] or [pdfExportCancel].
      */
+    /** Sets the eraser's side in document units. Returns the packed editing state. */
+    @JvmStatic external fun setEraserWidth(handle: Long, width: Double): Int
+
     @JvmStatic external fun pdfExportBegin(
         handle: Long,
         title: String,

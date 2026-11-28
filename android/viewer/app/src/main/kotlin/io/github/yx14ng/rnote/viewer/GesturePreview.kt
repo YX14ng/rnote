@@ -17,6 +17,9 @@ internal class GesturePreview {
     private var eraserY = 0.0
     private var erasing = false
 
+    /** The eraser's side in document units, as chosen. */
+    var eraserWidth = HoverCursor.DEFAULT_ERASER_WIDTH
+
     // The lasso's points, x and y in document coordinates; drawn only while [lassoing].
     private var lasso = DoubleArray(INITIAL_POINTS * 2)
     private var lassoSize = 0
@@ -68,7 +71,7 @@ internal class GesturePreview {
 
     fun draw(canvas: Canvas, viewport: Viewport) {
         if (erasing) {
-            val half = (ERASER_WIDTH / 2 * viewport.zoom).toFloat()
+            val half = (eraserWidth / 2 * viewport.zoom).toFloat()
             val x = screenX(eraserX, viewport)
             val y = screenY(eraserY, viewport)
             canvas.drawRect(x - half, y - half, x + half, y + half, eraserFill)
@@ -91,8 +94,6 @@ internal class GesturePreview {
     private fun screenY(y: Double, viewport: Viewport) = ((y - viewport.y) * viewport.zoom).toFloat()
 
     companion object {
-        /** The eraser's side in document units: `EraserConfig::WIDTH_DEFAULT`, which the app keeps. */
-        const val ERASER_WIDTH = 12.0
 
         private const val OUTLINE_PX = 2f
         private const val INITIAL_POINTS = 256

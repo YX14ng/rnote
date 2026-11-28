@@ -113,6 +113,10 @@ internal class EditorControls(
                 change(current.copy(eraserStyle = action.style))
                 canvas.applyEdit { it.setEraserStyle(action.style) }
             }
+            is EditorMenu.Action.SelectEraserWidth -> {
+                change(current.copy(eraserWidth = action.width))
+                canvas.applyEdit { it.setEraserWidth(action.width) }
+            }
             is EditorMenu.Action.ShapeRough -> changeShapeStyle(current.shapeStyle.copy(rough = action.rough))
             is EditorMenu.Action.ShapeFill ->
                 changeShapeStyle(current.shapeStyle.copy(fill = if (action.filled) current.brush.color else null))
@@ -183,6 +187,7 @@ internal class EditorControls(
             document.setShape(current.shape)
             document.setBrushStyle(current.brushStyle)
             document.setEraserStyle(current.eraserStyle)
+            document.setEraserWidth(current.eraserWidth)
             document.setShapeStyle(current.shapeStyle)
             // Only new text: nothing is being edited yet.
             document.setTextFormat(current.textFormat)
@@ -198,6 +203,7 @@ internal class EditorControls(
         canvas.tool = settings.tool
         canvas.brush = settings.brush
         canvas.brushStyle = settings.brushStyle
+        canvas.eraserWidth = settings.eraserWidth
         canvas.penButton = settings.penButton
         canvas.fingerDrawing = settings.fingerDrawing
         canvas.zoomLocked = settings.zoomLocked

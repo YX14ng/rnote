@@ -373,6 +373,7 @@
     <string name="pdf_sheets_to">to</string>
     <string name="pdf_export_action">Export</string>
     <string name="pdf_share_action">Share</string>
+    <string name="eraser_size">Size</string>
     <string name="share_pdf_title">Share PDF</string>
 
     <!-- Recovery -->

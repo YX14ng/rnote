@@ -382,6 +382,7 @@
     <string name="pdf_sheets_to">hasta</string>
     <string name="pdf_export_action">Exportar</string>
     <string name="pdf_share_action">Compartir</string>
+    <string name="eraser_size">Tamaño</string>
     <string name="share_pdf_title">Compartir PDF</string>
 
     <!-- Recovery -->

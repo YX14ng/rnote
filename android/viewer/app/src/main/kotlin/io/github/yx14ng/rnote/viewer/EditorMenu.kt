@@ -27,6 +27,7 @@ internal object EditorMenu {
         data class SelectShape(val shape: Shape) : Action
         data class SelectBrushStyle(val style: BrushStyle) : Action
         data class SelectEraserStyle(val style: EraserStyle) : Action
+        data class SelectEraserWidth(val width: Double) : Action
         data class Selection(val action: SelectionAction) : Action
         data class RecolorSelection(val color: Int) : Action
         data object Copy : Action

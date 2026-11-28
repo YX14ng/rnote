@@ -48,6 +48,13 @@ class NoteCanvasView(context: Context) : View(context) {
             input.brush = value
         }
 
+    /** The eraser's side in document units, for the cursor and the erasing outline. */
+    var eraserWidth: Double
+        get() = input.gesture.eraserWidth
+        set(value) {
+            input.gesture.eraserWidth = value
+        }
+
     var brushStyle: BrushStyle
         get() = input.brushStyle
         set(value) {
@@ -446,7 +453,7 @@ class NoteCanvasView(context: Context) : View(context) {
             return
         }
         val eraserEnd = event.getToolType(0) == MotionEvent.TOOL_TYPE_ERASER
-        val radius = HoverCursor.radiusPx(tool, eraserEnd, brush.width, viewport.zoom)
+        val radius = HoverCursor.radiusPx(tool, eraserEnd, brush.width, viewport.zoom, eraserWidth)
         // Half as strong as the ink, so what is under it still shows.
         val fill = if (tool == Tool.BRUSH && !eraserEnd) {
             (brush.color and 0x00FF_FFFF) or ((Color.alpha(brush.color) / 2) shl 24)

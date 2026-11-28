@@ -78,6 +78,21 @@ pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_setEraser
     })
 }
 
+/// `static native int setEraserWidth(long handle, double width)`: the eraser's side in
+/// document units.
+#[unsafe(no_mangle)]
+pub extern "system" fn Java_io_github_yx14ng_rnote_viewer_NativeBridge_setEraserWidth<'caller>(
+    mut unowned_env: EnvUnowned<'caller>,
+    _class: JClass<'caller>,
+    handle: jlong,
+    width: jni::sys::jdouble,
+) -> jint {
+    edit(&mut unowned_env, handle, |document| {
+        document.set_eraser_width(width);
+        Ok(document.edit_state())
+    })
+}
+
 /// `static native int setTextFormat(long handle, String fontFamily, double fontSize,
 /// boolean bold, boolean italic, int alignment)`; alignment 0 start, 1 center, 2 end, 3 fill.
 #[unsafe(no_mangle)]

@@ -360,6 +360,7 @@
     <string name="pdf_sheets_to">到</string>
     <string name="pdf_export_action">导出</string>
     <string name="pdf_share_action">分享</string>
+    <string name="eraser_size">大小</string>
     <string name="share_pdf_title">分享 PDF</string>
 
     <!-- Recovery -->

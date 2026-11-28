@@ -12,6 +12,8 @@ data class EditorSettings(
     val shape: Shape = Shape.LINE,
     val brushStyle: BrushStyle = BrushStyle.SOLID,
     val eraserStyle: EraserStyle = EraserStyle.WHOLE_STROKES,
+    /** The eraser's side in document units. */
+    val eraserWidth: Double = HoverCursor.DEFAULT_ERASER_WIDTH,
     val fingerDrawing: Boolean = false,
     /** Whether the zoom stays as it is: pinching, double taps and Ctrl+wheel don't change it. */
     val zoomLocked: Boolean = false,
@@ -37,6 +39,7 @@ data class EditorSettings(
             .putString(KEY_SHAPE, shape.name)
             .putString(KEY_BRUSH_STYLE, brushStyle.name)
             .putString(KEY_ERASER_STYLE, eraserStyle.name)
+            .putFloat(KEY_ERASER_WIDTH, eraserWidth.toFloat())
             .putBoolean(KEY_FINGER_DRAWING, fingerDrawing)
             .putBoolean(KEY_ZOOM_LOCKED, zoomLocked)
             .putString(KEY_PALETTE, palette.joinToString(","))
@@ -70,6 +73,7 @@ data class EditorSettings(
         private const val KEY_SHAPE = "shape"
         private const val KEY_BRUSH_STYLE = "brush_style"
         private const val KEY_ERASER_STYLE = "eraser_style"
+        private const val KEY_ERASER_WIDTH = "eraser_width"
         private const val KEY_FINGER_DRAWING = "finger_drawing"
         private const val KEY_ZOOM_LOCKED = "zoom_locked"
         private const val KEY_SHAPE_RECOGNITION = "shape_recognition"
@@ -99,6 +103,7 @@ data class EditorSettings(
                 shape = enumOrDefault(preferences.getString(KEY_SHAPE, null), defaults.shape),
                 brushStyle = enumOrDefault(preferences.getString(KEY_BRUSH_STYLE, null), defaults.brushStyle),
                 eraserStyle = enumOrDefault(preferences.getString(KEY_ERASER_STYLE, null), defaults.eraserStyle),
+                eraserWidth = preferences.getFloat(KEY_ERASER_WIDTH, defaults.eraserWidth.toFloat()).toDouble(),
                 fingerDrawing = preferences.getBoolean(KEY_FINGER_DRAWING, defaults.fingerDrawing),
                 zoomLocked = preferences.getBoolean(KEY_ZOOM_LOCKED, defaults.zoomLocked),
                 shapeRecognition = preferences.getBoolean(KEY_SHAPE_RECOGNITION, defaults.shapeRecognition),
