@@ -36,9 +36,14 @@ pub struct Brush {
 }
 
 impl Brush {
-    /// Whether a stroke is being drawn.
-    pub(crate) fn is_drawing(&self) -> bool {
-        matches!(self.state, BrushState::Drawing { .. })
+    /// The stroke being drawn, if any.
+    pub(crate) fn current_stroke_key(&self) -> Option<StrokeKey> {
+        match &self.state {
+            BrushState::Drawing {
+                current_stroke_key, ..
+            } => Some(*current_stroke_key),
+            BrushState::Idle => None,
+        }
     }
 }
 

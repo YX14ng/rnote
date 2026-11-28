@@ -111,7 +111,7 @@ mod tests {
     }
 
     #[test]
-    fn holding_still_turns_a_drawn_circle_into_a_shape_in_one_undo_step() {
+    fn holding_still_turns_a_drawn_circle_into_a_shape_that_undo_turns_back() {
         let mut document = RnoteDocument::new_empty();
         document.set_shape_recognition(true, MIN_SIZE_PX);
         let circle = circle_samples(100.0);
@@ -126,6 +126,9 @@ mod tests {
         let strokes = strokes(&document);
         assert!(matches!(strokes.as_slice(), [Stroke::ShapeStroke(_)]), "got {strokes:?}");
         assert!(!after_lift.shape_snapped, "got {after_lift:?}");
+        // The stroke as written comes back, then the empty page.
+        document.undo();
+        assert!(matches!(self::strokes(&document).as_slice(), [Stroke::BrushStroke(_)]));
         let undone = document.undo();
         assert!(self::strokes(&document).is_empty() && !undone.can_undo, "got {undone:?}");
     }

@@ -57,7 +57,7 @@ fn strokes(engine: &Engine) -> Vec<Stroke> {
 }
 
 #[test]
-fn holding_turns_a_circle_into_one_shape_in_one_undo_step() {
+fn holding_turns_a_circle_into_a_shape_that_undo_turns_back_into_the_stroke() {
     let mut engine = Engine::default();
     let mut tracker = StrokeTracker::default();
     let circle = circle(100.0);
@@ -75,6 +75,12 @@ fn holding_turns_a_circle_into_one_shape_in_one_undo_step() {
         [Stroke::ShapeStroke(_)]
     ));
     assert!(engine.can_undo() && !engine.can_redo());
+    // A "0" or "(" that became a shape unwanted comes back as written, not erased.
+    let _ = engine.undo(Instant::now());
+    assert!(matches!(
+        strokes(&engine).as_slice(),
+        [Stroke::BrushStroke(_)]
+    ));
     let _ = engine.undo(Instant::now());
     assert!(strokes(&engine).is_empty());
     assert!(!engine.can_undo());

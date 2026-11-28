@@ -69,11 +69,11 @@ impl StrokeTracker {
         if self.snapped {
             return None;
         }
-        // Without ink there is nothing to swap, and undoing would take back an earlier
-        // action instead: the brush starts no stroke off the page, for one.
-        if !matches!(engine.penholder.current_pen_ref(), Pen::Brush(brush) if brush.is_drawing()) {
+        // Without ink there is nothing to swap: the brush starts no stroke off the page.
+        let Pen::Brush(brush) = engine.penholder.current_pen_ref() else {
             return None;
-        }
+        };
+        let drawn = brush.current_stroke_key()?;
         let last = *self.points.last()?;
         let shape = super::recognize(&self.points, min_size);
         tracing::debug!(
@@ -83,15 +83,17 @@ impl StrokeTracker {
             "recognizing the held stroke"
         );
         let shape = shape?;
-        // End the stroke where the pen rests, then swap it for the shape: undoing removes the
-        // freehand stroke, and recording the shape also drops it from the redo history.
+        // End the stroke where the pen rests (one step of the history), then swap it for the
+        // shape (another one): undoing a shape that wasn't wanted, e.g. a "0" or "(" written
+        // with the pen resting, brings back the stroke as written instead of erasing it.
         let up = PenEvent::Up {
             element: Element::new(last, 0.5),
             modifier_keys: Default::default(),
         };
         let (_propagation, mut flags) = engine.handle_pen_event(up, Some(PenMode::Pen), now);
-        flags |= engine.undo(now);
+        engine.store.set_trashed_keys(&[drawn], true);
         flags |= engine.insert_recognized_shape(shape);
+        flags.redraw = true;
         self.points.clear();
         self.snapped = true;
         Some(flags)
