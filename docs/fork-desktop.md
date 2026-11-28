@@ -88,6 +88,7 @@ Run the same commands to update after pulling.
   "Remove Pages…" removes several at once, from one page to another. Each of those is one
   step to undo.
 - Exporting a document to PDF can include the blank pages, so page numbers stay the same.
+  In a notebook of sheets it can also take only the page on screen or a range of pages.
 - "About" shows the fork's version and sends issues to this repository.
 
 ## Google Drive sync
