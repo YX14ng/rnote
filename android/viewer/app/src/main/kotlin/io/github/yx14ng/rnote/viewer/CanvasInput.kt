@@ -125,6 +125,10 @@ internal class CanvasInput(
         ignoringRest = true
     }
 
+    /** Whether the stroke being drawn became a shape: the rest of it changes nothing. */
+    val shapeSnapped: Boolean
+        get() = !previewing
+
     /** The stroke being drawn became a shape: stop previewing the freehand line. */
     fun onShapeSnapped() {
         previewing = false

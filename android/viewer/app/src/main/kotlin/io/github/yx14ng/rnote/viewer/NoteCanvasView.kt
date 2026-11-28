@@ -494,7 +494,9 @@ class NoteCanvasView(context: Context) : View(context) {
         // rendering the whole view for every batch of samples only made the pen lag. The
         // frame with the finished stroke is asked for when the pen lifts.
         // A lasso being drawn changes nothing on the page either: the app draws it.
-        val drawnLive = (tool == Tool.BRUSH && !input.preview.isEmpty) || (tool == Tool.SELECTOR && input.gesture.lassoing)
+        // Nor does the rest of a stroke that became a shape, which the document ignores.
+        val drawnLive = (tool == Tool.BRUSH && (!input.preview.isEmpty || input.shapeSnapped)) ||
+            (tool == Tool.SELECTOR && input.gesture.lassoing)
         val render = !(phase == PenPhase.DOWN && drawnLive)
         submitEdit(render = render) { document ->
             document.handlePen(phase, tool, samples, currentViewport, viewWidth, viewHeight)
