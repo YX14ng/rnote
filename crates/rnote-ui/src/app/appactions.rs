@@ -47,10 +47,8 @@ impl RnApp {
                 for appwindow in app.windows() {
                     appwindow.close();
                 }
-
-                if app.windows().is_empty() {
-                    app.quit();
-                }
+                // Without windows the app ends by itself once nothing holds it, so the last
+                // sync (which closing a window waits for) isn't cut off by quitting here.
             }
         ));
 
