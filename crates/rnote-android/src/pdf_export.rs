@@ -54,15 +54,10 @@ impl PdfExportJob {
     /// `options` asks for), with their background and pattern, as the column of pages shows
     /// them.
     pub fn new(engine: &Engine, title: &str, options: &PdfExportOptions) -> Self {
-        let order = DocExportPrefs::default().page_order;
-        let mut all = engine.extract_all_pages_content(order);
-        if let Some((first, last)) = options.sheets {
-            let last = last.min(all.len().saturating_sub(1));
-            let first = first.min(last);
-            all.truncate(last + 1);
-            all.drain(..first);
-        }
-        let pages: VecDeque<StrokeContent> = all.into();
+        let sheet = |sheet: usize| u32::try_from(sheet).unwrap_or(u32::MAX);
+        let pages = options.sheets.map(|(first, last)| (sheet(first), sheet(last)));
+        let prefs = DocExportPrefs { with_empty_pages: true, pages, ..Default::default() };
+        let pages: VecDeque<StrokeContent> = engine.export_pages_content(&prefs).into();
         let format = &engine.document.config.format;
         let scale = PT_IN_INCH / format.dpi();
         let size = format.size();
