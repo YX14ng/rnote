@@ -23,10 +23,10 @@ internal class OpenNotebookSync(
     fun onStatus(status: SyncStatus) {
         val path = saver.libraryPath ?: return
         if (status !is SyncStatus.Done) return
-        val moved = status.report.movedTo(path)
-        when {
-            moved != null -> follow(path, moved)
-            path in status.report.changedHere -> check(path)
+        when (val step = OpenNotebookSteps.afterSync(path, status.report)) {
+            is OpenNotebookSteps.Step.Follow -> follow(path, step.to)
+            OpenNotebookSteps.Step.Check -> check(path)
+            OpenNotebookSteps.Step.Nothing -> Unit
         }
     }
 
@@ -49,8 +49,12 @@ internal class OpenNotebookSync(
         val store = LibraryStore.forApp(context)
         store.run({ store.notebookFile(path)?.takeIf { it.exists() }?.readBytes()?.let(DocumentSaver::sha256Hex) }) done@{ result ->
             val current = result.getOrElse { return@done }
-            if (saver.libraryPath != path || saver.knownSha256 != known || modified() || current == known) return@done
-            if (current != null) reopen(path) else close()
+            val stillOpen = saver.libraryPath == path && saver.knownSha256 == known
+            when (OpenNotebookSteps.afterCheck(stillOpen, modified(), known, current)) {
+                OpenNotebookSteps.Outcome.Reopen -> reopen(path)
+                OpenNotebookSteps.Outcome.Close -> close()
+                OpenNotebookSteps.Outcome.Keep -> Unit
+            }
         }
     }
 }
