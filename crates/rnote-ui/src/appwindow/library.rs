@@ -18,7 +18,8 @@ const LIBRARY_PAGE: &str = "library";
 const EDITOR_PAGE: &str = "editor";
 /// The window actions that change or use the active document. They are off while the
 /// library is shown, so their shortcuts can't touch a document that isn't on screen.
-const DOCUMENT_ACTIONS: [&str; 23] = [
+const DOCUMENT_ACTIONS: [&str; 24] = [
+    "active-tab-close",
     "undo",
     "redo",
     "clear-doc",
